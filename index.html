@@ -794,6 +794,158 @@ body::before,body::after,.page::before,.page::after{max-width:100vw!important}
 @media(max-width:430px){#partIntro .pi-diagram{min-height:270px!important}#partIntro .pi-diagram svg{width:124%!important;min-height:255px!important}.qcard[data-qid="Q3"] .opt:nth-child(2)::after{font-size:9.5px;margin-left:5px}}
 </style>
 
+
+<style id="ver29-scroll-fix">
+/* ===== Ver29 · 문항 화면 스크롤/가림 수정 =====
+   ① 어떤 상황에서도 세로 스크롤이 막히지 않도록 강제
+   ② 문항 카드를 컴팩트하게 — 짧은 화면(높이 720px 이하)에서도 마지막 보기가 하단 버튼에 가려지지 않게
+   ③ 하단 고정 버튼(qnav)이 마지막 보기를 덮지 않도록 여백 확보 */
+html,body{height:auto!important;overflow-y:auto!important;overscroll-behavior-y:auto;-webkit-overflow-scrolling:touch;}
+.page,.screen,#s-quiz,#partBody,#qContainer{overflow-y:visible!important;max-height:none!important;}
+#qContainer{padding-bottom:6px;}
+#s-quiz .qnav{margin-top:6px!important;padding:14px 0 6px!important;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 40%)!important;}
+/* 시각 카드: 높이 118px · 캡션은 위, 오브젝트는 가운데, 받침은 아래 — 잘리지 않게 재배치 */
+.v24-q-visual{height:118px!important;margin:0 0 12px!important;}
+.v26-visual-caption{top:9px!important;font-size:12px!important;padding:4px 9px!important;}
+.v26-visual-object{font-size:44px!important;transform:translateY(8px)!important;}
+.v25-pedestal{bottom:14px!important;width:84px!important;height:12px!important;}
+.v25-health-duo{padding:14px 12px!important;gap:10px!important;}
+.v25-health-duo .v25-art-emoji,.v27-vascular span{font-size:30px!important;}
+.v26-object-pair span{font-size:38px!important;} .v26-object-pair{transform:none!important;} .v26-mini-label{bottom:8px!important;}
+.qcard .qq{margin-bottom:14px!important;}
+#s-quiz .opt{padding:12px 14px 12px 42px!important;}
+#s-quiz .opts{gap:8px!important;}
+@media (max-height:720px){
+  .v24-q-visual{height:74px!important;margin:0 0 10px!important;}
+  .v26-visual-object{font-size:30px!important;transform:translateY(7px)!important;}
+  .v26-visual-caption{top:5px!important;font-size:11px!important;padding:3px 8px!important;}
+  .v25-pedestal{bottom:6px!important;height:9px!important;}
+  .v25-health-duo{padding:8px 12px!important;} .v25-health-duo .v25-art-emoji,.v27-vascular span{font-size:22px!important;}
+  .v26-object-pair span{font-size:28px!important;}
+  .qcard .qq{font-size:20px!important;margin-bottom:8px!important;}
+  .qhint{font-size:12px!important;margin-top:5px!important;}
+  #s-quiz .progress-wrap{margin-bottom:10px!important;}
+  #s-quiz .opt{padding:10px 12px 10px 40px!important;font-size:13.5px!important;}
+  #s-quiz .opts{gap:7px!important;}
+}
+
+/* Ver29 · 설문 척도(1~5 · NPS 0~10) 보기가 한 화면에 들어오도록 — v24 .opt 규칙(50% 폭·라디오 아이콘)을 척도에서는 해제 */
+.opts.row.sv-scale{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:6px!important;flex-wrap:nowrap!important;}
+.opts.row.sv-nps{display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:6px!important;}
+.opts.row.sv-scale .opt,.opts.row.sv-nps .opt{min-width:0!important;padding:11px 0!important;text-align:center!important;font-weight:800!important;font-size:14px!important;}
+.opts.row.sv-scale .opt:before,.opts.row.sv-nps .opt:before{display:none!important;}
+.opts.row.sv-scale .opt.sel,.opts.row.sv-nps .opt.sel{background:#124A2F!important;color:#fff!important;border-color:#124A2F!important;box-shadow:none!important;}
+#surveyForm .qcard .qq{font-size:18px!important;line-height:1.5!important;margin-bottom:12px!important;}
+#surveyForm .opts.row:not(.sv-scale):not(.sv-nps) .opt{min-width:calc(50% - 5px)!important;}
+
+/* Ver29 · 설문 제출 버튼: 문항 화면용 2열 그리드(qnav)를 설문에서는 해제 → 한 줄 전체 폭 버튼 */
+#surveyForm .qnav{display:flex!important;grid-template-columns:none!important;position:static!important;background:none!important;padding:8px 0 4px!important;}
+#surveyForm .qnav .btn{flex:1 1 100%!important;width:100%!important;white-space:nowrap!important;min-height:52px!important;font-size:15px!important;}
+
+/* Ver29 · 상품 연계 문항(보유/관심)은 라벨이 길어 1열 · 왼쪽 정렬 */
+#surveyForm .qcard[data-sk*="상품"] .opts.row{display:flex!important;flex-direction:column!important;}
+#surveyForm .qcard[data-sk*="상품"] .opts.row .opt{min-width:100%!important;text-align:left!important;padding:11px 12px 11px 40px!important;}
+</style>
+
+<style id="ver29-print">
+/* ===== Ver29 · 인쇄/PDF 레이아웃 — 기본 리포트가 A4 한 장에 들어오도록 ===== */
+@media print{
+  @page{size:A4 portrait;margin:9mm 9mm 8mm;}
+  html,body{background:#fff!important;font-size:12px!important;line-height:1.45!important;height:auto!important;}
+  .topnav,.app-bottom-nav,.premium-gate,#premiumExtra,.survey-gate,#surveyForm,.survey-thanks,.btn,.qnav,.toast,.modal-ov,.v24-setup-overlay,.linklike,.tabs,.consult-sec,.v27-final-actions,button{display:none!important;}
+  .page{max-width:100%!important;width:100%!important;min-height:0!important;padding:0!important;margin:0!important;box-shadow:none!important;border-radius:0!important;background:#fff!important;}
+  .screen{display:none!important;} #s-report{display:block!important;min-height:0!important;padding:0!important;background:#fff!important;}
+  .report-headline{font-size:16px!important;margin:0 0 6px!important;text-align:left;}
+  /* 리포트 본문을 2열 그리드로 배치 — 큰 카드가 페이지를 넘기지 않게 */
+  #realReport{display:grid!important;grid-template-columns:1fr 1fr;column-gap:6mm;row-gap:4mm;align-items:start;}
+  #realReport > *{margin:0!important;break-inside:avoid;page-break-inside:avoid;}
+  #realReport > .score-hero,#realReport > #fullReportWrap,#realReport > div[style*="EEF4E8"],#realReport > div[style*="FDF9EB"]{grid-column:1 / -1;}
+  #realReport > div[style*="EEF4E8"],#realReport > div[style*="FDF9EB"]{padding:5px 9px!important;font-size:11px!important;margin:0!important;}
+  /* 점수 히어로: 가로 2단으로 납작하게 */
+  .score-hero{padding:12px 16px!important;border-radius:14px!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #s-report .sh-grid{grid-template-columns:1.4fr 1fr!important;gap:10px!important;align-items:center!important;text-align:left!important;}
+  #s-report .sh-name{font-size:17px!important;} .sh-greet{font-size:10.5px!important;} .sh-tag{font-size:10.5px!important;padding:3px 8px!important;}
+  #s-report .ring{width:96px!important;height:96px!important;} .ring .num .big{font-size:26px!important;} .ring-grade{font-size:13px!important;margin-top:4px!important;} .ring-sub{font-size:10.5px!important;}
+  /* 5각 지도 · 취약 영역 카드 */
+  #s-report .radar-card,#s-report .sec-block,#s-report .fulfill-card,#s-report .shield-card,#s-report .mcard,#s-report .rx-card{padding:10px 12px!important;border-radius:12px!important;border:1px solid #E4E8E5!important;}
+  .radar-card h2{font-size:15px!important;margin:2px 0 6px!important;} .radar-card .eyebrow{font-size:10px!important;}
+  #s-report .radar-grid{grid-template-columns:1fr!important;gap:6px!important;} .radar-svg{max-width:210px!important;width:100%;height:auto;margin:0 auto;display:block;}
+  .legend .lg-item{padding:5px 8px!important;font-size:11px!important;} .lg-score{font-size:12px!important;}
+  .basis-note{font-size:9.5px!important;line-height:1.4!important;margin-top:6px!important;padding:6px 8px!important;}
+  .sec-block h3{font-size:14px!important;margin-bottom:6px!important;} .weak-row{padding:6px 0!important;font-size:11.5px!important;} .weak-rank{width:22px!important;height:22px!important;font-size:11px!important;} .weak-txt{line-height:1.45!important;}
+  /* 정밀 리포트(해금 시)는 이어서 인쇄 — 카드만 잘리지 않게 */
+  #fullReportWrap .score-hero{display:none!important;} /* 기본 리포트에 이미 있음 · 정밀 리포트는 해금된 경우에만 이어서 인쇄됨 */
+  #s-report .metric-grid{grid-template-columns:repeat(3,1fr)!important;gap:6px!important;} #s-report .mcard .vl{font-size:18px!important;} .mcard .ds{font-size:10px!important;}
+  .panel{display:block!important;} #t-wi{display:none!important;}
+  *{animation:none!important;transition:none!important;} #s-report,#realReport,#realReport *{opacity:1!important;}
+  .disclaim{font-size:9px!important;padding:6px 0 0!important;margin-top:4mm!important;color:#7A837E!important;}
+  *{box-shadow:none!important;text-shadow:none!important;}
+  .score-hero,.weak-rank,.eyebrow,.lg-item,.legend,.r-fill,.ff-bar>i,.shield-bar>i,.bar>i{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+/* ── 정밀 리포트(해금 시) 인쇄: 2·3페이지로 A4 구성 ── */
+#realReport:has(#fullReportWrap[style*="block"]) > .radar-card,
+#realReport:has(#fullReportWrap[style*="block"]) > .sec-block{display:none!important;}   /* 정밀본에 또래비교 지도·취약영역이 있으므로 기본본 중복 제거 */
+#fullReportWrap{grid-column:1 / -1!important;break-before:page;page-break-before:always;display:grid!important;grid-template-columns:1fr 1fr;column-gap:6mm;row-gap:4mm;align-items:start;}
+#fullReportWrap > *{margin:0!important;break-inside:avoid;page-break-inside:avoid;}
+#fullReportWrap > .metric-grid{grid-column:1 / -1;}
+#fullReportWrap > .fulfill-card,#fullReportWrap > .shield-card{min-height:0;}
+#fullReportWrap .fulfill-card .ff-note,#fullReportWrap .shield-card .ff-note{font-size:9.5px!important;line-height:1.4!important;}
+#fullReportWrap .scen-row{gap:4px!important;} #fullReportWrap .scen-chip{padding:6px 4px!important;} #fullReportWrap .scen-chip .t{font-size:9px!important;} #fullReportWrap .scen-chip .v{font-size:15px!important;}
+#fullReportWrap .ff-val{font-size:20px!important;} #fullReportWrap .ff-lb{font-size:11.5px!important;} #fullReportWrap .ff-sub{font-size:9.5px!important;}
+#fullReportWrap .radar-card h2{font-size:14px!important;} #fullReportWrap .radar-legend2{font-size:10px!important;}
+#fullReportWrap > #detailWrap{grid-column:1 / -1;break-before:page;page-break-before:always;display:grid!important;grid-template-columns:1fr 1fr;column-gap:6mm;row-gap:3.5mm;align-items:start;}
+#detailWrap > .tabs,#detailWrap > .consult-sec,#detailWrap #t-wi{display:none!important;}
+#detailWrap > .panel{display:contents!important;}
+#t-rx > .sec-block{grid-column:1 / -1;padding:6px 10px!important;border:0!important;background:none!important;} #t-rx > .sec-block h3{font-size:14px!important;margin:0!important;} #t-rx > .sec-block p{font-size:10.5px!important;margin:2px 0 0!important;}
+.rx-card{padding:9px 11px!important;border-radius:10px!important;break-inside:avoid;page-break-inside:avoid;margin:0!important;}
+.rx-card .rx-head .nm{font-size:12.5px!important;} .rx-card .sc{font-size:14px!important;} .rx-badge{font-size:9.5px!important;}
+.rx-diag{font-size:10.5px!important;line-height:1.4!important;margin:4px 0!important;} .rx-list li{font-size:10.5px!important;line-height:1.4!important;margin:2px 0!important;}
+.cl-block{margin:0!important;break-inside:avoid;page-break-inside:avoid;} .cl-head .t{font-size:12.5px!important;} .cl-head .n{width:22px!important;height:22px!important;font-size:11px!important;} .cl-head .when{font-size:9.5px!important;}
+.cl-line{padding:5px 8px!important;font-size:10.5px!important;line-height:1.4!important;} .cl-mark{width:14px!important;height:14px!important;} .cl-txt .tg{font-size:9px!important;padding:1px 6px!important;}
+.cl-card{padding:4px!important;border-radius:10px!important;}
+}
+</style>
+
+<style id="ver29-print-doc">
+#printDoc{display:none;}
+@media print{
+  @page{size:A4 portrait;margin:8mm 9mm 8mm;}
+  #s-report > *:not(#printDoc){display:none!important;}
+  #printDoc{display:block!important;}
+  .print-page{break-after:page;page-break-after:always;padding:0;}
+  .print-page:last-child{break-after:auto;page-break-after:auto;}
+  .pp-head{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid #124A2F;padding:0 0 4px;margin:0 0 4mm;}
+  .pp-brand{font-family:'Noto Serif KR',serif;font-weight:800;font-size:13px;color:#124A2F;} .pp-brand span{font-size:10px;color:#7A837E;font-family:'Noto Sans KR',sans-serif;font-weight:700;}
+  .pp-title{font-size:14px;font-weight:900;color:#0F2B1D;flex:1;text-align:center;} .pp-sub{font-size:9.5px;color:#7A837E;text-align:right;}
+  .pp-2 .pp-title,.pp-3 .pp-title{text-align:left;padding-left:10px;} .pp-2 .pp-sub,.pp-3 .pp-sub{max-width:45%;}
+  .pp-grid2{display:grid;grid-template-columns:1fr 1fr;column-gap:6mm;row-gap:4mm;align-items:start;margin-top:4mm;}
+  .pp-grid2 > *{margin:0!important;break-inside:avoid;page-break-inside:avoid;}
+  #printDoc > .print-page > *{margin-bottom:0;} #printDoc > .print-page > * + *{margin-top:4mm;}
+  #printDoc div[style*="EEF4E8"],#printDoc div[style*="FDF9EB"]{padding:5px 9px!important;font-size:11px!important;margin:0 0 2mm!important;}
+  #printDoc .score-hero{padding:12px 16px!important;border-radius:14px!important;}
+  #printDoc .sh-grid{grid-template-columns:1.4fr 1fr!important;gap:10px!important;align-items:center!important;text-align:left!important;}
+  #printDoc .sh-name{font-size:17px!important;} #printDoc .sh-greet{font-size:10.5px!important;} #printDoc .sh-tag{font-size:10.5px!important;padding:3px 8px!important;}
+  #printDoc .ring{width:96px!important;height:96px!important;margin:0 auto;} #printDoc .ring .num .big{font-size:26px!important;} #printDoc .ring-grade{font-size:13px!important;margin-top:4px!important;} #printDoc .ring-sub{font-size:10.5px!important;}
+  #printDoc .radar-card,#printDoc .sec-block,#printDoc .fulfill-card,#printDoc .shield-card,#printDoc .mcard,#printDoc .rx-card{padding:10px 12px!important;border-radius:12px!important;border:1px solid #E4E8E5!important;box-shadow:none!important;}
+  #printDoc .radar-card h2{font-size:15px!important;margin:2px 0 6px!important;} #printDoc .radar-card .eyebrow{font-size:10px!important;} #printDoc .radar-legend2{font-size:10px!important;}
+  #printDoc .radar-grid{grid-template-columns:1fr!important;gap:6px!important;} #printDoc .radar-svg{max-width:210px!important;width:100%;height:auto;margin:0 auto;display:block;}
+  #printDoc .legend .lg-item{padding:5px 8px!important;font-size:11px!important;} #printDoc .lg-score{font-size:12px!important;}
+  #printDoc .basis-note{font-size:9.5px!important;line-height:1.4!important;margin-top:6px!important;padding:6px 8px!important;}
+  #printDoc .sec-block h3{font-size:14px!important;margin-bottom:6px!important;} #printDoc .weak-row{padding:6px 0!important;font-size:11.5px!important;} #printDoc .weak-rank{width:22px!important;height:22px!important;font-size:11px!important;} #printDoc .weak-txt{line-height:1.45!important;}
+  #printDoc .metric-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:6px!important;} #printDoc .mcard{grid-column:auto!important;} #printDoc .mcard .vl{font-size:20px!important;} #printDoc .mcard .lb{font-size:10.5px!important;} #printDoc .mcard .ds{font-size:10px!important;line-height:1.4!important;}
+  #printDoc .ff-note{font-size:9.5px!important;line-height:1.4!important;} #printDoc .ff-val{font-size:20px!important;} #printDoc .ff-lb{font-size:11.5px!important;} #printDoc .ff-sub{font-size:9.5px!important;}
+  #printDoc .scen-row{gap:4px!important;} #printDoc .scen-chip{padding:6px 4px!important;} #printDoc .scen-chip .t{font-size:9px!important;} #printDoc .scen-chip .v{font-size:15px!important;} #printDoc .scen-badge{font-size:10px!important;}
+  #printDoc .pp-income{font-size:11px!important;} #printDoc .pp-income h3{font-size:14px!important;}
+  #printDoc .pp-sec-title{padding:4px 2px!important;border:0!important;background:none!important;} #printDoc .pp-sec-title h3{font-size:14px!important;margin:0!important;} #printDoc .pp-sec-title p{font-size:10.5px!important;margin:2px 0 0!important;}
+  #printDoc .rx-card{padding:9px 11px!important;border-radius:10px!important;} #printDoc .rx-card .rx-head .nm{font-size:12.5px!important;} #printDoc .rx-card .sc{font-size:14px!important;} #printDoc .rx-badge{font-size:9.5px!important;}
+  #printDoc .rx-diag{font-size:10.5px!important;line-height:1.4!important;margin:4px 0!important;} #printDoc .rx-list li{font-size:10.5px!important;line-height:1.4!important;margin:2px 0!important;}
+  #printDoc .cl-block{margin:0!important;} #printDoc .cl-head .t{font-size:12.5px!important;} #printDoc .cl-head .n{width:22px!important;height:22px!important;font-size:11px!important;} #printDoc .cl-head .when{font-size:9.5px!important;}
+  #printDoc .cl-line{padding:5px 8px!important;font-size:10.5px!important;line-height:1.4!important;} #printDoc .cl-mark{width:14px!important;height:14px!important;} #printDoc .cl-txt .tg{font-size:9px!important;padding:1px 6px!important;} #printDoc .cl-card{padding:4px!important;border-radius:10px!important;} #printDoc .cl-empty{font-size:10.5px!important;padding:8px!important;}
+  .pp-foot{margin-top:5mm;padding-top:6px;border-top:1px solid #E4E8E5;font-size:9px;color:#7A837E;line-height:1.4;}
+  #printDoc *{animation:none!important;transition:none!important;opacity:1!important;}
+  #printDoc .score-hero,#printDoc .weak-rank,#printDoc .eyebrow,#printDoc .lg-item,#printDoc .r-fill,#printDoc .ff-bar>i,#printDoc .shield-bar>i,#printDoc .cl-head .n,#printDoc .rx-badge,#printDoc .tg{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
 </head>
 <body>
 
@@ -1687,30 +1839,58 @@ function partIntroHTML(step,g){
     <button class="pi-save" onclick="saveOpen()">💾 진행 상황 임시저장</button></div>`;
 }
 function svgTimeline(){
-  return `<svg viewBox="0 0 600 250">
-    <defs><filter id="sh28"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".12"/></filter></defs>
-    <text x="300" y="28" text-anchor="middle" font-size="17" fill="#124A2F" font-weight="800">퇴직 → 은퇴 → Life 2.0</text>
-    <rect x="42" y="72" width="148" height="92" rx="18" fill="#EAF4EE" filter="url(#sh28)"/>
-    <text x="116" y="104" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">퇴직</text><text x="116" y="130" text-anchor="middle" font-size="14" fill="#5E6762">직장·주된 근로 종료</text><text x="116" y="151" text-anchor="middle" font-size="13" fill="#7A837E">약 60세 전후</text>
-    <rect x="218" y="88" width="164" height="60" rx="16" fill="#FFF5DB" stroke="#C9A449" stroke-width="2"/>
-    <text x="300" y="113" text-anchor="middle" font-size="17" fill="#8A681B" font-weight="800">소득 공백</text><text x="300" y="136" text-anchor="middle" font-size="13" fill="#7A5A18">일자리·자산소득으로 연결</text>
-    <rect x="410" y="72" width="148" height="92" rx="18" fill="#EAF4EE" filter="url(#sh28)"/>
-    <text x="484" y="103" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">은퇴</text><text x="484" y="128" text-anchor="middle" font-size="14" fill="#5E6762">연금·자산소득 기반</text><text x="484" y="150" text-anchor="middle" font-size="13" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
-    <line x1="190" y1="118" x2="216" y2="118" stroke="#C9A449" stroke-width="5"/><polygon points="216,110 232,118 216,126" fill="#C9A449"/>
-    <line x1="382" y1="118" x2="408" y2="118" stroke="#1E6B45" stroke-width="5"/><polygon points="408,110 424,118 408,126" fill="#1E6B45"/>
-    <rect x="185" y="190" width="230" height="42" rx="21" fill="#0F2B1D"/><text x="300" y="216" text-anchor="middle" font-size="16" fill="#fff" font-weight="800">Life 2.0 · 새로운 삶의 시작</text>
+  // 퇴직 → 소득 공백 → 은퇴 → Life 2.0 : 여정선 위 3개 노드 · 화살표는 박스 사이 여백 안에서만 · 은퇴에서 Life 2.0으로 곡선 연결
+  return `<svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="sh28" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0F2B1D" flood-opacity=".10"/></filter>
+      <linearGradient id="gj" x1="0" x2="1"><stop offset="0" stop-color="#9DBFAB"/><stop offset=".5" stop-color="#C9A449"/><stop offset="1" stop-color="#1E6B45"/></linearGradient>
+      <marker id="arrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1.5 L8,5 L0,8.5 z" fill="#C9A449"/></marker>
+      <marker id="arrD" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1.5 L8,5 L0,8.5 z" fill="#1E6B45"/></marker>
+    </defs>
+    <text x="300" y="30" text-anchor="middle" font-size="16" fill="#124A2F" font-weight="800" letter-spacing="-.3">퇴직 → 은퇴 → Life 2.0</text>
+    <line x1="60" y1="120" x2="540" y2="120" stroke="url(#gj)" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    <!-- ① 퇴직 -->
+    <rect x="34" y="76" width="140" height="88" rx="18" fill="#EAF4EE" stroke="#CFE3D6" filter="url(#sh28)"/>
+    <text x="104" y="106" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">퇴직</text>
+    <text x="104" y="130" text-anchor="middle" font-size="12.5" fill="#5E6762">직장·주된 근로 종료</text>
+    <text x="104" y="150" text-anchor="middle" font-size="12" fill="#7A837E">약 60세 전후</text>
+    <!-- 화살표 ① (174 ~ 226 여백 안) -->
+    <line x1="182" y1="120" x2="218" y2="120" stroke="#C9A449" stroke-width="3" stroke-linecap="round" marker-end="url(#arrG)"/>
+    <!-- ② 소득 공백 -->
+    <rect x="226" y="86" width="148" height="68" rx="16" fill="#FFF7E0" stroke="#C9A449" stroke-width="2" filter="url(#sh28)"/>
+    <text x="300" y="112" text-anchor="middle" font-size="16.5" fill="#8A681B" font-weight="800">소득 공백</text>
+    <text x="300" y="135" text-anchor="middle" font-size="12" fill="#7A5A18">일자리 · 자산소득 연결</text>
+    <!-- 화살표 ② (374 ~ 426 여백 안) -->
+    <line x1="382" y1="120" x2="418" y2="120" stroke="#1E6B45" stroke-width="3" stroke-linecap="round" marker-end="url(#arrD)"/>
+    <!-- ③ 은퇴 -->
+    <rect x="426" y="76" width="140" height="88" rx="18" fill="#EAF4EE" stroke="#CFE3D6" filter="url(#sh28)"/>
+    <text x="496" y="105" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">은퇴</text>
+    <text x="496" y="129" text-anchor="middle" font-size="12.5" fill="#5E6762">연금·자산소득 기반</text>
+    <text x="496" y="150" text-anchor="middle" font-size="12" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
+    <!-- 은퇴 → Life 2.0 곡선 -->
+    <path d="M496,166 C496,190 460,212 430,212" fill="none" stroke="#1E6B45" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 4" opacity=".7" marker-end="url(#arrD)"/>
+    <!-- 도착 배지 -->
+    <rect x="178" y="192" width="244" height="40" rx="20" fill="#0F2B1D" filter="url(#sh28)"/>
+    <circle cx="200" cy="212" r="5" fill="#C9A449"/>
+    <text x="308" y="217" text-anchor="middle" font-size="15" fill="#fff" font-weight="800">Life 2.0 · 새로운 삶의 시작</text>
   </svg>`;
 }
 function svgShield(){
-  return `<svg viewBox="0 0 600 250">
-    <rect x="58" y="28" width="190" height="64" rx="22" fill="#FFF2DA" stroke="#C9A449" stroke-width="2"/>
-    <text x="153" y="54" text-anchor="middle" font-size="18" fill="#7A5A18" font-weight="800">암</text><text x="153" y="78" text-anchor="middle" font-size="13" fill="#7A837E">치료·회복 후 생활 복귀</text>
-    <rect x="352" y="28" width="190" height="64" rx="22" fill="#FCE9E9" stroke="#B85A5A" stroke-width="2"/>
-    <text x="447" y="54" text-anchor="middle" font-size="18" fill="#8E3E3E" font-weight="800">혈관계</text><text x="447" y="78" text-anchor="middle" font-size="13" fill="#7A837E">뇌 · 심장</text>
-    <line x1="153" y1="96" x2="260" y2="128" stroke="#C9A449" stroke-width="2.5" stroke-dasharray="6 5"/>
-    <line x1="447" y1="96" x2="340" y2="128" stroke="#B85A5A" stroke-width="2.5" stroke-dasharray="6 5"/>
-    <path d="M300 108 L365 133 L365 178 Q365 219 300 236 Q235 219 235 178 L235 133 Z" fill="#176E48"/>
-    <text x="300" y="157" text-anchor="middle" font-size="19" fill="#fff" font-weight="800">연금 방어</text><text x="300" y="183" text-anchor="middle" font-size="16" fill="#EAF4EE" font-weight="700">진단비 · 의료비 보장</text><text x="300" y="207" text-anchor="middle" font-size="13" fill="#DCEBE3">생활비 · 연금 납입 유지</text>
+  // 암 / 혈관계 → 연금 방어(방패) : 방패를 넓혀 글자가 안에 들어오게 · 점선은 방패 윤곽 바깥에서 끝남
+  return `<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+    <defs><filter id="shS" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0F2B1D" flood-opacity=".12"/></filter></defs>
+    <rect x="46" y="26" width="200" height="64" rx="22" fill="#FFF2DA" stroke="#C9A449" stroke-width="2" filter="url(#shS)"/>
+    <text x="146" y="52" text-anchor="middle" font-size="18" fill="#7A5A18" font-weight="800">암</text>
+    <text x="146" y="75" text-anchor="middle" font-size="12.5" fill="#7A837E">치료·회복 후 생활 복귀</text>
+    <rect x="354" y="26" width="200" height="64" rx="22" fill="#FCE9E9" stroke="#B85A5A" stroke-width="2" filter="url(#shS)"/>
+    <text x="454" y="52" text-anchor="middle" font-size="18" fill="#8E3E3E" font-weight="800">혈관계</text>
+    <text x="454" y="75" text-anchor="middle" font-size="12.5" fill="#7A837E">뇌 · 심장 — 생활 지장 큼</text>
+    <line x1="160" y1="96" x2="236" y2="122" stroke="#C9A449" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"/>
+    <line x1="440" y1="96" x2="364" y2="122" stroke="#B85A5A" stroke-width="2.5" stroke-dasharray="6 5" stroke-linecap="round"/>
+    <path d="M300 104 L392 130 L392 178 Q392 226 300 246 Q208 226 208 178 L208 130 Z" fill="#176E48" filter="url(#shS)"/>
+    <text x="300" y="158" text-anchor="middle" font-size="18" fill="#fff" font-weight="800">연금 방어</text>
+    <text x="300" y="183" text-anchor="middle" font-size="14" fill="#EAF4EE" font-weight="700">진단비 · 의료비 보장</text>
+    <text x="300" y="206" text-anchor="middle" font-size="12.5" fill="#DCEBE3">생활비 · 연금 납입 유지</text>
   </svg>`;
 }
 function svgHouse(){
@@ -1737,22 +1917,52 @@ function svgPension(){
   </svg>`;
 }
 function svgCrevasse(){
-  return `<svg viewBox="0 0 600 260">
-    <rect x="40" y="70" width="165" height="118" rx="20" fill="#EAF4EE"/><text x="122" y="108" text-anchor="middle" font-size="19" fill="#124A2F" font-weight="800">퇴직</text><text x="122" y="135" text-anchor="middle" font-size="14" fill="#5E6762">근로 끝</text><text x="122" y="160" text-anchor="middle" font-size="13" fill="#7A837E">약 60세 전후</text>
-    <rect x="395" y="70" width="165" height="118" rx="20" fill="#EAF4EE"/><text x="477" y="108" text-anchor="middle" font-size="19" fill="#124A2F" font-weight="800">은퇴</text><text x="477" y="135" text-anchor="middle" font-size="14" fill="#5E6762">연금·자산소득 기반</text><text x="477" y="160" text-anchor="middle" font-size="13" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
-    <rect x="205" y="96" width="190" height="66" rx="18" fill="#FFF5DB" stroke="#C9A449" stroke-width="2"/><text x="300" y="122" text-anchor="middle" font-size="17" fill="#8A681B" font-weight="800">소득 공백</text><text x="300" y="147" text-anchor="middle" font-size="13" fill="#7A5A18">재취업 · 창업 · 파트타임</text>
-    <path d="M205 129 H183" stroke="#C9A449" stroke-width="5"/><path d="M395 129 H417" stroke="#1E6B45" stroke-width="5"/>
-    <rect x="175" y="210" width="250" height="38" rx="19" fill="#0F2B1D"/><text x="300" y="234" text-anchor="middle" font-size="15" fill="#fff" font-weight="800">퇴직 → 은퇴 → Life 2.0</text>
+  // 퇴직 → 소득 공백(재취업·창업·파트타임) → 은퇴 : 화살표는 박스 사이 여백 안에서만
+  return `<svg viewBox="0 0 600 250" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="shC" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#0F2B1D" flood-opacity=".10"/></filter>
+      <linearGradient id="gjC" x1="0" x2="1"><stop offset="0" stop-color="#9DBFAB"/><stop offset=".5" stop-color="#C9A449"/><stop offset="1" stop-color="#1E6B45"/></linearGradient>
+      <marker id="arrGC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1.5 L8,5 L0,8.5 z" fill="#C9A449"/></marker>
+      <marker id="arrDC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,1.5 L8,5 L0,8.5 z" fill="#1E6B45"/></marker>
+    </defs>
+    <line x1="60" y1="112" x2="540" y2="112" stroke="url(#gjC)" stroke-width="3" stroke-linecap="round" opacity=".5"/>
+    <rect x="34" y="66" width="140" height="92" rx="18" fill="#EAF4EE" stroke="#CFE3D6" filter="url(#shC)"/>
+    <text x="104" y="97" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">퇴직</text>
+    <text x="104" y="121" text-anchor="middle" font-size="13" fill="#5E6762">근로 끝</text>
+    <text x="104" y="142" text-anchor="middle" font-size="12" fill="#7A837E">약 60세 전후</text>
+    <line x1="182" y1="112" x2="218" y2="112" stroke="#C9A449" stroke-width="3" stroke-linecap="round" marker-end="url(#arrGC)"/>
+    <rect x="226" y="76" width="148" height="72" rx="16" fill="#FFF7E0" stroke="#C9A449" stroke-width="2" filter="url(#shC)"/>
+    <text x="300" y="103" text-anchor="middle" font-size="16.5" fill="#8A681B" font-weight="800">소득 공백</text>
+    <text x="300" y="127" text-anchor="middle" font-size="12" fill="#7A5A18">재취업 · 창업 · 파트타임</text>
+    <line x1="382" y1="112" x2="418" y2="112" stroke="#1E6B45" stroke-width="3" stroke-linecap="round" marker-end="url(#arrDC)"/>
+    <rect x="426" y="66" width="140" height="92" rx="18" fill="#EAF4EE" stroke="#CFE3D6" filter="url(#shC)"/>
+    <text x="496" y="96" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">은퇴</text>
+    <text x="496" y="120" text-anchor="middle" font-size="12.5" fill="#5E6762">연금·자산소득 기반</text>
+    <text x="496" y="142" text-anchor="middle" font-size="12" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
+    <rect x="178" y="190" width="244" height="40" rx="20" fill="#0F2B1D" filter="url(#shC)"/>
+    <circle cx="200" cy="210" r="5" fill="#C9A449"/>
+    <text x="308" y="215" text-anchor="middle" font-size="15" fill="#fff" font-weight="800">퇴직 → 은퇴 → Life 2.0</text>
   </svg>`;
 }
 function svgWell(){
-  return `<svg viewBox="0 0 600 265">
-    <circle cx="100" cy="130" r="58" fill="#FFF5DB"/><rect x="88" y="103" width="24" height="72" rx="7" fill="#D7AF4C"/><path d="M100 95 C88 82 94 68 100 60 C108 70 114 84 100 95" fill="#C9892D"/><text x="100" y="203" text-anchor="middle" font-size="15" fill="#124A2F" font-weight="800">나의 웰다잉 준비</text>
-    <line x1="160" y1="105" x2="220" y2="76" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4"/><line x1="160" y1="150" x2="220" y2="177" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4"/>
-    <rect x="220" y="34" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="242" cy="57" r="11" fill="#1E6B45"/><text x="242" y="61" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="262" y="55" font-size="13.5" fill="#124A2F" font-weight="800">사전연명의료</text><text x="262" y="76" font-size="13.5" fill="#124A2F" font-weight="800">의향서</text>
-    <rect x="395" y="34" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="417" cy="57" r="11" fill="#1E6B45"/><text x="417" y="61" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="437" y="66" font-size="13.5" fill="#124A2F" font-weight="800">유언 · 상속</text>
-    <rect x="220" y="142" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="242" cy="165" r="11" fill="#1E6B45"/><text x="242" y="169" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="262" y="163" font-size="13.5" fill="#124A2F" font-weight="800">장례 · 상조</text><text x="262" y="184" font-size="12.5" fill="#5E6762">자산 준비</text>
-    <rect x="395" y="142" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="417" cy="165" r="11" fill="#1E6B45"/><text x="417" y="169" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="437" y="174" font-size="13.5" fill="#124A2F" font-weight="800">디지털 유산</text>
+  // 웰다잉 준비 4요소 — 박스 안 텍스트를 세로 가운데 정렬 · 점선은 박스 바깥에서 끝남
+  function box(x,y,w,h,lines){
+    var cy=y+h/2, out='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/>'
+      +'<circle cx="'+(x+22)+'" cy="'+cy+'" r="11" fill="#1E6B45"/><text x="'+(x+22)+'" y="'+(cy+4)+'" text-anchor="middle" font-size="12" fill="#fff">✓</text>';
+    if(lines.length===1){ out+='<text x="'+(x+42)+'" y="'+(cy+5)+'" font-size="13.5" fill="#124A2F" font-weight="800">'+lines[0][0]+'</text>'; }
+    else { out+='<text x="'+(x+42)+'" y="'+(cy-4)+'" font-size="13.5" fill="#124A2F" font-weight="800">'+lines[0][0]+'</text>'
+              +'<text x="'+(x+42)+'" y="'+(cy+15)+'" font-size="'+(lines[1][1]||13.5)+'" fill="'+(lines[1][2]||'#124A2F')+'" font-weight="'+(lines[1][3]||800)+'">'+lines[1][0]+'</text>'; }
+    return out;
+  }
+  return `<svg viewBox="0 0 600 265" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="130" r="58" fill="#FFF5DB"/><rect x="88" y="103" width="24" height="72" rx="7" fill="#D7AF4C"/><path d="M100 95 C88 82 94 68 100 60 C108 70 114 84 100 95" fill="#C9892D"/>
+    <text x="100" y="205" text-anchor="middle" font-size="15" fill="#124A2F" font-weight="800">나의 웰다잉 준비</text>
+    <line x1="162" y1="106" x2="212" y2="78" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+    <line x1="162" y1="152" x2="212" y2="178" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4" stroke-linecap="round"/>
+    ${box(220,34,155,68,[['사전연명의료'],['의향서']])}
+    ${box(395,34,155,68,[['유언 · 상속']])}
+    ${box(220,142,155,68,[['장례 · 상조'],['자산 준비',12.5,'#5E6762',600]])}
+    ${box(395,142,155,68,[['디지털 유산']])}
     <text x="385" y="242" text-anchor="middle" font-size="14" fill="#5E6762" font-weight="700">미리 준비하고 · 가족과 나누고 · 기록으로 남기기</text>
   </svg>`;
 }
@@ -1907,7 +2117,8 @@ function surveyGateHTML(R){
 }
 
 // ===== 앱 내 설문 (구글폼 대신) — 제출 시 [설문응답] 탭에 참여코드와 함께 자동 저장 =====
-// Ver23.2 · 설문 4단 구성 — ① 진단 가치 → ② 다음 행동(상담 전환) → ③ 지불 의향(가격 실측) → ④ 추천·프로필
+// Ver29 · 설문 5단 구성 — ① 진단 가치 → ② 다음 행동 → ③ 상품 연계(보유·관심·예산·시기) → ④ 지불 의향 → ⑤ 추천·프로필
+//  ③이 신설: 연금·중대질병·간병·상조·웰다잉·주택연금 등 실제 상품군과 연결되는 수요·리드 정보를 확보 (상담·GA 채널 전환의 근거)
 const SURVEY=[
   // ── ① 진단 가치 검증 ──
   {sec:'① 오늘 진단, 어떠셨나요?', k:'진단유용성(도움)', q:'이번 진단이 내 노후 준비 상태를 객관적으로 이해하는 데 도움이 되었나요?', type:'scale5'},
@@ -1915,12 +2126,16 @@ const SURVEY=[
   // ── ② 다음 행동 (상담 전환 의향) ──
   {sec:'② 다음 단계로 무엇이 필요하세요?', k:'우선보완영역', q:'가장 보완하고 싶거나 전문 상담이 필요한 영역은 어디인가요? (복수 선택 가능)', type:'multiChoice', opts:['동산(금융)','건강','부동산','일자리','웰다잉']},
   {k:'무료 상담 관심', q:'라이프이점영 생애설계사의 무료 상담(연금·보장·웰다잉)을 받아보고 싶으신가요?', type:'choice', opts:['예','나중에','아니오']},
-  {k:'유료 상담 관심', q:'세무·법률·유언신탁 등 외부 전문가 연계 유료 상담도 관심 있으신가요?', type:'choice', opts:['예','조건에 따라','아니오']},
-  // ── ③ 지불 의향 (가격 실측) ──
-  {sec:'③ 유료 서비스에 대한 생각', k:'적정 가격(정밀 리포트)', q:'오늘 보신 정밀 리포트, 얼마까지 낼 만하다고 느끼세요?', type:'choice', opts:['무료라면 이용','1,000원','4,900원','9,900원 이상도 가능']},
+  // ── ③ 상품 연계 — 보유 · 관심 · 예산 · 시기 ──
+  {sec:'③ 지금 준비된 것과 앞으로 필요한 것', k:'보유 상품(복수)', q:'현재 가입·준비하고 계신 것을 모두 골라주세요.', type:'multiChoice', opts:['연금저축·IRP·연금보험','3대 진단비(암·뇌·심장) 보험','실손·수술/입원 보험','간병·치매·장기요양 보험','상조 상품','유언·신탁 등 웰다잉 서비스','해당 없음']},
+  {k:'관심 상품(복수)', q:'진단 결과를 보고 나서, 상담받고 싶거나 알아보고 싶은 것은? (복수 선택)', type:'multiChoice', opts:['노후 연금 (연금보험·연금저축·IRP)','중대질병(암·뇌·심장) 진단비 보장','간병·치매·장기요양 보장','상조·장례 사전 준비','유언·상속·신탁 (웰다잉)','주택연금·농지연금 등 부동산 유동화','세무·법률 전문가 연결','지금은 관심 없음']},
+  {k:'월 보험료 여력', q:'노후 준비를 위해 매달 추가로 낼 수 있는 보험료·저축은 어느 정도인가요?', type:'choice', opts:['여력 없음','월 10만 원 미만','월 10만 ~ 30만 원','월 30만 ~ 50만 원','월 50만 원 이상']},
+  {k:'상담 희망 시기', q:'상담이나 상품 검토를 언제쯤 진행하고 싶으세요?', type:'choice', opts:['1개월 안에','3개월 안에','올해 안에','아직 미정']},
+  // ── ④ 지불 의향 (가격 실측) ──
+  {sec:'④ 유료 서비스에 대한 생각', k:'적정 가격(정밀 리포트)', q:'오늘 보신 정밀 리포트, 얼마까지 낼 만하다고 느끼세요?', type:'choice', opts:['무료라면 이용','1,000원','4,900원','9,900원 이상도 가능']},
   {k:'지불 의향', q:'앞으로 유료 서비스를 이용한다면 어떤 형태를 선호하세요?', type:'choice', opts:['리포트 단건 구매','월 구독 (리포트 갱신·리밸런싱 알림)','건당 심층 1:1 상담','무료만 이용']},
-  // ── ④ 추천·프로필 ──
-  {sec:'④ 마지막 두 가지만 더', k:'NPS추천(0-10)', q:"주변 지인에게 '2막1장 진단'을 추천하시겠습니까?", type:'nps'},
+  // ── ⑤ 추천·프로필 ──
+  {sec:'⑤ 마지막 몇 가지만 더', k:'NPS추천(0-10)', q:"주변 지인에게 '2막1장 진단'을 추천하시겠습니까?", type:'nps'},
   {k:'유입경로', q:'이 진단을 어떻게 알게 되셨나요?', type:'choice', opts:['지인 추천','오프라인 모임','링크/문자','기타']},
   {k:'금융자산 규모', q:'(선택) 현재 보유하신 유동 금융자산 규모대는?', type:'choice', opts:['1억 미만','1~5억','5~10억','10억 이상','응답 안 함'], optional:true},
   {k:'의견', q:'(선택) 한 줄 의견을 남겨주세요', type:'text', optional:true}
@@ -1950,10 +2165,15 @@ function surveyFormHTML(){
     '<div class="qnav"><button class="btn btn-primary" onclick="submitSurvey()">제출하고 결과 보기 →</button></div>';
 }
 function pickSurvey(k,el){ surveyAns[k]=el.getAttribute('data-v'); var card=el.closest('.qcard'); Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(o){o.classList.toggle('sel',o===el);}); }
-function pickSurveyM(k,el){   // 복수 선택 (우선보완영역)
+function pickSurveyM(k,el){   // 복수 선택 — '해당 없음'·'관심 없음'은 배타 선택
   var v=el.getAttribute('data-v'); var arr=Array.isArray(surveyAns[k])?surveyAns[k]:[];
-  if(arr.indexOf(v)>=0) arr=arr.filter(function(x){return x!==v;}); else arr.push(v);
-  surveyAns[k]=arr; el.classList.toggle('sel');
+  var EX=['해당 없음','지금은 관심 없음'];
+  var card=el.closest('.qcard');
+  if(arr.indexOf(v)>=0){ arr=arr.filter(function(x){return x!==v;}); }
+  else if(EX.indexOf(v)>=0){ arr=[v]; }
+  else { arr=arr.filter(function(x){return EX.indexOf(x)<0;}); arr.push(v); }
+  surveyAns[k]=arr;
+  Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(o){ o.classList.toggle('sel',arr.indexOf(o.getAttribute('data-v'))>=0); });
 }
 function setSurveyText(k,v){ surveyAns[k]=v; }
 function submitSurvey(){
@@ -2101,7 +2321,7 @@ function uiQuestionHTML(q){
   var qBadge=qNo?('<span class="v25-q-number">'+qNo+'</span>'):('<span class="v26-value-badge">가치관 · 점수 미반영</span>');
   var html='<div class="qcard" data-qid="'+q.id+'"><div class="v25-question-meta">'+qBadge+'<span class="v25-part-badge">PART '+step+' · '+PARTS[q.part-1]+'</span></div><div class="qq">'+q.q+(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>'+uiVisualFor(q);
   if(q.id==='Q2'){
-    html+='<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:6px;">현재 나이</div><input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" placeholder="예: 65"></div><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:7px;">성별</div>';
+    html+='<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:6px;">현재 나이</div><input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" placeholder="예: 50"></div><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:7px;">성별</div>';
   }
   if(q.cond==='home') html+='<div class="cond-note">자가 주택 보유자만 응답합니다</div>';
   if(q.cond==='rent') html+='<div class="cond-note">전월세·기타 거주자만 응답합니다</div>';
@@ -2238,9 +2458,41 @@ window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalo
     setTimeout(function(){ buildReport(); },80);
   };
 
-  // 회원가입 리워드 CTA: 현재 프로토타입에서는 안내 후 정밀리포트 데모 해금
+  // Ver29 · 무료회원 가입(2막1장 식구 되기) 팝업 — 정보 입력·동의 후 5,000원 리워드 적용 → 정밀 리포트 열림
   window.memberCreditV27=function(){
-    openMini('<h3 class="mini-h">🎁 무료회원 가입 리워드</h3><p class="mini-p">무료회원 가입 후 <b>5,000원 리워드</b>를 받아 정밀 리포트에 사용할 수 있도록 연결하는 화면입니다. 다음 단계에서 마이데이터 회원가입/연동 화면과 실제 연결합니다.</p><button class="btn btn-primary" onclick="closeMini();unlockPremium();">리워드 적용하고 리포트 보기 →</button>');
+    var nm=(answers['Q1']||'').replace(/"/g,'&quot;'), ph=((document.getElementById('uPhone')||{}).value||'').replace(/"/g,'&quot;');
+    var age=String(answers['Q2A']||'').replace(/"/g,'&quot;');
+    var regions=['서울','경기','인천','부산','대구','광주','대전','울산','세종','강원','충북','충남','전북','전남','경북','경남','제주','해외'];
+    openMini('<h3 class="mini-h">🌿 2막1장 식구 되기</h3>'
+      +'<p class="mini-p">무료회원으로 가입하시면 <b>5,000원 리워드</b>가 바로 적용되어 정밀 리포트가 열립니다. 입력하신 정보는 상담·리포트 안내에만 사용합니다.</p>'
+      +'<div class="fg"><label>이름 <span style="color:#B85A5A">*</span></label><input class="qtext" id="mbName" value="'+nm+'" placeholder="실명"></div>'
+      +'<div class="fg"><label>휴대폰 <span style="color:#B85A5A">*</span></label><input class="qtext" id="mbPhone" type="tel" value="'+ph+'" placeholder="010-0000-0000"></div>'
+      +'<div class="fg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div><label>출생연도</label><input class="qtext" id="mbBirth" type="number" inputmode="numeric" placeholder="'+(age?(new Date().getFullYear()-parseInt(age,10)):'예: 1972')+'"></div><div><label>거주 지역</label><select class="qtext" id="mbRegion"><option value="">선택</option>'+regions.map(function(r){return '<option>'+r+'</option>';}).join('')+'</select></div></div>'
+      +'<div class="fg"><label>이메일 <span style="color:var(--muted);font-weight:400;">· 선택 — 리포트 PDF 발송용</span></label><input class="qtext" id="mbEmail" type="email" placeholder="name@example.com"></div>'
+      +'<div class="fg"><label>관심 분야 <span style="color:var(--muted);font-weight:400;">· 복수 선택</span></label><div class="opts row" id="mbInterest">'+['연금 설계','보험 점검','부동산·주택연금','재취업·일자리','상속·웰다잉','세무·법률'].map(function(t){return '<div class="opt multi" onclick="this.classList.toggle(\'sel\')">'+t+'</div>';}).join('')+'</div></div>'
+      +'<div class="fg"><label class="consent" style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;"><input type="checkbox" id="mbAgree" style="margin-top:3px;"><span>개인정보 수집·이용(이름·연락처·지역·관심분야 / 상담·리포트 안내 목적 / 탈퇴 시 파기)에 동의합니다. <span style="color:#B85A5A">*</span></span></label></div>'
+      +'<button class="btn btn-primary" onclick="memberJoinV29()">2막1장 식구 되기 →</button>'
+      +'<div style="font-size:12.5px;color:var(--muted);text-align:center;margin-top:8px;">가입 즉시 리워드 5,000원이 적용되어 정밀 리포트가 열립니다 · 마이데이터 연동은 추후 안내</div>');
+  };
+  window.memberJoinV29=function(){
+    var n=(document.getElementById('mbName')||{value:''}).value.trim(), p=(document.getElementById('mbPhone')||{value:''}).value.trim();
+    if(!n){ alert('이름을 입력해 주세요.'); return; }
+    if(!/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(p)){ alert('휴대폰 번호를 확인해 주세요. (예: 010-1234-5678)'); return; }
+    if(!document.getElementById('mbAgree').checked){ alert('개인정보 수집·이용에 동의해 주세요.'); return; }
+    var m={ '이름':n, '연락처':p, '출생연도':(document.getElementById('mbBirth')||{value:''}).value.trim(), '지역':(document.getElementById('mbRegion')||{value:''}).value,
+      '이메일':(document.getElementById('mbEmail')||{value:''}).value.trim(),
+      '관심분야':Array.prototype.map.call(document.querySelectorAll('#mbInterest .opt.sel'),function(e){return e.textContent;}).join('/'),
+      '참여자코드':(_R&&_R.code)||'', '종합점수':(_R&&_R.total)||'', '리워드':'5000', '가입시각':new Date().toISOString() };
+    try{ localStorage.setItem('l2p_member',JSON.stringify(m)); }catch(e){}
+    if(document.getElementById('uPhone') && !document.getElementById('uPhone').value) document.getElementById('uPhone').value=p;
+    if(GAS_URL && GAS_URL.indexOf('http')===0){
+      try{ fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify(Object.assign({__target:'member',__secret:GAS_SECRET},m))}).catch(function(e){}); }catch(e){}
+    }
+    closeMini();
+    unlockPremium();
+    toast('2막1장 식구가 되신 것을 환영합니다! 리워드 5,000원이 적용되어 정밀 리포트가 열렸습니다.','ok');
+    var mn=document.getElementById('myName'); if(mn) mn.textContent=n+'님';
   };
 
   // 상담 화면에는 리포트 복귀 버튼을 항상 노출
@@ -2300,6 +2552,76 @@ window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalo
        .replace(/참고치입니다\.<\/div>/g,'참고치입니다.</span></div>');
     return h;
   };
+})();
+</script>
+
+<script id="ver29-scroll-fix-js">
+// Ver29 · 모달이 닫힌 상태라면 body 스크롤 잠금을 항상 해제 (어떤 경로로 화면이 바뀌어도 스크롤이 막히지 않게)
+(function(){
+  function anyModalOpen(){
+    return ['previewModal','miniModal','v24Setup'].some(function(id){ var el=document.getElementById(id); return el && el.style.display && el.style.display!=='none'; });
+  }
+  window.unlockScroll=function(){ if(!anyModalOpen()){ document.body.style.overflow=''; document.documentElement.style.overflow=''; } };
+  var _show=window.show; if(typeof _show==='function'){ window.show=function(id){ _show(id); unlockScroll(); }; }
+  var _rsq=window.renderSingleQuestion; if(typeof _rsq==='function'){ window.renderSingleQuestion=function(p){ _rsq(p); unlockScroll(); }; }
+  var _ep=window.enterPart; if(typeof _ep==='function'){ window.enterPart=function(p){ _ep(p); unlockScroll(); }; }
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ setTimeout(unlockScroll,50); } });
+  // 화면 전환 후에도 마지막 보기가 하단 버튼에 가려져 있으면, 첫 진입 시 살짝 안내 스크롤이 가능하도록 body 높이를 재계산
+  window.addEventListener('resize',unlockScroll);
+  setTimeout(unlockScroll,300);
+})();
+</script>
+
+<script id="ver29-print-builder">
+// Ver29 · 인쇄/PDF 전용 문서 구성 — 화면 리포트를 A4 페이지 단위로 재배치해 #printDoc 에 복제 (화면에는 보이지 않음)
+//  · 기본 리포트만: 1페이지 / 정밀 리포트 해금: 3페이지 (① 점수·5각지도·취약영역 ② 현금흐름·시나리오·방어율·월소득 ③ 영역별 처방·실행 로드맵)
+(function(){
+  function q(root,sel){ return root?root.querySelector(sel):null; }
+  function qa(root,sel){ return root?Array.prototype.slice.call(root.querySelectorAll(sel)):[]; }
+  function cl(el){ return el?el.cloneNode(true):null; }
+  function page(cls){ var d=document.createElement('div'); d.className='print-page '+(cls||''); return d; }
+  function grid(items,cols){ var g=document.createElement('div'); g.className='pp-grid'+(cols||2); items.forEach(function(it){ if(it) g.appendChild(it); }); return g; }
+  function head(title,sub){ var h=document.createElement('div'); h.className='pp-head'; h.innerHTML='<div class="pp-brand">2막 1장 <span>· Life 2.0</span></div><div class="pp-title">'+title+'</div>'+(sub?'<div class="pp-sub">'+sub+'</div>':''); return h; }
+  window.buildPrintDoc=function(){
+    var old=document.getElementById('printDoc'); if(old) old.remove();
+    var rr=document.getElementById('realReport'), rep=document.getElementById('s-report'); if(!rr||!rep||!rr.children.length) return;
+    var f=document.getElementById('fullReportWrap');
+    var paid = !!(f && f.style.display!=='none' && f.children.length);
+    var nm=(_R&&_R.c&&_R.c.name)||'고객', code=(_R&&_R.code)||'', d=new Date(), ds=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+    var sub=nm+'님 · '+ds+(code?' · 코드 '+code:'')+(paid?' · 정밀 리포트':' · 기본 리포트');
+    var doc=document.createElement('div'); doc.id='printDoc';
+    var notes=qa(rr,':scope > div[style*="EEF4E8"], :scope > div[style*="FDF9EB"]').map(cl);
+    var hero=cl(q(rr,':scope > .score-hero'));
+    var radar=cl(paid ? q(f,':scope > .radar-card') : q(rr,':scope > .radar-card'));
+    var weak =cl(paid ? qa(f,':scope > .sec-block')[0] : q(rr,':scope > .sec-block'));
+    // ── Page 1
+    var p1=page('pp-1'); p1.appendChild(head('나의 은퇴 준비 리포트',sub));
+    notes.forEach(function(n){ p1.appendChild(n); });
+    if(hero) p1.appendChild(hero);
+    p1.appendChild(grid([radar,weak],2));
+    doc.appendChild(p1);
+    if(paid){
+      // ── Page 2 · 현금흐름
+      var p2=page('pp-2'); p2.appendChild(head('정밀 리포트 ① 노후 현금흐름 · 시나리오 · 건강 방어','예상 월소득 · 자산 고갈 나이 · 목표 연금 충족률 · 65세 전 건강 방어율'));
+      var metric=cl(q(f,':scope > .metric-grid')); if(metric) p2.appendChild(metric);
+      p2.appendChild(grid([cl(q(f,':scope > .fulfill-card')), cl(q(f,':scope > .shield-card'))],2));
+      var income=cl(qa(f,':scope > .sec-block')[1]); if(income){ income.classList.add('pp-income'); p2.appendChild(income); }
+      doc.appendChild(p2);
+      // ── Page 3 · 처방 · 로드맵
+      var p3=page('pp-3'); p3.appendChild(head('정밀 리포트 ② 영역별 처방 · 실행 로드맵','5개 영역을 점수순으로, 오늘·이번 주·이번 달·1년 안에 할 일'));
+      var rxT=cl(q(f,'#t-rx > .sec-block')); if(rxT){ rxT.classList.add('pp-sec-title'); p3.appendChild(rxT); }
+      p3.appendChild(grid(qa(f,'#t-rx .rx-card').map(cl),2));
+      var rdT=document.createElement('div'); rdT.className='pp-sec-title sec-block'; rdT.innerHTML='<h3>✅ 실행 로드맵</h3>'; p3.appendChild(rdT);
+      p3.appendChild(grid(qa(f,'#t-road .cl-block').map(cl),2));
+      doc.appendChild(p3);
+    }
+    var foot=document.createElement('div'); foot.className='pp-foot'; foot.innerHTML='<b>2막 1장 · Life 2.0</b> — 본 진단은 상담 전 자가진단용 보수적 추정 모델입니다. 실제 연금 수령액·세금·수익률·건강 변화에 따라 결과는 달라질 수 있습니다. · 주식회사 라이프 2.0';
+    doc.lastChild.appendChild(foot);
+    rep.appendChild(doc);
+  };
+  window.addEventListener('beforeprint', function(){ try{ buildPrintDoc(); }catch(e){} });
+  window.addEventListener('afterprint', function(){ var d=document.getElementById('printDoc'); if(d) d.remove(); });
+  var _pr=window.printReport; window.printReport=function(){ try{ buildPrintDoc(); }catch(e){} window.scrollTo({top:0}); setTimeout(function(){ window.print(); },150); };
 })();
 </script>
 </body>
