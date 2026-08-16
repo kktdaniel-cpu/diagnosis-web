@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2막1장 · 은퇴 정밀진단 Ver.24 · Mobile UI (42문항) · API 연동</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Noto+Serif+KR:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#1E6B45;--green-deep:#124A2F;--green-light:#3B8B60;--green-soft:#DFEEE6;--green-bg:#F1F7F3;
+    --burgundy:#A9822F;--burgundy-deep:#7A5A18;--burgundy-soft:#F2E5C4;--burgundy-bg:#FAF3E0;
+    --cream:#F3F5F4;--cream-warm:#EAEEEC;--gold:#c9a449;--gold-soft:#EAD9A6;
+    --ink:#0E1512;--ink-soft:#45454d;--muted:#78787f;--line:#D8DEDA;--line-soft:#E8ECEA;
+    --shadow:0 1px 3px rgba(30,107,69,.06),0 4px 12px rgba(30,107,69,.08);
+    --shadow-lg:0 4px 16px rgba(30,107,69,.10),0 12px 32px rgba(30,107,69,.12);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--cream);font-family:'Noto Sans KR',sans-serif;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  .topnav{background:rgba(250,246,238,.95);border-bottom:1px solid var(--line);padding:14px 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px);}
+  .nav-inner{max-width:920px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;}
+  .logo .ko{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:700;color:var(--green-deep);letter-spacing:-1px;}
+  .logo .en{font-family:'Fraunces',serif;font-size:13.5px;color:var(--burgundy);letter-spacing:1px;}
+  .nav-badge{font-size:13.5px;font-weight:700;color:#fff;background:var(--burgundy);padding:5px 12px;border-radius:100px;}
+  .page{max-width:920px;margin:0 auto;padding:28px 24px 80px;}
+  .screen{display:none;} .screen.active{display:block;animation:fade .4s;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .eyebrow{display:inline-block;background:var(--green-soft);color:var(--green-deep);font-size:13.5px;font-weight:700;letter-spacing:1px;padding:4px 13px;border-radius:100px;margin-bottom:10px;}
+  .eyebrow.gold{background:var(--gold-soft);color:#8a6a20;} .eyebrow.burgundy{background:var(--burgundy-soft);color:var(--burgundy-deep);}
+
+  /* ===== INTRO ===== */
+  .intro{text-align:center;padding:40px 0 10px;}
+  .intro h1{font-family:'Noto Serif KR',serif;font-size:38px;font-weight:700;color:var(--green-deep);letter-spacing:-1.5px;line-height:1.2;margin-bottom:14px;}
+  .intro h1 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .intro .lede{font-size:16px;color:var(--ink-soft);max-width:560px;margin:0 auto 8px;}
+  .intro .meta{font-size:13.5px;color:var(--muted);margin-top:6px;}
+  .card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:30px 32px;box-shadow:var(--shadow-lg);max-width:560px;margin:28px auto 0;text-align:left;}
+  .pflow{display:flex;flex-wrap:wrap;gap:5px 3px;align-items:center;justify-content:center;margin:6px 0 20px;}
+  .pflow span{background:#F1F7F3;border:1px solid #E2EAE4;border-radius:16px;padding:5px 11px;font-size:13.5px;font-weight:700;color:#124A2F;white-space:nowrap;}
+  .pflow span b{color:#C9A449;margin-right:4px;}
+  .pflow i{color:#9AA8A0;font-style:normal;font-size:13.5px;}
+  .parts6{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 24px;}
+  .p6{background:var(--cream-warm);border-radius:12px;padding:12px 10px;text-align:center;font-size:13.5px;font-weight:600;color:var(--green-deep);}
+  .p6 .n{font-family:'Fraunces',serif;font-size:16px;color:var(--burgundy);display:block;}
+  /* 리포트 예고 배너 (인트로 상단) */
+  .report-promo{max-width:560px;margin:22px auto 0;background:linear-gradient(135deg,var(--green-deep),var(--green));color:#fff;border-radius:18px;padding:20px 24px;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(18,74,47,.28);transition:.2s;}
+  .report-promo:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(18,74,47,.35);}
+  .rp-title{font-family:'Noto Serif KR',serif;font-size:19px;font-weight:700;letter-spacing:-.5px;line-height:1.4;word-break:keep-all;}
+  .rp-title b{color:var(--gold-soft);}
+  .rp-sub{font-size:13.5px;color:rgba(255,255,255,.85);margin-top:7px;line-height:1.6;word-break:keep-all;}
+  .rp-cta{display:inline-block;margin-top:12px;background:#fff;color:var(--green-deep);font-size:13.5px;font-weight:700;padding:8px 20px;border-radius:100px;}
+  .fg{margin-bottom:16px;}
+  .fg label{display:block;font-size:13.5px;font-weight:600;color:var(--green-deep);margin-bottom:6px;}
+  .fg input[type=text],.fg input[type=tel]{width:100%;background:var(--cream-warm);border:2px solid transparent;padding:13px 15px;font-family:inherit;font-size:15px;border-radius:11px;transition:.2s;}
+  .fg input:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 4px var(--green-soft);}
+  .fg label.consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;font-weight:400;color:var(--ink-soft);margin-bottom:0;cursor:pointer;line-height:1.55;word-break:keep-all;}
+  .consent input{appearance:none;-webkit-appearance:none;width:20px;height:20px;min-width:20px;margin:0;border:2px solid var(--line);border-radius:6px;background:#fff;cursor:pointer;position:relative;top:1px;flex-shrink:0;transition:.15s;}
+  .consent input:hover{border-color:var(--green);}
+  .consent input:checked{background:var(--green-deep);border-color:var(--green-deep);}
+  .consent input:checked::after{content:'';position:absolute;left:5px;top:1px;width:6px;height:11px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
+  .consent span{flex:1;padding-top:1px;}
+  .consent strong{color:var(--green-deep);font-weight:600;}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;border:none;font-family:inherit;font-weight:700;cursor:pointer;transition:.2s;border-radius:100px;}
+  .btn-primary{background:var(--burgundy);color:#fff;font-size:16px;padding:15px 34px;box-shadow:0 6px 18px rgba(18,74,47,.25);width:100%;}
+  .btn-primary:hover{background:var(--burgundy-deep);transform:translateY(-2px);}
+  .btn-green{background:var(--green-deep);color:#fff;font-size:15px;padding:14px 30px;}
+  .btn-green:hover{background:var(--green);transform:translateY(-1px);}
+  .btn-ghost{background:transparent;color:var(--muted);border:2px solid var(--line);font-size:15px;padding:13px 24px;}
+  .btn-ghost:hover{border-color:var(--green-deep);color:var(--green-deep);}
+
+  /* ===== 파트 도식 인트로 ===== */
+  .pintro{max-width:660px;margin:0 auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px 26px;box-shadow:var(--shadow-lg);}
+  .pi-title{font-family:'Noto Serif KR',serif;font-size:23px;font-weight:700;color:var(--green-deep);letter-spacing:-.5px;margin:8px 0 2px;line-height:1.35;word-break:keep-all;}
+  .pi-title b{color:var(--burgundy);}
+  .pi-title em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .pi-diagram{background:var(--cream);border:1px solid var(--line-soft);border-radius:16px;padding:14px 10px;margin:14px 0;}
+  .pi-diagram svg{width:100%;height:auto;display:block;}
+  .pi-msg{font-size:15px;color:var(--ink);font-weight:600;line-height:1.65;margin:4px auto 2px;max-width:520px;word-break:keep-all;}
+  .pi-msg b{color:var(--burgundy);}
+  .pi-hint{font-size:13.5px;color:var(--ink-soft);font-weight:600;margin-bottom:18px;word-break:keep-all;}
+  .pi-btn{max-width:360px;margin:0 auto;}
+  .svg-band{fill:var(--burgundy-soft);opacity:.5;}
+  .svg-lbl{font-family:'Noto Sans KR',sans-serif;font-weight:700;fill:var(--green-deep);}
+  .svg-sub{font-family:'Noto Sans KR',sans-serif;fill:var(--muted);}
+  .svg-cap{font-family:'Noto Serif KR',serif;font-weight:700;}
+
+  /* ===== QUIZ ===== */
+  .progress-wrap{max-width:720px;margin:8px auto 26px;}
+  .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .progress-top .t{font-size:13.5px;color:var(--muted);font-weight:500;} .progress-top .t strong{color:var(--green-deep);}
+  .progress-top .pct{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--burgundy);}
+  .bar{height:6px;background:var(--line-soft);border-radius:100px;overflow:hidden;}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--green),var(--gold),var(--burgundy));border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .part-title{font-family:'Noto Serif KR',serif;font-size:24px;font-weight:700;color:var(--green-deep);letter-spacing:-.5px;margin:4px 0 20px;text-align:center;}
+  .qcard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:22px 24px;margin-bottom:14px;box-shadow:var(--shadow);}
+  .qcard .qq{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:14px;line-height:1.5;}
+  .qcard .qq .qno{display:inline-block;font-family:'Fraunces',serif;color:var(--burgundy);font-size:13.5px;font-weight:600;margin-right:8px;}
+  .qcard .qhint{font-size:13.5px;color:var(--muted);font-weight:400;margin-left:6px;}
+  .opts{display:flex;flex-direction:column;gap:8px;}
+  .opts.row{flex-direction:row;flex-wrap:wrap;}
+  .opt{border:2px solid var(--line);background:#fff;border-radius:12px;padding:13px 16px;font-size:14.5px;color:var(--ink-soft);cursor:pointer;transition:.15s;font-weight:500;}
+  .opts.row .opt{flex:1;min-width:120px;text-align:center;}
+  .opt:hover{border-color:var(--green);color:var(--green-deep);}
+  .opt.sel{background:var(--green-deep);border-color:var(--green-deep);color:#fff;}
+  .opt.multi.sel{background:var(--green);border-color:var(--green);}
+  .qtext{width:100%;background:var(--cream-warm);border:2px solid transparent;padding:13px 15px;font-family:inherit;font-size:15px;border-radius:11px;}
+  .qtext:focus{outline:none;border-color:var(--green);background:#fff;box-shadow:0 0 0 4px var(--green-soft);}
+  .qnav{display:flex;gap:12px;margin-top:24px;}
+  .qnav .btn{flex:1;}
+  .cond-note{font-size:13.5px;color:var(--gold);font-weight:600;margin-top:-6px;margin-bottom:10px;}
+
+  /* ===== TEASER (예시 리포트) — 파일6과 동일 톤 ===== */
+  .t-intro{text-align:center;padding:8px 0;}
+  .t-intro h2{font-family:'Noto Serif KR',serif;font-size:26px;font-weight:700;color:var(--green-deep);letter-spacing:-1px;line-height:1.3;}
+  .t-intro h2 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .t-intro p{color:var(--ink-soft);font-size:14px;margin-top:8px;}
+  .t-mock{display:inline-block;margin-top:10px;font-size:13.5px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:100px;padding:4px 14px;}
+  .preview-frame{position:relative;margin-top:18px;}
+
+  /* 공통 리포트 컴포넌트 */
+  .score-hero{background:var(--green-deep);color:#fff;border-radius:26px;padding:34px 36px;position:relative;overflow:hidden;}
+  .score-hero::before{content:'';position:absolute;top:-100px;right:-100px;width:340px;height:340px;background:radial-gradient(circle,rgba(201,164,73,.25)0%,transparent 60%);}
+  .sh-grid{display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;position:relative;z-index:1;}
+  .sh-greet{font-size:13.5px;color:rgba(255,255,255,.7);margin-bottom:6px;}
+  .sh-name{font-family:'Noto Serif KR',serif;font-size:25px;font-weight:700;line-height:1.25;margin-bottom:12px;letter-spacing:-.8px;}
+  .sh-name em{font-family:'Fraunces',serif;color:var(--gold-soft);font-style:italic;font-weight:500;}
+  .sh-tags{display:flex;gap:7px;flex-wrap:wrap;}
+  .sh-tag{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:13.5px;padding:5px 12px;border-radius:100px;}
+  .sh-tag.gold{background:var(--gold);border-color:var(--gold);color:var(--green-deep);font-weight:700;}
+  .ring{width:170px;height:170px;position:relative;margin:0 auto;}
+  .ring svg{transform:rotate(-90deg);width:100%;height:100%;}
+  .ring .bg2{fill:none;stroke:rgba(255,255,255,.12);stroke-width:13;}
+  .ring .fg2{fill:none;stroke:var(--gold);stroke-width:13;stroke-linecap:round;}
+  .ring .num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+  .ring .num .big{font-family:'Fraunces',serif;font-size:50px;font-weight:600;line-height:1;letter-spacing:-2px;}
+  .ring .num .unit{font-size:13.5px;color:rgba(255,255,255,.65);letter-spacing:2px;}
+  .ring-grade{text-align:center;margin-top:10px;font-family:'Noto Serif KR',serif;font-size:17px;font-weight:800;color:#F0E2B8;letter-spacing:-.3px;}
+  .ring-sub{text-align:center;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.88);margin-top:3px;word-break:keep-all;}
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;}
+  .mcard{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:20px;box-shadow:var(--shadow);}
+  .mcard .ic{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px;background:var(--green-soft);}
+  .mcard .ic.b{background:var(--burgundy-soft);} .mcard .ic.g{background:var(--gold-soft);}
+  .mcard .lb{font-size:13.5px;color:var(--muted);margin-bottom:3px;}
+  .mcard .vl{font-family:'Fraunces',serif;font-size:29px;font-weight:600;color:var(--green-deep);line-height:1;letter-spacing:-1px;}
+  .mcard .vl.warn{color:var(--burgundy);} .mcard .vl .u{font-size:14px;color:var(--muted);font-weight:500;}
+  .mcard .ds{font-size:13.5px;color:var(--ink-soft);margin-top:6px;}
+  /* 연금 충족률 (현금흐름 중심 지표) */
+  .fulfill-card{background:linear-gradient(180deg,#fff,var(--cream));border:1px solid var(--line);border-radius:18px;padding:18px 22px;margin-top:14px;box-shadow:var(--shadow);}
+  .ff-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .ff-lb{font-size:14px;font-weight:700;color:var(--green-deep);}
+  .ff-sub{font-size:13.5px;font-weight:400;color:var(--muted);margin-left:4px;}
+  .ff-val{font-family:'Fraunces',serif;font-size:32px;font-weight:600;color:var(--green-deep);line-height:1;letter-spacing:-1px;}
+  .ff-val.warn{color:var(--burgundy);} .ff-val .u{font-size:15px;color:var(--muted);font-weight:500;margin-left:1px;}
+  .ff-bar{height:12px;background:var(--cream-warm);border-radius:100px;overflow:hidden;margin:12px 0 8px;position:relative;}
+  .ff-bar > i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width .6s cubic-bezier(.4,0,.2,1);}
+  .ff-note{font-size:13.5px;color:var(--ink-soft);line-height:1.5;word-break:keep-all;}
+  .ff-note b{color:var(--burgundy);}
+  /* 시나리오 3-토글(비관/평균/낙관) & 건강 방어율 */
+  .scen-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .scen-chip{flex:1;min-width:110px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center;}
+  .scen-chip .t{font-size:13.5px;color:var(--muted);font-weight:600;}
+  .scen-chip .v{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--green-deep);line-height:1.2;}
+  .scen-chip.p .v{color:var(--burgundy);} .scen-chip.o .v{color:var(--green);}
+  .scen-badge{display:inline-block;margin-top:8px;font-size:13.5px;font-weight:700;padding:4px 12px;border-radius:100px;background:var(--gold-soft);color:#8a6a20;}
+  .shield-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 22px;margin-top:14px;box-shadow:var(--shadow);}
+  .shield-bar{height:12px;background:var(--cream-warm);border-radius:100px;overflow:hidden;margin:10px 0 8px;}
+  .shield-bar > i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,var(--burgundy),var(--gold),var(--green));transition:width .6s;}
+  .basis-note{background:var(--green-bg);border:1px dashed var(--green);border-radius:12px;padding:12px 15px;margin-top:14px;font-size:13.5px;color:var(--ink-soft);line-height:1.7;word-break:keep-all;}
+  .basis-note b{color:var(--green-deep);}
+  .radar-legend2{display:flex;gap:16px;justify-content:center;margin:2px 0 6px;font-size:13.5px;color:var(--ink-soft);flex-wrap:wrap;}
+  .radar-legend2 .k{display:inline-flex;align-items:center;gap:6px;}
+  .radar-legend2 .sw{width:18px;height:0;border-top:3px solid var(--green);display:inline-block;}
+  .radar-legend2 .sw.me{border-top:3px solid var(--green);}
+  .radar-legend2 .sw.peer{border-top:3px dashed #C08F3A;}
+  .radar-card{background:#fff;border:1px solid var(--line);border-radius:22px;padding:26px 28px;margin-top:16px;box-shadow:var(--shadow);}
+  .radar-card h2{font-family:'Noto Serif KR',serif;font-size:22px;color:var(--green-deep);font-weight:700;letter-spacing:-.5px;}
+  .radar-card h2 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .radar-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center;margin-top:12px;}
+  .radar-svg{width:100%;max-width:300px;margin:0 auto;display:block;}
+  .r-axis-label{font-family:'Noto Serif KR',serif;font-size:13.5px;fill:var(--green-deep);font-weight:700;}
+  .r-grid{fill:none;stroke:var(--line);stroke-width:1;} .r-axis{stroke:var(--line);stroke-width:1;}
+  .r-fill{fill:var(--green);fill-opacity:.22;stroke:var(--green);stroke-width:2;} .r-dot{fill:var(--burgundy);stroke:#fff;stroke-width:2;}
+  .legend{display:flex;flex-direction:column;gap:8px;}
+  .lg-item{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;background:var(--cream-warm);border-radius:11px;border-left:4px solid var(--green);}
+  .lg-item.mid{border-left-color:var(--gold);background:#fdf9eb;} .lg-item.low{border-left-color:var(--burgundy);background:var(--burgundy-bg);}
+  .lg-name{font-family:'Noto Serif KR',serif;font-size:13.5px;font-weight:700;color:var(--green-deep);}
+  .lg-score{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--green-deep);}
+  .lg-item.mid .lg-score{color:#a07520;} .lg-item.low .lg-score{color:var(--burgundy);}
+  .sec-block{background:#fff;border:1px solid var(--line);border-radius:20px;padding:24px 26px;margin-top:16px;box-shadow:var(--shadow);}
+  .sec-block h3{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;color:var(--green-deep);margin-bottom:14px;}
+  .weak-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line-soft);}
+  .weak-row:last-child{border-bottom:none;}
+  .weak-rank{width:30px;height:30px;border-radius:50%;background:var(--burgundy);color:#fff;font-family:'Fraunces',serif;font-weight:600;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .weak-rank.two{background:var(--gold);color:var(--green-deep);} .weak-rank.ok{background:var(--green);}
+  .weak-txt{flex:1;font-size:14px;color:var(--ink-soft);} .weak-txt b{color:var(--ink);}
+  .income-table{width:100%;border-collapse:collapse;}
+  .income-table td{padding:10px 4px;border-bottom:1px solid var(--line-soft);font-size:14px;}
+  .income-table td:last-child{text-align:right;font-family:'Fraunces',serif;font-weight:600;color:var(--green-deep);}
+  .income-table tr.tot td{border-bottom:none;font-weight:700;} .income-table tr.tot td:last-child{color:var(--burgundy);font-size:17px;}
+
+  /* What-if */
+  .whatif{background:linear-gradient(135deg,#fdf9f0 0%,#f0e6d3 100%);border:1px solid var(--gold);border-radius:22px;padding:26px 28px;margin-top:16px;}
+  .whatif h3{font-family:'Noto Serif KR',serif;font-size:20px;color:var(--green-deep);font-weight:700;}
+  .whatif h3 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .wi-result{background:var(--green-deep);color:#fff;border-radius:16px;padding:20px 24px;margin:16px 0;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .wi-res-item .l{font-size:13.5px;color:rgba(255,255,255,.7);}
+  .wi-res-item .v{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:var(--gold);letter-spacing:-1px;}
+  .wi-res-item .v.small{font-size:20px;}
+  .wi-sliders{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .wi-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;}
+  .wi-card .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .wi-card .h .n{font-family:'Noto Serif KR',serif;font-size:13.5px;font-weight:700;color:var(--green-deep);}
+  .wi-card .h .val{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--burgundy);}
+  .wi-card input[type=range]{width:100%;height:6px;background:var(--line-soft);border-radius:100px;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer;margin:6px 0;}
+  .wi-card input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--burgundy);border:3px solid #fff;box-shadow:0 2px 6px rgba(18,74,47,.4);cursor:pointer;}
+  .wi-card .rng{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);}
+  .wi-toggle{display:flex;gap:6px;margin-top:4px;}
+  .wi-toggle button{flex:1;border:1px solid var(--line);background:#fff;border-radius:100px;padding:6px;font-size:13.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;}
+  .wi-toggle button.on{background:var(--green-deep);color:#fff;border-color:var(--green-deep);}
+
+  .fade{position:absolute;left:0;right:0;bottom:0;height:320px;background:linear-gradient(to bottom,rgba(250,246,238,0),rgba(250,246,238,.8)45%,var(--cream)82%);pointer-events:none;z-index:5;}
+  .cta{position:relative;z-index:6;max-width:560px;margin:-150px auto 0;text-align:center;padding:0 12px 20px;}
+  .cta-card{background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px 30px;box-shadow:var(--shadow-lg);}
+  .cta-card h2{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;color:var(--green-deep);line-height:1.35;letter-spacing:-.5px;}
+  .cta-card h2 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .cta-card p{font-size:14px;color:var(--ink-soft);margin:10px 0 20px;}
+  .cta-meta{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:20px;font-size:13.5px;color:var(--muted);}
+
+  /* 탭 상세 리포트 */
+  .tabs{display:flex;gap:6px;background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:6px;margin-top:4px;box-shadow:var(--shadow);overflow-x:auto;}
+  .tab{flex:1;white-space:nowrap;border:1px solid var(--line);background:var(--cream-warm);font-family:inherit;font-size:14px;font-weight:700;color:var(--green-deep);padding:12px 14px;border-radius:11px;cursor:pointer;transition:.2s;}
+  .tab:hover{background:var(--green-soft);}
+  .tab.active{background:var(--green-deep);color:#fff;border-color:var(--green-deep);}
+  /* 설문 유도 카드 */
+  .survey-gate{background:linear-gradient(135deg,var(--burgundy),var(--burgundy-deep));color:#fff;border-radius:22px;padding:30px 30px;margin-top:20px;text-align:center;box-shadow:var(--shadow-lg);}
+  .survey-gate .eyebrow{background:var(--gold);color:var(--green-deep);}
+  .survey-gate h2{font-family:'Noto Serif KR',serif;font-size:23px;font-weight:700;line-height:1.35;margin:8px 0 6px;letter-spacing:-.5px;}
+  .survey-gate h2 em{font-family:'Fraunces',serif;font-style:italic;color:var(--gold-soft);font-weight:500;}
+  .survey-gate p{font-size:14px;color:rgba(255,255,255,.9);margin-bottom:8px;line-height:1.6;}
+  .survey-gate .codechip{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.4);border-radius:100px;padding:4px 14px;font-family:'Fraunces',serif;font-weight:600;color:#fff;font-size:15px;margin:2px 0 18px;}
+  .btn-survey{background:var(--gold);color:var(--green-deep);border:none;font-family:inherit;font-weight:700;font-size:16px;padding:15px 36px;border-radius:100px;cursor:pointer;transition:.2s;box-shadow:0 6px 18px rgba(0,0,0,.15);}
+  .btn-survey:hover{background:#fff;transform:translateY(-2px);}
+  .survey-gate .linklike{display:inline-block;margin-top:14px;background:none;border:none;color:rgba(255,255,255,.7);font-size:13.5px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-family:inherit;}
+  .survey-gate .linklike:hover{color:#fff;}
+  /* ===== 모달 (미리보기·이어하기·임시저장) ===== */
+  .modal-ov{position:fixed;inset:0;background:rgba(42,42,46,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(3px);}
+  .modal-box{background:var(--cream);border-radius:22px;max-width:780px;width:100%;max-height:88vh;overflow-y:auto;padding:26px 26px 22px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35);}
+  .modal-box.mini{max-width:430px;background:#fff;max-height:none;overflow:visible;}
+  .modal-x{position:absolute;top:14px;right:16px;background:#fff;border:1px solid var(--line);width:36px;height:36px;border-radius:50%;font-size:15px;color:var(--ink-soft);cursor:pointer;z-index:2;box-shadow:var(--shadow);font-family:inherit;}
+  .modal-x:hover{color:var(--burgundy);border-color:var(--burgundy);}
+  .modal-foot{position:sticky;bottom:-22px;margin:14px -26px -22px;padding:20px 26px 18px;background:linear-gradient(180deg,rgba(250,246,238,0),var(--cream) 45%);text-align:center;}
+  .mini-h{font-family:'Noto Serif KR',serif;font-size:19px;font-weight:700;color:var(--green-deep);margin:2px 0 6px;}
+  .mini-p{font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;line-height:1.6;word-break:keep-all;}
+  /* 파트 인트로 — 전체 목차 배지 + 임시저장 */
+  .pi-toc{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;margin:16px 0 2px;}
+  .toc-chip{font-size:13.5px;font-weight:600;padding:5px 10px;border-radius:100px;background:var(--cream-warm);color:var(--muted);border:1px solid var(--line-soft);white-space:nowrap;}
+  .toc-chip.done{background:var(--green-soft);color:var(--green-deep);border-color:transparent;}
+  .toc-chip.cur{background:var(--burgundy);color:#fff;border-color:transparent;}
+  .toc-sep{color:var(--line);font-size:13.5px;}
+  .pi-save{margin-top:12px;background:none;border:1.5px dashed var(--line);color:var(--ink-soft);font-size:13.5px;font-weight:600;padding:9px 20px;border-radius:100px;cursor:pointer;font-family:inherit;transition:.15s;}
+  .pi-save:hover{border-color:var(--green);color:var(--green-deep);}
+  /* PDF 잠금/해금 버튼 */
+  .btn-pdf-locked{display:inline-block;margin-top:12px;background:rgba(255,255,255,.10);border:1.5px dashed rgba(255,255,255,.5);color:rgba(255,255,255,.8);font-size:13.5px;font-weight:600;padding:10px 22px;border-radius:100px;cursor:not-allowed;font-family:inherit;}
+  .btn-pdf-on{display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:var(--green-deep);color:#fff;border:none;font-size:14.5px;font-weight:700;padding:13px 26px;border-radius:100px;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(18,74,47,.3);transition:.2s;}
+  .btn-pdf-on:hover{background:var(--green);transform:translateY(-1px);}
+  /* ===== 인쇄/PDF 전용 ===== */
+  @media print{
+    body{background:#fff;}
+    .topnav,.survey-gate,#surveyForm,.survey-thanks,.tabs,.qnav,.consult-sec,.linklike,.btn,.btn-survey,.cs-btn,.btn-pdf-locked,.btn-pdf-on,.toast,#t-wi,.modal-ov,.pi-save,.app-bottom-nav,.premium-gate{display:none !important;}
+    .screen{display:none !important;} #s-report{display:block !important;}
+    .panel{display:block !important;} #t-wi{display:none !important;}
+    .page{max-width:100%;padding:0 4mm;}
+    *{box-shadow:none !important;}
+    .score-hero,.shield-bar > i,.ff-bar > i,.bar > i,.weak-rank,.eyebrow{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .qcard,.sec-block,.radar-card,.fulfill-card,.shield-card,.mcard,.rx-card,.cl-block{page-break-inside:avoid;}
+  }
+  .consult-sec .eyebrow{background:var(--gold-soft);color:#8a6a20;}
+  .consult-sec h3 em{font-family:'Fraunces',serif;font-style:italic;color:var(--burgundy);font-weight:500;}
+  .op-reset{display:inline-block;margin-top:10px;background:none;border:none;color:var(--muted);font-size:13.5px;text-decoration:underline;cursor:pointer;font-family:inherit;}
+  /* 앱 내 설문 */
+  .opts.row.sv-scale .opt,.opts.row.sv-nps .opt{min-width:30px;flex:1;padding:11px 0;text-align:center;}
+  .opts.row.sv-scale,.opts.row.sv-nps{gap:6px;flex-wrap:nowrap;}
+  .sv-ends{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-top:5px;}
+  .survey-thanks{background:#fff;border:1px solid var(--line);border-radius:20px;padding:32px 24px;text-align:center;box-shadow:var(--shadow);margin-top:6px;}
+  .survey-thanks .st-ic{width:56px;height:56px;border-radius:50%;background:var(--green);color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+  .survey-thanks h3{font-family:'Noto Serif KR',serif;color:var(--green-deep);font-size:20px;margin-bottom:6px;}
+  .survey-thanks p{font-size:14px;color:var(--ink-soft);}
+  .panel{display:none;} .panel.active{display:block;animation:fade .35s;}
+  .rx-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;margin-top:14px;box-shadow:var(--shadow);border-left:5px solid var(--green);}
+  .rx-card.mid{border-left-color:var(--gold);} .rx-card.low{border-left-color:var(--burgundy);}
+  .rx-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .rx-head .nm{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:700;color:var(--green-deep);}
+  .rx-head .sc{margin-left:auto;font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--green-deep);}
+  .rx-card.mid .rx-head .sc{color:#a07520;} .rx-card.low .rx-head .sc{color:var(--burgundy);}
+  .rx-badge{font-size:13.5px;font-weight:700;padding:2px 10px;border-radius:100px;background:var(--green-soft);color:var(--green-deep);}
+  .rx-card.mid .rx-badge{background:var(--gold-soft);color:#8a6a20;} .rx-card.low .rx-badge{background:var(--burgundy-soft);color:var(--burgundy-deep);}
+  .rx-diag{font-size:13.5px;color:var(--ink-soft);margin-bottom:10px;}
+  .rx-list{list-style:none;display:flex;flex-direction:column;gap:7px;}
+  .rx-list li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--ink);}
+  .rx-list li::before{content:'→';color:var(--burgundy);font-weight:700;flex-shrink:0;}
+  /* 로드맵 */
+  .cl-block{margin-top:16px;}
+  .cl-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .cl-head .n{width:32px;height:32px;border-radius:9px;background:var(--burgundy);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-weight:600;}
+  .cl-head .n.g{background:var(--gold);color:var(--green-deep);} .cl-head .n.gr{background:var(--green);} .cl-head .n.d{background:var(--green-deep);}
+  .cl-head .t{font-family:'Noto Serif KR',serif;font-size:16px;font-weight:700;color:var(--green-deep);}
+  .cl-head .when{font-size:13.5px;color:var(--muted);margin-left:auto;}
+  .cl-card{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:6px;box-shadow:var(--shadow);}
+  .cl-line{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:10px;cursor:pointer;transition:.15s;}
+  .cl-line:hover{background:var(--cream);}
+  .cl-mark{width:20px;height:20px;border:2px solid var(--line);border-radius:6px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:.2s;}
+  .cl-line.done .cl-mark{background:var(--green);border-color:var(--green);} .cl-line.done .cl-mark::after{content:'✓';color:#fff;font-size:13.5px;font-weight:700;}
+  .cl-line.done .cl-txt{text-decoration:line-through;color:var(--muted);}
+  .cl-txt{font-size:13.5px;color:var(--ink);line-height:1.5;} .cl-txt .tg{display:inline-block;font-size:13.5px;font-weight:700;padding:1px 7px;border-radius:100px;margin-right:7px;vertical-align:middle;}
+  .tg.ret{background:var(--green-soft);color:var(--green-deep);} .tg.ins{background:var(--gold-soft);color:#8a6a20;} .tg.hou{background:#dfeaf5;color:#345;} .tg.job{background:var(--cream-warm);color:var(--burgundy);} .tg.wel{background:var(--burgundy-soft);color:var(--burgundy-deep);}
+  .cl-empty{text-align:center;color:var(--muted);font-size:13.5px;padding:16px;}
+  /* 상담 */
+  .consult-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px;}
+  .cs-card{border-radius:20px;padding:24px;color:#fff;position:relative;overflow:hidden;}
+  .cs-free{background:linear-gradient(135deg,var(--green-deep),#2a4a26);} .cs-paid{background:linear-gradient(135deg,var(--burgundy),var(--burgundy-deep));}
+  .cs-card h4{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+  .cs-card p{font-size:13.5px;color:rgba(255,255,255,.85);line-height:1.6;margin-bottom:16px;min-height:60px;}
+  .cs-btn{background:var(--gold);color:var(--green-deep);border:none;font-family:inherit;font-weight:700;font-size:14px;padding:12px 22px;border-radius:100px;cursor:pointer;width:100%;transition:.2s;}
+  .cs-paid .cs-btn{background:#fff;} .cs-btn:hover{transform:translateY(-2px);}
+  @media(max-width:720px){.consult-grid{grid-template-columns:1fr;}}
+  .disclaim{text-align:center;color:var(--muted);font-size:13.5px;line-height:1.7;margin-top:30px;padding-top:20px;border-top:1px solid var(--line);}
+  .disclaim b{font-family:'Noto Serif KR',serif;color:var(--green-deep);}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--green-deep);color:#fff;font-size:13.5px;font-weight:600;padding:11px 20px;border-radius:100px;box-shadow:var(--shadow-lg);opacity:0;pointer-events:none;transition:.3s;z-index:200;max-width:90vw;}
+  .toast.show{opacity:1;transform:translate(-50%,0);} .toast.warn{background:var(--burgundy);}
+  .actions-row{text-align:center;margin-top:26px;}
+  @media(max-width:720px){
+    .intro h1{font-size:28px;}
+    .score-hero{padding:26px 20px;} .sh-grid{grid-template-columns:1fr;gap:22px;text-align:center;} .sh-tags{justify-content:center;}
+    .metric-grid,.radar-grid,.wi-sliders,.wi-result{grid-template-columns:1fr;}
+    .parts6{grid-template-columns:repeat(2,1fr);}
+    .cta{margin-top:-120px;}
+  }
+
+/* =========================================================
+   Mobile App Shell · 2막 1장
+   - Reference-inspired single-device experience
+   - Free diagnosis → premium report → expert consultation
+   ========================================================= */
+:root{
+  --app-green:#0F2B1D;
+  --app-green-2:#124A2F;
+  --app-mint:#EAF4EE;
+  --app-gold:#C9A449;
+  --app-bg:#F5F6F4;
+  --app-line:#E4E8E5;
+  --app-text:#121815;
+  --app-muted:#7A837E;
+}
+html{background:#E9ECE9;}
+body{background:#E9ECE9;min-height:100vh;}
+.topnav{max-width:430px;margin:0 auto;padding:12px 18px;background:rgba(255,255,255,.96);border-bottom:1px solid var(--app-line);}
+.nav-inner{max-width:none;padding:0;min-height:42px;}
+.logo .ko{font-size:18px;}
+.nav-badge{font-size:13.5px;padding:5px 9px;background:var(--app-green-2);}
+.page{width:100%;max-width:430px;min-height:calc(100vh - 66px);margin:0 auto;padding:0 0 86px;background:var(--app-bg);box-shadow:0 0 40px rgba(15,43,29,.08);}
+.screen{min-height:calc(100vh - 150px);padding:18px 16px 24px;}
+.screen.active{display:block;}
+#s-intro{padding:0 0 24px;}
+#s-intro .intro{margin:0 -0px;padding:34px 22px 28px;border-radius:0 0 28px 28px;text-align:center;background:var(--app-green);}
+#s-intro .intro h1{font-size:31px;line-height:1.3;margin-top:14px;}
+#s-intro .intro .lede{font-size:15px;line-height:1.8;max-width:none;}
+#s-intro .lede-strong{font-size:20px;margin:16px 0 4px;}
+#s-intro .lede-rest{font-size:14px;margin-top:16px;}
+#s-intro .meta{font-size:13.5px;margin-top:12px;}
+#s-intro .meta{font-size:13.5px;}
+#s-intro .report-promo{margin:14px 16px 0;border-radius:17px;padding:17px 18px;}
+#s-intro .card{margin:12px 16px 0;padding:20px 18px;border-radius:18px;}
+#s-intro .pflow{justify-content:flex-start;overflow:hidden;flex-wrap:nowrap;gap:3px;}
+#s-intro .pflow span{font-size:13.5px;padding:4px 8px;}
+#s-intro .pflow i{font-size:13.5px;}
+#s-intro .parts6{display:none;}
+.btn{border-radius:12px!important;}
+.btn-primary,.btn-green{min-height:50px;}
+/* Question screen */
+#s-quiz{padding-top:12px;}
+#s-quiz .progress-wrap{margin:0 0 18px;}
+#s-quiz .part-title{text-align:left;font-size:22px;margin-bottom:14px;}
+#s-quiz .qcard{padding:18px 16px;border-radius:16px;margin-bottom:11px;}
+#s-quiz .qcard .qq{font-size:16px;}
+#s-quiz .opt{font-size:15px;padding:14px 13px;border-radius:11px;}
+#s-quiz .qnav{position:sticky;bottom:0;background:linear-gradient(180deg,rgba(245,246,244,0),#F5F6F4 28%);padding:14px 0 4px;margin:10px -2px -8px;z-index:20;}
+#s-quiz .qnav .btn{min-height:50px;}
+/* Completion */
+.app-complete{padding:26px 2px 8px;text-align:center;}
+.complete-icon{width:68px;height:68px;margin:0 auto 15px;border-radius:50%;background:var(--app-green-2);color:#fff;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 10px 25px rgba(18,74,47,.18);}
+.complete-title{font-family:'Noto Serif KR',serif;font-size:27px;font-weight:800;letter-spacing:-1px;color:var(--app-text);line-height:1.35;}
+.complete-sub{font-size:14px;color:#55605A;margin:8px 0 18px;}
+.complete-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 16px;}
+.complete-stat{background:#fff;border:1px solid var(--app-line);border-radius:14px;padding:14px 8px;}
+.complete-stat .v{font-weight:900;font-size:18px;color:var(--app-green-2);}
+.complete-stat .l{font-size:13.5px;color:var(--app-muted);margin-top:2px;}
+.free-result{background:#fff;border:1px solid var(--app-line);border-radius:18px;text-align:left;padding:18px;margin-bottom:12px;}
+.free-result h3{font-size:16px;margin-bottom:12px;}
+.free-score-row{display:flex;align-items:center;gap:14px;}
+.free-score{width:76px;height:76px;border-radius:50%;background:var(--app-mint);display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;color:var(--app-green-2);flex:0 0 auto;}
+.free-score-row strong{font-size:15px;}
+.free-score-row p{font-size:13.5px;color:var(--app-muted);margin-top:3px;line-height:1.5;}
+.next-step-card{background:var(--app-green);color:#fff;border-radius:18px;padding:19px;text-align:left;box-shadow:0 10px 24px rgba(15,43,29,.15);}
+.next-step-card .eyebrow{background:rgba(201,164,73,.18);color:#E7D594;margin-bottom:7px;}
+.next-step-card h3{font-size:19px;line-height:1.4;margin-bottom:6px;}
+.next-step-card p{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.55;margin-bottom:14px;}
+.next-step-card .price{font-size:22px;font-weight:900;color:#F0D991;}
+/* Premium report */
+.report-headline{font-size:22px;font-weight:900;letter-spacing:-.7px;margin:2px 0 14px;}
+.premium-gate{margin:16px 0;border-radius:20px;overflow:hidden;background:#0F2B1D;color:#fff;box-shadow:0 12px 28px rgba(15,43,29,.18);}
+.premium-gate .pg-top{padding:20px 19px 16px;background:linear-gradient(135deg,#0F2B1D,#174A32);}
+.premium-gate .pg-kicker{display:inline-block;background:#C9A449;color:#0F2B1D;border-radius:100px;font-size:13.5px;font-weight:900;padding:5px 9px;}
+.premium-gate h3{font-size:20px;line-height:1.4;margin:10px 0 6px;}
+.premium-gate p{font-size:13.5px;line-height:1.6;color:rgba(255,255,255,.8);}
+.pg-list{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:13px 0;}
+.pg-item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:9px;font-size:13.5px;color:#F0F3F1;}
+.premium-gate .pg-bottom{padding:14px 18px;background:#fff;color:var(--app-text);}
+.pg-price{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.pg-price strong{font-size:21px;color:var(--app-green-2);}
+.pg-price span{font-size:13.5px;color:var(--app-muted);}
+.pg-btn{width:100%;border:0;background:#124A2F;color:#fff;font-weight:900;border-radius:12px;padding:14px;font-size:15px;cursor:pointer;}
+.pg-note{text-align:center;font-size:13.5px;color:var(--app-muted);margin-top:7px;}
+#s-report .score-hero{border-radius:20px;padding:21px 18px;}
+#s-report .sh-grid{grid-template-columns:1fr;gap:14px;text-align:left;}
+#s-report .sh-name{font-size:20px;}
+#s-report .ring{width:128px;height:128px;margin:0 auto;}
+#s-report .metric-grid{grid-template-columns:1fr 1fr;gap:8px;}
+#s-report .mcard{padding:14px;border-radius:14px;}
+#s-report .mcard:last-child{grid-column:1/-1;}
+#s-report .mcard .vl{font-size:24px;}
+#s-report .radar-grid{grid-template-columns:1fr;}
+#s-report .radar-card,#s-report .sec-block,#s-report .fulfill-card,#s-report .shield-card{border-radius:17px;padding:17px 16px;}
+#s-report .disclaim{font-size:13.5px;padding-bottom:10px;}
+/* Consultation */
+.consult-hero{background:#0F2B1D;color:#fff;border-radius:22px;padding:22px 18px;margin-bottom:12px;}
+.consult-hero .kicker{font-size:13.5px;color:#E7D594;font-weight:900;letter-spacing:.5px;}
+.consult-hero h2{font-size:24px;line-height:1.35;margin:7px 0;}
+.consult-hero p{font-size:13.5px;color:rgba(255,255,255,.78);line-height:1.6;}
+.consult-option{background:#fff;border:1px solid var(--app-line);border-radius:18px;padding:18px;margin:10px 0;}
+.consult-option .top{display:flex;justify-content:space-between;gap:10px;align-items:center;}
+.consult-option h3{font-size:16px;}
+.consult-badge{font-size:13.5px;background:var(--app-mint);color:var(--app-green-2);font-weight:900;padding:4px 8px;border-radius:100px;white-space:nowrap;}
+.consult-option p{font-size:13.5px;color:#66716B;line-height:1.55;margin:7px 0 13px;}
+.consult-option button{width:100%;border:0;border-radius:11px;padding:13px;font-weight:900;font-size:14px;background:#124A2F;color:#fff;}
+.consult-option.paid button{background:#C9A449;color:#0F2B1D;}
+/* My page */
+.profile-card{background:#0F2B1D;color:#fff;border-radius:20px;padding:20px 18px;margin-bottom:12px;}
+.profile-row{display:flex;align-items:center;gap:12px;}
+.profile-avatar{width:48px;height:48px;border-radius:15px;background:#C9A449;color:#0F2B1D;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:20px;}
+.profile-card .name{font-size:18px;font-weight:900;}
+.profile-card .code{font-size:13.5px;color:#B9CCC1;margin-top:2px;}
+.my-menu{background:#fff;border:1px solid var(--app-line);border-radius:17px;overflow:hidden;}
+.my-menu button{width:100%;border:0;background:#fff;border-bottom:1px solid var(--app-line);padding:15px 16px;text-align:left;font-size:13.5px;font-weight:700;color:#27312C;display:flex;justify-content:space-between;align-items:center;}
+.my-menu button:last-child{border-bottom:0;}
+.my-menu button span:last-child{color:#9AA39E;}
+.status-chip{display:inline-block;background:#EAF4EE;color:#124A2F;border-radius:100px;padding:4px 8px;font-size:13.5px;font-weight:900;margin-top:9px;}
+/* Bottom nav */
+.app-bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(430px,100%);height:68px;background:rgba(255,255,255,.96);border-top:1px solid var(--app-line);display:grid;grid-template-columns:repeat(5,1fr);z-index:200;backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom);}
+.app-bottom-nav button{border:0;background:none;color:#9AA39E;font-size:13.5px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;}
+.app-bottom-nav button .ic{font-size:19px;line-height:1;}
+.app-bottom-nav button.active{color:#124A2F;}
+.app-bottom-nav .center .ic{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#C9A449;color:#0F2B1D;box-shadow:0 6px 15px rgba(201,164,73,.28);margin-top:-20px;border:4px solid #F5F6F4;}
+/* ===== Stage selector (첫 화면 · 3단계 진단 선택) ===== */
+#s-stage{padding:0 0 24px;}
+.stage-hero{padding:30px 22px 24px;border-radius:0 0 28px 28px;background:var(--app-green);color:#fff;}
+.stage-hero h1{font-family:'Noto Serif KR',serif;font-size:29px;font-weight:800;line-height:1.3;letter-spacing:-1px;margin-top:12px;color:#fff;}
+.stage-hero h1 em{font-style:normal;color:#E7D594;}
+.stage-hero p{font-size:13.5px;color:rgba(255,255,255,.82);margin-top:8px;line-height:1.6;}
+.stage-card{background:#fff;border:1px solid var(--app-line);border-radius:18px;padding:18px 17px;margin:12px 16px 0;cursor:pointer;transition:transform .15s, box-shadow .15s;position:relative;}
+.stage-card:active{transform:scale(.985);}
+.stage-card.featured{border:2px solid var(--app-green-2);box-shadow:0 10px 24px rgba(18,74,47,.12);}
+.stage-card.locked{background:#FBFBFA;}
+.sc-head{display:flex;align-items:center;gap:12px;}
+.sc-ic{width:44px;height:44px;border-radius:13px;background:var(--app-mint);display:flex;align-items:center;justify-content:center;font-size:21px;flex:0 0 auto;}
+.stage-card.featured .sc-ic{background:var(--app-green-2);color:#fff;}
+.stage-card.locked .sc-ic{background:#EFEFEC;}
+.sc-head>div{flex:1;min-width:0;}
+.sc-badge{display:inline-block;font-size:13.5px;font-weight:900;padding:3px 8px;border-radius:100px;background:var(--app-mint);color:var(--app-green-2);margin-bottom:4px;letter-spacing:.2px;}
+.sc-badge.gold{background:#F5EBD0;color:#7A5A18;}
+.sc-badge.gray{background:#EFEFEC;color:#7A837E;}
+.sc-head h3{font-size:17px;font-weight:900;color:var(--app-text);letter-spacing:-.4px;line-height:1.3;}
+.sc-arrow{font-size:20px;color:#B9C1BC;flex:0 0 auto;}
+.stage-card>p{font-size:13.5px;color:#66716B;line-height:1.55;margin:10px 0 0;word-break:keep-all;}
+.sc-meta{font-size:13.5px;color:var(--app-muted);margin-top:9px;}
+.stage-rec{position:absolute;top:-9px;right:16px;background:#C9A449;color:#0F2B1D;font-size:13.5px;font-weight:900;padding:4px 10px;border-radius:100px;box-shadow:0 4px 10px rgba(201,164,73,.3);}
+/* ===== 빠른 진단 (7문항) ===== */
+#s-quick{padding-top:12px;}
+#s-quick .progress-wrap{margin:0 0 16px;}
+.quick-title{font-family:'Noto Serif KR',serif;font-size:21px;font-weight:800;letter-spacing:-.6px;margin:2px 0 4px;color:var(--app-text);}
+.quick-sub{font-size:13.5px;color:var(--app-muted);margin-bottom:14px;}
+/* ===== 빠른 진단 결과 ===== */
+#s-quickResult{padding-top:14px;}
+.qr-hero{background:var(--app-green);color:#fff;border-radius:20px;padding:22px 18px;text-align:center;}
+.qr-hero .ring{width:132px;height:132px;}
+.qr-grade{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:800;margin-top:10px;color:#E7D594;}
+.qr-peer{font-size:13.5px;color:rgba(255,255,255,.85);margin-top:6px;line-height:1.55;}
+.qr-peer b{color:#F0D991;}
+.qr-shock{background:#FBF3F1;border:1px solid #E8CFC9;border-radius:15px;padding:14px 15px;margin:12px 0;font-size:13.5px;color:#7A2E20;line-height:1.6;word-break:keep-all;}
+.qr-shock b{font-size:14px;}
+.qr-card{background:#fff;border:1px solid var(--app-line);border-radius:17px;padding:17px 16px;margin:12px 0;}
+.qr-card h3{font-size:15px;font-weight:900;margin-bottom:11px;color:var(--app-text);}
+.qr-insight{display:flex;gap:10px;padding:9px 0;border-bottom:1px dashed var(--app-line);font-size:13.5px;line-height:1.55;color:#3A443E;}
+.qr-insight:last-child{border-bottom:0;}
+.qr-insight .ax{flex:0 0 88px;font-weight:800;color:var(--app-green-2);}
+.qr-insight .ax .pt{display:block;font-size:13.5px;color:var(--app-muted);font-weight:700;}
+.qr-note{font-size:13.5px;color:var(--app-muted);line-height:1.55;margin:10px 2px;}
+.qr-up{background:linear-gradient(135deg,#0F2B1D,#174A32);color:#fff;border-radius:18px;padding:19px 18px;margin:14px 0 6px;}
+.qr-up h3{font-size:18px;line-height:1.4;margin:8px 0 6px;font-weight:900;}
+.qr-up p{font-size:13.5px;color:rgba(255,255,255,.8);line-height:1.6;margin-bottom:13px;word-break:keep-all;}
+/* desktop presentation */
+@media(min-width:700px){
+  .topnav{margin-top:18px;border-radius:22px 22px 0 0;box-shadow:0 8px 30px rgba(15,43,29,.08);}
+  .page{border-radius:0 0 22px 22px;box-shadow:0 18px 40px rgba(15,43,29,.08);}
+}
+@media(max-width:430px){
+  html,body{background:#F5F6F4;}
+  .topnav{width:100%;margin:0;}
+  .page{width:100%;box-shadow:none;}
+}
+
+</style>
+
+<style id="ver19-skin">
+/* ===== Ver19 · C안 '프리미엄 고대비' 전면 적용 ===== */
+*{font-family:'Noto Sans KR',-apple-system,sans-serif !important;font-style:normal !important;}
+body{font-size:16.5px;line-height:1.7;background:#F3F5F4;color:#0E1512;}
+p,div,span,label,li,td{word-break:keep-all;}
+/* 상단바 · 히어로 */
+.topnav{background:#0F2B1D;border-bottom:none;}
+.logo .ko{color:#fff;} .logo .en{color:#D8C48A;letter-spacing:1.5px;font-weight:700;}
+.nav-badge{background:#C9A449;color:#0F2B1D;}
+.intro{background:#0F2B1D;margin:-28px -24px 0;padding:50px 24px 40px;border-radius:0 0 30px 30px;}
+.intro h1{color:#fff;font-weight:800;font-size:41px;letter-spacing:-1px;line-height:1.25;}
+.intro h1 em{color:#E5CE8F;font-weight:800;}
+.intro .lede{color:#D7E2DB;font-size:18px;line-height:1.8;max-width:600px;}
+.intro .lede b{color:#fff;letter-spacing:-.2px;}
+.lede-strong{display:block;margin:12px 0 2px;font-size:23px;font-weight:800;color:#E5CE8F;letter-spacing:-.3px;}
+.lede-rest{display:block;margin-top:14px;font-size:16px;color:#B9CCC1;}
+.intro .meta{color:#9DB3A7;}
+.intro .eyebrow{background:rgba(229,206,143,.15);color:#E5CE8F;border:1px solid rgba(229,206,143,.4);}
+/* 리포트 예고 배너: 화이트 카드 + 딥그린 CTA */
+.report-promo{background:#fff;border:1.5px solid #D8DEDA;box-shadow:0 5px 18px rgba(14,21,18,.08);}
+.report-promo:hover{transform:none;box-shadow:0 8px 22px rgba(14,21,18,.12);}
+.rp-title{color:#0E1512;font-size:20px;} .rp-title b{color:#124A2F;}
+.rp-sub{color:#38423C;font-size:13.5px;}
+.rp-cta{background:#124A2F;color:#fff;font-size:14px;padding:10px 24px;}
+/* 카드·입력 */
+.card,.pintro{background:#fff;border:1px solid #E8ECEA;border-radius:20px;}
+.p6{background:#F1F7F3;border-radius:14px;color:#38423C;font-weight:700;font-size:13.5px;padding:14px 10px;}
+.p6 .n{color:#124A2F;font-weight:800;}
+.fg label{font-size:15px;color:#0E1512;font-weight:700;}
+.fg input[type=text],.fg input[type=tel],.qtext{font-size:16.5px;padding:15px 16px;border-radius:13px;background:#F1F3F2;}
+.fg input:focus,.qtext:focus{background:#fff;box-shadow:0 0 0 3px #DFEEE6;}
+.consent{font-size:14px !important;line-height:1.65;}
+.consent input:checked{background:#124A2F;border-color:#124A2F;}
+/* 척도 안내 화살표 (전혀 모름 ──▶ 잘 앎) */
+.sv-ends{display:flex;align-items:center;gap:10px;font-size:13.5px;color:#38423C;font-weight:700;margin-top:9px;}
+.sv-ends .sv-line{flex:1;height:0;border-top:2px dashed #8AA294;position:relative;}
+.sv-ends .sv-line::after{content:'';position:absolute;right:-2px;top:-6px;border:5px solid transparent;border-left:8px solid #8AA294;}
+/* 버튼 */
+.btn{border-radius:13px !important;font-weight:800;}
+.btn-primary{background:#124A2F;font-size:18px;padding:17px 34px;box-shadow:none;}
+.btn-primary:hover{background:#1E6B45;transform:none;}
+.btn-green{background:#1E6B45;} .btn-green:hover{background:#124A2F;}
+.btn-ghost{border:1.5px solid #D8DEDA;color:#38423C;font-size:15.5px;}
+/* 문항 */
+.part-title{color:#0E1512;font-weight:800;}
+.qcard{background:#fff;border:1px solid #E8ECEA;border-radius:16px;}
+.qcard .qq{font-size:17px;font-weight:700;color:#0E1512;}
+.qcard .qq .qno{color:#1E6B45;font-weight:800;font-size:14px;}
+.qcard .qhint{font-size:13.5px;color:#68736D;}
+.opt{font-size:16px;padding:15px 16px;border:1.5px solid #D8DEDA;border-radius:12px;color:#38423C;background:#fff;}
+.opt:hover{border-color:#1E6B45;color:#124A2F;background:#F1F7F3;}
+.opt.sel{background:#124A2F;border-color:#124A2F;color:#fff;font-weight:800;}
+.bar{height:6px;} .bar > i{background:#1E6B45;}
+.progress-top .pct{color:#124A2F;font-weight:800;}
+/* 파트 인트로 */
+.pi-title{color:#0E1512;font-weight:800;} .pi-title b{color:#124A2F;}
+.pi-diagram{background:#F1F7F3;border:1px solid #E2EAE5;}
+.pi-msg{font-size:16px;} .pi-msg b{color:#124A2F;}
+.pi-hint{font-size:13.5px;color:#38423C;font-weight:700;}
+.toc-chip.cur{background:#124A2F;}
+/* 리포트 — 다크 히어로 유지(프리미엄), 본문 화이트 카드 */
+.score-hero{background:#0F2B1D;border-radius:26px;}
+.sh-tag.gold{background:#C9A449;color:#0F2B1D;font-weight:800;}
+.ring .fg2{stroke:#C9A449;}
+.ring-grade{color:#F0E2B8 !important;}
+.mcard,.fulfill-card,.shield-card,.radar-card,.sec-block,.whatif{background:#fff;}
+.mcard{border:1px solid #E8ECEA;border-radius:18px;}
+.mcard .vl{color:#0E1512;font-weight:800;}
+.mcard .vl.warn,.ff-val.warn,.scen-chip.p .v{color:#D64545 !important;}
+.mcard .ic.b{background:#FBEAEA;}
+.ff-lb{color:#0E1512;font-weight:800;} .ff-val{color:#124A2F;font-weight:800;}
+.ff-bar > i{background:#1E6B45;}
+.shield-bar > i{background:linear-gradient(90deg,#D64545,#C9A449,#1E6B45);}
+.scen-chip{border:1.5px solid #E8ECEA;border-radius:14px;background:#fff;}
+.scen-chip .v{color:#0E1512;font-weight:800;} .scen-chip.o .v{color:#1E6B45;}
+.scen-badge{background:#F0E2B8;color:#7A5A18;font-weight:800;}
+.radar-card h2{color:#0E1512;font-weight:800;} .radar-card h2 em{color:#124A2F;}
+.r-fill{fill:#1E6B45;fill-opacity:.16;stroke:#1E6B45;} .r-dot{fill:#124A2F;}
+.r-axis-label{fill:#38423C;font-weight:700;}
+.sec-block h3{color:#0E1512;font-weight:800;}
+.weak-rank{background:#124A2F;} .weak-rank.two{background:#C9A449;}
+.income-table .tot td{color:#124A2F;}
+.basis-note{background:#F1F7F3;border:none;border-radius:14px;font-size:13.5px;}
+.basis-note b{color:#124A2F;}
+/* 설문·모달 */
+.survey-gate{background:#0F2B1D;}
+.survey-gate .eyebrow{background:#C9A449;color:#0F2B1D;}
+.survey-gate h2 em{color:#E5CE8F;}
+.btn-survey{background:#C9A449 !important;color:#0F2B1D !important;border-radius:13px !important;font-weight:800;}
+.btn-pdf-on{background:#124A2F;border-radius:13px;}
+.tabs .tab.active{background:#DFEEE6;color:#124A2F;font-weight:800;}
+.modal-box{border-radius:24px;}
+@media print{ body{background:#fff;} .intro{background:#fff;} }
+</style>
+
+<style id="ver24-reference-ui">
+/* Ver24 · supplied reference mockup aligned UI */
+:root{--v24-green:#006A3B;--v24-deep:#034B2E;--v24-gold:#D3A43C;--v24-cream:#F7F4EC;--v24-text:#171C19;--v24-muted:#707873;--v24-line:#E3E7E4;}
+html,body{background:#F4F5F3!important;}
+body{font-family:'Noto Sans KR',sans-serif!important;color:var(--v24-text)!important;}
+.topnav{background:#fff!important;border-bottom:1px solid #E8EBE9!important;padding:14px 20px!important;box-shadow:none!important;}
+.logo .ko{font-family:'Noto Serif KR',serif!important;color:#0B5B37!important;font-size:19px!important;font-weight:800!important;}
+.logo .en{color:#202824!important;font-size:11px!important;font-weight:700!important;letter-spacing:.7px!important;}
+.nav-badge{background:linear-gradient(180deg,#0C7545,#00572F)!important;color:#fff!important;padding:7px 13px!important;border-radius:999px!important;font-size:12px!important;box-shadow:0 3px 9px rgba(0,91,49,.16);}
+.page{background:#fff!important;max-width:430px!important;min-height:calc(100vh - 68px)!important;padding-bottom:82px!important;}
+.screen{background:#fff!important;padding:18px 22px 28px!important;}
+.v24-intro-screen{padding:0 20px 28px!important;}
+.v24-home{position:relative;min-height:405px;padding:22px 4px 0;overflow:hidden;}
+.v24-chip{display:inline-flex;align-items:center;gap:6px;background:#F5EDD8;color:#0A5C39;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:800;}
+.v24-home h1{font-family:'Noto Serif KR',serif!important;font-size:30px!important;line-height:1.45!important;letter-spacing:-1.2px!important;margin:18px 0 16px!important;color:#171C19!important;font-weight:700!important;}
+.v24-home h1 em{font-family:'Noto Serif KR',serif!important;font-style:normal!important;color:#006A3B!important;}
+.v24-home-copy{width:55%;font-size:13px;line-height:1.75;color:#313A35;position:relative;z-index:2;}
+.v24-home-copy p{margin:0 0 19px;}.v24-home-copy b{font-weight:800;color:#1E2822;}
+.v24-hero-ill{position:absolute;right:-8px;bottom:2px;width:190px;height:230px;border-radius:48% 48% 22% 22%;background:linear-gradient(180deg,#F7FAF8,#E8EFEA);box-shadow:inset 0 0 0 1px #EEF1EF;display:flex;align-items:center;justify-content:center;}
+.v24-couple{font-size:38px;letter-spacing:-9px;background:#E9E1D1;padding:22px 12px 12px;border-radius:48px 48px 18px 18px;transform:translateY(15px);white-space:nowrap;}
+.v24-tablet{position:absolute;bottom:48px;left:78px;width:48px;height:34px;background:#B4B8B4;border-radius:6px;color:#fff;text-align:center;line-height:34px;font-size:22px;box-shadow:0 3px 8px rgba(0,0,0,.12);}
+.v24-plant{position:absolute;left:5px;bottom:13px;font-size:36px;transform:rotate(-8deg);}
+.v24-stat-row{display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border:1px solid #E7EAE8;border-radius:14px;box-shadow:0 5px 18px rgba(27,55,40,.08);margin:-2px 0 18px;padding:15px 5px;position:relative;z-index:4;}
+.v24-stat-row>div{display:flex;flex-direction:column;align-items:center;gap:2px;border-right:1px solid #E4E8E5;font-size:12px;}.v24-stat-row>div:last-child{border-right:0}.v24-stat-row b{font-size:15px;color:#171C19}.v24-stat-row small{font-size:11px;color:#7B837E}.v24-stat-ic{color:#0A6A3F;font-size:20px;margin-bottom:4px}
+.v24-report-banner{width:100%;border:0;border-radius:14px;background:linear-gradient(135deg,#00663A,#004829);color:#fff;text-align:left;padding:17px 17px 50px;position:relative;box-shadow:0 5px 14px rgba(0,82,45,.15);cursor:pointer;}.v24-report-copy{display:block;padding-right:90px}.v24-report-copy b{font-size:17px;line-height:1.5}.v24-report-copy small{display:block;font-size:10.5px;line-height:1.8;color:#E6F1EA;margin-top:7px}.v24-report-paper{position:absolute;right:18px;top:24px;width:63px;height:86px;background:#F7F4E9;color:#386B4D;border-radius:4px;padding:14px 8px;font-size:11px;font-weight:900;transform:rotate(5deg);box-shadow:0 6px 12px rgba(0,0,0,.14)}.v24-preview-pill{position:absolute;left:18px;bottom:14px;background:#fff;color:#0A6640;border-radius:8px;padding:8px 16px;font-size:12px;font-weight:800;}
+.v24-domain-title{text-align:center;margin:19px 0 12px}.v24-domain-title b{display:block;font-size:16px}.v24-domain-title span{display:block;color:#6F7772;font-size:12px;margin-top:2px}.v24-domain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.v24-domain-grid>div{min-height:92px;border:1px solid #E4E8E5;border-radius:12px;padding:11px 8px;text-align:center;background:#fff}.v24-domain-grid i{display:inline-flex;width:23px;height:23px;border-radius:50%;align-items:center;justify-content:center;background:#DFAF3E;color:#fff;font-size:10px;font-style:normal!important;font-weight:900;margin-bottom:5px}.v24-domain-grid>div:nth-child(4) i{background:#4A9A63}.v24-domain-grid>div:nth-child(5) i{background:#5A8BB3}.v24-domain-grid>div:nth-child(6) i{background:#A46991}.v24-domain-grid b{display:block;font-size:12px}.v24-domain-grid span{display:block;font-size:10px;color:#747D77;line-height:1.45;margin-top:4px}
+.v24-privacy{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;background:#FFF9EB;border:1px solid #F0E3BF;border-radius:12px;padding:12px 13px;margin:14px 0}.v24-privacy>span{font-size:19px}.v24-privacy b{display:block;color:#B67613;font-size:12px}.v24-privacy small{display:block;color:#373E3A;font-size:10px;line-height:1.5;margin-top:3px}.v24-privacy strong{width:48px;height:48px;border-radius:50%;background:#E9C366;color:#7D5A08;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;border:2px solid #D8A841}
+.v24-start-btn{width:100%;height:54px;border:0;border-radius:9px;background:linear-gradient(180deg,#087444,#005C34);color:#fff;font-size:17px;font-weight:900;display:flex;align-items:center;justify-content:center;position:relative;cursor:pointer;box-shadow:0 4px 10px rgba(0,89,50,.16)}.v24-start-btn span{position:absolute;right:19px;font-size:27px;font-weight:300}.v24-resume{width:100%;border:0;background:transparent;color:#6F7772;text-decoration:underline;text-underline-offset:4px;padding:13px;font-size:12px;cursor:pointer}
+.v24-setup-overlay{position:fixed;inset:0;background:rgba(20,31,25,.42);z-index:999;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}.v24-setup-sheet{width:min(430px,100%);background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 28px;position:relative;box-shadow:0 -10px 40px rgba(0,0,0,.16);max-height:90vh;overflow:auto}.v24-setup-sheet h2{font-family:'Noto Serif KR',serif!important;font-size:21px!important;margin:10px 0 20px!important}.v24-sheet-x{position:absolute;right:16px;top:13px;width:34px;height:34px;border:0;background:#F1F3F2;border-radius:50%;font-size:23px;color:#5F6863;cursor:pointer}.v24-aware .opt{padding:10px 0!important}
+/* single-question layout */
+#s-quiz{padding:8px 22px 24px!important}.progress-wrap{margin:3px 0 18px!important}.progress-top .t{font-size:13px!important;color:#17201B!important}.progress-top .t strong{font-family:'Noto Serif KR',serif!important;font-size:23px!important;color:#006A3B!important;margin-right:2px}.progress-top .pct{font-size:13px!important;color:#5E6762!important}.bar{height:5px!important;background:#E9ECEA!important}.bar>i{background:#0B7345!important}.part-title{display:none!important}.qcard{border:0!important;box-shadow:none!important;padding:2px 0 6px!important;margin:0!important;background:#fff!important}.qcard .qq{font-family:'Noto Serif KR',serif!important;font-size:24px!important;line-height:1.55!important;font-weight:700!important;letter-spacing:-.7px!important;margin-bottom:22px!important}.qcard .qq .qno{display:block!important;width:max-content;background:#E9F3ED;color:#006A3B!important;border-radius:999px;padding:5px 10px;margin:0 0 8px!important;font-family:'Noto Sans KR',sans-serif!important;font-size:12px!important}.qhint{display:block!important;margin:8px 0 0!important;font-family:'Noto Sans KR',sans-serif!important;font-size:11px!important;line-height:1.55!important;color:#7D8580!important;font-weight:400!important}.v24-q-visual{height:148px;margin:-5px 0 17px;border-radius:14px;background:linear-gradient(180deg,#FBFAF6,#F2EBDD);display:flex;align-items:center;justify-content:center;font-size:54px;position:relative;overflow:hidden}.v24-q-visual:before,.v24-q-visual:after{content:'';position:absolute;bottom:0;width:34%;height:34px;background:#E7DAC0;filter:blur(12px);opacity:.65}.v24-q-visual:before{left:0}.v24-q-visual:after{right:0}.opts{gap:10px!important}.opt{position:relative;border:1px solid #DDE2DF!important;border-radius:10px!important;padding:14px 15px 14px 42px!important;font-size:14px!important;color:#333B37!important;background:#fff!important}.opt:before{content:'';position:absolute;left:15px;top:50%;transform:translateY(-50%);width:17px;height:17px;border:1.5px solid #C8CECA;border-radius:50%;background:#fff}.opt.sel{background:#EFF7F2!important;border-color:#087243!important;color:#074B2E!important;font-weight:800!important;box-shadow:0 0 0 1px #087243 inset}.opt.sel:before{border:5px solid #087243;width:16px;height:16px}.opts.row .opt{min-width:calc(50% - 5px)!important}.qtext{height:50px;border:1px solid #DDE2DF!important;background:#fff!important;border-radius:10px!important}.cond-note{font-size:11px!important}.qnav{position:sticky!important;bottom:68px!important;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 24%)!important;padding:22px 0 8px!important;z-index:30!important;display:grid!important;grid-template-columns:1fr 1.35fr!important;gap:10px!important}.qnav .btn{height:49px!important;border-radius:8px!important;font-size:14px!important}.qnav .btn-ghost{border:1px solid #0B6740!important;color:#174C35!important;background:#fff!important}.qnav .btn-green{background:#00653A!important;color:#fff!important}
+/* completion aligned to reference */
+.app-complete{padding:10px 0 0!important}.complete-icon{background:#fff!important;color:#09683D!important;border-radius:10px!important;border:2px solid #D6B066!important;box-shadow:none!important;font-size:31px!important}.complete-title{font-family:'Noto Serif KR',serif!important;font-size:25px!important}.complete-stats{gap:7px!important}.complete-stat{border-radius:10px!important;padding:12px 5px!important}.complete-stat .v{font-size:14px!important}.complete-stat .l{font-size:10px!important}.next-step-card{background:#fff!important;color:#17201B!important;border:1px solid #E1E5E2!important;box-shadow:none!important}.next-step-card .eyebrow{background:#E9F3ED!important;color:#08663D!important}.next-step-card p{color:#6C756F!important}.next-step-card .price{font-size:13px!important;color:#087043!important}.next-step-card .pg-btn{background:#00653A!important;color:#fff!important}
+.app-bottom-nav{height:68px!important;background:#fff!important}.app-bottom-nav button{font-size:10px!important}.app-bottom-nav button .ic{font-size:18px!important}.app-bottom-nav .center .ic{width:46px!important;height:46px!important;background:#D3A43C!important;color:#fff!important;border-color:#fff!important}
+@media(min-width:700px){.topnav{margin-top:18px!important;border-radius:22px 22px 0 0!important}.page{border-radius:0 0 22px 22px!important}.v24-setup-overlay{align-items:center}.v24-setup-sheet{border-radius:24px;max-height:86vh}}
+</style>
+
+
+<style id="ver25-enhancements">
+/* Ver25 feedback pass */
+.v25-hero-photo{overflow:hidden;background:#F6F8F6!important;border-radius:48% 48% 18px 18px!important;box-shadow:inset 0 0 0 1px #EDF1EE!important}
+.v25-hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 45%;display:block;mix-blend-mode:multiply;filter:saturate(.94) contrast(1.02)}
+.v24-aware{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;overflow:visible!important;flex-wrap:nowrap!important}
+.v24-aware .opt{min-width:0!important;width:100%!important;padding:11px 0!important;text-align:center!important;font-size:13px!important}
+.v24-aware .opt:before{display:none!important}
+.v25-question-meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:1px 0 10px}
+.v25-q-number{display:inline-flex;align-items:center;justify-content:center;background:#0B7345;color:#fff;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;line-height:1}
+.v25-part-badge{display:inline-flex;align-items:center;background:#E9F3ED;color:#075C38;border-radius:999px;padding:6px 10px;font-size:12.5px;font-weight:900;line-height:1.15}
+.qcard .qq .qno{display:none!important}
+.qcard .qq{margin-bottom:14px!important}
+.v24-q-visual{height:156px!important;margin:0 0 17px!important;border-radius:14px!important}
+.v25-photo-visual{background:#FBF8F0!important;padding:0!important}
+.v25-photo-visual:before,.v25-photo-visual:after{display:none!important}
+.v25-photo-visual img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;filter:saturate(.98) contrast(1.02)}
+.v25-object-visual{background:linear-gradient(180deg,#FCFAF5 0%,#F2E9D8 100%)!important;isolation:isolate}
+.v25-object-visual>span{font-size:62px;z-index:2;filter:drop-shadow(0 8px 7px rgba(84,66,33,.15))}
+.v25-pedestal{position:absolute;bottom:25px;width:108px;height:18px;border-radius:50%;background:rgba(173,145,95,.16);filter:blur(2px);z-index:1}
+.v25-health-duo{background:linear-gradient(180deg,#FCFAF6,#F2EADB)!important;display:grid!important;grid-template-columns:1fr 1px 1fr!important;gap:15px!important;padding:20px 24px!important}
+.v25-health-duo:before,.v25-health-duo:after{display:none!important}
+.v25-health-duo>div{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#385345;font-size:12px}
+.v25-health-duo>i{width:1px;height:76px;background:#E0D8CA;align-self:center}
+.v25-art-emoji{font-size:47px;filter:drop-shadow(0 6px 6px rgba(0,0,0,.10))}
+/* Part intro restored at every section boundary */
+#partIntro .pintro{border:0!important;box-shadow:none!important;padding:8px 0 6px!important;background:#fff!important;text-align:left!important}
+#partIntro .pi-title{font-size:24px!important;color:#111A15!important;line-height:1.45!important;margin:12px 0 10px!important}
+#partIntro .pi-diagram{border-radius:14px!important;background:#F7F7F3!important;padding:12px!important}
+#partIntro .pi-msg{font-size:14px!important;font-weight:600!important;color:#38433D!important}
+#partIntro .pi-hint{background:#F1F7F3;border-radius:12px;padding:12px 13px;font-size:12px!important;color:#42604F!important;margin:12px 0 14px!important}
+#partIntro .pi-toc{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px!important;margin-top:14px!important}
+#partIntro .toc-sep{display:none!important}
+#partIntro .toc-chip{text-align:center;font-size:11px!important;padding:7px 5px!important}
+#partIntro .pi-save{width:100%;border:1px dashed #AEBBB3!important;border-radius:10px!important;margin-top:10px!important}
+.progress-top .t{display:flex!important;align-items:baseline!important;gap:2px!important}
+.progress-top .t strong{font-size:18px!important;font-family:'Noto Sans KR',sans-serif!important;color:#0B7042!important}
+.progress-top .t span{font-size:13px!important;font-weight:700!important;color:#222D27!important}
+@media(max-width:360px){.v25-part-badge{font-size:11.5px;padding:5px 8px}.qcard .qq{font-size:21px!important}.v24-aware{gap:4px!important}}
+</style>
+
+<style id="ver26-feedback-pass">
+/* ===== Ver26 · readability / part intro / question visuals ===== */
+.qcard .qq .qhint,.qhint{
+  font-family:'Noto Sans KR',sans-serif!important;
+  display:block!important;
+  margin:9px 0 0!important;
+  font-size:13px!important;
+  line-height:1.62!important;
+  color:#5F6C65!important;
+  font-weight:500!important;
+  letter-spacing:-.15px!important;
+}
+@media(max-width:360px){.qcard .qq .qhint,.qhint{font-size:12.5px!important}}
+.v26-visual-caption{position:absolute;top:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:12px;font-weight:800;color:#637068;background:rgba(255,255,255,.72);padding:5px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.v26-visual-object{font-size:62px;line-height:1;filter:drop-shadow(0 10px 8px rgba(67,54,30,.14));transform:translateY(6px)}
+.v26-object-pair{display:flex;gap:16px;align-items:center;justify-content:center;transform:translateY(7px)}
+.v26-object-pair span{font-size:50px;filter:drop-shadow(0 9px 7px rgba(67,54,30,.12))}
+.v26-mini-label{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:800;color:#7A6A48;white-space:nowrap}
+/* Part intro: diagram bigger + CTA / TOC colors separated */
+#partIntro .pi-diagram{min-height:218px!important;padding:8px 4px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+#partIntro .pi-diagram svg{width:112%!important;max-width:none!important;min-height:205px!important;display:block!important}
+#partIntro .pi-btn{width:100%!important;max-width:none!important;background:#0B5C3A!important;color:#fff!important;border:none!important;box-shadow:0 5px 14px rgba(11,92,58,.16)!important}
+#partIntro .pi-toc{margin-top:15px!important}
+#partIntro .toc-chip{background:#F0F2F1!important;color:#68736D!important;border:1px solid #E4E8E5!important;font-weight:800!important}
+#partIntro .toc-chip.done{background:#EAF4EE!important;color:#176242!important;border-color:#DCEBE2!important}
+#partIntro .toc-chip.cur{background:#F5E8C7!important;color:#725313!important;border-color:#E8D39B!important}
+#partIntro .pi-save{background:#fff!important;color:#5B6861!important}
+/* value/supplementary question badge */
+.v26-value-badge{display:inline-flex;align-items:center;background:#F4EBDD;color:#765D26;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;line-height:1}
+</style>
+
+
+<style id="ver27-skin">
+html,body,.page{overflow-x:hidden!important}
+.screen{overflow-x:hidden!important}
+.app-bottom-nav{overflow:hidden!important}
+.app-bottom-nav button{overflow:hidden!important;white-space:nowrap!important}
+/* left-bottom ghost text / off-canvas remnants */
+body::before,body::after,.page::before,.page::after{max-width:100vw!important}
+
+/* Part diagrams: larger visual/text for all six parts */
+#partIntro .pi-diagram{min-height:250px!important;padding:10px 6px!important}
+#partIntro .pi-diagram svg{width:118%!important;min-height:235px!important}
+#partIntro .pi-diagram svg text{font-size:15px!important;font-weight:700!important}
+#partIntro .pi-title{font-size:25px!important;line-height:1.38!important}
+#partIntro .pi-msg{font-size:15px!important;line-height:1.72!important;color:#243B30!important}
+#partIntro .pi-hint{font-size:13px!important;line-height:1.6!important}
+#partIntro .pi-btn{background:#0A6B43!important;color:#fff!important}
+#partIntro .toc-chip.cur{background:#D7AA42!important;color:#173B28!important;border-color:#D7AA42!important}
+#partIntro .toc-chip.done{background:#DCEFE5!important;color:#176242!important}
+#partIntro .toc-chip:not(.cur):not(.done){background:#EEF1EF!important;color:#6F7B74!important}
+
+/* Question support text */
+.qcard .qhint{display:block!important;margin:9px 0 0!important;font-size:13.5px!important;line-height:1.6!important;color:#6D645E!important;font-weight:500!important}
+.cond-note{font-size:13.5px!important;color:#A66C13!important;font-weight:800!important}
+.v26-visual-caption{font-size:13.5px!important;padding:6px 11px!important;color:#4D5D54!important}
+.v25-health-duo{gap:14px!important;padding:28px 12px!important}
+.v25-health-duo>div{min-width:0!important;flex:1!important;text-align:center!important}
+.v25-health-duo b{display:block!important;font-size:14px!important;line-height:1.35!important;margin-top:7px!important;color:#193D2B!important}
+.v25-health-duo .v27-vascular{display:flex!important;justify-content:center!important;gap:3px!important;font-size:34px!important}
+
+/* Consultation back */
+.v27-back-report{border:0;background:transparent;color:#126742;font-size:14px;font-weight:800;margin:0 0 10px;padding:5px 2px;cursor:pointer}
+
+/* Completion: less white, score-matched status image + weak axis emphasis */
+#s-complete{background:linear-gradient(180deg,#F4F8F5 0%,#EEF5F0 100%)!important}
+.app-complete{padding-top:20px!important}
+.v27-result-mood{width:112px;height:112px;border-radius:32px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:54px;border:1px solid #DDE7E0;background:#fff;box-shadow:0 10px 24px rgba(18,74,47,.10)}
+.v27-result-mood.warn{background:#FFF3EE;border-color:#F0D2C6}.v27-result-mood.good{background:#EEF8F2;border-color:#CFE7D8}.v27-result-mood.mid{background:#FFF8E8;border-color:#EADCB3}
+.free-result{background:#FBFDFC!important}.free-result .v27-weak{margin-top:12px;padding:11px 12px;border-radius:12px;background:#FFF1EC;border-left:4px solid #D85C45;color:#7B3124;font-size:13.5px;font-weight:800;line-height:1.55}
+
+/* premium cards should stay on one line */
+.pg-list{grid-template-columns:1fr!important}
+.pg-item{white-space:nowrap!important;font-size:13px!important;padding:10px 11px!important}
+
+/* Report readability */
+#s-report .mcard .lb{font-size:13px!important;line-height:1.45!important;min-height:38px!important}
+#s-report .mcard .vl{margin-top:4px!important}
+.scen-chip .t{font-size:12.5px!important;line-height:1.45!important;min-height:36px!important}
+.basis-note{font-size:13.5px!important;line-height:1.85!important;padding:15px 16px!important}
+.v27-basis-line{display:block;margin:6px 0}
+.v27-final-actions{display:grid;grid-template-columns:1fr;gap:9px;margin:18px 0 8px}
+.v27-final-actions button{min-height:50px;border-radius:12px;font-size:15px;font-weight:900;cursor:pointer}
+.v27-final-save{border:0;background:#0B6A42;color:#fff}.v27-restart{border:1.5px solid #0B6A42;background:#fff;color:#0B6A42}
+</style>
+
+<style id="ver28-patch">
+/* Ver28 · 퇴직→은퇴→Life 2.0 철학/가독성 통일 */
+#partIntro .pi-diagram{min-height:285px!important;padding:6px!important;background:linear-gradient(180deg,#FBFCFA,#F5F7F4)!important;}
+#partIntro .pi-diagram svg{width:121%!important;min-height:270px!important;}
+#partIntro .pi-diagram svg text{font-family:'Noto Sans KR',sans-serif!important;}
+#partIntro .pi-msg{font-size:15.5px!important;line-height:1.72!important;color:#24332B!important;}
+#partIntro .pi-hint{font-size:13px!important;line-height:1.65!important;}
+/* 65세 선택지의 기준 시점 보조 설명을 한 화면에서 명확히 */
+.qcard[data-qid="Q3"] .opt:nth-child(2){padding-right:12px!important;}
+.qcard[data-qid="Q3"] .opt:nth-child(2)::after{content:'국민연금 수령 기준';display:inline-block;margin-left:8px;padding:3px 7px;border-radius:999px;background:#EAF4EE;color:#0B7345;font-size:10px;font-weight:800;vertical-align:1px;}
+/* 상담/저장 버튼 문구가 길어도 안정적으로 */
+.consult-option h3{line-height:1.45!important;word-break:keep-all!important;}
+@media(max-width:430px){#partIntro .pi-diagram{min-height:270px!important}#partIntro .pi-diagram svg{width:124%!important;min-height:255px!important}.qcard[data-qid="Q3"] .opt:nth-child(2)::after{font-size:9.5px;margin-left:5px}}
+</style>
+
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <div class="logo"><div class="ko">2막 1장</div><div class="en">LIFE 2.0 · ACT II</div></div>
+    <div class="nav-badge">정밀진단 Ver.28 · 42문항</div>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ===== 0) 첫 화면 · 3단계 진단 선택 ===== -->
+  <section id="s-stage" class="screen">
+    <div class="stage-hero">
+      <span class="eyebrow gold">★ 2막 1장 · 은퇴 진단</span>
+      <h1>인생 2막 준비,<br><em>어디서부터 시작할까요?</em></h1>
+      <p>지금 상황에 맞는 진단을 선택하세요. 가볍게 시작해도, 언제든 정밀 진단으로 이어집니다.</p>
+    </div>
+
+    <div class="stage-card" onclick="startQuick()">
+      <div class="sc-head">
+        <span class="sc-ic">⚡</span>
+        <div><span class="sc-badge">무료 · 가입 없이 바로</span><h3>5분 빠른 진단</h3></div>
+        <span class="sc-arrow">›</span>
+      </div>
+      <p>딱 7개 질문으로 은퇴 준비 점수와 <b>또래 대비 내 위치</b>를 바로 확인합니다.</p>
+      <div class="sc-meta">⏱ 약 2~5분 · 📝 7문항 · 📊 5각 지도 + 또래 비교</div>
+    </div>
+
+    <div class="stage-card featured" onclick="goFullIntro()">
+      <div class="stage-rec">★ 추천</div>
+      <div class="sc-head">
+        <span class="sc-ic">✦</span>
+        <div><span class="sc-badge">무료 진단 · 정밀 리포트</span><h3>2막1장 종합 진단</h3></div>
+        <span class="sc-arrow">›</span>
+      </div>
+      <p>42개 질문으로 연금 · 자산 · 건강 · 일자리 · 웰다잉까지 정밀 분석하고, <b>자산 고갈 나이 시나리오</b>와 맞춤 처방 리포트를 받습니다.</p>
+      <div class="sc-meta">⏱ 약 8분 · 📝 42문항 · 📋 정밀 리포트 + 전문가 상담 연결</div>
+    </div>
+
+    <div class="stage-card locked" onclick="openMydata()">
+      <div class="sc-head">
+        <span class="sc-ic">🔐</span>
+        <div><span class="sc-badge gray">회원 전용 · 오픈 준비 중</span><h3>마이데이터 정밀 진단</h3></div>
+        <span class="sc-arrow">›</span>
+      </div>
+      <p>은행 · 증권 · 보험 계좌를 연동해 <b>실제 자산 데이터 기반</b>으로 진단합니다. 사전 신청하시면 오픈 시 가장 먼저 안내드립니다.</p>
+      <div class="sc-meta">🔗 마이데이터 연동 · 👤 전담 플래너 리포트</div>
+    </div>
+
+    <button class="btn btn-ghost" style="width:calc(100% - 32px);margin:14px 16px 0;" onclick="resumeOpen()">🔄 기존 진단 이어하기</button>
+  </section>
+
+  <!-- ===== 0-1) 빠른 진단 (7문항) ===== -->
+  <section id="s-quick" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <div class="t">⚡ 빠른 진단 · <span id="qkCount">0</span>/7 응답</div>
+        <div class="pct" id="qkPct">0%</div>
+      </div>
+      <div class="bar"><i id="qkFill" style="width:0%"></i></div>
+    </div>
+    <div class="quick-title">5분 빠른 진단</div>
+    <div class="quick-sub">7개 질문에 답하면 은퇴 준비 점수와 또래 대비 위치를 바로 알려드립니다.</div>
+    <div id="qkContainer"></div>
+    <div class="qnav" style="position:sticky;bottom:0;background:linear-gradient(180deg,rgba(245,246,244,0),#F5F6F4 28%);padding:14px 0 4px;z-index:20;">
+      <button class="btn btn-ghost" style="flex:0 0 110px;" onclick="show('s-stage');setNav('home');">← 처음으로</button>
+      <button class="btn btn-green" onclick="submitQuick()">결과 보기 ✨</button>
+    </div>
+  </section>
+
+  <!-- ===== 0-2) 빠른 진단 결과 ===== -->
+  <section id="s-quickResult" class="screen">
+    <div id="quickResultBody"></div>
+  </section>
+
+  <!-- ===== 1) 소개 · Ver25 reference UI ===== -->
+  <section id="s-intro" class="screen active v24-intro-screen">
+    <div class="v24-home">
+      <span class="v24-chip">★ 은퇴 정밀진단</span>
+      <h1>직장에서의 퇴직,<br><em>걱정되십니까?</em></h1>
+      <div class="v24-home-copy">
+        <p><b>더 큰 걱정은 따로 있습니다.</b><br>일을 멈춘 뒤에도 생활비는<br>매달 나갑니다.</p>
+        <p><b>그 준비가 되어 있는지,</b><br>연금·자산·건강·일자리·웰다잉까지<br>42개 질문으로 한 번에 진단해 드립니다.</p>
+      </div>
+      <div class="v24-hero-ill v25-hero-photo" aria-hidden="true">
+        <img src="data:image/jpeg;base64,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" alt="" loading="eager">
+      </div>
+    </div>
+
+    <div class="v24-stat-row">
+      <div><span class="v24-stat-ic">◷</span><b>약 7분</b><small>소요 시간</small></div>
+      <div><span class="v24-stat-ic">▣</span><b>42문항</b><small>진단 문항</small></div>
+      <div><span class="v24-stat-ic">♢</span><b>진단·상담</b><small>목적 보관</small></div>
+    </div>
+
+    <button class="v24-report-banner" onclick="previewReport()">
+      <span class="v24-report-copy"><b>진단을 완료하시면,<br>이런 정밀 리포트를 드립니다</b><small>부부 합산 예상 연금 · 자산 고갈 나이 · 건강 방어율<br>맞춤 처방 · 우선순위 액션 플랜</small></span>
+      <span class="v24-report-paper">REPORT<br>↗</span>
+      <span class="v24-preview-pill">◉ 리포트 미리보기</span>
+    </button>
+
+    <div class="v24-domain-title"><b>6개 분야 · MECE 진단 구조</b><span>중복 없이, 빠짐없이 진단합니다.</span></div>
+    <div class="v24-domain-grid">
+      <div><i>01</i><b>기본정보</b><span>나이 · 가구 · 소득 상태</span></div>
+      <div><i>02</i><b>연금(소득)</b><span>공적 · 사적 연금 · 노후 소득원</span></div>
+      <div><i>03</i><b>자산(금융)</b><span>금융자산 · 부채 · 현금흐름</span></div>
+      <div><i>04</i><b>건강</b><span>건강 상태 · 의료비</span></div>
+      <div><i>05</i><b>일자리(재취업)</b><span>역량 · 재취업 가능성</span></div>
+      <div><i>06</i><b>웰다잉(가치)</b><span>삶의 가치 · 준비도</span></div>
+    </div>
+
+    <div class="v24-privacy"><span>🔒</span><div><b>개인정보는 안전하게 보호됩니다</b><small>입력하신 정보는 진단 및 리포트 제공 목적 외에 사용되지 않습니다.</small></div><strong>안심<br>보장</strong></div>
+
+    <button class="v24-start-btn" onclick="openStartSetup()">진단 시작하기 <span>›</span></button>
+    <button class="v24-resume" onclick="resumeOpen()">기존 진단 이어하기</button>
+
+    <div id="v24Setup" class="v24-setup-overlay" style="display:none;" onclick="if(event.target===this)closeStartSetup()">
+      <div class="v24-setup-sheet">
+        <button class="v24-sheet-x" onclick="closeStartSetup()">×</button>
+        <span class="v24-chip">진단 시작 전</span>
+        <h2>간단한 정보를 확인해 주세요</h2>
+        <div class="fg">
+          <label>지금 내 노후 준비 상태를 얼마나 잘 안다고 느끼세요?<span style="color:#A9822F"> *</span></label>
+          <div class="opts row sv-scale v24-aware">
+            <div class="opt" onclick="pickPre(1,this)">1</div><div class="opt" onclick="pickPre(2,this)">2</div><div class="opt" onclick="pickPre(3,this)">3</div><div class="opt" onclick="pickPre(4,this)">4</div><div class="opt" onclick="pickPre(5,this)">5</div>
+          </div>
+          <div class="sv-ends"><span>전혀 모름</span><span class="sv-line"></span><span>잘 앎</span></div>
+        </div>
+        <div class="fg"><label>이름 또는 별명<span style="color:#A9822F"> *</span></label><input type="text" id="uName" placeholder="별명·이니셜도 괜찮아요"></div>
+        <div class="fg"><label>연락처(휴대폰) <span style="color:var(--muted);font-weight:400;">· 선택</span></label><input type="tel" id="uPhone" placeholder="상담을 원하실 때만 입력"></div>
+        <div class="fg"><label class="consent"><input type="checkbox" id="uConsent"><span>입력 정보를 <strong>2막1장 진단·상담 목적</strong>으로 수집·이용하는 데 동의합니다.</span></label></div>
+        <button class="v24-start-btn" onclick="goTeaser()">정밀진단 시작하기 <span>›</span></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 2) 예시 리포트 미리보기 — 모달 팝업 ===== -->
+  <div id="previewModal" class="modal-ov" style="display:none;" onclick="if(event.target===this)closePreview()">
+    <div class="modal-box">
+      <button class="modal-x" onclick="closePreview()" aria-label="닫기">✕</button>
+      <div class="t-intro" style="padding-top:2px;">
+        <span class="eyebrow">★ 완성 리포트 미리보기</span>
+        <h2>끝까지 답하면, <em>이런 정밀 리포트</em>를 받습니다</h2>
+        <div class="t-mock">※ 예시(가상 인물) · 실제 응답에 따라 결과가 달라집니다</div>
+      </div>
+      <div id="teaserReport"></div>
+      <div class="modal-foot"><button class="btn btn-primary" style="max-width:420px;" onclick="closePreview();goTeaser();">정밀진단 시작하기 →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== 미니 모달 (이어하기 · 임시저장 공용) ===== -->
+  <div id="miniModal" class="modal-ov" style="display:none;" onclick="if(event.target===this)closeMini()">
+    <div class="modal-box mini">
+      <button class="modal-x" onclick="closeMini()" aria-label="닫기">✕</button>
+      <div id="miniBody"></div>
+    </div>
+  </div>
+
+  <!-- ===== 3) 문항 ===== -->
+  <section id="s-quiz" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <div class="t"><strong id="pNow">PART 1</strong><span id="pName2"> · Q1 / 42</span></div>
+        <div class="pct" id="pPct">0%</div>
+      </div>
+      <div class="bar"><i id="pFill" style="width:0%"></i></div>
+    </div>
+
+    <!-- 파트 도식 인트로 -->
+    <div id="partIntro"></div>
+
+    <!-- 파트 문항 -->
+    <div id="partBody" style="display:none;">
+      <div class="part-title" id="partTitle"></div>
+      <div id="qContainer"></div>
+      <div class="qnav">
+        <button class="btn btn-ghost" id="prevBtn" onclick="uiPrevQuestion()" style="flex:0 0 120px;">‹ 이전</button>
+        <button class="btn btn-green" id="nextBtn" onclick="uiNextQuestion()">다음 ›</button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ===== 3) 진단 완료 ===== -->
+  <section id="s-complete" class="screen">
+    <div class="app-complete">
+      <div class="complete-icon">✓</div>
+      <div class="complete-title">진단이 완료되었습니다!</div>
+      <div class="complete-sub">무료 진단 결과를 먼저 확인하고, 필요한 분만 정밀 리포트를 열어보세요.</div>
+      <div class="complete-stats">
+        <div class="complete-stat"><div class="v">42/42</div><div class="l">응답 완료</div></div>
+        <div class="complete-stat"><div class="v">약 8분</div><div class="l">소요 시간</div></div>
+        <div class="complete-stat"><div class="v">무료</div><div class="l">기본 결과</div></div>
+      </div>
+      <div id="completeFreeResult"></div>
+      <div class="next-step-card">
+        <span class="eyebrow">NEXT · REPORT</span>
+        <h3>기본 리포트를 무료로 확인하세요.</h3>
+        <p>종합 점수 · 5각 지도 · 취약 영역은 무료 기본 리포트로 바로 보여드립니다. 자산 고갈 시나리오 · 또래 비교 · 실행 로드맵 · What-if가 담긴 정밀 리포트는 상세 보기로 열 수 있습니다.</p>
+        <div class="price">기본 리포트 무료 · 정밀 리포트 5,000원</div>
+        <button class="pg-btn" style="margin-top:12px;background:#C9A449;color:#0F2B1D;" onclick="goPremiumReport()">기본 리포트 보기 →</button>
+      </div>
+      <button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="goConsult()">라이프이점영 생애설계사 무료 상담 받기</button>
+    </div>
+  </section>
+
+  <!-- ===== 4) 결과 리포트 ===== -->
+  <section id="s-report" class="screen">
+    <div class="report-headline">나의 은퇴 준비 리포트</div>
+    <div id="realReport"></div>
+    <div class="v27-final-actions">
+      <button class="v27-final-save" onclick="saveFinalV27()">✓ 최종 내용 저장하기</button>
+      <button class="v27-restart" onclick="restart()">↻ 진단 다시 해보기</button>
+    </div>
+    <div class="disclaim">
+      <b>2막 1장 · Life 2.0</b><br>
+      본 진단은 상담 전 자가진단용 보수적 추정 모델입니다. 실제 연금 수령액·세금·수익률·건강 변화에 따라 결과는 달라질 수 있습니다.
+    </div>
+  </section>
+
+  <!-- ===== 5) 상담 신청 ===== -->
+  <section id="s-consult" class="screen">
+    <button class="v27-back-report" onclick="goPremiumReport()">‹ 리포트로 돌아가기</button>
+    <div class="consult-hero">
+      <div class="kicker">EXPERT CONSULTATION</div>
+      <h2>리포트를 읽고도<br>“그래서 뭘 하지?”라면</h2>
+      <p>퇴직 이후의 소득 공백부터 은퇴 이후의 삶까지, 진단 결과에서 필요한 영역만 골라 상담할 수 있습니다.</p>
+    </div>
+    <div class="consult-option">
+      <div class="top"><h3>🤝 라이프이점영 회원 가입 후 무료 상담</h3><span class="consult-badge">FREE</span></div>
+      <p>연금·보험·노후 현금흐름을 중심으로 결과를 함께 읽고, 가장 먼저 할 1~2가지를 정리합니다.</p>
+      <button onclick="consult('free');">회원가입 후 무료 상담 신청 →</button>
+    </div>
+    <div class="consult-option paid">
+      <div class="top"><h3>📋 전문가 1:1 심층상담</h3><span class="consult-badge" style="background:#F5EBD0;color:#7A5A18;">PAID</span></div>
+      <p>세무·상속·주택연금·법률 등 전문 영역이 필요한 경우 해당 전문가와 연결합니다.</p>
+      <button onclick="consult('paid');">심층상담 알아보기 →</button>
+    </div>
+    <div class="consult-option">
+      <div class="top"><h3>📞 상담 전 준비</h3><span class="consult-badge">CHECK</span></div>
+      <p>국민연금 예상액, 금융자산 규모, 부채, 보험 보장 내역을 미리 준비하면 상담 시간이 더 짧고 정확해집니다.</p>
+    </div>
+  </section>
+
+  <!-- ===== 6) 마이페이지 ===== -->
+  <section id="s-mypage" class="screen">
+    <div class="profile-card">
+      <div class="profile-row">
+        <div class="profile-avatar" id="myAvatar">2</div>
+        <div><div class="name" id="myName">내 이름</div><div class="code" id="myCode">진단 코드 준비 중</div></div>
+      </div>
+      <span class="status-chip">최근 진단 결과 확인</span>
+    </div>
+    <div class="my-menu">
+      <button onclick="goPremiumReport()">📊 최근 진단 결과 <span>›</span></button>
+      <button onclick="goConsult()">🤝 상담 신청 / 예약 <span>›</span></button>
+      <button onclick="showPaidStatus()">🔐 정밀 리포트 구매 상태 <span>›</span></button>
+      <button onclick="restart()">↻ 새 진단 시작 <span>›</span></button>
+    </div>
+    <div style="font-size:13.5px;color:#8A938E;line-height:1.6;margin:14px 4px;">진단 결과와 상담 신청 내역을 확인할 수 있습니다.</div>
+  </section>
+
+</div>
+
+<div id="saveStatus" class="toast"></div>
+
+
+<nav class="app-bottom-nav" aria-label="앱 하단 메뉴">
+  <button id="navHome" onclick="goHome()"><span class="ic">⌂</span>홈</button>
+  <button id="navReport" onclick="goPremiumReport()"><span class="ic">▥</span>리포트</button>
+  <button class="center" onclick="goDiagnosis()"><span class="ic">✦</span>진단</button>
+  <button id="navConsult" onclick="goConsult()"><span class="ic">♡</span>상담</button>
+  <button id="navMy" onclick="goMyPage()"><span class="ic">○</span>마이</button>
+</nav>
+
+<script>
+// ===================================================================
+//  ⚙️ 설정 (여기 세 곳만 채우면 됩니다)
+// ===================================================================
+// 1) 구글시트 저장 (8번 Apps Script 배포 후 URL/비밀키)
+const GAS_URL    = "https://script.google.com/macros/s/AKfycbzpkusUJi_tjYJ77r6VcwdSq4ijglH3d4Q7sNkuHj7fJoUWdxC5FkhQAgOe_cBcYsSzMw/exec";
+const GAS_SECRET = "life20!!";                 // 8번 스크립트의 SECRET과 똑같이
+// 2) 상담 버튼이 열 팔로업 설문(구글폼) 링크  ← 여기에 폼 링크를 붙여넣으면 상담 버튼이 자동 연결됩니다
+const FOLLOWUP_FORM_URL = "";                          // 예: "https://forms.gle/xxxxxxxx"
+const FORM_CODE_ENTRY   = "";                          // (선택) 참여코드 자동입력용 entry ID. 예: "entry.123456789"  ← 넣으면 설문에 코드가 자동으로 채워짐
+// 3) API 연동 설정 — 모든 계산(배점·연금·정합성·처방·What-if·빠른진단)은 서버(main.py · FastAPI)에서 수행됩니다.
+//    이 파일에는 화면 구성·입력 수집·결과 렌더만 남아 있습니다.
+const API_BASE = (window.L2P_API_BASE || (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:' ? 'http://127.0.0.1:8000' : 'https://my-diagnosis-server.onrender.com'));   // ← 배포 시 API 주소로 교체
+async function apiPost(path, body){
+  const r = await fetch(API_BASE+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  if(!r.ok){ let t=''; try{t=(await r.json()).detail||'';}catch(e){} throw new Error('API '+r.status+' '+t); }
+  return r.json();
+}
+async function apiGet(path){ const r=await fetch(API_BASE+path); if(!r.ok) throw new Error('API '+r.status); return r.json(); }
+function apiFail(e){ console.error(e); toast('서버 연결에 문제가 있어요. 잠시 후 다시 시도해 주세요.','warn'); }
+// 서버 전송용 답변 형태 — 선택 인덱스/텍스트만 (보기 파라미터는 서버에만 존재)
+function answersForApi(){ const o={}; Object.keys(answers).forEach(function(k){ const v=answers[k]; if(v&&typeof v==='object'&&!Array.isArray(v)) o[k]=v.idx; else o[k]=v; }); return o; }
+// ===================================================================
+
+// ================= 문항 데이터 (Ver17 · 연금기준 What-if 모델) =================
+// area: 점수영역(asset=동산/housing=부동산/health=건강/job=일자리/well=웰다잉) · null=컨텍스트 · w:가중치 · cond:'home'(자가만)
+// 보기마다 계산 파라미터(np/snp/dx/cm/rp/hpu/sj 등)를 심음 → 보기 선택 = What-if 입력
+const PARTS = ['기본 정보','건강','부동산 (비금융자산)','동산 (금융자산)','일자리','웰다잉'];
+// 표시 순서(step) → 파트(group). 기본 → 동산(금융·연금) → 부동산 → 건강 → 일자리 → 웰다잉
+const SEQ = [1, 4, 3, 2, 5, 6];
+function grpOf(step){ return SEQ[step-1]; }
+let Q = [];            // 서버(/questions)에서 로드 — 보기 텍스트만 포함
+let QUICK_QS = [];     // 빠른 진단 문항(서버 로드)
+let _catalogReady = null;
+function loadCatalog(){
+  if(_catalogReady) return _catalogReady;
+  _catalogReady = apiGet('/questions').then(function(d){
+    Q = d.questions || []; QUICK_QS = d.quick || [];
+    Object.keys(QNUM).forEach(function(k){ delete QNUM[k]; }); Object.assign(QNUM, d.qnum||{});
+    return d;
+  }).catch(function(e){ _catalogReady=null; apiFail(e); throw e; });
+  return _catalogReady;
+}
+
+// Ver22 · 표시용 문항 번호 — 진단 진행 순서(SEQ) 기준으로 부여 (내부 ID는 시트 열 호환 위해 유지)
+const QNUM = {};   // 서버 카탈로그에서 채워짐
+
+const AREA_INFO = {
+  asset:{name:'동산(금융)',emoji:'💰',col:'자산구조'}, health:{name:'건강',emoji:'🛡️',col:'건강방어'},
+  housing:{name:'부동산',emoji:'🏠',col:'주거연장'}, job:{name:'일자리',emoji:'💼',col:'일자리역량'}, well:{name:'웰다잉',emoji:'🕯️',col:'웰다잉준비'}
+};
+const AREA_ORDER = ['asset','health','housing','job','well'];
+// 또래 평균: 서버가 계산 — 시트에서 받은 실측(peerData)이 있으면 서버로 전달
+window._peerData=null;
+function loadPeer(){   // 시트에서 연령대별 평균을 JSONP로 불러옴 (CORS 회피)
+  if(!GAS_URL || GAS_URL.indexOf('http')!==0) return;
+  window.__onPeer=function(d){ window._peerData=d||null; };
+  var s=document.createElement('script');
+  s.src=GAS_URL+'?mode=peer&callback=__onPeer&_t='+Date.now();
+  s.onerror=function(){}; document.body.appendChild(s);
+}
+
+// ================= 상태 =================
+let answers = {};      // {Q7:{idx,opt}, Q24:[idx...], Q1:text}
+let curPart = 1;
+
+// ================= 렌더 =================
+function renderPart(keepScroll){
+  const g=grpOf(curPart);
+  const qs = Q.filter(q => q.part===g && qVisible(q));
+  document.getElementById('partTitle').textContent = 'PART '+curPart+'. '+PARTS[g-1];
+  document.getElementById('pNow').textContent = curPart;
+  document.getElementById('pName2').textContent = PARTS[g-1];
+  const pct = Math.round(((curPart-1)/6)*100);
+  document.getElementById('pPct').textContent = pct+'%';
+  document.getElementById('pFill').style.width = pct+'%';
+  document.getElementById('prevBtn').style.visibility = curPart===1?'hidden':'visible';
+  document.getElementById('nextBtn').textContent = curPart===6?'결과 리포트 보기 ✨':'다음 →';
+
+  let html='';
+  qs.forEach(q=>{
+    if(q.id==='Q1') return;   // 이름은 Q2(성별·연령) 카드에 통합 표시
+    html += '<div class="qcard" data-qid="'+q.id+'"><div class="qq"><span class="qno">'+(QNUM[q.id]||q.id)+'</span>'+q.q+(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>';
+    if(q.id==='Q2'){   // Ver22.2 · 이름은 인트로에서 수집 — 나이·성별만
+      html += '<div style="margin-bottom:12px;"><div style="font-size:13.5px;font-weight:600;color:var(--green-deep);margin-bottom:6px;">나이 <span style="color:var(--muted);font-weight:400;font-size:13.5px;">· 만 나이 숫자로 입력</span></div>'
+            + '<input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" placeholder="예: 52" style="max-width:200px;"></div>'
+            + '<div style="font-size:13.5px;font-weight:600;color:var(--green-deep);margin-bottom:8px;">성별</div>';
+    }
+    if(q.cond==='home') html += '<div class="cond-note">자가 주택 보유자만 응답합니다</div>';
+    if(q.cond==='rent') html += '<div class="cond-note">전월세·기타 거주자만 응답합니다</div>';
+    if(q.type==='text'){
+      const v = answers[q.id]||'';
+      html += '<input class="qtext" type="text" value="'+v.replace(/"/g,'&quot;')+'" oninput="setText(\''+q.id+'\',this.value)" placeholder="예: 홍길동 또는 별명(길동, GD 등)">';
+    } else if(q.type==='multi'){
+      const sel = answers[q.id]||[];
+      html += '<div class="opts">'+q.opts.map((o,i)=>'<div class="opt multi'+(sel.includes(i)?' sel':'')+'" onclick="toggleMulti(\''+q.id+'\','+i+')">'+o.t+'</div>').join('')+'</div>';
+    } else {
+      const sel = answers[q.id]!==undefined?answers[q.id].idx:-1;
+      const rowCls = (q.opts.length<=4 && q.opts.every(o=>o.t.length<=8))?' row':'';
+      html += '<div class="opts'+rowCls+'">'+q.opts.map((o,i)=>'<div class="opt'+(sel===i?' sel':'')+'" onclick="pick(\''+q.id+'\','+i+')">'+o.t+'</div>').join('')+'</div>';
+    }
+    html += '</div>';
+  });
+  const _y = keepScroll ? window.scrollY : 0;
+  document.getElementById('qContainer').innerHTML = html;
+  if(keepScroll){ window.scrollTo({top:_y}); }             // 조건부 문항 갱신 시 현재 위치 유지 (끌올 방지)
+  else { window.scrollTo({top:0,behavior:'smooth'}); }
+}
+function isHome(){ const a=answers['Q16']; return a!==undefined && Q.find(q=>q.id==='Q16').opts[a.idx].home; }
+function hasInv(){ const a=answers['Q20']; return a!==undefined && a.idx>0; }   // Ver22.1 · 투자 부동산 보유 시 유형 문항 노출
+function qVisible(q){ return !(q.cond==='home' && !isHome()) && !(q.cond==='rent' && isHome()) && !(q.cond==='inv' && !hasInv()); }
+function pick(id,i){
+  _markTime(id);
+  const q=Q.find(x=>x.id===id); answers[id]={idx:i,opt:q.opts[i]};
+  if(id==='Q16'||id==='Q20'){ renderPart(true); return; }   // 자가여부·투자부동산 변경 시 조건부 문항 갱신 (스크롤 유지)
+  const card=document.querySelector('.qcard[data-qid="'+id+'"]');
+  if(card)[...card.querySelectorAll('.opt')].forEach((el,idx)=>el.classList.toggle('sel', idx===i));
+}
+function toggleMulti(id,i){
+  _markTime(id);
+  const q=Q.find(x=>x.id===id);
+  let s=answers[id]||[];
+  if(s.includes(i)){ s=s.filter(x=>x!==i); }
+  else{
+    if(q.opts[i].ex){ s=[i]; }                       // '없음' 등 배타 보기: 선택 시 타 항목 해제
+    else{ s=s.filter(x=>!q.opts[x].ex); s.push(i); } // 일반 보기 선택 시 배타 보기 해제
+  }
+  answers[id]=s;
+  const card=document.querySelector('.qcard[data-qid="'+id+'"]');
+  if(card)[...card.querySelectorAll('.opt')].forEach((el,idx)=>el.classList.toggle('sel', s.includes(idx)));
+}
+function setText(id,v){ answers[id]=v; }
+
+function nextPart(){
+  // 필수 응답 검증 (컨텍스트/점수 단일문항)
+  const qs = Q.filter(q=>q.part===grpOf(curPart) && qVisible(q));
+  for(const q of qs){
+    if(q.type==='text'){ if(!answers[q.id]||!answers[q.id].trim()){ alert('이름 또는 별명을 입력해주세요.'); return; } }
+    else if(q.type==='multi'){ if(!(answers[q.id]&&answers[q.id].length)){ alert('하나 이상 선택해주세요: '+q.q); return; } }
+    else if(answers[q.id]===undefined){ alert('모든 문항에 답해주세요.'); return; }
+  }
+  if(grpOf(curPart)===1){   // Ver21.1 · 나이 직접 입력 검증
+    var _a=parseInt(answers['Q2A'],10);
+    if(!_a || _a<20 || _a>100){ alert('나이를 숫자로 입력해주세요 (만 20~100세).'); return; }
+  }
+  if(curPart<6){ enterPart(curPart+1); }   // 다음 파트 도식 인트로부터
+  else {
+    // Ver20 · 응답 정합성 검증 게이트 (수식 8)
+    buildReport();   // 정합성 검증은 서버에서 수행 (needsReview 시 모달)
+  }
+}
+
+// ================= Ver20 · 응답 정합성 검증 엔진 =================
+// 원리: 교차 산출 수식(수식 1~7)의 파라미터 제약을 역방향으로 검산 — "두 응답이 동시에 참일 수 있는가"
+// 수식 8: R = 100 − 18·N_hard − 6·N_soft − P_time − P_straight (0~100)
+let _qT = {};                      // 문항별 최초 응답 소요시간(초)
+let _lastClickT = Date.now();
+function _markTime(id){
+  var now=Date.now(), dt=(now-_lastClickT)/1000; _lastClickT=now;
+  if(_qT[id]===undefined) _qT[id]=Math.min(120,dt);
+}
+// coherenceCheck → 서버(/diagnose)에서 수행. 결과 chk={R,hard,soft,qids,codes}는 서버가 반환.
+function openCoherence(chk){
+  var html='<div style="font-size:17px;font-weight:900;color:var(--green-deep,#124A2F);margin-bottom:6px;">🔍 응답을 한 번 더 확인해 주세요</div>'
+    +'<div style="font-size:13.5px;color:var(--muted,#5C6B62);margin-bottom:12px;line-height:1.55;">아래 응답들이 서로 맞지 않는 부분이 있어요. 착오가 있었다면 수정해 주세요 — 진단 정확도가 크게 올라갑니다.</div>';
+  chk.hard.forEach(function(h){ html+='<div style="background:#FDF3F3;border-left:3px solid #D64545;border-radius:8px;padding:8px 12px;margin:6px 0;font-size:13.5px;line-height:1.5;">'+h.msg+'</div>'; });
+  chk.qids.forEach(function(qid){
+    var q=Q.find(function(x){return x.id===qid;}); if(!q||q.type!=='single') return;
+    var sel=(answers[qid]!==undefined)?answers[qid].idx:-1;
+    html+='<div class="qcard" data-qid="'+qid+'" style="margin:10px 0;"><div class="qq"><span class="qno">'+(QNUM[qid]||qid)+'</span>'+q.q+'</div>'
+      +'<div class="opts">'+q.opts.map(function(o,i){return '<div class="opt'+(sel===i?' sel':'')+'" onclick="pick(\''+qid+'\','+i+')">'+o.t+'</div>';}).join('')+'</div></div>';
+  });
+  html+='<div style="display:flex;gap:10px;margin-top:14px;">'
+    +'<button class="btn btn-green" style="flex:1;" onclick="v27FinishAfterCoherence()">수정 완료 — 결과 보기</button>'
+    +'<button class="btn" style="flex:1;background:#EEF2EF;" onclick="window._cohBypass=true;v27FinishAfterCoherence()">그대로 결과 보기</button></div>';
+  openMini(html);
+}
+function prevPart(){ if(curPart>1){ curPart--; document.getElementById('partIntro').style.display='none'; document.getElementById('partBody').style.display='block'; renderPart(); } }
+
+// ================= 계산 엔진 — 서버(main.py)로 이관 =================
+// ================= 리포트 렌더 =================
+// ACTION / FIRST_ACTION → 서버 반환값(R.actions / R.firstAction) 사용
+function money(v){ return (v>=10000?(v/10000).toFixed(v%10000?1:0)+'억':Math.round(v).toLocaleString()+'만'); }
+
+// ===== 기본 리포트 (무료 · 간략버전) — 종합점수 + 5각 지도 + 취약 영역 =====
+function basicReportHTML(R){
+  const c=R.c, gr=R.grade;
+  const nm=c.name||'고객';
+  const pct=2*Math.PI*74;
+  const w1=R.ranked[0], w2=R.ranked[1];
+  const legend = AREA_ORDER.map(a=>{const s=R.scores[a];const cls=s>=70?'':(s>=50?'mid':'low');return '<div class="lg-item '+cls+'"><span class="lg-name">'+AREA_INFO[a].emoji+' '+AREA_INFO[a].name+'</span><span class="lg-score">'+s+'<span style="font-size:13.5px;color:var(--muted);">점</span></span></div>';}).join('');
+  return `
+    <div class="score-hero">
+      <div class="sh-grid">
+        <div>
+          <div class="sh-greet">2막1장 기본 리포트 · 무료</div>
+          <div class="sh-name">${nm}님(${c.band||'50대'})의 <em>2막 1장 준비 점수</em></div>
+          <div class="sh-tags">
+            <span class="sh-tag gold">종합 ${R.total}점 · ${gr[0]}</span>
+            <span class="sh-tag">목표 은퇴 ${c.retire}세</span>
+          </div>
+        </div>
+        <div>
+          <div class="ring"><svg viewBox="0 0 180 180"><circle class="bg2" cx="90" cy="90" r="74"></circle><circle class="fg2" cx="90" cy="90" r="74" stroke-dasharray="${R.total/100*pct} ${pct}"></circle></svg>
+            <div class="num"><div class="big">${R.total}</div><div class="unit">/ 100</div></div></div>
+          <div class="ring-grade">${gr[0]}</div><div class="ring-sub">${gr[1]}</div>
+        </div>
+      </div>
+    </div>
+    <div class="radar-card">
+      <span class="eyebrow">기본 결과</span>
+      <h2>나의 <em>노후 준비 5각 지도</em></h2>
+      <div class="radar-grid">
+        <div><svg class="radar-svg" viewBox="0 0 320 300">${radarSVG(R.scores, null)}</svg></div>
+        <div class="legend">${legend}</div>
+      </div>
+      <div class="basis-note">📌 또래(동일 연령대) 평균과의 비교, 영역별 산정 근거는 <b>정밀 리포트</b>에서 제공됩니다.</div>
+    </div>
+    <div class="sec-block">
+      <h3>⚠️ 먼저 보완할 영역</h3>
+      <div class="weak-row"><div class="weak-rank">1</div><div class="weak-txt"><b>${AREA_INFO[w1.a].name} (${w1.s}점)</b> — ${R.actions[w1.a]}</div></div>
+      <div class="weak-row"><div class="weak-rank two">2</div><div class="weak-txt"><b>${AREA_INFO[w2.a].name} (${w2.s}점)</b> — ${R.actions[w2.a]}</div></div>
+      <div class="weak-row"><div class="weak-rank ok">✓</div><div class="weak-txt"><b>권장 첫 액션</b> — ${R.firstAction}</div></div>
+    </div>`;
+}
+
+function reportHTML(R, sample){
+  const c=R.c, gr=R.grade;
+  const nm = sample?'홍길동':(c.name||'고객');
+  const pct = 2*Math.PI*74;
+  const peer = R.peer;
+  const peerN = R.peerReal ? R.peerN : 0;
+  const legend = AREA_ORDER.map(a=>{const s=R.scores[a];const p=peer[a];const cls=s>=70?'':(s>=50?'mid':'low');const cmp=s>=p?'▲':'▼';return '<div class="lg-item '+cls+'"><span class="lg-name">'+AREA_INFO[a].emoji+' '+AREA_INFO[a].name+'</span><span class="lg-score">'+s+'<span style="font-size:13.5px;color:var(--muted);">점</span> <span style="font-size:13.5px;color:var(--muted);font-weight:400;">/또래 '+p+' '+cmp+'</span></span></div>';}).join('');
+  const w1=R.ranked[0], w2=R.ranked[1];
+  const depWarn = R.depletion<88;
+  return `
+    <div class="score-hero">
+      <div class="sh-grid">
+        <div>
+          <div class="sh-greet">2막1장 은퇴 정밀 리포트${sample?' · 예시':''}</div>
+          <div class="sh-name">${nm}님(${c.band||'50대'})의 <em>2막 1장 준비 점수</em></div>
+          <div class="sh-tags">
+            <span class="sh-tag gold">종합 ${R.total}점 · ${gr[0]}</span>
+            <span class="sh-tag">목표 은퇴 ${c.retire}세</span>
+            ${c.obstacle?'<span class="sh-tag">장애물: '+c.obstacle+'</span>':''}
+          </div>
+          ${c.value?'<div style="margin-top:12px;font-size:13.5px;color:var(--gold-soft);font-weight:600;word-break:keep-all;">🌿 '+nm+'님이 지향하는 <b style="color:#fff;">\''+c.value+'\'</b>을(를) 위한 맞춤 처방입니다</div>':''}
+        </div>
+        <div>
+          <div class="ring"><svg viewBox="0 0 180 180"><circle class="bg2" cx="90" cy="90" r="74"></circle><circle class="fg2" cx="90" cy="90" r="74" stroke-dasharray="${R.total/100*pct} ${pct}"></circle></svg>
+            <div class="num"><div class="big">${R.total}</div><div class="unit">/ 100</div></div></div>
+          <div class="ring-grade">${gr[0]}</div><div class="ring-sub">${gr[1]}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="mcard"><div class="ic g">💵</div><div class="lb">예상 월소득 (부부 합산 · 은퇴 이후)</div><div class="vl">${R.fixedIncome}<span class="u">만원</span></div><div class="ds">국민연금(부부) ${R.national} + 퇴직·개인(부부) ${R.retpen} + 배당 ${c.div}${R.hp?' + 주택연금 '+R.hp:''}</div></div>
+      <div class="mcard"><div class="ic b">⏳</div><div class="lb">예상 자산 고갈 나이</div><div class="vl ${depWarn?'warn':''}">${R.depletion>=90?'90+':R.depletion}<span class="u">세</span></div><div class="ds">${R.shortfall<=0?'월 소득이 지출보다 커 안정적':'현재 조건 유지 시 추정'}</div></div>
+      <div class="mcard"><div class="ic">📉</div><div class="lb">은퇴 이후 월 부족액</div><div class="vl ${R.shortfall>0?'warn':''}">${R.shortfall>0?'-'+R.shortfall:'+'+(-R.shortfall)}<span class="u">만원</span></div><div class="ds">생활비 ${R.costAdj} + 건강예비 ${R.hb} − 소득 ${R.fixedIncome}</div></div>
+    </div>
+
+    <div class="fulfill-card">
+      <div class="ff-top"><span class="ff-lb">💧 목표 연금 충족률<span class="ff-sub">부부 합산 예상 연금 ÷ 65세 목표 연금 ${c.goal}만</span></span><span class="ff-val ${R.fulfillGoal<70?'warn':''}">${R.fulfillGoal}<span class="u">%</span></span></div>
+      <div class="ff-bar"><i style="width:${Math.min(R.fulfillGoal,100)}%"></i></div>
+      <div class="ff-note">생활비 기준 충족률 <b style="color:var(--ink)">${R.fulfill}%</b> — <b>꼭 쓰는 최소선 ${R.minCost}만</b>은 연금으로, 여유분 ${Math.max(R.costAdj-R.minCost,0)}만은 일자리·자산소득으로 채우는 것이 안전합니다 · 참고: 적정 ${R.basis.coupleAdequate}만·최소 ${R.basis.coupleMinimum}만 (국민연금연구원)</div>
+      <div class="scen-row">
+        <div class="scen-chip p"><div class="t">비관 (소득−5%·지출+10%)</div><div class="v">${R.scen.p>=90?'90+':R.scen.p}<span style="font-size:13.5px;">세</span></div></div>
+        <div class="scen-chip"><div class="t">평균 (현재 조건)</div><div class="v">${R.scen.a>=90?'90+':R.scen.a}<span style="font-size:13.5px;">세</span></div></div>
+        <div class="scen-chip o"><div class="t">낙관 (소득+5%·지출−5%)</div><div class="v">${R.scen.o>=90?'90+':R.scen.o}<span style="font-size:13.5px;">세</span></div></div>
+      </div>
+      <div style="text-align:center;"><span class="scen-badge">🎯 90세 자산 유지 — 3개 시나리오 중 ${R.keep90}개 통과</span></div>
+    </div>
+
+    <div class="shield-card">
+      <div class="ff-top"><span class="ff-lb">🛡️ 65세 전 건강 방어율<span class="ff-sub">진단비 보장 ÷ 필요보장액</span></span><span class="ff-val ${R.shield<60?'warn':''}">${R.shield}<span class="u">%</span></span></div>
+      <div class="shield-bar"><i style="width:${Math.min(R.shield,100)}%"></i></div>
+      <div class="ff-note">필요보장 <b style="color:var(--ink)">${money(R.needCover)}원</b> = 치료비 ${money(R.treatCost)}${c.sil?'(실손 상쇄 후)':''} + (생활비의 80% ${R.careCost}만+연금보험료 ${R.basis.npPremium}만)×근로중단 ${R.basis.careMonths}개월${R.npLoss?' · ⚠️ 방어 부족 시 연금 납입 중단으로 <b>평생 연금 −'+R.npLoss+'만/월</b> 반영됨':''}</div>
+    </div>
+
+    <div class="radar-card">
+      <span class="eyebrow">5대 핵심영역 종합진단</span>
+      <h2>당신의 <em>노후 준비 5각 지도</em></h2>
+      <div class="radar-legend2">
+        <span class="k"><span class="sw me"></span> 나</span>
+        <span class="k"><span class="sw peer"></span> 또래(${c.band||'동일 연령대'}) 평균 ${peerN?'· 실제 '+peerN+'명':'· 참고치'}</span>
+      </div>
+      <div class="radar-grid">
+        <div><svg class="radar-svg" viewBox="0 0 320 300">${radarSVG(R.scores, peer)}</svg></div>
+        <div class="legend">${legend}</div>
+      </div>
+      <div class="basis-note">📌 <b>산정 근거</b> — 동산: 국민연금 산식(가입기간 20년 분기 44만/112만)·공단 조회값 우선·<b>부부 합산</b>(가구 단위)·적정생활비 297만(국민연금연구원) / 부동산: 주택연금(한국주택금융공사) = 시세별 연금액 × <b>(1−LTV)</b> × 활용 의향 / 건강: 필요보장 = 치료비 + (생활비×80%+연금보험료)×근로중단 12개월, 방어 부족 시 가입기간 손실 → 연금 감소 반영 / 웰다잉: 연명의료결정제도 통계·상조 선납 유동화(What-if). <b>또래 평균</b>은 동일 연령대 실제 응답(3명 이상)이 쌓이면 자동 반영되며, 그 전엔 참고치입니다.</div>
+    </div>
+
+    <div class="sec-block">
+      <h3>⚠️ 취약 포인트 & 권장 첫 액션</h3>
+      <div class="weak-row"><div class="weak-rank">1</div><div class="weak-txt"><b>${AREA_INFO[w1.a].name} (${w1.s}점)</b> — ${R.actions[w1.a]}</div></div>
+      <div class="weak-row"><div class="weak-rank two">2</div><div class="weak-txt"><b>${AREA_INFO[w2.a].name} (${w2.s}점)</b> — ${R.actions[w2.a]}</div></div>
+      ${R.risks.length?'<div class="weak-row"><div class="weak-rank" style="background:var(--burgundy-deep);">!</div><div class="weak-txt"><b>리스크 신호</b> — '+R.risks.slice(0,3).join(' · ')+'</div></div>':''}
+      <div class="weak-row"><div class="weak-rank ok">✓</div><div class="weak-txt"><b>권장 첫 액션</b> — ${R.firstAction}</div></div>
+    </div>
+
+    <div class="sec-block">
+      <h3>💰 예상 월소득 구성</h3>
+      <table class="income-table">
+        <tr><td>국민연금 <span style="color:var(--muted);font-size:13.5px;">(부부 합산 · 실제 예상액 우선)</span></td><td>${R.national}만원</td></tr>
+        <tr><td>퇴직·개인연금</td><td>${R.retpen}만원</td></tr>
+        <tr><td>배당·이자소득</td><td>${c.div}만원</td></tr>
+        ${R.hp?'<tr><td>주택연금 (활용 의향 반영)</td><td>'+R.hp+'만원</td></tr>':''}
+        <tr class="tot"><td>부부 고정 월소득 합계</td><td>${R.fixedIncome}만원</td></tr>
+        <tr><td>65세 목표 연금 <b style="color:var(--green-deep)">충족률</b></td><td>${R.fulfillGoal}%</td></tr>
+      </table>
+      <div style="font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;word-break:keep-all;">※ 국민연금 예상액은 연금 준비 상태를 바탕으로 한 <b>추정치</b>입니다. 정확한 금액은 국민연금공단(1355·‘내 곁에 국민연금’)에서 조회하세요. 산식: 1.2×(A+B)×(1+0.05n/12), 2026 A값 3,193,511원.</div>
+    </div>`;
+}
+
+function whatifHTML(R){
+  const c=R.c;
+  return `
+    <div class="whatif">
+      <span class="eyebrow gold">What-if 시뮬레이션</span>
+      <h3>조건을 바꾸면 <em>노후가 얼마나 달라질까요?</em></h3>
+      <div class="wi-result">
+        <div class="wi-res-item"><div class="l">시나리오 예상 자산 고갈 나이</div><div class="v" id="wiDep">${R.depletion>=90?'90+':R.depletion}세</div></div>
+        <div class="wi-res-item"><div class="l">시나리오 월 부족액</div><div class="v small" id="wiShort">${R.shortfall>0?'-'+R.shortfall:'+'+(-R.shortfall)}만원</div></div>
+      </div>
+      <div class="wi-sliders">
+        <div class="wi-card"><div class="h"><span class="n">🧑‍💼 퇴직 후 재취업 월소득</span><span class="val"><span id="v-reemp">${R.reemp}</span>만</span></div>
+          <input type="range" id="s-reemp" min="0" max="300" step="10" value="${R.reemp}" oninput="runWhatif()"><div class="rng"><span>0</span><span>300만</span></div></div>
+        <div class="wi-card"><div class="h"><span class="n">📉 월 생활비 증감</span><span class="val"><span id="v-cost">0</span>만</span></div>
+          <input type="range" id="s-cost" min="-100" max="100" step="10" value="0" oninput="runWhatif()"><div class="rng"><span>-100</span><span>+100만</span></div></div>
+        <div class="wi-card"><div class="h"><span class="n">👨‍👩‍👧 자녀 지원금</span><span class="val"><span id="v-child">${c.child}</span>만</span></div>
+          <input type="range" id="s-child" min="0" max="10000" step="500" value="${c.child}" oninput="runWhatif()"><div class="rng"><span>0</span><span>1억</span></div></div>
+        <div class="wi-card"><div class="h"><span class="n">🏦 주담대 금리</span><span class="val"><span id="v-rate">4</span>%</span></div>
+          <input type="range" id="s-rate" min="2" max="7" step="0.5" value="4" oninput="runWhatif()"><div class="rng"><span>2%</span><span>7%</span></div></div>
+        <div class="wi-card"><div class="h"><span class="n">🏠 주택연금 활용 ${c.home?'':'(자가 아니면 효과 없음)'}</span><span class="val" id="v-hp">${c.home?'미활용':'해당없음'}</span></div>
+          <div class="wi-toggle"><button id="hp-off" class="on" onclick="setHp(0)">미활용</button><button id="hp-on" onclick="setHp(1)" ${c.home?'':'disabled style=opacity:.4'}>활용 (+월 ${R.hpEff}만)</button></div>
+          ${c.home&&c.ltv?'<div style="font-size:13.5px;color:var(--muted);margin-top:6px;">대출(LTV) 상환 차감 반영: '+c.homeHp+'만 → '+R.hpEff+'만</div>':''}</div>
+        <div class="wi-card"><div class="h"><span class="n">🕯️ 상조 비상금(80세 이후) ${c.sangjo?'':'(상조 미가입)'}</span><span class="val" id="v-sj">${c.sangjo?'편입 중':'해당없음'}</span></div>
+          <div class="wi-toggle"><button id="sj-off" onclick="setSj(0)" ${c.sangjo?'':'disabled style=opacity:.4'}>제외해 보기</button><button id="sj-on" class="on" onclick="setSj(1)" ${c.sangjo?'':'disabled style=opacity:.4'}>비상금 편입 (+${c.sangjo}만)</button></div></div>
+      </div>
+    </div>`;
+}
+let _R=null, _hp=0, _sj=0;
+function setHp(v){ if(!_R.c.home) return; _hp=v; document.getElementById('hp-on').classList.toggle('on',v===1); document.getElementById('hp-off').classList.toggle('on',v===0); runWhatif(); }
+function setSj(v){ if(!_R.c.sangjo) return; _sj=v; document.getElementById('sj-on').classList.toggle('on',v===1); document.getElementById('sj-off').classList.toggle('on',v===0); document.getElementById('v-sj').textContent=v?'편입 중':'제외됨'; runWhatif(); }
+let _wiTimer=null, _wiSeq=0;
+function runWhatif(){   // 슬라이더 값만 서버로 보내고 결과(고갈 나이·부족액)만 표시
+  const c=_R.c;
+  const reemp=+val('s-reemp'), dcost=+val('s-cost'), child=+val('s-child'), rate=+val('s-rate');
+  document.getElementById('v-reemp').textContent=reemp; document.getElementById('v-cost').textContent=(dcost>0?'+':'')+dcost;
+  document.getElementById('v-child').textContent=child; document.getElementById('v-rate').textContent=rate;
+  document.getElementById('v-hp').textContent = c.home?(_hp?'활용 중':'미활용'):'해당없음';
+  clearTimeout(_wiTimer);
+  _wiTimer=setTimeout(function(){
+    const seq=++_wiSeq;
+    apiPost('/whatif',{answers:answersForApi(), reemp:reemp, dcost:dcost, child:child, rate:rate, hp:_hp, sj:_sj}).then(function(d){
+      if(seq!==_wiSeq) return;   // 이전 요청 결과 무시
+      document.getElementById('wiDep').textContent = (d.dep>=90?'90+':d.dep)+'세';
+      document.getElementById('wiShort').textContent = (d.shortfall>0?'-'+d.shortfall:'+'+(-d.shortfall))+'만원';
+    }).catch(apiFail);
+  },160);
+}
+function val(id){ return document.getElementById(id).value; }
+
+function radarSVG(scores, peer){
+  const cx=160,cy=150,R=100,order=AREA_ORDER,n=5;
+  const ang=order.map((_,i)=>(-Math.PI/2)+i*2*Math.PI/n);
+  let s='';
+  [0.25,0.5,0.75,1].forEach(lv=>{ s+='<polygon class="r-grid" points="'+ang.map(a=>(cx+R*lv*Math.cos(a))+','+(cy+R*lv*Math.sin(a))).join(' ')+'"/>'; });
+  ang.forEach(a=>{ s+='<line class="r-axis" x1="'+cx+'" y1="'+cy+'" x2="'+(cx+R*Math.cos(a))+'" y2="'+(cy+R*Math.sin(a))+'"/>'; });
+  if(peer){ const pp=order.map((a,i)=>{const v=(peer[a]||0)/100;return (cx+R*v*Math.cos(ang[i]))+','+(cy+R*v*Math.sin(ang[i]));}).join(' '); s+='<polygon points="'+pp+'" fill="#A9822F" fill-opacity="0.05" stroke="#C08F3A" stroke-width="2" stroke-dasharray="5 3"/>'; order.forEach((a,i)=>{const v=(peer[a]||0)/100;s+='<circle cx="'+(cx+R*v*Math.cos(ang[i]))+'" cy="'+(cy+R*v*Math.sin(ang[i]))+'" r="2.6" fill="#C08F3A"/>';}); }
+  s+='<polygon class="r-fill" points="'+order.map((a,i)=>{const v=scores[a]/100;return (cx+R*v*Math.cos(ang[i]))+','+(cy+R*v*Math.sin(ang[i]));}).join(' ')+'"/>';
+  order.forEach((a,i)=>{const v=scores[a]/100;s+='<circle class="r-dot" cx="'+(cx+R*v*Math.cos(ang[i]))+'" cy="'+(cy+R*v*Math.sin(ang[i]))+'" r="4.5"/>';});
+  order.forEach((a,i)=>{const lx=cx+(R+24)*Math.cos(ang[i]),ly=cy+(R+24)*Math.sin(ang[i])+4;const anc=Math.abs(Math.cos(ang[i]))<0.1?'middle':(Math.cos(ang[i])>0?'start':'end');s+='<text class="r-axis-label" x="'+lx+'" y="'+ly+'" text-anchor="'+anc+'">'+AREA_INFO[a].name+'</text>';});
+  return s;
+}
+
+// ================= 화면 전환 =================
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+let preAware=0;
+function pickPre(n,el){ preAware=n; var row=el.parentNode; Array.prototype.forEach.call(row.children,function(o){o.classList.toggle('sel',o===el);}); }
+
+// ================= 첫 화면 (3단계 진단 선택) =================
+function goFullIntro(){ show('s-intro'); setNav('home'); }
+function openMydata(){
+  openMini('<h3 class="mini-h">🔐 마이데이터 정밀 진단</h3>'
+   +'<p class="mini-p">은행·증권·보험 계좌를 연동해 <b>실제 자산 데이터 기반</b>으로 진단하는 회원 전용 서비스입니다. 현재 오픈 준비 중이며, 사전 신청하시면 오픈 시 가장 먼저 안내드립니다.</p>'
+   +'<div class="fg"><label>이름 또는 별명</label><input class="qtext" id="mdName" placeholder="예: 홍길동"></div>'
+   +'<div class="fg"><label>연락처(휴대폰)</label><input class="qtext" id="mdPhone" placeholder="010-0000-0000"></div>'
+   +'<button class="btn btn-primary" onclick="mydataApply()">오픈 알림 사전 신청 →</button>');
+}
+function mydataApply(){
+  var n=(document.getElementById('mdName')||{value:''}).value.trim();
+  var p=(document.getElementById('mdPhone')||{value:''}).value.trim();
+  if(!n||!p){ alert('이름과 연락처를 입력해 주세요.'); return; }
+  try{ var q=JSON.parse(localStorage.getItem('l2p_mydata')||'[]'); q.push({name:n,phone:p,ts:new Date().toISOString()}); localStorage.setItem('l2p_mydata',JSON.stringify(q)); }catch(e){}
+  if(GAS_URL && GAS_URL.indexOf('http')===0){
+    try{ fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({__target:'draft',__secret:GAS_SECRET,'이름':n,'연락처':p,'진행파트':'마이데이터 사전신청','저장시각':new Date().toISOString(),'답변JSON':''})}).catch(function(e){}); }catch(e){}
+  }
+  closeMini(); toast('사전 신청이 완료되었습니다. 오픈 시 가장 먼저 안내드릴게요!','ok');
+}
+
+// ================= 5분 빠른 진단 (v15 이식 · 7문항 → 5축 정합) =================
+// QUICK_W / QUICK_QS 파라미터 → 서버. QUICK_QS(문항 텍스트)는 loadCatalog()로 채워짐
+let quickAns = {};
+function startQuick(){ quickAns={}; loadCatalog().then(function(){ renderQuick(); show('s-quick'); setNav('home'); }).catch(function(){}); }
+function renderQuick(){
+  var html='';
+  QUICK_QS.forEach(function(q,qi){
+    html+='<div class="qcard" data-qk="'+q.id+'"><div class="qq"><span class="qno">Q'+(qi+1)+'</span>'+q.q+(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>'
+      +'<div class="opts">'+q.opts.map(function(o,i){return '<div class="opt'+(quickAns[q.id]===i?' sel':'')+'" onclick="pickQuick(\''+q.id+'\','+i+')">'+o.t+'</div>';}).join('')+'</div></div>';
+  });
+  document.getElementById('qkContainer').innerHTML=html;
+  updateQuickProgress();
+}
+function pickQuick(id,i){
+  quickAns[id]=i;
+  var card=document.querySelector('.qcard[data-qk="'+id+'"]');
+  if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',idx===i);});
+  updateQuickProgress();
+  // 다음 미응답 문항으로 부드럽게 스크롤
+  var next=QUICK_QS.find(function(q){return quickAns[q.id]===undefined;});
+  if(next){ var nc=document.querySelector('.qcard[data-qk="'+next.id+'"]'); if(nc) setTimeout(function(){ nc.scrollIntoView({behavior:'smooth',block:'center'}); },120); }
+}
+function updateQuickProgress(){
+  var n=QUICK_QS.filter(function(q){return quickAns[q.id]!==undefined;}).length;
+  var pct=Math.round(n/QUICK_QS.length*100);
+  document.getElementById('qkCount').textContent=n;
+  document.getElementById('qkPct').textContent=pct+'%';
+  document.getElementById('qkFill').style.width=pct+'%';
+}
+// normalCDF / calcQuickScores / QUICK_TIPS → 서버(/quick)
+let _quickR=null;
+function submitQuick(){
+  var missing=QUICK_QS.find(function(q){return quickAns[q.id]===undefined;});
+  if(missing){ alert('모든 문항에 답해주세요.'); var mc=document.querySelector('.qcard[data-qk="'+missing.id+'"]'); if(mc) mc.scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  apiPost('/quick',{answers:quickAns, peerData:window._peerData||null}).then(function(qr){
+    _quickR=qr;
+    try{ localStorage.setItem('l2p_quick', JSON.stringify({r:_quickR, ans:quickAns, ts:new Date().toISOString()})); }catch(e){}
+    renderQuickResult(_quickR);
+    show('s-quickResult'); setNav('home');
+  }).catch(apiFail);
+}
+function renderQuickResult(qr){
+  var gr=qr.grade;
+  var circ=465;   // 2πr (r=74)
+  var diff=qr.total-qr.peerTotal;
+  var diffTxt=diff>=0?('+'+diff+'점 높음'):(diff+'점 낮음');
+  // 쇼크 카드 — 서버가 또래 대비 가장 뒤처진 영역을 계산해 내려줌
+  var shock='';
+  if(qr.shock){
+    shock='<div class="qr-shock">⚠️ <b>'+qr.shock.name+'</b> 점수('+qr.shock.score+'점)가 또래 평균보다 <b>'+qr.shock.gap+'점 낮습니다.</b><br>'+qr.shock.tip+'</div>';
+  }
+  var insights=AREA_ORDER.map(function(a){
+    var s=qr.scores[a];
+    return '<div class="qr-insight"><span class="ax">'+AREA_INFO[a].emoji+' '+AREA_INFO[a].name+'<span class="pt">'+s+'점</span></span><span>'+(qr.tips?qr.tips[a]:'')+'</span></div>';
+  }).join('');
+  document.getElementById('quickResultBody').innerHTML=
+    '<div class="qr-hero">'
+    +'<span class="eyebrow gold">⚡ 빠른 진단 결과</span>'
+    +'<div class="ring" style="margin-top:14px;"><svg viewBox="0 0 180 180"><circle class="bg2" cx="90" cy="90" r="74"></circle><circle class="fg2" cx="90" cy="90" r="74" stroke-dasharray="'+(qr.total/100*circ)+' '+circ+'"></circle></svg>'
+    +'<div class="num"><div class="big">'+qr.total+'</div><div class="unit">/ 100</div></div></div>'
+    +'<div class="qr-grade">'+gr[0]+'</div>'
+    +'<div class="qr-peer">'+qr.band+' 평균 '+qr.peerTotal+'점 대비 <b>'+diffTxt+'</b><br>또래 100명 중 약 <b>'+qr.rank+'번째</b> 수준입니다</div>'
+    +'</div>'
+    +shock
+    +'<div class="qr-card"><h3>📊 5각 영역 지도</h3><svg class="radar-svg" viewBox="0 0 320 300">'+radarSVG(qr.scores, qr.peer)+'</svg>'
+    +'<div style="font-size:13.5px;color:var(--app-muted);text-align:center;margin-top:4px;">─ 점선: 또래('+qr.band+') 평균</div></div>'
+    +'<div class="qr-card"><h3>💡 영역별 한 줄 진단</h3>'+insights+'</div>'
+    +'<div class="qr-note">※ 빠른 진단은 7문항 기반의 개략 추정입니다. 정확한 분석과 맞춤 처방은 종합 진단(42문항)에서 무료로 제공됩니다. 결과는 이 기기에만 저장됩니다.</div>'
+    +'<div class="qr-up">'
+    +'<span class="eyebrow" style="background:rgba(201,164,73,.18);color:#E7D594;">NEXT STEP · 무료</span>'
+    +'<h3>이제 42문항 종합 진단으로<br>정확하게 확인해 보세요</h3>'
+    +'<p>부부 합산 예상 연금 · 자산 고갈 나이(3가지 시나리오) · 65세 전 건강 방어율 · 영역별 맞춤 처방까지 — 정밀 리포트로 드립니다.</p>'
+    +'<button class="pg-btn" style="background:#C9A449;color:#0F2B1D;" onclick="upgradeToFull()">종합 진단 시작하기 →</button>'
+    +'</div>'
+    +'<button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="startQuick()">↺ 빠른 진단 다시 하기</button>'
+    +'<button class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="show(\'s-stage\');setNav(\'home\');">⌂ 처음 화면으로</button>';
+}
+function upgradeToFull(){   // v15 upgradeToVer2 — 종합 진단으로 이어가기 (나이 prefill)
+  if(_quickR && _quickR.age && !answers['Q2A']) answers['Q2A']=String(_quickR.age);
+  show('s-intro'); setNav('home');
+  toast('빠른 진단 정보를 가져왔어요. 이름 입력 후 바로 시작하세요!','ok');
+}
+function goTeaser(){   // (구 티저 화면 제거) 검증 후 바로 진단 시작 — 동선 단순화
+  if(!preAware){ alert('시작 전 자가 평가(1~5)를 선택해 주세요.'); return; }
+  var _nm=(document.getElementById('uName')?document.getElementById('uName').value:'').trim();
+  if(!_nm){ alert('이름 또는 별명을 입력해 주세요. (별명·이니셜도 괜찮아요)'); return; }
+  setText('Q1',_nm);   // Ver22.2 · 이름은 인트로에서 수집
+  if(!document.getElementById('uConsent').checked){ if(!confirm('개인정보 수집에 동의하지 않으면 결과 저장 없이 진행됩니다. 계속할까요?')) return; }
+  enterPart(1); show('s-quiz');
+}
+function startQuiz(){
+  if(!preAware){ alert('시작 전 자가 평가(1~5)를 먼저 선택해 주세요.'); show('s-intro'); return; }
+  enterPart(1); show('s-quiz');
+}
+// ===== 예시 리포트 미리보기 — 모달 =====
+let SAMPLE_R=null;
+function previewReport(){
+  if(!SAMPLE_R){ apiGet('/sample').then(function(d){ SAMPLE_R=d; previewReport(); }).catch(apiFail); return; }
+  document.getElementById('teaserReport').innerHTML = reportHTML(SAMPLE_R, true);
+  document.getElementById('previewModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closePreview(){ document.getElementById('previewModal').style.display='none'; document.body.style.overflow=''; }
+// ===== 미니 모달 (이어하기 · 임시저장 공용) =====
+function openMini(html){ document.getElementById('miniBody').innerHTML=html; document.getElementById('miniModal').style.display='flex'; document.body.style.overflow='hidden'; }
+function closeMini(){ document.getElementById('miniModal').style.display='none'; document.body.style.overflow=''; }
+// ===== 임시저장 / 이어하기 =====
+const DRAFT_KEY='l2p_drafts';
+function draftsGet(){ try{return JSON.parse(localStorage.getItem(DRAFT_KEY)||'[]');}catch(e){return [];} }
+function draftsSet(a){ try{localStorage.setItem(DRAFT_KEY,JSON.stringify(a));}catch(e){} }
+function draftId(n,p){ return (n||'').trim()+'|'+(p||'').trim(); }
+function saveOpen(){   // 파트 인트로 → 진행 상황 임시저장
+  const nm=(answers['Q1']||'').replace(/"/g,'&quot;');
+  const ph=((document.getElementById('uPhone')||{}).value||'').replace(/"/g,'&quot;');
+  openMini('<h3 class="mini-h">💾 진행 상황 임시저장</h3><p class="mini-p">이어하기 조회에 사용할 정보를 확인해 주세요. (같은 기기·브라우저에서 복원됩니다)</p>'
+    +'<div class="fg"><label>이름 또는 별명</label><input class="qtext" id="dName" value="'+nm+'" placeholder="예: 길동, GD"></div>'
+    +'<div class="fg"><label>연락처(휴대폰) · 선택</label><input class="qtext" id="dPhone" value="'+ph+'" placeholder="숫자만 입력해도 돼요"></div>'
+    +'<button class="btn btn-primary" onclick="saveGo()">저장하기</button>');
+}
+function saveGo(){
+  const n=document.getElementById('dName').value.trim(), p=document.getElementById('dPhone').value.trim();
+  if(!n){ alert('이름 또는 별명을 입력해 주세요.'); return; }
+  if(!answers['Q1']) answers['Q1']=n;
+  if(p && document.getElementById('uPhone')) document.getElementById('uPhone').value=p;
+  const d={id:draftId(n,p), name:n, phone:p, answers:answers, curPart:curPart, preAware:preAware, ts:new Date().toISOString()};
+  const list=draftsGet().filter(x=>x.id!==d.id); list.push(d); draftsSet(list);
+  if(GAS_URL && GAS_URL.indexOf('http')===0){   // 구글시트 [임시저장] 탭 백업
+    try{ fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({__target:'draft',__secret:GAS_SECRET,'이름':n,'연락처':p,'진행파트':curPart,'저장시각':d.ts,'답변JSON':JSON.stringify(answers)})}).catch(function(e){}); }catch(e){}
+  }
+  closeMini(); toast('임시저장되었습니다. 언제든 메인 화면에서 이어하실 수 있습니다.','ok');
+}
+function resumeOpen(){   // 인트로 → 기존 진단 이어하기
+  openMini('<h3 class="mini-h">🔄 기존 진단 이어하기</h3><p class="mini-p">임시저장 때 입력한 이름(별명)과 연락처를 알려주세요. 이 기기에 없으면 Master DB에서도 찾아봅니다.</p>'
+    +'<div class="fg"><label>이름 또는 별명</label><input class="qtext" id="rName" placeholder="임시저장 때 쓴 이름"></div>'
+    +'<div class="fg"><label>연락처(휴대폰) · 선택</label><input class="qtext" id="rPhone" placeholder="Master DB 조회 정확도를 위해 입력 권장"></div>'
+    +'<button class="btn btn-primary" onclick="resumeGo()">이어하기 →</button>');
+}
+function resumeGo(){
+  const n=document.getElementById('rName').value.trim(), p=document.getElementById('rPhone').value.trim();
+  if(!n){ alert('이름 또는 별명을 입력해 주세요.'); return; }
+  const list=draftsGet();
+  let d=list.find(x=>x.id===draftId(n,p));
+  if(!d){ const cand=list.filter(x=>x.name===n).sort((a,b)=> (b.ts||'').localeCompare(a.ts||'')); d=cand[0]; }
+  if(!d){ alert('저장된 진단을 찾을 수 없습니다.\n(임시저장한 같은 기기·브라우저에서만 복원됩니다)'); return; }
+  answers=d.answers||{}; curPart=d.curPart||1; if(d.preAware) preAware=d.preAware;
+  if(d.phone && document.getElementById('uPhone')) document.getElementById('uPhone').value=d.phone;
+  closeMini(); enterPart(curPart); show('s-quiz');
+  toast('저장된 진단을 불러왔습니다 — PART '+curPart+'부터 이어집니다.','ok');
+}
+// ===== 파트 전체 목차 배지 =====
+function tocHTML(step){
+  const L=['기본정보','동산(금융)','부동산','건강','일자리','웰다잉'];
+  const N=['❶','❷','❸','❹','❺','❻'];
+  return L.map(function(l,i){
+    const s=i+1, cls=s<step?'done':(s===step?'cur':'');
+    const mark=s<step?' ✓':(s===step?' · 진행중':'');
+    return '<span class="toc-chip '+cls+'">'+N[i]+' '+l+mark+'</span>'+(s<6?'<span class="toc-sep">➔</span>':'');
+  }).join('');
+}
+function enterPart(p){
+  if(p===1){ window._cohBypass=false; _qT={}; _lastClickT=Date.now(); }   // Ver20 · 새 진단 시작 시 검증 상태 초기화
+  curPart=p; const g=grpOf(p);
+  const pct=Math.round(((p-1)/6)*100);
+  document.getElementById('pNow').textContent=p;
+  document.getElementById('pName2').textContent=PARTS[g-1];
+  document.getElementById('pPct').textContent=pct+'%';
+  document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('partIntro').innerHTML=partIntroHTML(p,g);
+  document.getElementById('partIntro').style.display='block';
+  document.getElementById('partBody').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function beginPart(){
+  document.getElementById('partIntro').style.display='none';
+  document.getElementById('partBody').style.display='block';
+  renderPart();
+}
+
+// ===== 파트별 도식(그림) 인트로 =====
+function partIntroHTML(step,g){
+  const PI=[
+    {t:`지금부터 그리는 <b>나의 후반전 지도</b>`, svg:svgTimeline(),
+     msg:`<b>퇴직 → 소득 공백 → 은퇴 → Life 2.0</b>의 흐름으로, 언제 일을 내려놓아도 살아갈 수 있는 구조를 먼저 점검합니다.`,
+     hint:`진단 항목 : 연령 · 소득 · 은퇴 시기 · 생활비 · 목표 생활비 · 국민연금`},
+    {t:`65세 전 갑작스러운 질병, <b>'연금 방패'</b>로 막아냅니다`, svg:svgShield(),
+     msg:`암·뇌·심장 등 중대질환이 발생하더라도, <b>탄탄한 진단비와 보장</b>이 있어야 연금 납입을 중단하거나 자산을 해지하지 않고 지킬 수 있습니다.`,
+     hint:`진단 항목 : 운동·검진 습관 · 3대 질병 진단비 · 의료비 보장 · 간병 대비`},
+    {t:`살고 있는 집이 매달 <b>'평생 연금'</b>이 됩니다`, svg:svgHouse(),
+     msg:`연금 1~3층 <b>'기초 자산'</b>, 주택·농지 4~5층 <b>'보완 자산'</b>. 실물자산도 평생 현금흐름으로 바꿀 수 있습니다.`,
+     hint:`진단 항목 : 거주형태 · 시세 · 대출(LTV) · 주택연금 · 투자 부동산(농지·임야 포함)`},
+    {t:`65세 이후, 3층 연금이 평생 소득의 <b>'기반'</b>이 됩니다`, svg:svgPension(),
+     msg:`국민·퇴직·개인연금 3층이 탄탄할수록, 65세 이후 <b>평생 소득의 기반</b>이 든든해집니다.`,
+     hint:`진단 항목 : 유동자산 · 저축 · 연금 · 부채 · 현금흐름`},
+    {t:`퇴직과 은퇴 사이, <b>'일자리'</b>로 소득 공백을 잇습니다`, svg:svgCrevasse(),
+     msg:`<b>퇴직은 일을 그만두는 시점</b>이고, <b>은퇴는 일을 내려놓아도 살아갈 수 있는 구조를 갖추고 새로운 삶을 시작하는 시점</b>입니다. 그 사이를 일자리 소득이 연결합니다.`,
+     hint:`진단 항목 : 희망 근로 형태 · 목표 월 소득 · 자격/기술 보유 · 재교육 준비`},
+    {t:`존엄한 삶의 마무리, <b>'미리 준비하는 웰다잉'</b>`, svg:svgWell(),
+     msg:`사전연명의료의향서부터 상조·유언·상속까지, <b>스스로 미리 준비</b>하여 가족의 부담을 줄이고 삶을 완성합니다.`,
+     hint:`진단 항목 : 연명의료의향서 · 상조 · 유언/상속 · 디지털 유산 · 생애기록 활용`}
+  ];
+  const d=PI[g-1];
+  return `<div class="pintro"><span class="eyebrow">PART ${step} · ${PARTS[g-1]}</span>
+    <h2 class="pi-title">${d.t}</h2>
+    <div class="pi-diagram">${d.svg}</div>
+    <div class="pi-msg">${d.msg}</div>
+    <div class="pi-hint">${d.hint}</div>
+    <button class="btn btn-primary pi-btn" onclick="beginPart()">이 파트 답하기 →</button>
+    <div class="pi-toc">${tocHTML(step)}</div>
+    <button class="pi-save" onclick="saveOpen()">💾 진행 상황 임시저장</button></div>`;
+}
+function svgTimeline(){
+  return `<svg viewBox="0 0 600 250">
+    <defs><filter id="sh28"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".12"/></filter></defs>
+    <text x="300" y="28" text-anchor="middle" font-size="17" fill="#124A2F" font-weight="800">퇴직 → 은퇴 → Life 2.0</text>
+    <rect x="42" y="72" width="148" height="92" rx="18" fill="#EAF4EE" filter="url(#sh28)"/>
+    <text x="116" y="104" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">퇴직</text><text x="116" y="130" text-anchor="middle" font-size="14" fill="#5E6762">직장·주된 근로 종료</text><text x="116" y="151" text-anchor="middle" font-size="13" fill="#7A837E">약 60세 전후</text>
+    <rect x="218" y="88" width="164" height="60" rx="16" fill="#FFF5DB" stroke="#C9A449" stroke-width="2"/>
+    <text x="300" y="113" text-anchor="middle" font-size="17" fill="#8A681B" font-weight="800">소득 공백</text><text x="300" y="136" text-anchor="middle" font-size="13" fill="#7A5A18">일자리·자산소득으로 연결</text>
+    <rect x="410" y="72" width="148" height="92" rx="18" fill="#EAF4EE" filter="url(#sh28)"/>
+    <text x="484" y="103" text-anchor="middle" font-size="18" fill="#124A2F" font-weight="800">은퇴</text><text x="484" y="128" text-anchor="middle" font-size="14" fill="#5E6762">연금·자산소득 기반</text><text x="484" y="150" text-anchor="middle" font-size="13" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
+    <line x1="190" y1="118" x2="216" y2="118" stroke="#C9A449" stroke-width="5"/><polygon points="216,110 232,118 216,126" fill="#C9A449"/>
+    <line x1="382" y1="118" x2="408" y2="118" stroke="#1E6B45" stroke-width="5"/><polygon points="408,110 424,118 408,126" fill="#1E6B45"/>
+    <rect x="185" y="190" width="230" height="42" rx="21" fill="#0F2B1D"/><text x="300" y="216" text-anchor="middle" font-size="16" fill="#fff" font-weight="800">Life 2.0 · 새로운 삶의 시작</text>
+  </svg>`;
+}
+function svgShield(){
+  return `<svg viewBox="0 0 600 250">
+    <rect x="58" y="28" width="190" height="64" rx="22" fill="#FFF2DA" stroke="#C9A449" stroke-width="2"/>
+    <text x="153" y="54" text-anchor="middle" font-size="18" fill="#7A5A18" font-weight="800">암</text><text x="153" y="78" text-anchor="middle" font-size="13" fill="#7A837E">치료·회복 후 생활 복귀</text>
+    <rect x="352" y="28" width="190" height="64" rx="22" fill="#FCE9E9" stroke="#B85A5A" stroke-width="2"/>
+    <text x="447" y="54" text-anchor="middle" font-size="18" fill="#8E3E3E" font-weight="800">혈관계</text><text x="447" y="78" text-anchor="middle" font-size="13" fill="#7A837E">뇌 · 심장</text>
+    <line x1="153" y1="96" x2="260" y2="128" stroke="#C9A449" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <line x1="447" y1="96" x2="340" y2="128" stroke="#B85A5A" stroke-width="2.5" stroke-dasharray="6 5"/>
+    <path d="M300 108 L365 133 L365 178 Q365 219 300 236 Q235 219 235 178 L235 133 Z" fill="#176E48"/>
+    <text x="300" y="157" text-anchor="middle" font-size="19" fill="#fff" font-weight="800">연금 방어</text><text x="300" y="183" text-anchor="middle" font-size="16" fill="#EAF4EE" font-weight="700">진단비 · 의료비 보장</text><text x="300" y="207" text-anchor="middle" font-size="13" fill="#DCEBE3">생활비 · 연금 납입 유지</text>
+  </svg>`;
+}
+function svgHouse(){
+  return `<svg viewBox="0 0 600 255">
+    <defs><linearGradient id="home28" x1="0" x2="1"><stop offset="0" stop-color="#EAF4EE"/><stop offset="1" stop-color="#FFF7E3"/></linearGradient></defs>
+    <rect x="36" y="28" width="528" height="196" rx="28" fill="url(#home28)"/>
+    <circle cx="150" cy="116" r="70" fill="#fff" opacity=".9"/>
+    <polygon points="90,111 150,61 210,111" fill="#B9872F"/><rect x="103" y="108" width="94" height="70" rx="5" fill="#176E48"/><rect x="140" y="138" width="25" height="40" rx="3" fill="#F7F7F3"/>
+    <text x="150" y="205" text-anchor="middle" font-size="17" fill="#124A2F" font-weight="800">주택 · 농지</text>
+    <path d="M250 118 H362" stroke="#C9A449" stroke-width="8" stroke-linecap="round"/><polygon points="362,106 387,118 362,130" fill="#C9A449"/>
+    <text x="307" y="99" text-anchor="middle" font-size="15" fill="#8A681B" font-weight="800">연금화</text>
+    <circle cx="430" cy="90" r="31" fill="#F0D991"/><circle cx="472" cy="126" r="31" fill="#E6C66F"/><circle cx="430" cy="160" r="31" fill="#D8B451"/>
+    <text x="430" y="98" text-anchor="middle" font-size="22" fill="#7A5A18" font-weight="800">₩</text><text x="472" y="134" text-anchor="middle" font-size="22" fill="#7A5A18" font-weight="800">₩</text><text x="430" y="168" text-anchor="middle" font-size="22" fill="#7A5A18" font-weight="800">₩</text>
+    <text x="475" y="205" text-anchor="middle" font-size="17" fill="#124A2F" font-weight="800">매달 평생 현금흐름</text>
+  </svg>`;
+}
+function svgPension(){
+  return `<svg viewBox="0 0 600 260">
+    <text x="300" y="28" text-anchor="middle" font-size="17" fill="#8A681B" font-weight="800">65세 이후 · 평생 소득의 기초</text>
+    <rect x="115" y="178" width="370" height="52" rx="10" fill="#124A2F"/><text x="300" y="211" text-anchor="middle" font-size="19" fill="#fff" font-weight="800">1층 · 국민연금</text>
+    <rect x="155" y="120" width="290" height="50" rx="10" fill="#1E6B45"/><text x="300" y="152" text-anchor="middle" font-size="19" fill="#fff" font-weight="800">2층 · 퇴직연금</text>
+    <rect x="195" y="64" width="210" height="48" rx="10" fill="#C9A449"/><text x="300" y="95" text-anchor="middle" font-size="18" fill="#123B28" font-weight="800">3층 · 개인연금</text>
+    <text x="300" y="250" text-anchor="middle" font-size="15" fill="#5E6762" font-weight="700">국민 · 퇴직 · 개인연금 3층 구조</text>
+  </svg>`;
+}
+function svgCrevasse(){
+  return `<svg viewBox="0 0 600 260">
+    <rect x="40" y="70" width="165" height="118" rx="20" fill="#EAF4EE"/><text x="122" y="108" text-anchor="middle" font-size="19" fill="#124A2F" font-weight="800">퇴직</text><text x="122" y="135" text-anchor="middle" font-size="14" fill="#5E6762">근로 끝</text><text x="122" y="160" text-anchor="middle" font-size="13" fill="#7A837E">약 60세 전후</text>
+    <rect x="395" y="70" width="165" height="118" rx="20" fill="#EAF4EE"/><text x="477" y="108" text-anchor="middle" font-size="19" fill="#124A2F" font-weight="800">은퇴</text><text x="477" y="135" text-anchor="middle" font-size="14" fill="#5E6762">연금·자산소득 기반</text><text x="477" y="160" text-anchor="middle" font-size="13" fill="#0B7345" font-weight="800">65세 국민연금 기준</text>
+    <rect x="205" y="96" width="190" height="66" rx="18" fill="#FFF5DB" stroke="#C9A449" stroke-width="2"/><text x="300" y="122" text-anchor="middle" font-size="17" fill="#8A681B" font-weight="800">소득 공백</text><text x="300" y="147" text-anchor="middle" font-size="13" fill="#7A5A18">재취업 · 창업 · 파트타임</text>
+    <path d="M205 129 H183" stroke="#C9A449" stroke-width="5"/><path d="M395 129 H417" stroke="#1E6B45" stroke-width="5"/>
+    <rect x="175" y="210" width="250" height="38" rx="19" fill="#0F2B1D"/><text x="300" y="234" text-anchor="middle" font-size="15" fill="#fff" font-weight="800">퇴직 → 은퇴 → Life 2.0</text>
+  </svg>`;
+}
+function svgWell(){
+  return `<svg viewBox="0 0 600 265">
+    <circle cx="100" cy="130" r="58" fill="#FFF5DB"/><rect x="88" y="103" width="24" height="72" rx="7" fill="#D7AF4C"/><path d="M100 95 C88 82 94 68 100 60 C108 70 114 84 100 95" fill="#C9892D"/><text x="100" y="203" text-anchor="middle" font-size="15" fill="#124A2F" font-weight="800">나의 웰다잉 준비</text>
+    <line x1="160" y1="105" x2="220" y2="76" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4"/><line x1="160" y1="150" x2="220" y2="177" stroke="#C9A449" stroke-width="2" stroke-dasharray="5 4"/>
+    <rect x="220" y="34" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="242" cy="57" r="11" fill="#1E6B45"/><text x="242" y="61" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="262" y="55" font-size="13.5" fill="#124A2F" font-weight="800">사전연명의료</text><text x="262" y="76" font-size="13.5" fill="#124A2F" font-weight="800">의향서</text>
+    <rect x="395" y="34" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="417" cy="57" r="11" fill="#1E6B45"/><text x="417" y="61" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="437" y="66" font-size="13.5" fill="#124A2F" font-weight="800">유언 · 상속</text>
+    <rect x="220" y="142" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="242" cy="165" r="11" fill="#1E6B45"/><text x="242" y="169" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="262" y="163" font-size="13.5" fill="#124A2F" font-weight="800">장례 · 상조</text><text x="262" y="184" font-size="12.5" fill="#5E6762">자산 준비</text>
+    <rect x="395" y="142" width="155" height="68" rx="16" fill="#fff" stroke="#1E6B45" stroke-width="1.7"/><circle cx="417" cy="165" r="11" fill="#1E6B45"/><text x="417" y="169" text-anchor="middle" font-size="12" fill="#fff">✓</text><text x="437" y="174" font-size="13.5" fill="#124A2F" font-weight="800">디지털 유산</text>
+    <text x="385" y="242" text-anchor="middle" font-size="14" fill="#5E6762" font-weight="700">미리 준비하고 · 가족과 나누고 · 기록으로 남기기</text>
+  </svg>`;
+}
+// ===== 상세 리포트(탭): 영역별 처방 / 실행 로드맵 / What-if / 상담 =====
+function sel1(id){ return (answers[id]!==undefined && !Array.isArray(answers[id]) && typeof answers[id]==='object') ? answers[id].idx : -1; }
+function selM(id){ return Array.isArray(answers[id]) ? answers[id] : []; }
+
+// areaAdvice / roadmap → 서버 반환값(R.advice / R.roadmap)
+function clList(items){
+  if(!items.length) return '<div class="cl-empty">이 시점에 특별히 급한 항목은 없습니다. 잘 준비돼 있어요 👍</div>';
+  return '<div class="cl-card">'+items.map(it=>'<div class="cl-line" onclick="this.classList.toggle(\'done\')"><div class="cl-mark"></div><div class="cl-txt"><span class="tg '+it[0]+'">'+({ret:'자산',ins:'건강·보험',hou:'주거',job:'일자리',wel:'웰다잉'}[it[0]])+'</span>'+it[1]+'</div></div>').join('')+'</div>';
+}
+
+function detailTabsHTML(R){
+  const rx = AREA_ORDER.slice().sort((x,y)=>R.scores[x]-R.scores[y]).map(a=>{   // 취약 영역이 위로
+    const s=R.scores[a], cls=s>=70?'':(s>=50?'mid':'low'), badge=s>=70?'양호':(s>=50?'보통':'취약');
+    const adv=R.advice[a];
+    return `<div class="rx-card ${cls}"><div class="rx-head"><span class="nm">${AREA_INFO[a].emoji} ${AREA_INFO[a].name}</span><span class="rx-badge">${badge}</span><span class="sc">${s}<span style="font-size:13.5px;color:var(--muted);">점</span></span></div>
+      <div class="rx-diag">${adv.diag}</div><ul class="rx-list">${adv.bullets.map(x=>'<li>'+x+'</li>').join('')}</ul></div>`;
+  }).join('');
+  const rd=R.roadmap;
+  return `
+   <div id="detailWrap" style="display:none;">
+    <div class="tabs">
+      <button class="tab active" onclick="tab(event,'t-rx')">🎯 영역별 처방</button>
+      <button class="tab" onclick="tab(event,'t-road')">✅ 실행 로드맵</button>
+      <button class="tab" onclick="tab(event,'t-wi')">🔮 What-if 시뮬</button>
+    </div>
+    <div id="t-rx" class="panel active"><div class="sec-block" style="margin-top:14px;"><h3>영역별 정밀 처방</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;">5개 영역을 점수순으로, 당신의 답변에 맞춘 조치를 정리했습니다.</p></div>${rx}</div>
+    <div id="t-road" class="panel">
+      <div class="cl-block"><div class="cl-head"><div class="n">I</div><div class="t">오늘 안에 (30분)</div><div class="when">Today</div></div>${clList(rd.T)}</div>
+      <div class="cl-block"><div class="cl-head"><div class="n g">II</div><div class="t">이번 주 안에</div><div class="when">This Week</div></div>${clList(rd.W)}</div>
+      <div class="cl-block"><div class="cl-head"><div class="n gr">III</div><div class="t">이번 달 안에</div><div class="when">This Month</div></div>${clList(rd.M)}</div>
+      <div class="cl-block"><div class="cl-head"><div class="n d">IV</div><div class="t">3개월~1년</div><div class="when">3–12 months</div></div>${clList(rd.Y)}</div>
+    </div>
+    <div id="t-wi" class="panel">${whatifHTML(R)}</div>
+
+    <div class="sec-block consult-sec" style="margin-top:18px;">
+      <span class="eyebrow gold">상담 연결</span>
+      <h3 style="font-family:'Noto Serif KR',serif;font-size:19px;color:var(--green-deep);font-weight:700;margin:6px 0 4px;">설문을 마치셨다면, <em>라이프이점영 회원 가입 후 무료 상담</em>으로 이어집니다</h3>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">진단 결과를 바탕으로 담당 플래너가 1:1로 도와드립니다.</p>
+      <div class="consult-grid">
+        <div class="cs-card cs-free"><h4>🤝 라이프이점영 회원 가입 후 무료 상담</h4><p>연금·보험·웰다잉 분야를 은퇴설계 전문가가 무료로 점검해 드립니다.</p><button class="cs-btn" onclick="consult('free')">회원가입 후 무료 상담 신청 →</button></div>
+        <div class="cs-card cs-paid"><h4>📋 외부 전문가(유료)</h4><p>상속·증여 세무, 부동산·주택연금, 법률·유언 등 검증된 전문가와 연결.</p><button class="cs-btn" onclick="consult('paid')">외부 전문가 보기 →</button></div>
+      </div>
+    </div>
+   </div>`;
+}
+function tab(e,id){
+  document.querySelectorAll('#realReport .tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#realReport .panel').forEach(p=>p.classList.remove('active'));
+  e.currentTarget.classList.add('active'); document.getElementById(id).classList.add('active');
+  window.scrollTo({top:document.querySelector('#realReport .tabs').offsetTop-80,behavior:'smooth'});
+}
+function consult(kind){
+  toast(kind==='free'?'무료 상담 관심이 접수되었어요. 담당 플래너가 연락드릴게요.':'외부 전문가 상담 관심이 접수되었어요. 곧 연락드릴게요.','ok');
+}
+
+
+function premiumGateHTML(){
+  return `
+    <div class="premium-gate" id="premiumGate">
+      <div class="pg-top">
+        <span class="pg-kicker">정밀 리포트 · 5,000원</span>
+        <h3>기본 결과에서 한 단계 더,<br>“무엇을 언제 바꿀지”까지</h3>
+        <p>기본 리포트는 무료입니다. 아래 정밀 분석은 상세 보기로 열 수 있습니다.</p>
+        <div class="pg-list">
+          <div class="pg-item">📉 자산 고갈 3시나리오</div>
+          <div class="pg-item">🕸️ 5각 준비 지도·또래 비교</div>
+          <div class="pg-item">🛡️ 65세 전 건강 방어율</div>
+          <div class="pg-item">🗺️ 오늘·이번주·이번달 로드맵</div>
+          <div class="pg-item">🔮 What-if 시뮬레이션</div>
+          <div class="pg-item">📄 PDF 저장 / 인쇄</div>
+        </div>
+      </div>
+      <div class="pg-bottom">
+        <div class="pg-price"><strong>5,000원</strong><span>1회 구매 · 영구 열람</span></div>
+        <button class="pg-btn" onclick="memberCreditV27()">무료회원 가입 후 5,000원 받기 →</button>
+        <div class="pg-note">회원 가입 리워드 5,000원으로 정밀 리포트를 이용하는 구조입니다.</div>
+      </div>
+    </div>`;
+}
+function unlockPremium(){
+  try{localStorage.setItem('l2p_premium','1');}catch(e){}
+  var fw=document.getElementById('fullReportWrap'); if(fw) fw.style.display='block';
+  var dw=document.getElementById('detailWrap'); if(dw) dw.style.display='block';
+  document.getElementById('premiumGate')?.remove();
+  toast('정밀 리포트가 열렸습니다. 아래에서 상세 분석을 확인하세요.','ok');
+  setNav('report');
+  if(fw) setTimeout(function(){ window.scrollTo({top:fw.offsetTop-70,behavior:'smooth'}); },150);
+}
+function showPaidStatus(){
+  var paid=false; try{paid=localStorage.getItem('l2p_premium')==='1';}catch(e){}
+  alert(paid?'정밀 리포트 구매 상태: 해금됨':'정밀 리포트 구매 상태: 미구매');
+}
+function freeSummaryHTML(R){
+  var gr=R.grade, weak=R.ranked[0];
+  return `
+    <div class="free-result">
+      <h3>무료 진단 핵심 결과</h3>
+      <div class="free-score-row">
+        <div class="free-score">${R.total}</div>
+        <div><strong>${gr[0]}</strong><p>${gr[1]}<br>가장 먼저 보완할 영역은 <b>${AREA_INFO[weak.a].name}</b>입니다.</p></div>
+      </div>
+    </div>`;
+}
+function renderCompletion(R){
+  document.getElementById('completeFreeResult').innerHTML=freeSummaryHTML(R);
+  var nm=(R.c&&R.c.name)||'고객';
+  document.getElementById('myName').textContent=nm+'님';
+  document.getElementById('myAvatar').textContent=(nm.charAt(0)||'2').toUpperCase();
+  document.getElementById('myCode').textContent='진단 코드 '+(R.code||'생성 중');
+  show('s-complete'); setNav('home');
+}
+function goHome(){ show('s-stage'); setNav('home'); }
+function goDiagnosis(){
+  if(_R){ show('s-quiz'); setNav('diagnosis'); return; }
+  show('s-stage'); setNav('diagnosis');
+}
+function goPremiumReport(){
+  if(!_R && _quickR){ renderQuickResult(_quickR); show('s-quickResult'); setNav('report'); return; }   // 빠른 진단만 마친 경우
+  if(!_R){ alert('먼저 진단을 완료해 주세요.'); return; }
+  show('s-report'); setNav('report');
+}
+function goConsult(){ show('s-consult'); setNav('consult'); }
+function goMyPage(){ show('s-mypage'); setNav('my'); if(_R) renderMyPage(); }
+function renderMyPage(){
+  var nm=(_R.c&&_R.c.name)||'고객';
+  document.getElementById('myName').textContent=nm+'님';
+  document.getElementById('myAvatar').textContent=(nm.charAt(0)||'2').toUpperCase();
+  document.getElementById('myCode').textContent='진단 코드 '+(_R.code||'-');
+}
+function setNav(which){
+  ['navHome','navReport','navConsult','navMy'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('active');});
+  var map={home:'navHome',report:'navReport',consult:'navConsult',my:'navMy'};
+  if(map[which]&&document.getElementById(map[which])) document.getElementById(map[which]).classList.add('active');
+}
+
+function genCode(){ var d=new Date(); return 'L2P-'+(d.getFullYear()+'').slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.random().toString(36).slice(2,5).toUpperCase(); }
+
+function surveyGateHTML(R){
+  return `
+   <div class="survey-gate" id="surveyGate">
+     <span class="eyebrow">기간 한정 · 단기 설문 이벤트</span>
+     <h2>3분 설문에 참여하고<br><em>상세 처방 · 무료 상담</em>까지 받으세요</h2>
+     <p>진단 결과와 <b>자동으로 연결</b>됩니다 — 코드 입력 없이 바로 참여하세요.<br>
+        설문 완료 시 <b>[PDF 정밀 리포트 다운로드 / 인쇄]</b> 기능이 즉시 해금됩니다.</p>
+     <button class="btn-survey" onclick="openSurvey()">📋 설문 참여하기 →</button>
+     <div><button class="btn-pdf-locked" disabled title="설문 완료 후 이용할 수 있어요">🔒 PDF 다운로드 (설문 후 가능)</button></div>
+   </div>
+   <div id="surveyForm" style="display:none;"></div>`;
+}
+
+// ===== 앱 내 설문 (구글폼 대신) — 제출 시 [설문응답] 탭에 참여코드와 함께 자동 저장 =====
+// Ver23.2 · 설문 4단 구성 — ① 진단 가치 → ② 다음 행동(상담 전환) → ③ 지불 의향(가격 실측) → ④ 추천·프로필
+const SURVEY=[
+  // ── ① 진단 가치 검증 ──
+  {sec:'① 오늘 진단, 어떠셨나요?', k:'진단유용성(도움)', q:'이번 진단이 내 노후 준비 상태를 객관적으로 이해하는 데 도움이 되었나요?', type:'scale5'},
+  {k:'사후자각(1-5)', q:'이제 내 노후 준비 상태를 얼마나 잘 알게 되었나요?', type:'scale5'},
+  // ── ② 다음 행동 (상담 전환 의향) ──
+  {sec:'② 다음 단계로 무엇이 필요하세요?', k:'우선보완영역', q:'가장 보완하고 싶거나 전문 상담이 필요한 영역은 어디인가요? (복수 선택 가능)', type:'multiChoice', opts:['동산(금융)','건강','부동산','일자리','웰다잉']},
+  {k:'무료 상담 관심', q:'라이프이점영 생애설계사의 무료 상담(연금·보장·웰다잉)을 받아보고 싶으신가요?', type:'choice', opts:['예','나중에','아니오']},
+  {k:'유료 상담 관심', q:'세무·법률·유언신탁 등 외부 전문가 연계 유료 상담도 관심 있으신가요?', type:'choice', opts:['예','조건에 따라','아니오']},
+  // ── ③ 지불 의향 (가격 실측) ──
+  {sec:'③ 유료 서비스에 대한 생각', k:'적정 가격(정밀 리포트)', q:'오늘 보신 정밀 리포트, 얼마까지 낼 만하다고 느끼세요?', type:'choice', opts:['무료라면 이용','1,000원','4,900원','9,900원 이상도 가능']},
+  {k:'지불 의향', q:'앞으로 유료 서비스를 이용한다면 어떤 형태를 선호하세요?', type:'choice', opts:['리포트 단건 구매','월 구독 (리포트 갱신·리밸런싱 알림)','건당 심층 1:1 상담','무료만 이용']},
+  // ── ④ 추천·프로필 ──
+  {sec:'④ 마지막 두 가지만 더', k:'NPS추천(0-10)', q:"주변 지인에게 '2막1장 진단'을 추천하시겠습니까?", type:'nps'},
+  {k:'유입경로', q:'이 진단을 어떻게 알게 되셨나요?', type:'choice', opts:['지인 추천','오프라인 모임','링크/문자','기타']},
+  {k:'금융자산 규모', q:'(선택) 현재 보유하신 유동 금융자산 규모대는?', type:'choice', opts:['1억 미만','1~5억','5~10억','10억 이상','응답 안 함'], optional:true},
+  {k:'의견', q:'(선택) 한 줄 의견을 남겨주세요', type:'text', optional:true}
+];
+let surveyAns={};
+function openSurvey(){
+  surveyAns={};
+  document.getElementById('surveyGate').style.display='none';
+  var host=document.getElementById('surveyForm');
+  host.innerHTML=surveyFormHTML();
+  host.style.display='block';
+  window.scrollTo({top:host.offsetTop-70,behavior:'smooth'});
+}
+function svOpt(k,val,label){ return '<div class="opt" data-v="'+String(val).replace(/"/g,'&quot;')+'" onclick="pickSurvey(\''+k+'\',this)">'+label+'</div>'; }
+function surveyFormHTML(){
+  var qs=SURVEY.map(function(s,i){
+    var body='';
+    if(s.type==='scale5'){ body='<div class="opts row sv-scale">'+[1,2,3,4,5].map(function(n){return svOpt(s.k,n,n);}).join('')+'</div><div class="sv-ends"><span>전혀</span><span class="sv-line"></span><span>매우</span></div>'; }
+    else if(s.type==='nps'){ body='<div class="opts row sv-nps">'+Array.from({length:11},function(_,n){return svOpt(s.k,n,n);}).join('')+'</div><div class="sv-ends"><span>0 · 전혀</span><span class="sv-line"></span><span>매우 · 10</span></div>'; }
+    else if(s.type==='choice'){ body='<div class="opts row">'+s.opts.map(function(o){return svOpt(s.k,o,o);}).join('')+'</div>'; }
+    else if(s.type==='multiChoice'){ body='<div class="opts row">'+s.opts.map(function(o){return '<div class="opt multi" data-v="'+o+'" onclick="pickSurveyM(\''+s.k+'\',this)">'+o+'</div>';}).join('')+'</div>'; }
+    else { body='<textarea class="qtext" rows="2" oninput="setSurveyText(\''+s.k+'\',this.value)" placeholder="자유롭게 적어주세요"></textarea>'; }
+    var secHead = s.sec ? '<div style="font-size:14px;font-weight:900;color:var(--green-deep);margin:18px 2px 8px;padding-top:6px;border-top:1px dashed var(--line);">'+s.sec+'</div>' : '';
+    return secHead+'<div class="qcard" data-sk="'+s.k+'"><div class="qq"><span class="qno">Q'+(i+1)+'</span>'+s.q+'</div>'+body+'</div>';
+  }).join('');
+  return '<div class="part-title" style="margin-top:6px;">📋 진단 후기 · 3분 설문</div>'+qs+
+    '<div class="qnav"><button class="btn btn-primary" onclick="submitSurvey()">제출하고 결과 보기 →</button></div>';
+}
+function pickSurvey(k,el){ surveyAns[k]=el.getAttribute('data-v'); var card=el.closest('.qcard'); Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(o){o.classList.toggle('sel',o===el);}); }
+function pickSurveyM(k,el){   // 복수 선택 (우선보완영역)
+  var v=el.getAttribute('data-v'); var arr=Array.isArray(surveyAns[k])?surveyAns[k]:[];
+  if(arr.indexOf(v)>=0) arr=arr.filter(function(x){return x!==v;}); else arr.push(v);
+  surveyAns[k]=arr; el.classList.toggle('sel');
+}
+function setSurveyText(k,v){ surveyAns[k]=v; }
+function submitSurvey(){
+  for(var i=0;i<SURVEY.length;i++){ var s=SURVEY[i];
+    var v=surveyAns[s.k];
+    var empty=(v===undefined||v==='')||(Array.isArray(v)&&!v.length);
+    if(!s.optional && empty){ alert('설문 문항에 모두 답해 주세요.'); return; } }
+  saveSurvey();
+  var host=document.getElementById('surveyForm');
+  host.innerHTML='<div class="survey-thanks"><div class="st-ic">✓</div><h3>설문 감사합니다!</h3><p>소중한 의견이 저장되었어요. 아래에서 상세 처방과 무료 상담 안내를 확인하세요.</p>'
+    +'<button class="btn-pdf-on" onclick="printReport()">📄 정밀 리포트 PDF 다운로드 / 인쇄</button>'
+    +'<div style="font-size:13.5px;color:var(--muted);margin-top:8px;">인쇄 창에서 \'PDF로 저장\'을 선택하면 파일로 보관할 수 있어요</div></div>';
+  showDetail();
+}
+function printReport(){   // 인쇄 전용 CSS(@media print)가 적용된 깔끔한 리포트로 인쇄/PDF 저장
+  window.scrollTo({top:0}); setTimeout(function(){ window.print(); }, 150);
+}
+function saveSurvey(){
+  var pre=parseInt(preAware)||0, post=parseInt(surveyAns['사후자각(1-5)'])||0;
+  var payload={ __target:'survey', __secret:GAS_SECRET,
+    '참여자코드': (_R&&_R.code)||'', '이름': (_R&&_R.c&&_R.c.name)||'',
+    '연락처': (document.getElementById('uPhone')?document.getElementById('uPhone').value:'')||'',
+    '사전자각(1-5)': pre||'', '자각변화Δ': (pre&&post)?(post-pre):'' };
+  SURVEY.forEach(function(s){ var v=surveyAns[s.k]; payload[s.k]= v===undefined?'':(Array.isArray(v)?v.join('/'):v); });
+  try{ var q=JSON.parse(localStorage.getItem('l2p_survey')||'[]'); q.push(payload); localStorage.setItem('l2p_survey',JSON.stringify(q)); }catch(e){}
+  if(GAS_URL && GAS_URL.indexOf('http')===0){
+    fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).catch(function(e){});
+  }
+  toast('설문이 저장되었습니다. 감사합니다!','ok');
+}
+function showDetail(){
+  var paid=false; try{paid=localStorage.getItem('l2p_premium')==='1';}catch(e){}
+  if(!paid){ var g=document.getElementById('premiumGate'); if(g){ window.scrollTo({top:g.offsetTop-70,behavior:'smooth'}); } return; }   // 미구매 시 게이트로 안내
+  var fw=document.getElementById('fullReportWrap'); if(fw) fw.style.display='block';
+  var d=document.getElementById('detailWrap'); if(d){ d.style.display='block'; window.scrollTo({top:d.offsetTop-70,behavior:'smooth'}); }
+}
+
+function buildReport(){
+  toast('결과를 계산하고 있어요…','ok');
+  const body={ answers:answersForApi(), timings:_qT, phone:((document.getElementById('uPhone')||{}).value||''),
+    consent:!!((document.getElementById('uConsent')||{}).checked), bypass:!!window._cohBypass, peerData:window._peerData||null, code:(_R&&_R.code)||null };
+  apiPost('/diagnose',body).then(function(d){
+    if(d.needsReview){ window._cohLast=d.coh; openCoherence(d.coh); return; }   // 정합성 재확인 모달
+    renderReportFromServer(d);
+  }).catch(apiFail);
+}
+function renderReportFromServer(d){
+  _R = d; _hp=0; _sj=1;
+  var _paid=false; try{_paid=localStorage.getItem('l2p_premium')==='1';}catch(e){}
+  // 구성: ① 기본 리포트(무료·간략) → ② 설문 참여 → ③ 정밀 리포트 게이트(1,000원) → ④ 정밀 리포트(해금 시)
+  document.getElementById('realReport').innerHTML = basicReportHTML(_R)
+    + '<div id="premiumExtra">'+surveyGateHTML(_R)+'</div>'
+    + (_paid?'':premiumGateHTML())
+    + '<div id="fullReportWrap" style="display:'+(_paid?'block':'none')+';">'+reportHTML(_R,false)+detailTabsHTML(_R)+'</div>';
+  if(_paid){ var dw=document.getElementById('detailWrap'); if(dw) dw.style.display='block'; }
+  if(_R.habits){
+    var h=_R.habits;
+    var eqTxt = (h.eqPct!==null&&h.eqPct!==undefined)? ('투자자산 비중 약 '+h.eqPct+'% — 연령 기준 권장은 '+h.bench+'% 내외입니다'+(h.eqWarn?' <b style="color:#D64545;">(연령 대비 위험자산 비중이 높습니다)</b>':'')) : '';
+    document.getElementById('realReport').insertAdjacentHTML('afterbegin',
+      '<div style="background:#EEF4E8;border:1px solid #CBDCC9;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13.5px;color:#124A2F;line-height:1.55;"><b>📐 재무 습관</b> — 저축률 '+h.sr+'% ('+h.srG+')'+(eqTxt?('<br>'+eqTxt):'')+'</div>');
+  }
+  if(_R.coh && _R.coh.R<85){
+    document.getElementById('realReport').insertAdjacentHTML('afterbegin',
+      '<div style="background:#FDF9EB;border:1px solid #E4D9B8;border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:13.5px;color:#8A6A20;line-height:1.5;"><b>ℹ 응답 재확인</b> — 신뢰도 '+_R.coh.R+'점입니다. 결과 해석 시 참고해 주세요.</div>');
+  }
+  renderCompletion(_R);
+  // Ver27: 최종 저장은 사용자가 리포트 하단의 저장 버튼을 눌렀을 때 실행
+}
+function restart(){ answers={}; curPart=1; _R=null; quickAns={}; _quickR=null; show('s-stage'); setNav('home'); }
+
+// 샘플 리포트 → 서버(/sample)에서 로드
+// ================= 데이터 보관 (안정화 버전) =================
+// 설계 원칙: (1) 무엇보다 데이터를 잃지 않는다 → 항상 이 기기(localStorage)에 먼저 백업
+//          (2) 그 다음 구글시트로 전송 시도, 실패하면 큐에 남겨 다음 접속 때 자동 재전송
+//          (3) 스팸/오염 방지를 위해 비밀키(GAS_SECRET)를 함께 전송
+//          (4) 최후의 안전망: '이 기기 결과 CSV 내보내기'로 언제든 회수 가능
+const LS_KEY='l2p_results';
+function lsGet(){ try{return JSON.parse(localStorage.getItem(LS_KEY)||'[]');}catch(e){return [];} }
+function lsSet(a){ try{localStorage.setItem(LS_KEY,JSON.stringify(a));}catch(e){} }
+
+function buildPayload(R){
+  const p=Object.assign({}, R.sheetPayload||{});
+  p['연락처']=(document.getElementById('uPhone').value||'');
+  p['개인정보동의']=(document.getElementById('uConsent').checked?'동의':'미동의');
+  return p;
+}
+function saveResult(R){
+  const payload=buildPayload(R);
+  const list=lsGet(); list.push({payload,sent:false}); lsSet(list);   // ① 항상 기기에 먼저 백업
+  toast('결과가 이 기기에 저장되었습니다.', 'ok');
+  flushQueue();                                                        // ② 전송 시도(미동의여도 백업은 남고, 전송은 아래에서 판단)
+}
+function flushQueue(){
+  if(!GAS_URL || GAS_URL.indexOf('http')!==0) return;                  // URL 미설정이면 기기 백업만
+  const list=lsGet(); let pending=list.filter(r=>!r.sent);
+  if(!pending.length) return;
+  pending.forEach(r=>{
+    const body=JSON.stringify(Object.assign({__secret:GAS_SECRET}, r.payload));
+    fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body})
+      .then(()=>{ r.sent=true; lsSet(list); toast('처리가 완료되었습니다.', 'ok'); })
+      .catch(()=>{ toast('처리 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.', 'warn'); });
+  });
+}
+function exportCSV(){
+  const list=lsGet(); if(!list.length){ alert('이 기기에 저장된 결과가 없습니다.'); return; }
+  const cols=[]; list.forEach(r=>Object.keys(r.payload).forEach(k=>{ if(cols.indexOf(k)<0) cols.push(k); }));
+  cols.push('전송됨');
+  const esc=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  let csv='﻿'+cols.map(esc).join(',')+'\n';
+  list.forEach(r=>{ csv+=cols.map(c=> c==='전송됨'?esc(r.sent?'Y':'N'):esc(r.payload[c])).join(',')+'\n'; });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='2막1장_정밀진단_백업.csv'; a.click(); URL.revokeObjectURL(url);
+}
+function toast(msg,type){
+  const el=document.getElementById('saveStatus'); if(!el) return;
+  el.textContent=(type==='warn'?'⚠ ':'✓ ')+msg; el.className='toast show '+(type||'');
+  clearTimeout(window._tt); window._tt=setTimeout(()=>{el.className='toast';},4000);
+}
+
+// ================= Ver24 · Reference UI navigation overrides =================
+let uiQId = null;
+function openStartSetup(){ var el=document.getElementById('v24Setup'); if(el){el.style.display='flex';document.body.style.overflow='hidden';} }
+function closeStartSetup(){ var el=document.getElementById('v24Setup'); if(el){el.style.display='none';document.body.style.overflow='';} }
+function uiOrderedQuestions(){
+  var arr=[]; SEQ.forEach(function(g){ Q.filter(function(q){return q.part===g && q.id!=='Q1' && qVisible(q);}).forEach(function(q){arr.push(q);}); });
+  return arr;
+}
+function uiVisualFor(q){
+  if(q.id==='Q2') return '<div class="v24-q-visual v25-photo-visual" aria-hidden="true"><div class="v26-object-pair"><span>🎂</span><span>🪪</span></div><div class="v26-mini-label">나이 · 성별</div></div>';
+  if(q.id==='Q11') return '<div class="v24-q-visual v25-health-duo" aria-hidden="true"><div><span class="v25-art-emoji">🎗️</span><b>암</b></div><i></i><div><span class="v25-art-emoji">🧠</span><b>뇌·심혈관</b></div></div>';
+  var V={
+    Q3:['🧭','은퇴 시점'],Q41:['💳','부부 월소득'],Q4:['🧾','월 생활비'],Q5:['🪙','65세 이후 생활비'],Q6:['📅','국민연금 가입기간'],Q7:['👥','배우자 국민연금'],Q8:['👨‍👩‍👧','부양 자녀'],Q9:['⚠️','퇴직 걱정'],
+    Q10:['🏃','운동 · 건강검진'],Q12:['🛡️','3대 진단비'],Q13:['🏥','실손 · 수술/입원'],Q14:['🫶','간병 · 장기요양'],
+    Q16:['🏠','현재 거주형태'],Q17:['🏘️','주택 시세'],Q18:['🏦','주택대출 LTV'],Q19:['🏡','주택연금'],Q20:['🏢','투자 부동산'],Q44:['🗺️','부동산 유형'],Q21:['🚚','주거 이동'],Q22:['🔑','회수 가능 보증금'],
+    Q23:['💼','유동 금융자산'],Q24:['📥','매월 저축·투자'],Q25:['🧮','절세계좌'],Q26:['📈','배당 · 이자'],Q42:['⚖️','투자자산 비중'],Q27:['🏛️','연금 3층'],Q28:['👫','국민연금 · 부부 합산'],Q29:['📑','퇴직·개인연금 · 부부 합산'],Q30:['📉','총 부채'],
+    Q31:['💼','퇴직 후 ~ 65세(연금 수령 전)'],Q32:['💵','퇴직 후 월 근로소득'],Q33:['🧰','독립 소득 경험'],Q34:['🎓','자격 · 기술'],Q35:['🗓️','임의계속가입'],
+    Q36:['📜','사전연명의료의향서'],Q37:['✍️','유언 · 상속'],Q38:['🌿','상조 · 장례 예비자금'],Q39:['🔐','디지털 유산'],Q43:['💬','가족과의 사전 대화'],Q45:['🤖','AI 생애기록'],Q40:['🌅','삶의 아름다운 마무리']
+  };
+  var x=V[q.id]||['✦','나의 노후 준비'];
+  return '<div class="v24-q-visual v25-object-visual" aria-hidden="true"><div class="v26-visual-caption">'+x[1]+'</div><span class="v26-visual-object">'+x[0]+'</span><div class="v25-pedestal"></div></div>';
+}
+function uiQuestionHTML(q){
+  var step=SEQ.indexOf(q.part)+1;
+  var qNo=(QNUM[q.id]||'');
+  var qBadge=qNo?('<span class="v25-q-number">'+qNo+'</span>'):('<span class="v26-value-badge">가치관 · 점수 미반영</span>');
+  var html='<div class="qcard" data-qid="'+q.id+'"><div class="v25-question-meta">'+qBadge+'<span class="v25-part-badge">PART '+step+' · '+PARTS[q.part-1]+'</span></div><div class="qq">'+q.q+(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>'+uiVisualFor(q);
+  if(q.id==='Q2'){
+    html+='<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:6px;">현재 나이</div><input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" placeholder="예: 65"></div><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:7px;">성별</div>';
+  }
+  if(q.cond==='home') html+='<div class="cond-note">자가 주택 보유자만 응답합니다</div>';
+  if(q.cond==='rent') html+='<div class="cond-note">전월세·기타 거주자만 응답합니다</div>';
+  if(q.type==='text'){
+    var v=answers[q.id]||''; html+='<input class="qtext" type="text" value="'+String(v).replace(/"/g,'&quot;')+'" oninput="setText(\''+q.id+'\',this.value)">';
+  }else if(q.type==='multi'){
+    var ms=answers[q.id]||[]; html+='<div class="opts">'+q.opts.map(function(o,i){return '<div class="opt multi'+(ms.indexOf(i)>=0?' sel':'')+'" onclick="toggleMulti(\''+q.id+'\','+i+')">'+o.t+'</div>';}).join('')+'</div>';
+  }else{
+    var sel=answers[q.id]!==undefined?answers[q.id].idx:-1;
+    html+='<div class="opts">'+q.opts.map(function(o,i){return '<div class="opt'+(sel===i?' sel':'')+'" onclick="pick(\''+q.id+'\','+i+')">'+o.t+'</div>';}).join('')+'</div>';
+  }
+  return html+'</div>';
+}
+function renderSingleQuestion(preferId){
+  var flow=uiOrderedQuestions(); if(!flow.length) return;
+  var idx=0;
+  if(preferId){ var fi=flow.findIndex(function(q){return q.id===preferId;}); if(fi>=0) idx=fi; }
+  else if(uiQId){ var ci=flow.findIndex(function(q){return q.id===uiQId;}); if(ci>=0) idx=ci; }
+  uiQId=flow[idx].id; var q=flow[idx]; curPart=SEQ.indexOf(q.part)+1;
+  document.getElementById('partIntro').style.display='none'; document.getElementById('partBody').style.display='block';
+  document.getElementById('qContainer').innerHTML=uiQuestionHTML(q);
+  var total=42, num=(q.id==='Q40'?42:(parseInt(String(QNUM[q.id]||'Q1').replace(/\D/g,''),10)||1)), pct=Math.max(2,Math.min(100,Math.round(num/total*100)));
+  document.getElementById('pNow').textContent='PART '+curPart;
+  document.getElementById('pName2').textContent=' · '+num+' / '+total;
+  document.getElementById('pPct').textContent=pct+'%'; document.getElementById('pFill').style.width=pct+'%';
+  document.getElementById('prevBtn').style.visibility=(idx===0?'hidden':'visible');
+  document.getElementById('nextBtn').textContent=(idx===flow.length-1?'진단 완료하기':'다음 ›');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function uiValidateQuestion(q){
+  if(q.id==='Q2'){ var a=parseInt(answers['Q2A'],10); if(!a||a<20||a>100){alert('나이를 만 20~100세 숫자로 입력해 주세요.');return false;} }
+  if(q.type==='multi' && !(answers[q.id]&&answers[q.id].length)){alert('하나 이상 선택해 주세요.');return false;}
+  if(q.type==='text' && (!answers[q.id]||!String(answers[q.id]).trim())){alert('내용을 입력해 주세요.');return false;}
+  if(q.type==='single' && answers[q.id]===undefined){alert('답변을 선택해 주세요.');return false;}
+  return true;
+}
+function uiNextQuestion(){
+  var flow=uiOrderedQuestions(), idx=flow.findIndex(function(q){return q.id===uiQId;}); if(idx<0) idx=0; var q=flow[idx];
+  if(!uiValidateQuestion(q)) return;
+  var after=uiOrderedQuestions(); idx=after.findIndex(function(x){return x.id===q.id;});
+  if(idx>=after.length-1){ buildReport(); return; }
+  var nextQ=after[idx+1], nextStep=SEQ.indexOf(nextQ.part)+1;
+  if(nextQ.part!==q.part){ enterPart(nextStep); return; }
+  renderSingleQuestion(nextQ.id);
+}
+function uiPrevQuestion(){
+  var flow=uiOrderedQuestions(),idx=flow.findIndex(function(q){return q.id===uiQId;});
+  if(idx>0) renderSingleQuestion(flow[idx-1].id);
+}
+// override conditional-answer behavior for the one-question UI
+function pick(id,i){ _markTime(id); var q=Q.find(function(x){return x.id===id;}); answers[id]={idx:i,opt:q.opts[i]}; var card=document.querySelector('.qcard[data-qid="'+id+'"]'); if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',idx===i);}); if(id==='Q16'||id==='Q20') setTimeout(function(){renderSingleQuestion(id);},20); }
+function toggleMulti(id,i){ _markTime(id); var q=Q.find(function(x){return x.id===id;}); var s=answers[id]||[]; if(s.indexOf(i)>=0){s=s.filter(function(x){return x!==i;});}else{if(q.opts[i].ex){s=[i];}else{s=s.filter(function(x){return !q.opts[x].ex;});s.push(i);}} answers[id]=s; var card=document.querySelector('.qcard[data-qid="'+id+'"]'); if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',s.indexOf(idx)>=0);}); }
+function enterPart(p){
+  if(p===1 && !answers['Q2'] && !answers['Q2A']){window._cohBypass=false;_qT={};_lastClickT=Date.now();}
+  curPart=p; var g=grpOf(p);
+  show('s-quiz');
+  document.getElementById('partIntro').innerHTML=partIntroHTML(p,g);
+  document.getElementById('partIntro').style.display='block';
+  document.getElementById('partBody').style.display='none';
+  document.getElementById('pNow').textContent='PART '+p;
+  document.getElementById('pName2').textContent=' · '+PARTS[g-1];
+  var pct=Math.round(((p-1)/6)*100); document.getElementById('pPct').textContent=pct+'%'; document.getElementById('pFill').style.width=pct+'%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function beginPart(){
+  var g=grpOf(curPart), first=Q.find(function(q){return q.part===g&&q.id!=='Q1'&&qVisible(q);});
+  renderSingleQuestion(first?first.id:null);
+}
+function goHome(){ show('s-intro'); setNav('home'); }
+function goDiagnosis(){ if(_R){show('s-report');setNav('report');return;} if(answers['Q1']){ if(uiQId){show('s-quiz');renderSingleQuestion(uiQId);} else enterPart(curPart||1); setNav('diagnosis');return;} show('s-intro');setNav('diagnosis'); }
+function restart(){answers={};curPart=1;_R=null;quickAns={};_quickR=null;uiQId=null;preAware=0;show('s-intro');setNav('home');}
+// close setup just before starting full diagnosis
+var _goTeaserV23=goTeaser; goTeaser=function(){ var before=document.getElementById('v24Setup'); var okPre=preAware; var nm=(document.getElementById('uName')?document.getElementById('uName').value:'').trim(); if(!okPre){alert('시작 전 자가 평가(1~5)를 선택해 주세요.');return;} if(!nm){alert('이름 또는 별명을 입력해 주세요.');return;} setText('Q1',nm); if(!document.getElementById('uConsent').checked){if(!confirm('개인정보 수집에 동의하지 않으면 결과 저장 없이 진행됩니다. 계속할까요?'))return;} closeStartSetup(); loadCatalog().then(function(){ enterPart(1); }).catch(function(){}); };
+
+
+// ================= Ver25 · Master DB 이어하기 =================
+// 로컬 저장을 먼저 확인하고, 없으면 GAS Master DB(임시저장 시트)에 mode=resume으로 조회합니다.
+function applyDraftV25(d, source){
+  if(!d) return false;
+  var a=d.answers;
+  if(typeof a==='string'){ try{a=JSON.parse(a);}catch(e){a={};} }
+  answers=a||{}; curPart=parseInt(d.curPart||d['진행파트']||1,10)||1;
+  preAware=parseInt(d.preAware||d['사전자각']||preAware||0,10)||preAware;
+  if(d.phone && document.getElementById('uPhone')) document.getElementById('uPhone').value=d.phone;
+  closeMini(); uiQId=null; loadCatalog().then(function(){ enterPart(curPart); }).catch(function(){});
+  toast((source==='master'?'Master DB':'이 기기')+'에서 저장된 진단을 불러왔습니다.','ok');
+  return true;
+}
+function masterResumeLookupV25(name,phone){
+  return new Promise(function(resolve){
+    if(!GAS_URL || GAS_URL.indexOf('http')!==0){ resolve(null); return; }
+    var cb='__resumeV25_'+Date.now()+'_'+Math.floor(Math.random()*10000), done=false;
+    var timer=setTimeout(function(){ if(done)return; done=true; cleanup(); resolve(null); },7000);
+    function cleanup(){ try{delete window[cb];}catch(e){} if(script&&script.parentNode)script.parentNode.removeChild(script); clearTimeout(timer); }
+    window[cb]=function(resp){ if(done)return; done=true; cleanup(); resolve(resp&&resp.ok!==false?(resp.draft||resp.data||resp):null); };
+    var script=document.createElement('script');
+    script.onerror=function(){ if(done)return; done=true; cleanup(); resolve(null); };
+    script.src=GAS_URL+'?mode=resume&name='+encodeURIComponent(name)+'&phone='+encodeURIComponent(phone||'')+'&callback='+encodeURIComponent(cb)+'&_t='+Date.now();
+    document.body.appendChild(script);
+  });
+}
+async function resumeGo(){
+  const n=document.getElementById('rName').value.trim(), p=document.getElementById('rPhone').value.trim();
+  if(!n){ alert('이름 또는 별명을 입력해 주세요.'); return; }
+  const list=draftsGet();
+  let d=list.find(function(x){return x.id===draftId(n,p);});
+  if(!d){ const cand=list.filter(function(x){return x.name===n;}).sort(function(a,b){return (b.ts||'').localeCompare(a.ts||'');}); d=cand[0]; }
+  if(d){ applyDraftV25(d,'local'); return; }
+  var btn=document.querySelector('#miniBody .btn-primary'); if(btn){btn.disabled=true;btn.textContent='Master DB에서 찾는 중…';}
+  var remote=await masterResumeLookupV25(n,p);
+  if(btn){btn.disabled=false;btn.textContent='이어하기 →';}
+  if(remote){ applyDraftV25(remote,'master'); return; }
+  alert('저장된 진단을 찾지 못했습니다.\nMaster DB 조회 기능은 함께 제공한 Apps Script 패치를 배포한 뒤 활성화됩니다.');
+}
+
+window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalog().catch(function(){}); }); // 접속 시 미전송분 재시도 + 또래평균 로드
+</script>
+
+<script id="ver27-patch">
+// Ver28 visual and flow patches
+(function(){
+  // 건강 시각 요소: 암 vs 혈관계(뇌/심장) 명확히 분리
+  var oldVisual=uiVisualFor;
+  uiVisualFor=function(q){
+    if(q.id==='Q11') return '<div class="v24-q-visual v25-health-duo" aria-hidden="true"><div><span class="v25-art-emoji">🎗️</span><b>암</b></div><i></i><div><span class="v27-vascular"><span>🧠</span><span>❤️</span></span><b>혈관계<br>(뇌·심장)</b></div></div>';
+    return oldVisual(q);
+  };
+
+  // 정합성 확인 모달에서 결과 화면으로 진행되지 않던 문제 수정
+  window.v27FinishAfterCoherence=function(){
+    // 확인 모달 자체가 최종 검토 단계이므로, 수정 후에는 재검증 루프 없이 결과로 이동합니다.
+    window._cohBypass=true;
+    closeMini();
+    setTimeout(function(){ buildReport(); },80);
+  };
+
+  // 회원가입 리워드 CTA: 현재 프로토타입에서는 안내 후 정밀리포트 데모 해금
+  window.memberCreditV27=function(){
+    openMini('<h3 class="mini-h">🎁 무료회원 가입 리워드</h3><p class="mini-p">무료회원 가입 후 <b>5,000원 리워드</b>를 받아 정밀 리포트에 사용할 수 있도록 연결하는 화면입니다. 다음 단계에서 마이데이터 회원가입/연동 화면과 실제 연결합니다.</p><button class="btn btn-primary" onclick="closeMini();unlockPremium();">리워드 적용하고 리포트 보기 →</button>');
+  };
+
+  // 상담 화면에는 리포트 복귀 버튼을 항상 노출
+  var oldGoConsult=goConsult;
+  goConsult=function(){ oldGoConsult(); };
+
+  // 최종 저장은 사용자의 명시적 클릭으로 실행
+  window.saveFinalV27=function(){
+    if(!_R){ alert('저장할 진단 결과가 없습니다.'); return; }
+    saveResult(_R);
+    try{ localStorage.setItem('l2p_final_saved',JSON.stringify({code:_R.code||'',ts:new Date().toISOString()})); }catch(e){}
+    openMini('<div style="text-align:center;padding:12px 4px 4px;"><div style="width:58px;height:58px;border-radius:50%;background:#EAF4EE;color:#087243;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin:0 auto 12px;">✓</div><h3 class="mini-h">저장되었습니다</h3><p class="mini-p">최종 진단 내용이 저장되었습니다.</p><button class="btn btn-primary" onclick="closeMini()">확인</button></div>');
+  };
+
+  // 사용자 화면에서는 CSV/raw-data export를 제공하지 않음. 관리자 DB에서만 확인.
+  window.exportCSV=function(){ alert('진단 데이터 관리는 관리자 전용 화면에서만 가능합니다.'); };
+
+  // 전송 성공/실패 토스트는 구현 상세(DB/스프레드시트)를 노출하지 않음.
+  var oldFlush=flushQueue;
+  flushQueue=function(){
+    if(!GAS_URL || GAS_URL.indexOf('http')!==0) return;
+    var list=lsGet(), pending=list.filter(function(r){return !r.sent;});
+    if(!pending.length) return;
+    pending.forEach(function(r){
+      var body=JSON.stringify(Object.assign({__secret:GAS_SECRET},r.payload));
+      fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body})
+        .then(function(){r.sent=true;lsSet(list);})
+        .catch(function(){});
+    });
+  };
+
+  // 완료 화면에 점수별 상태 이미지 + 가장 약한 축 강조
+  var oldCompletion=renderCompletion;
+  renderCompletion=function(R){
+    oldCompletion(R);
+    var host=document.querySelector('#s-complete .app-complete');
+    if(!host) return;
+    var mood=R.total<50?['⚠️','warn','주의가 필요한 상태']:R.total>=75?['🌿','good','준비가 안정적인 상태']:['🧭','mid','보완 방향을 잡을 단계'];
+    var title=host.querySelector('.complete-title');
+    if(title && !host.querySelector('.v27-result-mood')) title.insertAdjacentHTML('beforebegin','<div class="v27-result-mood '+mood[1]+'" aria-label="'+mood[2]+'">'+mood[0]+'</div>');
+    var fr=host.querySelector('.free-result');
+    if(fr && R.ranked && R.ranked.length){
+      var w=R.ranked[0], info=AREA_INFO[w.a];
+      if(!fr.querySelector('.v27-weak')) fr.insertAdjacentHTML('beforeend','<div class="v27-weak">⚠ 가장 먼저 보완할 영역 · '+info.name+' '+w.s+'점<br>'+(R.actions?R.actions[w.a]:'')+'</div>');
+    }
+  };
+
+  // 산정근거 장문은 영역별 문단으로 분리해 가독성 향상
+  var oldReportHTML=reportHTML;
+  reportHTML=function(R,sample){
+    var h=oldReportHTML(R,sample);
+    h=h.replace(/📌 <b>산정 근거<\/b> — 동산:/g,'📌 <b>산정 근거</b><span class="v27-basis-line"><b>동산</b> :')
+       .replace(/ \/ 부동산:/g,'</span><span class="v27-basis-line"><b>부동산</b> :')
+       .replace(/ \/ 건강:/g,'</span><span class="v27-basis-line"><b>건강</b> :')
+       .replace(/ \/ 웰다잉:/g,'</span><span class="v27-basis-line"><b>웰다잉</b> :')
+       .replace(/<b>또래 평균<\/b>은/g,'</span><span class="v27-basis-line"><b>또래 평균</b>은')
+       .replace(/참고치입니다\.<\/div>/g,'참고치입니다.</span></div>');
+    return h;
+  };
+})();
+</script>
+</body>
+</html>
