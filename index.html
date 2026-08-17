@@ -845,6 +845,16 @@ html,body{height:auto!important;overflow-y:auto!important;overscroll-behavior-y:
 /* Ver29 · 상품 연계 문항(보유/관심)은 라벨이 길어 1열 · 왼쪽 정렬 */
 #surveyForm .qcard[data-sk*="상품"] .opts.row{display:flex!important;flex-direction:column!important;}
 #surveyForm .qcard[data-sk*="상품"] .opts.row .opt{min-width:100%!important;text-align:left!important;padding:11px 12px 11px 40px!important;}
+
+/* Ver29 · 파트 인트로 '진단 항목' 가독성 · 3층 연금 시각 · 셀렉트 잘림 */
+.pi-hint{color:#124A2F!important;font-weight:800!important;font-size:14px!important;background:#EAF4EE;border-radius:10px;padding:9px 12px;margin-top:8px;line-height:1.55;}
+.v29-pension-tiers{display:flex!important;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:12px 10px!important;background:linear-gradient(180deg,#FCFAF5,#F2E9D8)!important;}
+.v29-tier{border-radius:8px;color:#fff;font-size:12px;font-weight:700;padding:6px 10px;text-align:center;white-space:nowrap;box-shadow:0 3px 8px rgba(15,43,29,.12);}
+.v29-tier b{margin-right:6px;font-weight:900;}
+.v29-tier.t3{width:52%;background:#C9A449;color:#123B28;} .v29-tier.t2{width:70%;background:#1E6B45;} .v29-tier.t1{width:88%;background:#124A2F;}
+@media (max-height:720px){ .v29-pension-tiers{padding:6px 10px!important;gap:3px;} .v29-tier{font-size:10.5px;padding:4px 8px;} }
+select.qtext{height:50px!important;line-height:normal!important;padding:0 12px!important;-webkit-appearance:menulist!important;appearance:menulist!important;font-size:15px!important;}
+textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!important;}
 </style>
 
 <style id="ver29-print">
@@ -942,6 +952,12 @@ html,body{height:auto!important;overflow-y:auto!important;overscroll-behavior-y:
   #printDoc .cl-block{margin:0!important;} #printDoc .cl-head .t{font-size:12.5px!important;} #printDoc .cl-head .n{width:22px!important;height:22px!important;font-size:11px!important;} #printDoc .cl-head .when{font-size:9.5px!important;}
   #printDoc .cl-line{padding:5px 8px!important;font-size:10.5px!important;line-height:1.4!important;} #printDoc .cl-mark{width:14px!important;height:14px!important;} #printDoc .cl-txt .tg{font-size:9px!important;padding:1px 6px!important;} #printDoc .cl-card{padding:4px!important;border-radius:10px!important;} #printDoc .cl-empty{font-size:10.5px!important;padding:8px!important;}
   .pp-foot{margin-top:5mm;padding-top:6px;border-top:1px solid #E4E8E5;font-size:9px;color:#7A837E;line-height:1.4;}
+  .pp-head{background:linear-gradient(90deg,#0F2B1D,#1E6B45);color:#fff!important;border:0!important;border-radius:10px;padding:8px 12px!important;margin:0 0 4mm!important;}
+  .pp-head .pp-brand,.pp-head .pp-brand span,.pp-head .pp-title,.pp-head .pp-sub{color:#fff!important;} .pp-head .pp-brand span{color:#E7D594!important;} .pp-head .pp-sub{color:#CFE0D6!important;}
+  .pp-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:4mm;margin-top:4mm;}
+  .pp-kpi > div{border:1px solid #E4E8E5;border-top:3px solid #C9A449;border-radius:10px;padding:7px 9px;background:#FBFCFA;}
+  .pp-kpi span{display:block;font-size:9.5px;color:#7A837E;font-weight:700;} .pp-kpi b{display:block;font-size:19px;color:#124A2F;font-weight:900;line-height:1.2;margin-top:2px;} .pp-kpi i{font-style:normal;font-size:10px;color:#7A837E;margin-left:2px;font-weight:700;}
+  .pp-pageno{position:relative;margin-top:3mm;text-align:right;font-size:8.5px;color:#9AA39E;}
   #printDoc *{animation:none!important;transition:none!important;opacity:1!important;}
   #printDoc .score-hero,#printDoc .weak-rank,#printDoc .eyebrow,#printDoc .lg-item,#printDoc .r-fill,#printDoc .ff-bar>i,#printDoc .shield-bar>i,#printDoc .cl-head .n,#printDoc .rx-badge,#printDoc .tg{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
@@ -1551,7 +1567,7 @@ function whatifHTML(R){
       </div>
       <div class="wi-sliders">
         <div class="wi-card"><div class="h"><span class="n">🧑‍💼 퇴직 후 재취업 월소득</span><span class="val"><span id="v-reemp">${R.reemp}</span>만</span></div>
-          <input type="range" id="s-reemp" min="0" max="300" step="10" value="${R.reemp}" oninput="runWhatif()"><div class="rng"><span>0</span><span>300만</span></div></div>
+          <input type="range" id="s-reemp" min="0" max="500" step="10" value="${R.reemp}" oninput="runWhatif()"><div class="rng"><span>0</span><span>500만</span></div></div>
         <div class="wi-card"><div class="h"><span class="n">📉 월 생활비 증감</span><span class="val"><span id="v-cost">0</span>만</span></div>
           <input type="range" id="s-cost" min="-100" max="100" step="10" value="0" oninput="runWhatif()"><div class="rng"><span>-100</span><span>+100만</span></div></div>
         <div class="wi-card"><div class="h"><span class="n">👨‍👩‍👧 자녀 지원금</span><span class="val"><span id="v-child">${c.child}</span>만</span></div>
@@ -2017,8 +2033,32 @@ function tab(e,id){
   e.currentTarget.classList.add('active'); document.getElementById(id).classList.add('active');
   window.scrollTo({top:document.querySelector('#realReport .tabs').offsetTop-80,behavior:'smooth'});
 }
-function consult(kind){
-  toast(kind==='free'?'무료 상담 관심이 접수되었어요. 담당 플래너가 연락드릴게요.':'외부 전문가 상담 관심이 접수되었어요. 곧 연락드릴게요.','ok');
+function consult(kind){   // Ver29 · 상담 신청 폼 → GAS [상담신청] 탭 저장 + 담당자 메일 발송 → 접수 안내 팝업
+  var nm=((_R&&_R.c&&_R.c.name)||answers['Q1']||'').replace(/"/g,'&quot;'), ph=((document.getElementById('uPhone')||{}).value||'').replace(/"/g,'&quot;');
+  var title = kind==='free' ? '🤝 라이프이점영 생애설계사 무료 상담 신청' : '📋 외부 전문가 심층상담 신청';
+  openMini('<h3 class="mini-h">'+title+'</h3>'
+    +'<p class="mini-p">신청하시면 <b>info@lpp20.com</b>으로 접수되어 담당 플래너가 1영업일 내 연락드립니다.</p>'
+    +'<div class="fg"><label>이름 <span style="color:#B85A5A">*</span></label><input class="qtext" id="csName" value="'+nm+'" placeholder="실명"></div>'
+    +'<div class="fg"><label>휴대폰 <span style="color:#B85A5A">*</span></label><input class="qtext" id="csPhone" type="tel" value="'+ph+'" placeholder="010-0000-0000"></div>'
+    +'<div class="fg"><label>상담 희망 시간대</label><select class="qtext" id="csTime"><option value="">선택</option><option>평일 오전 (9~12시)</option><option>평일 오후 (1~6시)</option><option>평일 저녁 (6~9시)</option><option>주말 가능</option></select></div>'
+    +'<div class="fg"><label>궁금한 점 (선택)</label><textarea class="qtext" id="csMemo" rows="3" placeholder="연금·보험·상속 등 상담받고 싶은 내용을 적어주세요"></textarea></div>'
+    +'<button class="btn btn-primary" onclick="consultSubmit(\''+kind+'\')">상담 신청하기 →</button>');
+}
+function consultSubmit(kind){
+  var n=(document.getElementById('csName')||{value:''}).value.trim(), p=(document.getElementById('csPhone')||{value:''}).value.trim();
+  if(!n){ alert('이름을 입력해 주세요.'); return; }
+  if(!/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(p)){ alert('휴대폰 번호를 확인해 주세요. (예: 010-1234-5678)'); return; }
+  var m={ '유형':(kind==='free'?'무료 상담(생애설계사)':'심층 상담(외부 전문가)'), '이름':n, '연락처':p,
+    '희망시간':(document.getElementById('csTime')||{value:''}).value, '메모':(document.getElementById('csMemo')||{value:''}).value.trim(),
+    '참여자코드':(_R&&_R.code)||'', '종합점수':(_R&&_R.total)||'', '취약영역':(_R&&_R.ranked&&_R.ranked[0]?_R.ranked[0].a:''), '신청시각':new Date().toISOString() };
+  try{ var q=JSON.parse(localStorage.getItem('l2p_consult')||'[]'); q.push(m); localStorage.setItem('l2p_consult',JSON.stringify(q)); }catch(e){}
+  if(GAS_URL && GAS_URL.indexOf('http')===0){
+    try{ fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(Object.assign({__target:'consult',__secret:GAS_SECRET},m))}).catch(function(e){}); }catch(e){}
+  }
+  openMini('<div style="text-align:center;padding:12px 4px 4px;"><div style="width:58px;height:58px;border-radius:50%;background:#EAF4EE;color:#087243;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;margin:0 auto 12px;">✓</div>'
+    +'<h3 class="mini-h">상담 신청이 접수되었습니다</h3><p class="mini-p"><b>info@lpp20.com</b>으로 접수되었으며, 담당 플래너가 <b>1영업일 내</b> 연락드립니다.<br>문의: info@lpp20.com</p>'
+    +'<button class="btn btn-primary" onclick="closeMini()">확인</button></div>');
 }
 
 
@@ -2304,6 +2344,7 @@ function uiOrderedQuestions(){
 function uiVisualFor(q){
   if(q.id==='Q2') return '<div class="v24-q-visual v25-photo-visual" aria-hidden="true"><div class="v26-object-pair"><span>🎂</span><span>🪪</span></div><div class="v26-mini-label">나이 · 성별</div></div>';
   if(q.id==='Q11') return '<div class="v24-q-visual v25-health-duo" aria-hidden="true"><div><span class="v25-art-emoji">🎗️</span><b>암</b></div><i></i><div><span class="v25-art-emoji">🧠</span><b>뇌·심혈관</b></div></div>';
+  if(q.id==='Q27') return '<div class="v24-q-visual v29-pension-tiers" aria-hidden="true"><div class="v29-tier t3"><b>3층</b> 개인연금 · 연금저축·IRP·ETF</div><div class="v29-tier t2"><b>2층</b> 퇴직연금 · IRP</div><div class="v29-tier t1"><b>1층</b> 국민연금 · 소득대체율 ≈40%</div></div>';
   var V={
     Q3:['🧭','은퇴 시점'],Q41:['💳','부부 월소득'],Q4:['🧾','월 생활비'],Q5:['🪙','65세 이후 생활비'],Q6:['📅','국민연금 가입기간'],Q7:['👥','배우자 국민연금'],Q8:['👨‍👩‍👧','부양 자녀'],Q9:['⚠️','퇴직 걱정'],
     Q10:['🏃','운동 · 건강검진'],Q12:['🛡️','3대 진단비'],Q13:['🏥','실손 · 수술/입원'],Q14:['🫶','간병 · 장기요양'],
@@ -2467,7 +2508,7 @@ window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalo
       +'<p class="mini-p">무료회원으로 가입하시면 <b>5,000원 리워드</b>가 바로 적용되어 정밀 리포트가 열립니다. 입력하신 정보는 상담·리포트 안내에만 사용합니다.</p>'
       +'<div class="fg"><label>이름 <span style="color:#B85A5A">*</span></label><input class="qtext" id="mbName" value="'+nm+'" placeholder="실명"></div>'
       +'<div class="fg"><label>휴대폰 <span style="color:#B85A5A">*</span></label><input class="qtext" id="mbPhone" type="tel" value="'+ph+'" placeholder="010-0000-0000"></div>'
-      +'<div class="fg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div><label>출생연도</label><input class="qtext" id="mbBirth" type="number" inputmode="numeric" placeholder="'+(age?(new Date().getFullYear()-parseInt(age,10)):'예: 1972')+'"></div><div><label>거주 지역</label><select class="qtext" id="mbRegion"><option value="">선택</option>'+regions.map(function(r){return '<option>'+r+'</option>';}).join('')+'</select></div></div>'
+      +'<div class="fg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><div><label>출생연도</label><input class="qtext" id="mbBirth" type="number" inputmode="numeric" min="1940" max="2010" value="'+(age?(new Date().getFullYear()-parseInt(age,10)):1971)+'"></div><div><label>거주 지역</label><select class="qtext" id="mbRegion"><option value="">선택</option>'+regions.map(function(r){return '<option>'+r+'</option>';}).join('')+'</select></div></div>'
       +'<div class="fg"><label>이메일 <span style="color:var(--muted);font-weight:400;">· 선택 — 리포트 PDF 발송용</span></label><input class="qtext" id="mbEmail" type="email" placeholder="name@example.com"></div>'
       +'<div class="fg"><label>관심 분야 <span style="color:var(--muted);font-weight:400;">· 복수 선택</span></label><div class="opts row" id="mbInterest">'+['연금 설계','보험 점검','부동산·주택연금','재취업·일자리','상속·웰다잉','세무·법률'].map(function(t){return '<div class="opt multi" onclick="this.classList.toggle(\'sel\')">'+t+'</div>';}).join('')+'</div></div>'
       +'<div class="fg"><label class="consent" style="display:flex;gap:8px;align-items:flex-start;font-size:13.5px;line-height:1.5;"><input type="checkbox" id="mbAgree" style="margin-top:3px;"><span>개인정보 수집·이용(이름·연락처·지역·관심분야 / 상담·리포트 안내 목적 / 탈퇴 시 파기)에 동의합니다. <span style="color:#B85A5A">*</span></span></label></div>'
@@ -2598,6 +2639,14 @@ window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalo
     var p1=page('pp-1'); p1.appendChild(head('나의 은퇴 준비 리포트',sub));
     notes.forEach(function(n){ p1.appendChild(n); });
     if(hero) p1.appendChild(hero);
+    if(_R){ var k=document.createElement('div'); k.className='pp-kpi';
+      var dep=(_R.depletion>=90?'90+':_R.depletion), sf=_R.shortfall, sfTxt=(sf>0?'−'+sf:'+'+(-sf));
+      k.innerHTML='<div><span>종합 점수</span><b>'+_R.total+'<i>/100</i></b></div>'
+        +'<div><span>예상 자산 고갈</span><b>'+dep+'<i>세</i></b></div>'
+        +'<div><span>은퇴 후 월 부족액</span><b>'+sfTxt+'<i>만원</i></b></div>'
+        +'<div><span>65세 전 건강 방어율</span><b>'+_R.shield+'<i>%</i></b></div>'
+        +'<div><span>응답 신뢰도</span><b>'+(_R.coh?_R.coh.R:'-')+'<i>점</i></b></div>';
+      p1.appendChild(k); }
     p1.appendChild(grid([radar,weak],2));
     doc.appendChild(p1);
     if(paid){
@@ -2615,6 +2664,7 @@ window.addEventListener('load', function(){ flushQueue(); loadPeer(); loadCatalo
       p3.appendChild(grid(qa(f,'#t-road .cl-block').map(cl),2));
       doc.appendChild(p3);
     }
+    var pages=doc.querySelectorAll('.print-page'); pages.forEach(function(pgEl,ix){ var no=document.createElement('div'); no.className='pp-pageno'; no.textContent='2막 1장 · 은퇴 준비 리포트  ·  '+(ix+1)+' / '+pages.length; pgEl.appendChild(no); });
     var foot=document.createElement('div'); foot.className='pp-foot'; foot.innerHTML='<b>2막 1장 · Life 2.0</b> — 본 진단은 상담 전 자가진단용 보수적 추정 모델입니다. 실제 연금 수령액·세금·수익률·건강 변화에 따라 결과는 달라질 수 있습니다. · 주식회사 라이프 2.0';
     doc.lastChild.appendChild(foot);
     rep.appendChild(doc);
