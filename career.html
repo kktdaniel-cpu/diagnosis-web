@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Life 2.0 · Long-stay & Career Settlement Check</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700&family=Noto+Sans+SC:wght@400;700&family=Noto+Sans+Thai:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#124A2F;--g2:#1E6B45;--gold:#C9A449;--bg:#F5F7F5;--ink:#121815;--mute:#6B7570;--line:#E1E6E3;--red:#B4532B;--amber:#C48A1D;--green:#2E7D4F}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR','Noto Sans','Noto Sans SC','Noto Sans Thai',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55}
+button{font:inherit;cursor:pointer}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+@media(min-width:900px){.app{max-width:820px}}
+.top{background:var(--g);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5;gap:8px}
+.top .brand{font-weight:900;font-size:16px}.top .brand small{display:block;font-weight:500;font-size:9.5px;opacity:.75;letter-spacing:.8px}
+.lang{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}.lang button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:3px 8px;font-size:11px}.lang button.on{background:var(--gold);border-color:var(--gold);color:#1a1a1a;font-weight:700}
+.main{flex:1;padding:16px 16px 28px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(18,74,47,.05)}
+.hero{background:linear-gradient(135deg,#0F3B25,#1E6B45);color:#fff;border-radius:18px;padding:22px 20px;margin-bottom:14px}
+.hero .tag{display:inline-block;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:10px}
+.hero h1{font-size:21px;line-height:1.35;font-weight:900;margin-bottom:8px;white-space:pre-line}.hero p{font-size:13px;opacity:.9}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.kpi b{display:block;font-size:17px;color:var(--g)}.kpi span{font-size:11px;color:var(--mute)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:700;background:var(--g);color:#fff}.btn.sec{background:#fff;color:var(--g);border:1.5px solid var(--g)}.btn.gold{background:var(--gold);color:#1a1a1a}.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}.step{font-size:10.5px;color:var(--mute);text-align:center;padding:6px 3px;border-radius:8px;background:#EDF1EE;line-height:1.25}.step.on{background:var(--g);color:#fff;font-weight:700}.step.done{background:#CFE3D6;color:var(--g)}
+.bar{height:6px;background:#E3E9E5;border-radius:999px;overflow:hidden;margin-bottom:16px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g2),var(--gold));width:0;transition:width .3s}
+.qhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.qnum{font-size:12px;color:var(--mute);margin-bottom:6px}.qtext{font-size:18px;font-weight:700;line-height:1.4;margin-bottom:12px;flex:1}
+.tipbtn{flex:none;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--gold);background:#FFF9E8;color:#8A6A18;font-weight:900;font-size:14px;margin-top:2px}
+.tip{display:none;background:#FFF9E8;border-left:3px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:12.5px;color:#4a3d1c;margin-bottom:12px}.tip.on{display:block}.tip b{color:#8A6A18;display:block;font-size:11px;margin-bottom:2px}
+.opts{display:grid;gap:8px}@media(min-width:900px){.opts{grid-template-columns:1fr 1fr}}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;text-align:left;font-size:14.5px;display:flex;align-items:center;gap:10px}
+.opt .dot{width:18px;height:18px;border-radius:50%;border:2px solid #B9C4BD;flex:none}.opt.on{border-color:var(--g);background:#EEF5F0}.opt.on .dot{border-color:var(--g);background:var(--g);box-shadow:inset 0 0 0 3px #fff}.opt.multi .dot{border-radius:5px}
+.nav{display:flex;gap:10px;margin-top:18px}.nav .btn{flex:1}.nav .btn.prev{flex:0 0 96px}
+.hint{font-size:12px;color:var(--mute);margin-top:10px}.saved{font-size:11px;color:var(--green);text-align:right;margin-top:8px;height:14px}
+.lvl{border-radius:18px;padding:20px;color:#fff;margin-bottom:12px}.lvl.GREEN{background:linear-gradient(135deg,#0F3B25,#2E7D4F)}.lvl.AMBER{background:linear-gradient(135deg,#6B4A0B,#C48A1D)}.lvl.RED{background:linear-gradient(135deg,#5A2412,#B4532B)}
+.lvl .t{font-size:12px;opacity:.85}.lvl .n{font-size:26px;font-weight:900;margin:2px 0 6px}.lvl .s{font-size:13px;opacity:.95}
+.axes{display:grid;gap:10px;margin:8px 0 4px}.ax{display:grid;grid-template-columns:130px 1fr 40px;align-items:center;gap:10px;font-size:13px}.ax .track{height:10px;background:#E3E9E5;border-radius:999px;overflow:hidden}.ax .track i{display:block;height:100%;border-radius:999px;background:var(--g2)}.ax b{text-align:right;color:var(--g)}
+.badge{display:inline-block;background:#FFF4E5;color:#7A4A12;border:1px solid #F3D9B0;border-radius:999px;padding:2px 10px;font-size:11px;margin-top:6px}
+table.f27{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}table.f27 th{background:#EDF1EE;color:var(--g);font-weight:700;padding:6px 8px;text-align:left}table.f27 td{border-bottom:1px solid var(--line);padding:6px 8px}table.f27 td.n{text-align:right}table.f27 tr.tot td{font-weight:700;background:#F7F9F7}
+.f27sum{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:13px}.f27sum b{color:var(--g);font-size:16px}
+.gaps{display:grid;gap:8px;margin-top:8px}.gap{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:12px}.gap .n{width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}.gap .t{flex:1;font-size:14px}.gap .k{font-size:10.5px;color:var(--mute)}
+.route{background:#EAF4EE;border-left:3px solid var(--g2);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:8px;font-weight:500}
+.flag{background:#FDECEA;border:1px solid #F1C4BC;color:#7A2A1E;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:8px}
+h3.sec{font-size:15px;color:var(--g);margin:18px 0 8px;padding-left:8px;border-left:3px solid var(--gold)}
+.foot{font-size:11px;color:var(--mute);text-align:center;padding:14px}.hidden{display:none!important}
+.resume{background:#FFF9E8;border:1px solid #EFD9A0;border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}.resume button{border:0;background:var(--g);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div class="brand">Life 2.0<small id="brandSub"></small></div><div class="lang" id="langBar"></div></div>
+  <div class="main">
+    <section id="s-intro">
+      <div id="resumeBox" class="resume hidden"><span id="resumeTxt"></span><button id="resumeBtn"></button></div>
+      <div class="hero"><span class="tag" id="i_tag"></span><h1 id="i_h1"></h1><p id="i_p"></p></div>
+      <div class="kpis"><div class="kpi"><b>12</b><span id="i_k1"></span></div><div class="kpi"><b>4</b><span id="i_k2"></span></div><div class="kpi"><b>3</b><span id="i_k3"></span></div></div>
+      <div class="card"><p id="i_desc" style="font-size:13.5px;color:#3A443E;margin-bottom:14px"></p><button class="btn" id="startBtn"></button><p class="hint" id="i_priv"></p></div>
+    </section>
+    <section id="s-quiz" class="hidden">
+      <div class="steps" id="steps"></div><div class="bar"><i id="barFill"></i></div>
+      <div class="card">
+        <div class="qnum" id="qnum"></div>
+        <div class="qhead"><div class="qtext" id="qtext"></div><button class="tipbtn" id="tipBtn" title="">?</button></div>
+        <div class="tip" id="tip"><b id="tipTitle"></b><span id="tipText"></span></div>
+        <div class="opts" id="opts"></div>
+        <div class="nav"><button class="btn sec prev" id="prevBtn"></button><button class="btn" id="nextBtn"></button></div>
+        <div class="saved" id="savedMsg"></div>
+      </div>
+    </section>
+    <section id="s-result" class="hidden">
+      <div class="lvl" id="lvl"><div class="t" id="r_lvl_t"></div><div class="n" id="rLevel"></div><div class="s" id="rSummary"></div></div>
+      <div id="flags"></div>
+      <div class="card">
+        <h3 class="sec" style="margin-top:0" id="r_h_axes"></h3><div class="axes" id="axes"></div><div id="workBadge" class="badge hidden"></div>
+        <h3 class="sec" id="r_h_f27"></h3><table class="f27"><thead><tr><th id="th_item"></th><th id="th_cur" style="text-align:right"></th><th id="th_max" style="text-align:right"></th><th id="th_gap" style="text-align:right"></th></tr></thead><tbody id="f27body"></tbody></table>
+        <div class="f27sum"><span id="f27pass"></span><b id="f27short"></b></div>
+        <h3 class="sec" id="r_h_gaps"></h3><div class="gaps" id="gaps"></div>
+        <h3 class="sec" id="r_h_route"></h3><div class="route" id="route"></div>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="btn sec" id="againBtn"></button><button class="btn gold" id="ctaBtn"></button></div>
+      <p class="hint" id="r_note" style="text-align:center"></p>
+    </section>
+  </div>
+  <div class="foot">© Life 2.0 (라이프이점영) · longstay_career_v1 · policy <span id="polv"></span></div>
+</div>
+<script>
+/* 장기 체류·커리어 정착 진단 — 카탈로그 + i18n (ko/en/vi/zh/th) + 정책 배점표 */
+window.LS_POLICY = { version: 'F27-2026.1', pass_line: 80, gni_ref: 3700, max: { edu: 35, major: 8, age: 25, kor: 20, inc: 18, tax: 8, bonus: 15 } };
+
+window.LS_CAT = {
+ groups: [
+  { id:'G1', key:'stay',  qs:['Q1','Q2','Q3','Q4'] },
+  { id:'G2', key:'edu',   qs:['Q5','Q6','Q7'] },
+  { id:'G3', key:'lang',  qs:['Q8','Q9','Q10'] },
+  { id:'G4', key:'goal',  qs:['Q11','Q12'] },
+ ],
+ questions: [
+  { id:'Q1', type:'single', opts:[
+    {v:'D2',   p:{visa_class:'student', vs_base:55, work:'partial'}},
+    {v:'D10',  p:{visa_class:'jobseek', vs_base:40, work:'intern'}},
+    {v:'E7',   p:{visa_class:'pro',     vs_base:75, work:'full'}},
+    {v:'E9H2', p:{visa_class:'nonpro',  vs_base:60, work:'limited'}},
+    {v:'F2',   p:{visa_class:'resid',   vs_base:90, work:'full'}},
+    {v:'F4',   p:{visa_class:'resid',   vs_base:85, work:'full'}},
+    {v:'F5F6', p:{visa_class:'perm',    vs_base:100,work:'full'}},
+    {v:'OTHER',p:{visa_class:'other',   vs_base:45, work:'partial'}} ]},
+  { id:'Q2', type:'single', opts:[
+    {v:'lt3m',p:{rem_m:2, rem_score:10}},{v:'3_6m',p:{rem_m:4, rem_score:30}},{v:'6_12m',p:{rem_m:9, rem_score:60}},
+    {v:'1_2y',p:{rem_m:18,rem_score:85}},{v:'2yp',p:{rem_m:30,rem_score:100}} ]},
+  { id:'Q3', type:'single', opts:[ {v:'lt1y',p:{tenure_y:0.5}},{v:'1_3y',p:{tenure_y:2}},{v:'3_5y',p:{tenure_y:4}},{v:'5yp',p:{tenure_y:6}} ]},
+  { id:'Q4', type:'single', opts:[ {v:'fulltime',p:{emp:100}},{v:'contract',p:{emp:70}},{v:'student',p:{emp:60}},{v:'jobseek',p:{emp:30}} ]},
+  { id:'Q5', type:'single', opts:[
+    {v:'phd_kr',p:{edu_pt:30,edu_kr:5,edu_lv:4}},{v:'phd',p:{edu_pt:30,edu_kr:0,edu_lv:4}},
+    {v:'ms_kr', p:{edu_pt:25,edu_kr:5,edu_lv:3}},{v:'ms', p:{edu_pt:25,edu_kr:0,edu_lv:3}},
+    {v:'ba_kr', p:{edu_pt:20,edu_kr:5,edu_lv:2}},{v:'ba', p:{edu_pt:20,edu_kr:0,edu_lv:2}},
+    {v:'assoc', p:{edu_pt:10,edu_kr:0,edu_lv:1}} ]},
+  { id:'Q6', type:'single', opts:[ {v:'stem_adv',p:{major_pt:8}},{v:'stem',p:{major_pt:6}},{v:'biz_law',p:{major_pt:4}},{v:'human_arts',p:{major_pt:2}} ]},
+  { id:'Q7', type:'single', opts:[ {v:'18_24',p:{age_pt:20}},{v:'25_29',p:{age_pt:25}},{v:'30_34',p:{age_pt:23}},{v:'35_39',p:{age_pt:18}},{v:'40_44',p:{age_pt:12}},{v:'45p',p:{age_pt:5}} ]},
+  { id:'Q8', type:'single', opts:[ {v:'t6',p:{kor_pt:20,kor_lv:6}},{v:'t5',p:{kor_pt:17,kor_lv:5}},{v:'t4',p:{kor_pt:14,kor_lv:4}},{v:'t3',p:{kor_pt:10,kor_lv:3}},{v:'t2',p:{kor_pt:5,kor_lv:2}},{v:'none',p:{kor_pt:0,kor_lv:0}} ]},
+  { id:'Q9', type:'single', opts:[ {v:'lt3000',p:{inc_pt:3,inc:2500}},{v:'3_4k',p:{inc_pt:6,inc:3500}},{v:'4_5k',p:{inc_pt:10,inc:4500}},{v:'5_7k',p:{inc_pt:14,inc:6000}},{v:'7kp',p:{inc_pt:18,inc:8000}} ]},
+  { id:'Q10',type:'single', opts:[ {v:'2yp',p:{tax_pt:8}},{v:'1y',p:{tax_pt:5}},{v:'started',p:{tax_pt:2}},{v:'none',p:{tax_pt:0}},{v:'arrears',p:{tax_pt:-5,tax_flag:true}} ]},
+  { id:'Q11',type:'single', opts:[ {v:'short',p:{goal:'short'}},{v:'mid',p:{goal:'mid'}},{v:'long',p:{goal:'long'}},{v:'perm',p:{goal:'perm'}} ]},
+  { id:'Q12',type:'multi',  opts:[ {v:'cert',p:{b:5}},{v:'adv_ind',p:{b:6}},{v:'kiip',p:{b:5}},{v:'award',p:{b:3}},{v:'kr_grad',p:{b:5}},{v:'none',p:{b:0,exclusive:true}} ]},
+ ],
+};
+
+/* ───────── i18n ───────── */
+window.LS_I18N = {
+ko:{
+ app_title:'장기 체류·커리어 정착 진단', app_sub:'LONG-STAY & CAREER SETTLEMENT CHECK',
+ grp_stay:'체류 현황', grp_edu:'학력·전공·연령', grp_lang:'한국어·소득·납세', grp_goal:'커리어 목표',
+ hero_tag:'전문직·장기 체류 희망자용 · 4분', hero_h1:'한국에서 오래, 잘 일하려면\n지금 무엇이 부족할까요?', hero_p:'비자 안정성 · F비자 전환 가능성 · 취업 경쟁력을 한 번에 점검하고, 부족한 점수를 콕 짚어드립니다.',
+ k1:'문항', k2:'단계', k3:'지표', desc:'F-2-7 점수제 항목을 바탕으로 현재 위치와 다음 한 걸음을 알려드립니다. 결과는 참고용 자가 점검이며 실제 심사를 보증하지 않습니다.',
+ start:'진단 시작하기', priv:'실명·연락처는 저장되지 않습니다.', prev:'이전', next:'다음', done:'결과 보기', saved:'자동 저장됨', resume:'진행 중인 진단이 있습니다 ({p}%)', resumeBtn:'이어하기', sel:'모두 선택 가능', why:'왜 중요한가요?',
+ r_level:'종합 판정', r_axes:'3가지 지표', r_f27:'F-2-7 점수제 자가 산정', r_gaps:'가장 효율적인 보완 3가지', r_route:'추천 정착 경로', r_again:'다시 진단', r_cta:'전문가 상담 · 채용 매칭', r_note:'본 진단은 출입국관리법령을 단순화한 자가 점검 도구로, 실제 비자 심사 결과를 보증하지 않습니다.',
+ col_item:'항목', col_cur:'현재', col_max:'최대', col_gap:'부족', total:'합계', pass:'통과선', short:'부족 점수', passed:'통과선 도달',
+ lv_GREEN:'안전', lv_AMBER:'주의', lv_RED:'컨설팅 필요',
+ ax_VS:'현재 비자 안정성', ax_FT:'F비자 전환 가능성', ax_EC:'취업 경쟁력', work_badge:'현재 비자는 취업 범위가 제한됩니다',
+ it_edu:'학력', it_major:'전공', it_age:'연령', it_kor:'한국어', it_inc:'소득', it_tax:'납세', it_bonus:'가점',
+ goal_short:'단기 자금 마련', goal_mid:'경력 후 귀국', goal_long:'장기 거주', goal_perm:'귀화·영주',
+ sum:'{visa} · 체류 {ten}년 · F-2-7 환산 {pts}점 ({short})', sum_pass:'통과선 도달', sum_short:'통과선까지 {n}점',
+ route_D2:'D-2 유학 → D-10 구직 → E-7 전문인력 → F-2-7 점수제 거주 → F-5 영주', route_D10:'D-10 구직 → E-7 전문인력 → F-2-7 → F-5', route_E7:'E-7 전문인력 → F-2-7 점수제 거주 → F-5 영주', route_E9H2:'E-9/H-2 → E-7-4 숙련기능 → F-2 → F-5', route_F2:'F-2 거주 → F-5 영주 (체류·소득 요건 충족 시)', route_F4:'F-4 재외동포 → F-5 영주', route_F5F6:'이미 장기 체류 자격 보유 — 유지 요건 관리', route_OTHER:'현재 비자 → 취업 가능 비자(E-7 등) 변경 → F-2-7',
+ gap_kor:'TOPIK {cur}급 → {next}급 취득 시 +{pts}점 (약 6개월)', gap_kor0:'TOPIK 응시 (3급 목표) 시 +{pts}점', gap_tax:'소득세 신고·성실 납세 1년 실적 쌓기 +{pts}점', gap_bonus:'사회통합프로그램(KIIP) 이수 또는 국내 자격증 취득 +{pts}점', gap_inc:'연봉 {n}만원 이상 구간 진입 시 +{pts}점 (이직·승진)', gap_edu:'국내 대학원 진학(석·박사) 시 +{pts}점 (장기)', gap_none:'점수제 항목은 이미 충분합니다 — 체류·소득 요건 유지에 집중하세요',
+ flag_arrears:'세금 체납은 비자 연장·변경 심사에서 결격 사유가 될 수 있습니다. 먼저 해소하세요.', flag_rem:'비자 만료가 3개월 미만입니다. 연장·변경 신청을 지금 시작하세요.', flag_e7_job:'E-7은 고용 관계가 끝나면 체류 자격이 흔들립니다. 구직 비자(D-10) 전환을 검토하세요.', flag_d2_grad:'졸업·만료가 임박했는데 진로가 정해지지 않았습니다. D-10 구직 비자 준비가 필요합니다.',
+ err:'문제가 발생했습니다. 다시 시도해 주세요.',
+ q:{ Q1:'현재 체류 자격(비자)은 무엇인가요?', Q2:'현재 비자 만료까지 남은 기간은?', Q3:'한국 누적 체류 기간은?', Q4:'현재 고용·소속 상태는?', Q5:'최종 학력과 취득 국가는?', Q6:'전공 계열은?', Q7:'연령대는?', Q8:'한국어 능력(TOPIK / 사회통합프로그램)은?', Q9:'최근 1년 연 소득(세전)은?', Q10:'최근 소득세 신고·4대보험 납부 실적은?', Q11:'커리어 목표는 무엇인가요?', Q12:'보유한 가점 항목을 모두 골라 주세요' },
+ tip:{ Q1:'비자 유형이 취업 허용 범위와 F비자 전환 경로를 결정합니다. D-10 → E-7 → F-2-7이 대표적인 정착 경로입니다.', Q2:'만료 6개월 전부터 연장·변경을 준비해야 합니다. 잔여기간이 짧을수록 비자 안정성이 낮게 평가됩니다.', Q3:'F-2-7·F-5 모두 일정 기간의 국내 합법 체류 실적을 요구합니다.', Q4:'정규직 재직은 소득·납세 실적의 근거이며, E-7은 고용이 끊기면 체류 자격이 흔들립니다.', Q5:'학력은 점수제 최대 배점 항목 중 하나이며 국내 학위는 추가 가점입니다.', Q6:'첨단산업(반도체·AI·바이오 등) 전공은 가점·우대 직종 매칭에 유리합니다.', Q7:'점수제 연령 배점은 20대 후반~30대 초반이 가장 높습니다.', Q8:'한국어는 점수제 배점이 크고, 등급 상향이 가장 빠른 점수 확보 수단입니다.', Q9:'소득은 점수제 항목이자 F-2-7·F-5의 GNI 대비 소득 요건 판단 기준입니다.', Q10:'납세 실적은 가점, 체납은 감점·결격 사유가 될 수 있습니다.', Q11:'목표에 따라 추천 경로가 달라집니다. 단기 목표라면 F비자 점수보다 현 비자 유지가 우선입니다.', Q12:'국내 자격증·KIIP 이수·수상·첨단산업 재직은 점수제 가점 항목입니다.' },
+ o:{ Q1:{D2:'D-2 유학',D10:'D-10 구직',E7:'E-7 전문인력',E9H2:'E-9 / H-2',F2:'F-2 거주',F4:'F-4 재외동포',F5F6:'F-5 영주 / F-6 결혼이민',OTHER:'기타 (D-4, D-8 등)'},
+    Q2:{lt3m:'3개월 미만',"3_6m":'3~6개월',"6_12m":'6~12개월',"1_2y":'1~2년',"2yp":'2년 이상'},
+    Q3:{lt1y:'1년 미만',"1_3y":'1~3년',"3_5y":'3~5년',"5yp":'5년 이상'},
+    Q4:{fulltime:'정규직 재직',contract:'계약직·인턴',student:'재학 중',jobseek:'구직·무직'},
+    Q5:{phd_kr:'박사 (국내)',phd:'박사 (국외)',ms_kr:'석사 (국내)',ms:'석사 (국외)',ba_kr:'학사 (국내)',ba:'학사 (국외)',assoc:'전문학사·고졸'},
+    Q6:{stem_adv:'첨단 이공계 (반도체·AI·바이오 등)',stem:'이공계 일반',biz_law:'상경·법학',human_arts:'인문·사회·예체능'},
+    Q7:{"18_24":'18~24세',"25_29":'25~29세',"30_34":'30~34세',"35_39":'35~39세',"40_44":'40~44세',"45p":'45세 이상'},
+    Q8:{t6:'TOPIK 6급',t5:'TOPIK 5급 (KIIP 5단계 이수)',t4:'TOPIK 4급',t3:'TOPIK 3급',t2:'TOPIK 1~2급',none:'없음'},
+    Q9:{lt3000:'3,000만원 미만',"3_4k":'3,000~4,000만원',"4_5k":'4,000~5,000만원',"5_7k":'5,000~7,000만원',"7kp":'7,000만원 이상'},
+    Q10:{"2yp":'2년 이상 성실 납세',"1y":'1년 실적',started:'올해 신고 시작',none:'신고 이력 없음',arrears:'체납 있음'},
+    Q11:{short:'단기 자금 마련 후 귀국',mid:'경력 쌓고 귀국',long:'한국 장기 거주',perm:'영주·귀화'},
+    Q12:{cert:'국내 자격증',adv_ind:'첨단산업 재직·내정',kiip:'KIIP(사회통합프로그램) 이수',award:'봉사·수상 실적',kr_grad:'국내 석·박사 학위',none:'해당 없음'} }
+},
+en:{
+ app_title:'Long-stay & Career Settlement Check', app_sub:'LONG-STAY & CAREER SETTLEMENT CHECK',
+ grp_stay:'Your stay', grp_edu:'Education · major · age', grp_lang:'Korean · income · tax', grp_goal:'Career goal',
+ hero_tag:'For professionals & long-stay planners · 4 min', hero_h1:'Planning a long career in Korea?\nSee what you are missing today.', hero_p:'Check visa stability, F-visa eligibility and job competitiveness at once — and get the exact points you still need.',
+ k1:'questions', k2:'steps', k3:'scores', desc:'Built on the F-2-7 points-based residence items. This is a self-check for reference only and does not guarantee any immigration decision.',
+ start:'Start', priv:'No name or contact details are stored.', prev:'Back', next:'Next', done:'See result', saved:'Auto-saved', resume:'You have a check in progress ({p}%)', resumeBtn:'Resume', sel:'Select all that apply', why:'Why does this matter?',
+ r_level:'Overall', r_axes:'3 scores', r_f27:'F-2-7 points self-estimate', r_gaps:'3 most efficient upgrades', r_route:'Recommended path', r_again:'Try again', r_cta:'Talk to an expert · Job matching', r_note:'This tool simplifies Korean immigration rules for self-assessment and does not guarantee visa outcomes.',
+ col_item:'Item', col_cur:'Now', col_max:'Max', col_gap:'Gap', total:'Total', pass:'Pass line', short:'Points short', passed:'Pass line reached',
+ lv_GREEN:'Safe', lv_AMBER:'Caution', lv_RED:'Consulting needed',
+ ax_VS:'Current visa stability', ax_FT:'F-visa eligibility', ax_EC:'Job competitiveness', work_badge:'Your current visa limits employment',
+ it_edu:'Education', it_major:'Major', it_age:'Age', it_kor:'Korean', it_inc:'Income', it_tax:'Tax record', it_bonus:'Bonus',
+ goal_short:'Short-term savings', goal_mid:'Experience then return', goal_long:'Long-term residence', goal_perm:'Permanent residence',
+ sum:'{visa} · {ten} yrs in Korea · F-2-7 estimate {pts} pts ({short})', sum_pass:'pass line reached', sum_short:'{n} pts to pass line',
+ route_D2:'D-2 Student → D-10 Job seeker → E-7 Professional → F-2-7 Points residence → F-5 Permanent', route_D10:'D-10 → E-7 → F-2-7 → F-5', route_E7:'E-7 Professional → F-2-7 Points residence → F-5 Permanent', route_E9H2:'E-9/H-2 → E-7-4 Skilled worker → F-2 → F-5', route_F2:'F-2 Residence → F-5 Permanent (stay & income requirements)', route_F4:'F-4 Overseas Korean → F-5 Permanent', route_F5F6:'You already hold long-term status — maintain the requirements', route_OTHER:'Current visa → work-eligible visa (e.g. E-7) → F-2-7',
+ gap_kor:'TOPIK level {cur} → {next}: +{pts} pts (about 6 months)', gap_kor0:'Take TOPIK (aim level 3): +{pts} pts', gap_tax:'File income tax and build one full year of records: +{pts} pts', gap_bonus:'Complete KIIP or earn a Korean certificate: +{pts} pts', gap_inc:'Reach annual income above ₩{n}0,000: +{pts} pts (job change / promotion)', gap_edu:'Graduate study in Korea (MS/PhD): +{pts} pts (long-term)', gap_none:'Your points items are already sufficient — focus on keeping stay and income requirements',
+ flag_arrears:'Tax arrears can disqualify visa extension or change. Clear them first.', flag_rem:'Your visa expires in under 3 months. Start the extension/change application now.', flag_e7_job:'E-7 status depends on employment. Consider switching to D-10 job-seeker visa.', flag_d2_grad:'Graduation/expiry is near without a set path. Prepare the D-10 job-seeker visa.',
+ err:'Something went wrong. Please try again.',
+ q:{ Q1:'What is your current visa?', Q2:'How long until your visa expires?', Q3:'Total time you have lived in Korea?', Q4:'Current employment / affiliation?', Q5:'Highest degree and where you earned it?', Q6:'Field of study?', Q7:'Age group?', Q8:'Korean proficiency (TOPIK / KIIP)?', Q9:'Annual income in the last year (pre-tax)?', Q10:'Recent income-tax filing & social insurance record?', Q11:'What is your career goal?', Q12:'Select all bonus items you have' },
+ tip:{ Q1:'Your visa type sets what work is allowed and the path to F-visas. D-10 → E-7 → F-2-7 is the typical settlement route.', Q2:'Start extension/change 6 months before expiry. A short remaining period lowers visa stability.', Q3:'Both F-2-7 and F-5 require a period of lawful stay in Korea.', Q4:'Full-time work backs your income and tax records; E-7 status shakes if employment ends.', Q5:'Education is one of the largest points items; a Korean degree earns extra points.', Q6:'Advanced-tech majors (semiconductor, AI, bio…) get bonus points and priority job matching.', Q7:'Age points peak in the late 20s to early 30s.', Q8:'Korean carries big points and moving up one level is the fastest way to gain.', Q9:'Income is a points item and the basis for GNI-based F-2-7 / F-5 requirements.', Q10:'Tax records earn bonus points; arrears can mean deduction or disqualification.', Q11:'Your goal changes the recommended path. For short-term goals, keeping your current visa matters more than F-visa points.', Q12:'Korean certificates, KIIP completion, awards and advanced-industry employment are bonus items.' },
+ o:{ Q1:{D2:'D-2 Student',D10:'D-10 Job seeker',E7:'E-7 Professional',E9H2:'E-9 / H-2',F2:'F-2 Residence',F4:'F-4 Overseas Korean',F5F6:'F-5 Permanent / F-6 Marriage',OTHER:'Other (D-4, D-8 …)'},
+    Q2:{lt3m:'Under 3 months',"3_6m":'3–6 months',"6_12m":'6–12 months',"1_2y":'1–2 years',"2yp":'2+ years'},
+    Q3:{lt1y:'Under 1 year',"1_3y":'1–3 years',"3_5y":'3–5 years',"5yp":'5+ years'},
+    Q4:{fulltime:'Full-time employee',contract:'Contract / intern',student:'Enrolled student',jobseek:'Job seeking / not working'},
+    Q5:{phd_kr:'PhD (Korea)',phd:'PhD (abroad)',ms_kr:'Master’s (Korea)',ms:'Master’s (abroad)',ba_kr:'Bachelor’s (Korea)',ba:'Bachelor’s (abroad)',assoc:'Associate / high school'},
+    Q6:{stem_adv:'Advanced tech (semiconductor, AI, bio…)',stem:'Other STEM',biz_law:'Business / law',human_arts:'Humanities / social / arts'},
+    Q7:{"18_24":'18–24',"25_29":'25–29',"30_34":'30–34',"35_39":'35–39',"40_44":'40–44',"45p":'45+'},
+    Q8:{t6:'TOPIK 6',t5:'TOPIK 5 (or KIIP level 5)',t4:'TOPIK 4',t3:'TOPIK 3',t2:'TOPIK 1–2',none:'None'},
+    Q9:{lt3000:'Under ₩30M',"3_4k":'₩30–40M',"4_5k":'₩40–50M',"5_7k":'₩50–70M',"7kp":'₩70M+'},
+    Q10:{"2yp":'2+ years of tax records',"1y":'1 year',started:'Started filing this year',none:'Never filed',arrears:'Have arrears'},
+    Q11:{short:'Save money, then return home',mid:'Gain experience, then return',long:'Live in Korea long-term',perm:'Permanent residence / naturalization'},
+    Q12:{cert:'Korean certificate',adv_ind:'Advanced-industry job / offer',kiip:'KIIP completed',award:'Volunteer / awards',kr_grad:'Korean MS/PhD',none:'None'} }
+},
+vi:{
+ app_title:'Chẩn đoán định cư dài hạn & sự nghiệp', app_sub:'LONG-STAY & CAREER SETTLEMENT CHECK',
+ grp_stay:'Tình trạng cư trú', grp_edu:'Học vấn · ngành · tuổi', grp_lang:'Tiếng Hàn · thu nhập · thuế', grp_goal:'Mục tiêu sự nghiệp',
+ hero_tag:'Dành cho người muốn làm việc lâu dài · 4 phút', hero_h1:'Muốn ở lại Hàn Quốc làm việc lâu dài?\nXem bạn còn thiếu gì ngay hôm nay.', hero_p:'Kiểm tra độ ổn định visa, khả năng chuyển visa F và năng lực cạnh tranh việc làm — chỉ rõ số điểm còn thiếu.',
+ k1:'câu hỏi', k2:'bước', k3:'chỉ số', desc:'Dựa trên các hạng mục tính điểm visa F-2-7. Đây là công cụ tự kiểm tra tham khảo, không bảo đảm kết quả xét duyệt.',
+ start:'Bắt đầu', priv:'Không lưu tên thật hay số liên lạc.', prev:'Quay lại', next:'Tiếp', done:'Xem kết quả', saved:'Đã tự động lưu', resume:'Bạn có bài chẩn đoán đang dở ({p}%)', resumeBtn:'Tiếp tục', sel:'Chọn nhiều', why:'Vì sao quan trọng?',
+ r_level:'Đánh giá tổng hợp', r_axes:'3 chỉ số', r_f27:'Tự ước tính điểm F-2-7', r_gaps:'3 cách bổ sung hiệu quả nhất', r_route:'Lộ trình định cư gợi ý', r_again:'Làm lại', r_cta:'Tư vấn chuyên gia · Kết nối việc làm', r_note:'Công cụ này đơn giản hóa quy định xuất nhập cảnh để tự kiểm tra, không bảo đảm kết quả visa.',
+ col_item:'Hạng mục', col_cur:'Hiện tại', col_max:'Tối đa', col_gap:'Thiếu', total:'Tổng', pass:'Mức đạt', short:'Điểm còn thiếu', passed:'Đã đạt mức yêu cầu',
+ lv_GREEN:'An toàn', lv_AMBER:'Cần chú ý', lv_RED:'Cần tư vấn',
+ ax_VS:'Độ ổn định visa hiện tại', ax_FT:'Khả năng chuyển visa F', ax_EC:'Năng lực cạnh tranh việc làm', work_badge:'Visa hiện tại giới hạn phạm vi làm việc',
+ it_edu:'Học vấn', it_major:'Ngành', it_age:'Tuổi', it_kor:'Tiếng Hàn', it_inc:'Thu nhập', it_tax:'Nộp thuế', it_bonus:'Điểm cộng',
+ goal_short:'Kiếm tiền ngắn hạn', goal_mid:'Tích lũy kinh nghiệm rồi về', goal_long:'Cư trú dài hạn', goal_perm:'Thường trú · nhập tịch',
+ sum:'{visa} · {ten} năm ở Hàn · Ước tính F-2-7 {pts} điểm ({short})', sum_pass:'đã đạt mức yêu cầu', sum_short:'còn thiếu {n} điểm',
+ route_D2:'D-2 Du học → D-10 Tìm việc → E-7 Chuyên môn → F-2-7 Cư trú tính điểm → F-5 Thường trú', route_D10:'D-10 → E-7 → F-2-7 → F-5', route_E7:'E-7 → F-2-7 → F-5', route_E9H2:'E-9/H-2 → E-7-4 Lao động lành nghề → F-2 → F-5', route_F2:'F-2 → F-5 (khi đủ điều kiện cư trú & thu nhập)', route_F4:'F-4 → F-5', route_F5F6:'Đã có tư cách cư trú dài hạn — duy trì điều kiện', route_OTHER:'Visa hiện tại → visa được phép làm việc (E-7…) → F-2-7',
+ gap_kor:'TOPIK cấp {cur} → {next}: +{pts} điểm (khoảng 6 tháng)', gap_kor0:'Thi TOPIK (mục tiêu cấp 3): +{pts} điểm', gap_tax:'Kê khai thuế thu nhập và tích lũy 1 năm: +{pts} điểm', gap_bonus:'Hoàn thành KIIP hoặc lấy chứng chỉ Hàn Quốc: +{pts} điểm', gap_inc:'Đạt thu nhập năm trên {n} vạn won: +{pts} điểm (đổi việc / thăng chức)', gap_edu:'Học cao học tại Hàn (Thạc sĩ/Tiến sĩ): +{pts} điểm (dài hạn)', gap_none:'Các hạng mục điểm đã đủ — hãy tập trung duy trì điều kiện cư trú và thu nhập',
+ flag_arrears:'Nợ thuế có thể là lý do bị từ chối gia hạn/đổi visa. Hãy xử lý trước.', flag_rem:'Visa hết hạn trong chưa đầy 3 tháng. Hãy nộp gia hạn/đổi visa ngay.', flag_e7_job:'Visa E-7 phụ thuộc vào việc làm. Cân nhắc chuyển sang D-10.', flag_d2_grad:'Sắp tốt nghiệp/hết hạn mà chưa có hướng đi. Cần chuẩn bị visa D-10.',
+ err:'Có lỗi xảy ra. Vui lòng thử lại.',
+ q:{ Q1:'Visa hiện tại của bạn là gì?', Q2:'Visa còn bao lâu thì hết hạn?', Q3:'Tổng thời gian bạn đã ở Hàn Quốc?', Q4:'Tình trạng việc làm hiện tại?', Q5:'Bằng cấp cao nhất và nơi cấp?', Q6:'Ngành học?', Q7:'Độ tuổi?', Q8:'Trình độ tiếng Hàn (TOPIK / KIIP)?', Q9:'Thu nhập năm gần nhất (trước thuế)?', Q10:'Kê khai thuế thu nhập & bảo hiểm xã hội gần đây?', Q11:'Mục tiêu sự nghiệp của bạn?', Q12:'Chọn tất cả hạng mục điểm cộng bạn có' },
+ tip:{ Q1:'Loại visa quyết định phạm vi được làm việc và lộ trình lên visa F. D-10 → E-7 → F-2-7 là lộ trình định cư điển hình.', Q2:'Nên chuẩn bị gia hạn/đổi visa từ 6 tháng trước khi hết hạn. Thời gian còn lại càng ngắn, độ ổn định càng thấp.', Q3:'F-2-7 và F-5 đều yêu cầu thời gian cư trú hợp pháp nhất định.', Q4:'Việc làm chính thức là căn cứ cho thu nhập & thuế; E-7 mất việc thì tư cách cư trú bị ảnh hưởng.', Q5:'Học vấn là một trong các hạng mục điểm lớn nhất; bằng cấp tại Hàn được cộng thêm.', Q6:'Ngành công nghệ cao (bán dẫn, AI, sinh học…) được điểm cộng và ưu tiên việc làm.', Q7:'Điểm tuổi cao nhất ở cuối 20 – đầu 30.', Q8:'Tiếng Hàn chiếm điểm lớn; nâng 1 cấp là cách nhanh nhất để tăng điểm.', Q9:'Thu nhập vừa là hạng mục điểm vừa là điều kiện theo GNI của F-2-7 / F-5.', Q10:'Nộp thuế được điểm cộng; nợ thuế có thể bị trừ điểm hoặc loại.', Q11:'Mục tiêu khác nhau → lộ trình khác nhau. Mục tiêu ngắn hạn thì giữ visa hiện tại quan trọng hơn điểm F.', Q12:'Chứng chỉ Hàn Quốc, hoàn thành KIIP, giải thưởng, làm việc ngành công nghệ cao là hạng mục điểm cộng.' },
+ o:{ Q1:{D2:'D-2 Du học',D10:'D-10 Tìm việc',E7:'E-7 Chuyên môn',E9H2:'E-9 / H-2',F2:'F-2 Cư trú',F4:'F-4 Kiều bào',F5F6:'F-5 Thường trú / F-6 Kết hôn',OTHER:'Khác (D-4, D-8…)'},
+    Q2:{lt3m:'Dưới 3 tháng',"3_6m":'3–6 tháng',"6_12m":'6–12 tháng',"1_2y":'1–2 năm',"2yp":'Trên 2 năm'},
+    Q3:{lt1y:'Dưới 1 năm',"1_3y":'1–3 năm',"3_5y":'3–5 năm',"5yp":'Trên 5 năm'},
+    Q4:{fulltime:'Nhân viên chính thức',contract:'Hợp đồng / thực tập',student:'Đang đi học',jobseek:'Tìm việc / không đi làm'},
+    Q5:{phd_kr:'Tiến sĩ (Hàn Quốc)',phd:'Tiến sĩ (nước ngoài)',ms_kr:'Thạc sĩ (Hàn Quốc)',ms:'Thạc sĩ (nước ngoài)',ba_kr:'Cử nhân (Hàn Quốc)',ba:'Cử nhân (nước ngoài)',assoc:'Cao đẳng / THPT'},
+    Q6:{stem_adv:'Công nghệ cao (bán dẫn, AI, sinh học…)',stem:'Kỹ thuật – khoa học khác',biz_law:'Kinh tế / luật',human_arts:'Nhân văn / xã hội / nghệ thuật'},
+    Q7:{"18_24":'18–24',"25_29":'25–29',"30_34":'30–34',"35_39":'35–39',"40_44":'40–44',"45p":'Trên 45'},
+    Q8:{t6:'TOPIK 6',t5:'TOPIK 5 (hoặc KIIP cấp 5)',t4:'TOPIK 4',t3:'TOPIK 3',t2:'TOPIK 1–2',none:'Chưa có'},
+    Q9:{lt3000:'Dưới 30 triệu won',"3_4k":'30–40 triệu',"4_5k":'40–50 triệu',"5_7k":'50–70 triệu',"7kp":'Trên 70 triệu'},
+    Q10:{"2yp":'Nộp thuế đầy đủ trên 2 năm',"1y":'1 năm',started:'Bắt đầu kê khai năm nay',none:'Chưa từng kê khai',arrears:'Đang nợ thuế'},
+    Q11:{short:'Kiếm tiền rồi về nước',mid:'Tích lũy kinh nghiệm rồi về',long:'Sống lâu dài ở Hàn',perm:'Thường trú / nhập tịch'},
+    Q12:{cert:'Chứng chỉ Hàn Quốc',adv_ind:'Làm việc/được nhận vào ngành công nghệ cao',kiip:'Hoàn thành KIIP',award:'Tình nguyện / giải thưởng',kr_grad:'Thạc sĩ/Tiến sĩ tại Hàn',none:'Không có'} }
+},
+zh:{
+ app_title:'长期居留与职业定居诊断', app_sub:'LONG-STAY & CAREER SETTLEMENT CHECK',
+ grp_stay:'居留现状', grp_edu:'学历·专业·年龄', grp_lang:'韩语·收入·纳税', grp_goal:'职业目标',
+ hero_tag:'面向专业人才与长期居留者 · 4分钟', hero_h1:'想在韩国长期发展？\n看看您现在还缺什么。', hero_p:'一次检查签证稳定性、F签证转换可能性和就业竞争力，并明确指出还差多少分。',
+ k1:'题', k2:'步骤', k3:'指标', desc:'基于F-2-7积分制居留项目设计。结果仅供自我参考，不保证实际审查结果。',
+ start:'开始诊断', priv:'不保存真实姓名和联系方式。', prev:'上一步', next:'下一步', done:'查看结果', saved:'已自动保存', resume:'您有未完成的诊断（{p}%）', resumeBtn:'继续', sel:'可多选', why:'为什么重要？',
+ r_level:'综合判定', r_axes:'三项指标', r_f27:'F-2-7积分自测', r_gaps:'最有效的3项补强', r_route:'推荐定居路径', r_again:'重新诊断', r_cta:'专家咨询 · 职位匹配', r_note:'本工具将出入境法规简化为自测用途，不保证签证审查结果。',
+ col_item:'项目', col_cur:'当前', col_max:'上限', col_gap:'差距', total:'合计', pass:'合格线', short:'差分', passed:'已达合格线',
+ lv_GREEN:'安全', lv_AMBER:'注意', lv_RED:'需要咨询',
+ ax_VS:'当前签证稳定性', ax_FT:'F签证转换可能性', ax_EC:'就业竞争力', work_badge:'当前签证限制就业范围',
+ it_edu:'学历', it_major:'专业', it_age:'年龄', it_kor:'韩语', it_inc:'收入', it_tax:'纳税', it_bonus:'加分',
+ goal_short:'短期攒钱', goal_mid:'积累经验后回国', goal_long:'长期居住', goal_perm:'永住·入籍',
+ sum:'{visa} · 在韩{ten}年 · F-2-7折算{pts}分（{short}）', sum_pass:'已达合格线', sum_short:'距合格线还差{n}分',
+ route_D2:'D-2留学 → D-10求职 → E-7专业人才 → F-2-7积分居留 → F-5永住', route_D10:'D-10 → E-7 → F-2-7 → F-5', route_E7:'E-7 → F-2-7积分居留 → F-5永住', route_E9H2:'E-9/H-2 → E-7-4熟练技能 → F-2 → F-5', route_F2:'F-2居留 → F-5永住（满足居留与收入要求）', route_F4:'F-4在外同胞 → F-5永住', route_F5F6:'已持有长期居留资格 — 维持相关要求', route_OTHER:'当前签证 → 可就业签证（如E-7）→ F-2-7',
+ gap_kor:'TOPIK {cur}级 → {next}级：+{pts}分（约6个月）', gap_kor0:'报考TOPIK（目标3级）：+{pts}分', gap_tax:'申报所得税并累积1年诚信纳税记录：+{pts}分', gap_bonus:'完成社会融合课程(KIIP)或取得韩国资格证：+{pts}分', gap_inc:'年收入达到{n}万韩元以上：+{pts}分（跳槽/晋升）', gap_edu:'在韩攻读硕博：+{pts}分（长期）', gap_none:'积分项目已足够 — 请专注于维持居留与收入要求',
+ flag_arrears:'欠税可能成为签证延期/变更的不合格事由，请先解决。', flag_rem:'签证不足3个月到期，请立即开始延期/变更申请。', flag_e7_job:'E-7依赖雇佣关系，请考虑转为D-10求职签证。', flag_d2_grad:'即将毕业/到期但方向未定，需要准备D-10求职签证。',
+ err:'出现问题，请重试。',
+ q:{ Q1:'您目前的签证类型？', Q2:'签证距到期还有多久？', Q3:'在韩累计居留时间？', Q4:'目前的就业/所属状态？', Q5:'最高学历及取得国家？', Q6:'专业领域？', Q7:'年龄段？', Q8:'韩语能力（TOPIK / KIIP）？', Q9:'最近一年年收入（税前）？', Q10:'最近的所得税申报及四大保险缴纳记录？', Q11:'您的职业目标？', Q12:'请选择您拥有的全部加分项' },
+ tip:{ Q1:'签证类型决定可就业范围和F签证转换路径。D-10 → E-7 → F-2-7是典型的定居路线。', Q2:'应在到期前6个月开始准备延期/变更。剩余时间越短，稳定性评分越低。', Q3:'F-2-7与F-5均要求一定期间的合法居留记录。', Q4:'正式就业是收入与纳税记录的依据；E-7一旦失业居留资格会受影响。', Q5:'学历是积分制中分值最高的项目之一，韩国学位另有加分。', Q6:'尖端产业（半导体、AI、生物等）专业享有加分和优先职位匹配。', Q7:'年龄分在25岁至35岁前后最高。', Q8:'韩语分值大，提升一级是最快的加分方式。', Q9:'收入既是积分项目，也是F-2-7/F-5按GNI判断收入要求的依据。', Q10:'纳税记录可加分，欠税可能扣分或不合格。', Q11:'目标不同，推荐路径不同。短期目标以维持现签证为先。', Q12:'韩国资格证、KIIP修完、获奖、在尖端产业就业均为加分项。' },
+ o:{ Q1:{D2:'D-2留学',D10:'D-10求职',E7:'E-7专业人才',E9H2:'E-9 / H-2',F2:'F-2居留',F4:'F-4在外同胞',F5F6:'F-5永住 / F-6结婚移民',OTHER:'其他（D-4、D-8等）'},
+    Q2:{lt3m:'不足3个月',"3_6m":'3~6个月',"6_12m":'6~12个月',"1_2y":'1~2年',"2yp":'2年以上'},
+    Q3:{lt1y:'不足1年',"1_3y":'1~3年',"3_5y":'3~5年',"5yp":'5年以上'},
+    Q4:{fulltime:'正式员工',contract:'合同工/实习',student:'在读',jobseek:'求职中/未就业'},
+    Q5:{phd_kr:'博士（韩国）',phd:'博士（国外）',ms_kr:'硕士（韩国）',ms:'硕士（国外）',ba_kr:'学士（韩国）',ba:'学士（国外）',assoc:'专科/高中'},
+    Q6:{stem_adv:'尖端理工（半导体、AI、生物等）',stem:'其他理工',biz_law:'经管/法学',human_arts:'人文/社科/艺体'},
+    Q7:{"18_24":'18~24岁',"25_29":'25~29岁',"30_34":'30~34岁',"35_39":'35~39岁',"40_44":'40~44岁',"45p":'45岁以上'},
+    Q8:{t6:'TOPIK 6级',t5:'TOPIK 5级（或KIIP 5阶段）',t4:'TOPIK 4级',t3:'TOPIK 3级',t2:'TOPIK 1~2级',none:'无'},
+    Q9:{lt3000:'不足3000万韩元',"3_4k":'3000~4000万',"4_5k":'4000~5000万',"5_7k":'5000~7000万',"7kp":'7000万以上'},
+    Q10:{"2yp":'2年以上诚信纳税',"1y":'1年记录',started:'今年开始申报',none:'无申报记录',arrears:'有欠税'},
+    Q11:{short:'短期攒钱后回国',mid:'积累经验后回国',long:'在韩长期居住',perm:'永住/入籍'},
+    Q12:{cert:'韩国资格证',adv_ind:'尖端产业在职/录用',kiip:'KIIP修完',award:'志愿/获奖',kr_grad:'韩国硕博学位',none:'无'} }
+},
+th:{
+ app_title:'ตรวจสอบการพำนักระยะยาวและอาชีพ', app_sub:'LONG-STAY & CAREER SETTLEMENT CHECK',
+ grp_stay:'สถานะการพำนัก', grp_edu:'การศึกษา · สาขา · อายุ', grp_lang:'ภาษาเกาหลี · รายได้ · ภาษี', grp_goal:'เป้าหมายอาชีพ',
+ hero_tag:'สำหรับผู้เชี่ยวชาญและผู้วางแผนอยู่ยาว · 4 นาที', hero_h1:'อยากทำงานในเกาหลีระยะยาว?\nดูว่าวันนี้คุณยังขาดอะไร', hero_p:'ตรวจความมั่นคงของวีซ่า โอกาสเปลี่ยนเป็นวีซ่า F และความสามารถในการแข่งขันในงาน พร้อมบอกคะแนนที่ยังขาด',
+ k1:'ข้อ', k2:'ขั้น', k3:'ตัวชี้วัด', desc:'อิงรายการคะแนนวีซ่า F-2-7 เป็นเครื่องมือตรวจสอบด้วยตนเองเพื่ออ้างอิง ไม่รับประกันผลการพิจารณา',
+ start:'เริ่ม', priv:'ไม่บันทึกชื่อจริงหรือข้อมูลติดต่อ', prev:'ย้อนกลับ', next:'ถัดไป', done:'ดูผล', saved:'บันทึกอัตโนมัติแล้ว', resume:'คุณมีแบบทดสอบที่ค้างอยู่ ({p}%)', resumeBtn:'ทำต่อ', sel:'เลือกได้หลายข้อ', why:'ทำไมจึงสำคัญ?',
+ r_level:'ผลรวม', r_axes:'3 ตัวชี้วัด', r_f27:'ประเมินคะแนน F-2-7 ด้วยตนเอง', r_gaps:'3 วิธีเพิ่มคะแนนที่คุ้มที่สุด', r_route:'เส้นทางการตั้งถิ่นฐานที่แนะนำ', r_again:'ทำใหม่', r_cta:'ปรึกษาผู้เชี่ยวชาญ · จับคู่งาน', r_note:'เครื่องมือนี้ย่อกฎหมายตรวจคนเข้าเมืองเพื่อการตรวจสอบด้วยตนเอง ไม่รับประกันผลวีซ่า',
+ col_item:'รายการ', col_cur:'ปัจจุบัน', col_max:'สูงสุด', col_gap:'ขาด', total:'รวม', pass:'เกณฑ์ผ่าน', short:'คะแนนที่ขาด', passed:'ถึงเกณฑ์ผ่านแล้ว',
+ lv_GREEN:'ปลอดภัย', lv_AMBER:'ควรระวัง', lv_RED:'ควรปรึกษา',
+ ax_VS:'ความมั่นคงของวีซ่าปัจจุบัน', ax_FT:'โอกาสเปลี่ยนเป็นวีซ่า F', ax_EC:'ความสามารถในการแข่งขันในงาน', work_badge:'วีซ่าปัจจุบันจำกัดขอบเขตการทำงาน',
+ it_edu:'การศึกษา', it_major:'สาขา', it_age:'อายุ', it_kor:'ภาษาเกาหลี', it_inc:'รายได้', it_tax:'ภาษี', it_bonus:'คะแนนพิเศษ',
+ goal_short:'เก็บเงินระยะสั้น', goal_mid:'สะสมประสบการณ์แล้วกลับ', goal_long:'อยู่ระยะยาว', goal_perm:'ถิ่นที่อยู่ถาวร · สัญชาติ',
+ sum:'{visa} · อยู่เกาหลี {ten} ปี · ประเมิน F-2-7 {pts} คะแนน ({short})', sum_pass:'ถึงเกณฑ์ผ่านแล้ว', sum_short:'ขาดอีก {n} คะแนน',
+ route_D2:'D-2 นักเรียน → D-10 หางาน → E-7 ผู้เชี่ยวชาญ → F-2-7 → F-5 ถาวร', route_D10:'D-10 → E-7 → F-2-7 → F-5', route_E7:'E-7 → F-2-7 → F-5 ถาวร', route_E9H2:'E-9/H-2 → E-7-4 แรงงานฝีมือ → F-2 → F-5', route_F2:'F-2 → F-5 (เมื่อครบเงื่อนไขการพำนักและรายได้)', route_F4:'F-4 → F-5', route_F5F6:'มีสถานะพำนักระยะยาวแล้ว — รักษาเงื่อนไขไว้', route_OTHER:'วีซ่าปัจจุบัน → วีซ่าที่ทำงานได้ (เช่น E-7) → F-2-7',
+ gap_kor:'TOPIK ระดับ {cur} → {next}: +{pts} คะแนน (ประมาณ 6 เดือน)', gap_kor0:'สอบ TOPIK (เป้าระดับ 3): +{pts} คะแนน', gap_tax:'ยื่นภาษีเงินได้และสะสมประวัติ 1 ปี: +{pts} คะแนน', gap_bonus:'จบหลักสูตร KIIP หรือได้ใบรับรองเกาหลี: +{pts} คะแนน', gap_inc:'รายได้ต่อปีเกิน {n} หมื่นวอน: +{pts} คะแนน (ย้ายงาน / เลื่อนตำแหน่ง)', gap_edu:'เรียนต่อปริญญาโท/เอกในเกาหลี: +{pts} คะแนน (ระยะยาว)', gap_none:'คะแนนแต่ละรายการเพียงพอแล้ว — เน้นรักษาเงื่อนไขการพำนักและรายได้',
+ flag_arrears:'ภาษีค้างชำระอาจทำให้ไม่ผ่านการต่อ/เปลี่ยนวีซ่า ควรเคลียร์ก่อน', flag_rem:'วีซ่าจะหมดอายุในไม่ถึง 3 เดือน เริ่มยื่นต่อ/เปลี่ยนวีซ่าเดี๋ยวนี้', flag_e7_job:'สถานะ E-7 ขึ้นกับการจ้างงาน พิจารณาเปลี่ยนเป็น D-10', flag_d2_grad:'ใกล้จบ/หมดอายุแต่ยังไม่มีเส้นทาง ควรเตรียมวีซ่า D-10',
+ err:'เกิดข้อผิดพลาด โปรดลองอีกครั้ง',
+ q:{ Q1:'วีซ่าปัจจุบันของคุณคือ?', Q2:'วีซ่าเหลืออายุอีกนานเท่าไร?', Q3:'อยู่เกาหลีมาแล้วรวมกี่ปี?', Q4:'สถานะการทำงานปัจจุบัน?', Q5:'วุฒิสูงสุดและประเทศที่ได้รับ?', Q6:'สาขาที่เรียน?', Q7:'ช่วงอายุ?', Q8:'ระดับภาษาเกาหลี (TOPIK / KIIP)?', Q9:'รายได้ต่อปีล่าสุด (ก่อนหักภาษี)?', Q10:'ประวัติยื่นภาษีเงินได้และประกันสังคมล่าสุด?', Q11:'เป้าหมายอาชีพของคุณ?', Q12:'เลือกรายการคะแนนพิเศษทั้งหมดที่คุณมี' },
+ tip:{ Q1:'ประเภทวีซ่ากำหนดขอบเขตการทำงานและเส้นทางสู่วีซ่า F เส้นทางทั่วไปคือ D-10 → E-7 → F-2-7', Q2:'ควรเตรียมต่อ/เปลี่ยนวีซ่าก่อนหมดอายุ 6 เดือน ยิ่งเหลือน้อยความมั่นคงยิ่งต่ำ', Q3:'ทั้ง F-2-7 และ F-5 ต้องมีประวัติพำนักถูกกฎหมายช่วงหนึ่ง', Q4:'งานประจำเป็นฐานของรายได้และภาษี วีซ่า E-7 จะสั่นคลอนหากตกงาน', Q5:'การศึกษาเป็นรายการคะแนนใหญ่ วุฒิจากเกาหลีได้คะแนนเพิ่ม', Q6:'สาขาเทคโนโลยีขั้นสูง (เซมิคอนดักเตอร์ AI ชีวภาพ) ได้คะแนนพิเศษและจับคู่งานก่อน', Q7:'คะแนนอายุสูงสุดช่วงปลาย 20 ถึงต้น 30', Q8:'ภาษาเกาหลีมีคะแนนมาก การขยับขึ้น 1 ระดับคือทางเพิ่มคะแนนที่เร็วที่สุด', Q9:'รายได้เป็นทั้งรายการคะแนนและเกณฑ์ตาม GNI ของ F-2-7 / F-5', Q10:'ประวัติภาษีได้คะแนนพิเศษ ภาษีค้างอาจโดนหักหรือไม่ผ่าน', Q11:'เป้าหมายต่างกันเส้นทางต่างกัน เป้าระยะสั้นให้เน้นรักษาวีซ่าปัจจุบัน', Q12:'ใบรับรองเกาหลี จบ KIIP รางวัล และงานในอุตสาหกรรมขั้นสูงเป็นรายการคะแนนพิเศษ' },
+ o:{ Q1:{D2:'D-2 นักเรียน',D10:'D-10 หางาน',E7:'E-7 ผู้เชี่ยวชาญ',E9H2:'E-9 / H-2',F2:'F-2 พำนัก',F4:'F-4 ชาวเกาหลีโพ้นทะเล',F5F6:'F-5 ถาวร / F-6 สมรส',OTHER:'อื่น ๆ (D-4, D-8 …)'},
+    Q2:{lt3m:'น้อยกว่า 3 เดือน',"3_6m":'3–6 เดือน',"6_12m":'6–12 เดือน',"1_2y":'1–2 ปี',"2yp":'มากกว่า 2 ปี'},
+    Q3:{lt1y:'น้อยกว่า 1 ปี',"1_3y":'1–3 ปี',"3_5y":'3–5 ปี',"5yp":'มากกว่า 5 ปี'},
+    Q4:{fulltime:'พนักงานประจำ',contract:'สัญญาจ้าง / ฝึกงาน',student:'กำลังศึกษา',jobseek:'หางาน / ไม่ได้ทำงาน'},
+    Q5:{phd_kr:'ปริญญาเอก (เกาหลี)',phd:'ปริญญาเอก (ต่างประเทศ)',ms_kr:'ปริญญาโท (เกาหลี)',ms:'ปริญญาโท (ต่างประเทศ)',ba_kr:'ปริญญาตรี (เกาหลี)',ba:'ปริญญาตรี (ต่างประเทศ)',assoc:'อนุปริญญา / มัธยม'},
+    Q6:{stem_adv:'เทคโนโลยีขั้นสูง (เซมิคอนดักเตอร์ AI ชีวภาพ)',stem:'วิทย์-วิศวะอื่น',biz_law:'บริหาร / กฎหมาย',human_arts:'มนุษยศาสตร์ / สังคม / ศิลปะ'},
+    Q7:{"18_24":'18–24',"25_29":'25–29',"30_34":'30–34',"35_39":'35–39',"40_44":'40–44',"45p":'45+'},
+    Q8:{t6:'TOPIK 6',t5:'TOPIK 5 (หรือ KIIP ระดับ 5)',t4:'TOPIK 4',t3:'TOPIK 3',t2:'TOPIK 1–2',none:'ไม่มี'},
+    Q9:{lt3000:'ต่ำกว่า 30 ล้านวอน',"3_4k":'30–40 ล้าน',"4_5k":'40–50 ล้าน',"5_7k":'50–70 ล้าน',"7kp":'มากกว่า 70 ล้าน'},
+    Q10:{"2yp":'ยื่นภาษีครบเกิน 2 ปี',"1y":'1 ปี',started:'เริ่มยื่นปีนี้',none:'ไม่เคยยื่น',arrears:'มีภาษีค้าง'},
+    Q11:{short:'เก็บเงินแล้วกลับบ้าน',mid:'สะสมประสบการณ์แล้วกลับ',long:'อยู่เกาหลีระยะยาว',perm:'ถิ่นที่อยู่ถาวร / สัญชาติ'},
+    Q12:{cert:'ใบรับรองเกาหลี',adv_ind:'ทำงาน/ได้รับเข้าทำงานในอุตสาหกรรมขั้นสูง',kiip:'จบ KIIP',award:'อาสาสมัคร / รางวัล',kr_grad:'ปริญญาโท/เอกจากเกาหลี',none:'ไม่มี'} }
+}
+};
+
+</script>
+<script>
+/* 장기 체류·커리어 정착 진단 — 채점 엔진 */
+const LS = (function(){
+  const CAT = window.LS_CAT, POL = window.LS_POLICY, I = window.LS_I18N;
+  const QMAP = Object.fromEntries(CAT.questions.map(q=>[q.id,q]));
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const R=x=>Math.floor(x+0.5);
+  const T=(lang,k)=> (I[lang]||I.ko)[k] ?? I.ko[k] ?? k;
+  const fmt=(s,v)=>s.replace(/\{(\w+)\}/g,(_,k)=>v[k]??'');
+
+  function sel(ans,qid){ const a=ans[qid]; if(!a||Array.isArray(a.idx)) return null; return QMAP[qid].opts[a.idx]||null; }
+  function sels(ans,qid){ const a=ans[qid]; if(!a) return []; const ix=Array.isArray(a.idx)?a.idx:[a.idx]; return ix.map(i=>QMAP[qid].opts[i]).filter(Boolean); }
+  const P=(ans,q,k,d)=>{ const o=sel(ans,q); return o&&o.p[k]!==undefined?o.p[k]:d; };
+
+  function ctx(ans){
+    const v=sel(ans,'Q1'); const visa=v?v.p:{visa_class:'other',vs_base:45,work:'partial'}; const visa_v=v?v.v:'OTHER';
+    const bonus=sels(ans,'Q12').filter(o=>!o.p.exclusive).reduce((s,o)=>s+o.p.b,0);
+    const c={visa,visa_v,rem_m:P(ans,'Q2','rem_m',18),rem_score:P(ans,'Q2','rem_score',85),tenure_y:P(ans,'Q3','tenure_y',2),emp:P(ans,'Q4','emp',70),
+      edu_pt:P(ans,'Q5','edu_pt',20),edu_kr:P(ans,'Q5','edu_kr',0),edu_lv:P(ans,'Q5','edu_lv',2),major_pt:P(ans,'Q6','major_pt',4),age_pt:P(ans,'Q7','age_pt',20),
+      kor_pt:P(ans,'Q8','kor_pt',0),kor_lv:P(ans,'Q8','kor_lv',0),inc_pt:P(ans,'Q9','inc_pt',6),inc:P(ans,'Q9','inc',3500),tax_pt:P(ans,'Q10','tax_pt',0),tax_flag:!!P(ans,'Q10','tax_flag',false),
+      goal:P(ans,'Q11','goal','long'),bonus_pt:Math.min(bonus,POL.max.bonus)};
+    c.items={edu:c.edu_pt+c.edu_kr,major:c.major_pt,age:c.age_pt,kor:c.kor_pt,inc:c.inc_pt,tax:Math.max(0,c.tax_pt),bonus:c.bonus_pt};
+    c.pts=Object.values(c.items).reduce((a,b)=>a+b,0)+(c.tax_flag?c.tax_pt:0);
+    return c;
+  }
+  function scoreVS(c){
+    let vs=c.visa.vs_base*0.40+c.rem_score*0.30+(c.visa.visa_class==='perm'?30:c.emp*0.30);
+    if(c.visa.visa_class==='student'&&c.rem_m<6) vs-=10;
+    if(c.visa.visa_class==='pro'&&c.emp<=30) vs-=20;
+    if(c.tax_flag) vs-=10;
+    return clamp(vs,0,100);
+  }
+  function scoreFT(c){
+    if(c.visa.visa_class==='perm') return 100;
+    if(c.visa.visa_class==='resid') return clamp(85+Math.min(15,c.tenure_y*3),0,100);
+    const ratio=clamp(c.pts/POL.pass_line,0,1.25);
+    let ft=70*Math.min(ratio,1)+15*(c.tenure_y>=1?1:0)+15*(c.inc>=POL.gni_ref?1:0);
+    if(c.kor_pt===0) ft-=10; if(c.tax_flag) ft-=15;
+    return clamp(ft,0,100);
+  }
+  function scoreEC(c){
+    const ec=(c.edu_pt+c.edu_kr+c.major_pt)/43*30 + c.kor_pt/20*25 + c.emp*0.15 + Math.min(c.tenure_y,5)/5*10 + c.bonus_pt/15*20;
+    return clamp(ec,0,100);
+  }
+  function hardFlags(c){
+    const f=[]; if(c.tax_flag) f.push('flag_arrears'); if(c.rem_m<3) f.push('flag_rem');
+    if(c.visa.visa_class==='pro'&&c.emp<=30) f.push('flag_e7_job');
+    if(c.visa.visa_class==='student'&&c.rem_m<6&&c.emp<=60&&c.goal!=='short') f.push('flag_d2_grad');
+    return f;
+  }
+  function classify(VS,FT,EC,flags,c){
+    const arr=c.goal==='short'?[VS,EC]:[VS,FT,EC]; const mn=Math.min(...arr);
+    if(flags.length||mn<40) return 'RED';
+    if(mn<65||(['long','perm'].includes(c.goal)&&c.pts<POL.pass_line&&c.visa.visa_class!=='resid'&&c.visa.visa_class!=='perm')) return 'AMBER';
+    return 'GREEN';
+  }
+  function gaps(c,lang){
+    const M=POL.max; const eff={kor:1,tax:1,bonus:1,inc:2,edu:3};
+    const cands=[];
+    for(const k of Object.keys(eff)){ const gap=M[k]-c.items[k]; if(gap>0) cands.push({key:k,gap,pr:gap/eff[k]}); }
+    cands.sort((a,b)=>b.pr-a.pr);
+    const out=cands.slice(0,3).map(g=>{
+      let text; const k=g.key;
+      if(k==='kor'){ if(c.kor_lv===0) text=fmt(T(lang,'gap_kor0'),{pts:10}); else { const next=Math.min(6,c.kor_lv+1); const table={2:5,3:10,4:14,5:17,6:20}; text=fmt(T(lang,'gap_kor'),{cur:c.kor_lv,next,pts:(table[next]||20)-c.kor_pt}); } }
+      else if(k==='tax') text=fmt(T(lang,'gap_tax'),{pts:Math.min(5,g.gap)});
+      else if(k==='bonus') text=fmt(T(lang,'gap_bonus'),{pts:Math.min(5,g.gap)});
+      else if(k==='inc'){ const steps=[[2500,3],[3500,6],[4500,10],[6000,14],[8000,18]]; const nx=steps.find(s=>s[0]>c.inc)||steps[4]; text=fmt(T(lang,'gap_inc'),{n:nx[0].toLocaleString(),pts:nx[1]-c.inc_pt}); }
+      else text=fmt(T(lang,'gap_edu'),{pts:Math.min(10,g.gap)});
+      return {key:k,label:T(lang,'it_'+k),gap:g.gap,text};
+    });
+    return out.length?out:[{key:'none',label:'',gap:0,text:T(lang,'gap_none')}];
+  }
+  function diagnose(ans,lang){
+    const c=ctx(ans); const VS=scoreVS(c),FT=scoreFT(c),EC=scoreEC(c);
+    const flags=hardFlags(c); const level=classify(VS,FT,EC,flags,c);
+    const M=POL.max; const items=['edu','major','age','kor','inc','tax','bonus'].map(k=>({key:k,label:T(lang,'it_'+k),cur:c.items[k],max:M[k],gap:M[k]-c.items[k]}));
+    const short=Math.max(0,POL.pass_line-c.pts);
+    const visaLabel=(I[lang]||I.ko).o.Q1[c.visa_v]||c.visa_v;
+    return {policy:POL.version,lang,level,level_label:T(lang,'lv_'+level),
+      scores:{VS:R(VS),FT:R(FT),EC:R(EC),labels:{VS:T(lang,'ax_VS'),FT:T(lang,'ax_FT'),EC:T(lang,'ax_EC')}},
+      work_limited:['partial','intern','limited'].includes(c.visa.work),
+      summary:fmt(T(lang,'sum'),{visa:visaLabel,ten:c.tenure_y,pts:c.pts,short:short?fmt(T(lang,'sum_short'),{n:short}):T(lang,'sum_pass')}),
+      f27:{items,total:c.pts,pass:POL.pass_line,short},
+      gaps:gaps(c,lang), route:T(lang,'route_'+c.visa_v), goal:c.goal, goal_label:T(lang,'goal_'+c.goal),
+      flags:flags.map(k=>({code:k,msg:T(lang,k)}))};
+  }
+  return {diagnose,T,fmt,CAT,langs:Object.keys(I)};
+})();
+
+</script>
+<script>
+const LS_KEY='ls_career_draft_v1'; const PARTNER=new URLSearchParams(location.search).get('partner')||'DIRECT';
+let lang=new URLSearchParams(location.search).get('lang')||(navigator.language||'ko').slice(0,2); if(!LS_I18N[lang]) lang='ko';
+const T=k=>LS.T(lang,k); const $=id=>document.getElementById(id);
+let answers={}, qi=0, order=[];
+LS.CAT.groups.forEach(g=>order.push(...g.qs));
+const show=id=>{['s-intro','s-quiz','s-result'].forEach(s=>$(s).classList.toggle('hidden',s!==id));window.scrollTo(0,0);};
+function renderStatic(){
+  document.documentElement.lang=lang; $('brandSub').textContent=T('app_sub'); document.title='Life 2.0 · '+T('app_title'); $('polv').textContent=LS_POLICY.version;
+  [['i_tag','hero_tag'],['i_h1','hero_h1'],['i_p','hero_p'],['i_k1','k1'],['i_k2','k2'],['i_k3','k3'],['i_desc','desc'],['i_priv','priv'],['startBtn','start'],['prevBtn','prev'],['resumeBtn','resumeBtn'],
+   ['r_lvl_t','r_level'],['r_h_axes','r_axes'],['r_h_f27','r_f27'],['r_h_gaps','r_gaps'],['r_h_route','r_route'],['againBtn','r_again'],['ctaBtn','r_cta'],['r_note','r_note'],['th_item','col_item'],['th_cur','col_cur'],['th_max','col_max'],['th_gap','col_gap'],['tipTitle','why']]
+   .forEach(([id,k])=>{$(id).textContent=T(k);});
+  const lb=$('langBar'); lb.innerHTML=''; LS.langs.forEach(l=>{const b=document.createElement('button');b.textContent=l.toUpperCase();b.className=l===lang?'on':'';b.onclick=()=>{lang=l;renderStatic();if(!$('s-quiz').classList.contains('hidden'))renderQ();if(!$('s-result').classList.contains('hidden'))renderResult(LS.diagnose(answers,lang));};lb.appendChild(b);});
+}
+function renderQ(){
+  const qid=order[qi], q=LS.CAT.questions.find(x=>x.id===qid), gi=LS.CAT.groups.findIndex(g=>g.qs.includes(qid));
+  const st=$('steps'); st.innerHTML=''; LS.CAT.groups.forEach((g,i)=>{const d=document.createElement('div');d.className='step'+(i<gi?' done':i===gi?' on':'');d.textContent=(i+1)+'. '+T('grp_'+g.key);st.appendChild(d);});
+  $('barFill').style.width=Math.round(Object.keys(answers).length/order.length*100)+'%';
+  $('qnum').textContent=`Q${qi+1} / ${order.length}`+(q.type==='multi'?' · '+T('sel'):'');
+  $('qtext').textContent=LS_I18N[lang].q[qid]||LS_I18N.ko.q[qid]; $('tipText').textContent=LS_I18N[lang].tip[qid]||LS_I18N.ko.tip[qid]; $('tip').classList.remove('on');
+  const box=$('opts'); box.innerHTML=''; const cur=answers[qid];
+  q.opts.forEach((o,i)=>{const b=document.createElement('button');b.className='opt'+(q.type==='multi'?' multi':'');
+    const on=q.type==='multi'?(cur&&cur.idx.includes(i)):(cur&&cur.idx===i); if(on)b.classList.add('on');
+    b.innerHTML=`<span class="dot"></span><span>${(LS_I18N[lang].o[qid]||LS_I18N.ko.o[qid])[o.v]||LS_I18N.ko.o[qid][o.v]}</span>`; b.onclick=()=>pick(q,i,o); box.appendChild(b);});
+  $('prevBtn').disabled=qi===0; $('nextBtn').textContent=qi===order.length-1?T('done'):T('next'); $('nextBtn').disabled=answers[qid]==null;
+}
+function pick(q,i,o){
+  if(q.type==='multi'){ let arr=answers[q.id]?[...answers[q.id].idx]:[]; if(o.p.exclusive){arr=arr.includes(i)?[]:[i];} else {arr=arr.filter(x=>!q.opts[x].p.exclusive); arr=arr.includes(i)?arr.filter(x=>x!==i):[...arr,i];}
+    if(arr.length)answers[q.id]={idx:arr}; else delete answers[q.id]; renderQ(); save(); return; }
+  answers[q.id]={idx:i}; renderQ(); save(); setTimeout(next,180);
+}
+function save(){ localStorage.setItem(LS_KEY,JSON.stringify({answers,qi,lang,ts:Date.now()})); $('savedMsg').textContent='✓ '+T('saved'); setTimeout(()=>$('savedMsg').textContent='',1500); }
+function next(){ if(answers[order[qi]]==null)return; if(qi<order.length-1){qi++;renderQ();return;} finish(); }
+function prev(){ if(qi>0){qi--;renderQ();} }
+function finish(){ const r=LS.diagnose(answers,lang); localStorage.removeItem(LS_KEY); renderResult(r); show('s-result'); if(window.LS_ON_RESULT) try{window.LS_ON_RESULT(r,answers);}catch(e){} }
+function renderResult(r){
+  const lv=$('lvl'); lv.className='lvl '+r.level; $('rLevel').textContent=r.level_label; $('rSummary').textContent=r.summary;
+  const fl=$('flags'); fl.innerHTML=''; r.flags.forEach(f=>{const d=document.createElement('div');d.className='flag';d.textContent='⚠ '+f.msg;fl.appendChild(d);});
+  const ax=$('axes'); ax.innerHTML=''; ['VS','FT','EC'].forEach(k=>{const d=document.createElement('div');d.className='ax';d.innerHTML=`<span>${r.scores.labels[k]}</span><div class="track"><i style="width:${r.scores[k]}%"></i></div><b>${r.scores[k]}</b>`;ax.appendChild(d);});
+  $('workBadge').classList.toggle('hidden',!r.work_limited); $('workBadge').textContent='⚠ '+T('work_badge');
+  const tb=$('f27body'); tb.innerHTML=''; r.f27.items.forEach(it=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${it.label}</td><td class="n">${it.cur}</td><td class="n">${it.max}</td><td class="n" style="color:${it.gap>0?'#B4532B':'#2E7D4F'}">${it.gap>0?'-'+it.gap:'✓'}</td>`;tb.appendChild(tr);});
+  const tr=document.createElement('tr'); tr.className='tot'; tr.innerHTML=`<td>${T('total')}</td><td class="n">${r.f27.total}</td><td class="n">${r.f27.items.reduce((s,i)=>s+i.max,0)}</td><td></td>`; tb.appendChild(tr);
+  $('f27pass').textContent=`${T('pass')} ${r.f27.pass}`; $('f27short').textContent=r.f27.short?`${T('short')} ${r.f27.short}`:T('passed');
+  const gp=$('gaps'); gp.innerHTML=''; r.gaps.forEach((g,i)=>{const d=document.createElement('div');d.className='gap';d.innerHTML=`<div class="n">${i+1}</div><div class="t">${g.text}${g.label?`<div class="k">${g.label}${g.gap?' · -'+g.gap:''}</div>`:''}</div>`;gp.appendChild(d);});
+  $('route').textContent='🧭 '+r.route+'  ('+r.goal_label+')';
+}
+$('startBtn').onclick=()=>{answers={};qi=0;show('s-quiz');renderQ();};
+$('nextBtn').onclick=next; $('prevBtn').onclick=prev; $('tipBtn').onclick=()=>$('tip').classList.toggle('on');
+$('againBtn').onclick=()=>{answers={};qi=0;show('s-intro');};
+$('ctaBtn').onclick=()=>{const msg={type:'ls_cta',partner:PARTNER,result:LS.diagnose(answers,lang)}; if(window.ReactNativeWebView)window.ReactNativeWebView.postMessage(JSON.stringify(msg)); else if(window.parent!==window)window.parent.postMessage(msg,'*'); else console.log('CTA',msg);};
+renderStatic();
+(function(){ const s=localStorage.getItem(LS_KEY); if(!s)return; try{const d=JSON.parse(s); if(!d.answers||!Object.keys(d.answers).length)return; $('resumeTxt').textContent=T('resume').replace('{p}',Math.round(Object.keys(d.answers).length/order.length*100)); $('resumeBox').classList.remove('hidden'); $('resumeBtn').onclick=()=>{answers=d.answers;qi=Math.min(d.qi||0,order.length-1);show('s-quiz');renderQ();};}catch(e){} })();
+</script>
+<script>
+window.LS_ON_RESULT=function(r,answers){
+  try{ localStorage.setItem('l2p_career_last', JSON.stringify({ts:Date.now(), title:'장기 체류·커리어 정착 진단 · Long-stay & Career Check',
+    summary:(r? ((r.level_label||'')+' · F-2-7 '+(r.f27&&r.f27.total!==undefined?r.f27.total+'점':'')) : '')})); }catch(e){}
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Life 2.0 · 외국인 금융 건전성 진단 (단독 실행본)</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#124A2F;--g2:#1E6B45;--gold:#C9A449;--bg:#F5F7F5;--card:#fff;--ink:#121815;--mute:#6B7570;--line:#E1E6E3;--warn:#B4532B;--ok:#2E7D4F}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Noto Sans KR','Noto Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
+@media(min-width:900px){.app{max-width:760px}}
+.top{background:var(--g);color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:5}
+.top .brand{font-weight:900;font-size:16px;letter-spacing:.2px}.top .brand small{display:block;font-weight:500;font-size:10px;opacity:.75;letter-spacing:1px}
+.lang{display:flex;gap:4px}.lang button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:3px 9px;font-size:11px}.lang button.on{background:var(--gold);border-color:var(--gold);color:#1a1a1a;font-weight:700}
+.main{flex:1;padding:16px 16px 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 2px 10px rgba(18,74,47,.05)}
+.hero{background:linear-gradient(135deg,#0F3B25,#1E6B45);color:#fff;border-radius:18px;padding:22px 20px;margin-bottom:14px}
+.hero .tag{display:inline-block;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px;margin-bottom:10px}
+.hero h1{font-size:22px;line-height:1.3;font-weight:900;margin-bottom:8px}.hero p{font-size:13px;opacity:.9}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}.kpi b{display:block;font-size:17px;color:var(--g)}.kpi span{font-size:11px;color:var(--mute)}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:14px;font-size:15px;font-weight:700;background:var(--g);color:#fff}
+.btn.sec{background:#fff;color:var(--g);border:1.5px solid var(--g)}
+.btn.gold{background:var(--gold);color:#1a1a1a}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.step{font-size:11px;color:var(--mute);text-align:center;padding:6px 4px;border-radius:8px;background:#EDF1EE}
+.step.on{background:var(--g);color:#fff;font-weight:700}.step.done{background:#CFE3D6;color:var(--g)}
+.bar{height:6px;background:#E3E9E5;border-radius:999px;overflow:hidden;margin-bottom:16px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--g2),var(--gold));width:0;transition:width .3s}
+.qnum{font-size:12px;color:var(--mute);margin-bottom:6px}.qtext{font-size:18px;font-weight:700;line-height:1.4;margin-bottom:14px}
+.opts{display:grid;gap:8px}
+@media(min-width:900px){.opts{grid-template-columns:1fr 1fr}}
+.opt{border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:13px 14px;text-align:left;font-size:15px;display:flex;align-items:center;gap:10px;transition:.15s}
+.opt .dot{width:18px;height:18px;border-radius:50%;border:2px solid #B9C4BD;flex:none}
+.opt.on{border-color:var(--g);background:#EEF5F0}.opt.on .dot{border-color:var(--g);background:var(--g);box-shadow:inset 0 0 0 3px #fff}
+.opt.multi .dot{border-radius:5px}
+.nav{display:flex;gap:10px;margin-top:18px}.nav .btn{flex:1}.nav .btn.prev{flex:0 0 96px}
+.hint{font-size:12px;color:var(--mute);margin-top:10px}
+.saved{font-size:11px;color:var(--ok);text-align:right;margin-top:8px;height:14px}
+/* result */
+.score{background:linear-gradient(135deg,#0F3B25,#1E6B45);color:#fff;border-radius:18px;padding:20px;display:flex;align-items:center;gap:18px;margin-bottom:12px}
+.ring{width:96px;height:96px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative}
+.ring b{font-size:30px;line-height:1}.ring small{font-size:10px;opacity:.8}
+.score .ptitle{font-size:12px;opacity:.85}.score .pname{font-size:20px;font-weight:900;margin:2px 0 6px}.score .grade{display:inline-block;background:var(--gold);color:#1a1a1a;font-size:11px;font-weight:700;border-radius:999px;padding:2px 10px}
+.axes{display:grid;gap:10px;margin:8px 0 4px}
+.ax{display:grid;grid-template-columns:110px 1fr 40px;align-items:center;gap:10px;font-size:13px}
+.ax .track{height:10px;background:#E3E9E5;border-radius:999px;overflow:hidden}.ax .track i{display:block;height:100%;border-radius:999px;background:var(--g2)}
+.ax b{text-align:right;color:var(--g)}
+.comment{background:#EAF4EE;border-left:3px solid var(--g2);border-radius:8px;padding:12px 14px;font-size:14px;margin-top:12px}
+.acts{display:grid;gap:8px;margin-top:8px}
+.act{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:12px}
+.act .n{width:28px;height:28px;border-radius:50%;background:var(--g);color:#fff;font-weight:700;display:grid;place-items:center;flex:none;font-size:13px}
+.act .t{flex:1;font-size:14px}.act .ax-tag{font-size:10px;color:var(--mute)}
+.act .go{font-size:12px;color:var(--g);font-weight:700;white-space:nowrap}
+.flag{background:#FFF4E5;border:1px solid #F3D9B0;color:#7A4A12;border-radius:10px;padding:10px 12px;font-size:12.5px;margin-bottom:10px}
+h3.sec{font-size:15px;color:var(--g);margin:18px 0 8px;padding-left:8px;border-left:3px solid var(--gold)}
+.foot{font-size:11px;color:var(--mute);text-align:center;padding:14px}
+.err{background:#FDECEA;color:#8B2A1E;border-radius:10px;padding:12px;font-size:13px;margin-bottom:12px}
+.hidden{display:none!important}
+.resume{background:#FFF9E8;border:1px solid #EFD9A0;border-radius:12px;padding:12px 14px;font-size:13px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.resume button{border:0;background:var(--g);color:#fff;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">Life 2.0<small id="brandSub">FOREIGN WORKER · FINANCIAL HEALTH</small></div>
+    <div class="lang" id="langBar"></div>
+  </div>
+  <div class="main">
+    <div id="err" class="err hidden"></div>
+
+    <!-- INTRO -->
+    <section id="s-intro">
+      <div id="resumeBox" class="resume hidden"><span id="resumeTxt"></span><button id="resumeBtn"></button></div>
+      <div class="hero">
+        <span class="tag" id="i_tag"></span>
+        <h1 id="i_h1"></h1>
+        <p id="i_p"></p>
+      </div>
+      <div class="kpis"><div class="kpi"><b>10</b><span id="i_k1"></span></div><div class="kpi"><b>3</b><span id="i_k2"></span></div><div class="kpi"><b>3</b><span id="i_k3"></span></div></div>
+      <div class="card">
+        <p id="i_desc" style="font-size:13.5px;color:#3A443E;margin-bottom:14px"></p>
+        <button class="btn" id="startBtn"></button>
+        <p class="hint" id="i_priv"></p>
+      </div>
+    </section>
+
+    <!-- QUIZ -->
+    <section id="s-quiz" class="hidden">
+      <div class="steps" id="steps"></div>
+      <div class="bar"><i id="barFill"></i></div>
+      <div class="card">
+        <div class="qnum" id="qnum"></div>
+        <div class="qtext" id="qtext"></div>
+        <div class="opts" id="opts"></div>
+        <div class="nav"><button class="btn sec prev" id="prevBtn"></button><button class="btn" id="nextBtn"></button></div>
+        <div class="saved" id="savedMsg"></div>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="s-result" class="hidden">
+      <div class="score">
+        <div class="ring" id="ring"><div style="text-align:center"><b id="rTotal">0</b><small>/100</small></div></div>
+        <div><div class="ptitle" id="r_ptitle"></div><div class="pname" id="rPersona"></div><span class="grade" id="rGrade"></span></div>
+      </div>
+      <div id="flags"></div>
+      <div class="card">
+        <h3 class="sec" style="margin-top:0" id="r_h_axes"></h3>
+        <div class="axes" id="axes"></div>
+        <div class="comment" id="rComment"></div>
+        <h3 class="sec" id="r_h_acts"></h3>
+        <div class="acts" id="acts"></div>
+      </div>
+      <div class="row" style="margin-top:14px"><button class="btn sec" id="againBtn"></button><button class="btn gold" id="ctaBtn"></button></div>
+      <p class="hint" id="r_note" style="text-align:center"></p>
+    </section>
+  </div>
+  <div class="foot">© Life 2.0 (라이프이점영) · fw_fin_health_v1</div>
+</div>
+
+<script>window.__FW_CAT__={"groups": [{"id": "G1", "order": 1, "key": "stay", "title_i18n": "grp.stay", "questions": ["Q1", "Q2", "Q3"]}, {"id": "G2", "order": 2, "key": "income", "title_i18n": "grp.income", "questions": ["Q4", "Q5", "Q6", "Q7"]}, {"id": "G3", "order": 3, "key": "asset", "title_i18n": "grp.asset", "questions": ["Q8", "Q9", "Q10", "Q10b"]}], "questions": [{"id": "Q1", "group": "G1", "type": "single", "text_i18n": "q1.text", "options": [{"idx": 0, "label_i18n": "q1.o0", "value": "E9", "params": {"visa_class": "nonpro", "eps": true, "dtl_ins": true, "np_refund": true}}, {"idx": 1, "label_i18n": "q1.o1", "value": "H2", "params": {"visa_class": "nonpro", "eps": false, "dtl_ins": true, "np_refund": true}}, {"idx": 2, "label_i18n": "q1.o2", "value": "E7", "params": {"visa_class": "pro", "eps": false, "dtl_ins": false, "np_refund": true}}, {"idx": 3, "label_i18n": "q1.o3", "value": "F2_F4", "params": {"visa_class": "resid", "eps": false, "dtl_ins": false, "np_refund": false}}, {"idx": 4, "label_i18n": "q1.o4", "value": "F5_F6", "params": {"visa_class": "perm", "eps": false, "dtl_ins": false, "np_refund": false}}, {"idx": 5, "label_i18n": "q1.o5", "value": "OTHER", "params": {"visa_class": "other", "eps": false, "dtl_ins": false, "np_refund": true}}]}, {"id": "Q2", "group": "G1", "type": "single", "text_i18n": "q2.text", "options": [{"idx": 0, "label_i18n": "q2.o0", "value": "lt6m", "params": {"stay_m": 3, "stay_score": 20}}, {"idx": 1, "label_i18n": "q2.o1", "value": "6_12m", "params": {"stay_m": 9, "stay_score": 40}}, {"idx": 2, "label_i18n": "q2.o2", "value": "1_3y", "params": {"stay_m": 24, "stay_score": 65}}, {"idx": 3, "label_i18n": "q2.o3", "value": "3y_plus", "params": {"stay_m": 48, "stay_score": 85}}, {"idx": 4, "label_i18n": "q2.o4", "value": "perm", "params": {"stay_m": 120, "stay_score": 100}}]}, {"id": "Q3", "group": "G1", "type": "single", "text_i18n": "q3.text", "options": [{"idx": 0, "label_i18n": "q3.o0", "value": "lt1y", "params": {"tenure_y": 0.5}}, {"idx": 1, "label_i18n": "q3.o1", "value": "1_3y", "params": {"tenure_y": 2}}, {"idx": 2, "label_i18n": "q3.o2", "value": "3_5y", "params": {"tenure_y": 4}}, {"idx": 3, "label_i18n": "q3.o3", "value": "5y_plus", "params": {"tenure_y": 7}}]}, {"id": "Q4", "group": "G2", "type": "single", "text_i18n": "q4.text", "options": [{"idx": 0, "label_i18n": "q4.o0", "value": "lt200", "params": {"inc": 180, "inc_score": 30}}, {"idx": 1, "label_i18n": "q4.o1", "value": "200_250", "params": {"inc": 225, "inc_score": 50}}, {"idx": 2, "label_i18n": "q4.o2", "value": "250_300", "params": {"inc": 275, "inc_score": 65}}, {"idx": 3, "label_i18n": "q4.o3", "value": "300_400", "params": {"inc": 350, "inc_score": 80}}, {"idx": 4, "label_i18n": "q4.o4", "value": "400p", "params": {"inc": 450, "inc_score": 100}}]}, {"id": "Q5", "group": "G2", "type": "single", "text_i18n": "q5.text", "options": [{"idx": 0, "label_i18n": "q5.o0", "value": "r0_20", "params": {"remit_r": 0.1}}, {"idx": 1, "label_i18n": "q5.o1", "value": "r20_40", "params": {"remit_r": 0.3}}, {"idx": 2, "label_i18n": "q5.o2", "value": "r40_60", "params": {"remit_r": 0.5}}, {"idx": 3, "label_i18n": "q5.o3", "value": "r60_80", "params": {"remit_r": 0.7}}, {"idx": 4, "label_i18n": "q5.o4", "value": "r80p", "params": {"remit_r": 0.85}}]}, {"id": "Q6", "group": "G2", "type": "single", "text_i18n": "q6.text", "options": [{"idx": 0, "label_i18n": "q6.o0", "value": "fintech", "params": {"ch_score": 100, "fee_r": 0.01}}, {"idx": 1, "label_i18n": "q6.o1", "value": "bank", "params": {"ch_score": 60, "fee_r": 0.035}}, {"idx": 2, "label_i18n": "q6.o2", "value": "cash_agent", "params": {"ch_score": 20, "fee_r": 0.06}}, {"idx": 3, "label_i18n": "q6.o3", "value": "none", "params": {"ch_score": null, "fee_r": 0.0}}]}, {"id": "Q7", "group": "G2", "type": "single", "text_i18n": "q7.text", "options": [{"idx": 0, "label_i18n": "q7.o0", "value": "monthly_fixed", "params": {"freq_score": 100}}, {"idx": 1, "label_i18n": "q7.o1", "value": "monthly_2_3", "params": {"freq_score": 70}}, {"idx": 2, "label_i18n": "q7.o2", "value": "weekly_plus", "params": {"freq_score": 40}}, {"idx": 3, "label_i18n": "q7.o3", "value": "irregular", "params": {"freq_score": 55}}]}, {"id": "Q8", "group": "G3", "type": "single", "text_i18n": "q8.text", "options": [{"idx": 0, "label_i18n": "q8.o0", "value": "none", "params": {"dep": 0}}, {"idx": 1, "label_i18n": "q8.o1", "value": "lt500", "params": {"dep": 250}}, {"idx": 2, "label_i18n": "q8.o2", "value": "500_1000", "params": {"dep": 750}}, {"idx": 3, "label_i18n": "q8.o3", "value": "1000_3000", "params": {"dep": 2000}}, {"idx": 4, "label_i18n": "q8.o4", "value": "3000p", "params": {"dep": 4000}}]}, {"id": "Q9", "group": "G3", "type": "multi", "max_select": 6, "text_i18n": "q9.text", "options": [{"idx": 0, "label_i18n": "q9.o0", "value": "nhis", "params": {"ins_pt": 15}}, {"idx": 1, "label_i18n": "q9.o1", "value": "np", "params": {"ins_pt": 10}}, {"idx": 2, "label_i18n": "q9.o2", "value": "wci", "params": {"ins_pt": 10}}, {"idx": 3, "label_i18n": "q9.o3", "value": "ei", "params": {"ins_pt": 5}}, {"idx": 4, "label_i18n": "q9.o4", "value": "indemn", "params": {"ins_pt": 20}}, {"idx": 5, "label_i18n": "q9.o5", "value": "unknown", "params": {"ins_pt": 0, "exclusive": true}}]}, {"id": "Q10", "group": "G3", "type": "single", "text_i18n": "q10.text", "show_if": {"q": "Q1", "param": "dtl_ins", "eq": true}, "options": [{"idx": 0, "label_i18n": "q10.o0", "value": "never", "params": {"dtl_score": 0}}, {"idx": 1, "label_i18n": "q10.o1", "value": "heard", "params": {"dtl_score": 40}}, {"idx": 2, "label_i18n": "q10.o2", "value": "enrolled", "params": {"dtl_score": 75}}, {"idx": 3, "label_i18n": "q10.o3", "value": "know_claim", "params": {"dtl_score": 100}}]}, {"id": "Q10b", "group": "G3", "type": "single", "text_i18n": "q10b.text", "show_if": {"q": "Q1", "param": "dtl_ins", "eq": false}, "options": [{"idx": 0, "label_i18n": "q10b.o0", "value": "never", "params": {"np_know": 0}}, {"idx": 1, "label_i18n": "q10b.o1", "value": "heard", "params": {"np_know": 50}}, {"idx": 2, "label_i18n": "q10b.o2", "value": "know", "params": {"np_know": 100}}]}], "i18n": {"ko": {"grp.stay": "체류 정보", "grp.income": "소득과 송금", "grp.asset": "자산과 보험", "q1.text": "현재 체류 자격(비자)은 무엇인가요?", "q1.o0": "E-9 (비전문취업)", "q1.o1": "H-2 (방문취업)", "q1.o2": "E-7 (전문인력)", "q1.o3": "F-2 · F-4 (거주·재외동포)", "q1.o4": "F-5 · F-6 (영주·결혼이민)", "q1.o5": "기타 (D-2, D-10 등)", "q2.text": "한국에 앞으로 얼마나 더 머무를 계획인가요?", "q2.o0": "6개월 미만", "q2.o1": "6~12개월", "q2.o2": "1~3년", "q2.o3": "3년 이상", "q2.o4": "영주·정착 예정", "q3.text": "한국에서 일한 기간은 얼마나 되나요?", "q3.o0": "1년 미만", "q3.o1": "1~3년", "q3.o2": "3~5년", "q3.o3": "5년 이상", "q4.text": "월 평균 소득(세후)은 어느 정도인가요?", "q4.o0": "200만원 미만", "q4.o1": "200~250만원", "q4.o2": "250~300만원", "q4.o3": "300~400만원", "q4.o4": "400만원 이상", "q5.text": "월 소득 중 본국으로 보내는 비율은?", "q5.o0": "20% 이하", "q5.o1": "20~40%", "q5.o2": "40~60%", "q5.o3": "60~80%", "q5.o4": "80% 이상", "q6.text": "주로 어떤 방법으로 송금하나요?", "q6.o0": "송금 앱 (한패스 등)", "q6.o1": "은행 창구 · 인터넷뱅킹", "q6.o2": "현금 · 지인 · 환전소", "q6.o3": "송금하지 않음", "q7.text": "송금은 얼마나 자주 하나요?", "q7.o0": "월 1회, 정해진 날", "q7.o1": "월 2~3회", "q7.o2": "주 1회 이상", "q7.o3": "불규칙", "q8.text": "한국 은행에 있는 예금·적금은 얼마인가요?", "q8.o0": "없음", "q8.o1": "500만원 미만", "q8.o2": "500~1,000만원", "q8.o3": "1,000~3,000만원", "q8.o4": "3,000만원 이상", "q9.text": "가입된 보험을 모두 골라 주세요", "q9.o0": "건강보험", "q9.o1": "국민연금", "q9.o2": "산재보험", "q9.o3": "고용보험", "q9.o4": "실손 · 상해보험", "q9.o5": "잘 모름", "q10.text": "'출국만기보험'을 알고 계신가요?", "q10.o0": "처음 듣는다", "q10.o1": "들어봤다", "q10.o2": "가입된 것을 확인했다", "q10.o3": "출국 시 받는 방법까지 안다", "q10b.text": "국민연금 반환일시금(또는 본국과의 연금 합산 협정)을 알고 계신가요?", "q10b.o0": "처음 듣는다", "q10b.o1": "들어봤다", "q10b.o2": "내용을 안다", "ax.FS": "재무 안정성", "ax.IR": "보험·리스크 대비", "ax.RE": "송금 효율성", "p.SAVER": "저축왕", "p.REMIT_FOCUSED": "송금집중형", "p.RISK_EXPOSED": "리스크무방비형", "g.A": "안정", "g.B": "양호", "g.C": "주의", "g.D": "취약"}, "en": {"grp.stay": "About your stay", "grp.income": "Income & remittance", "grp.asset": "Savings & insurance", "q1.text": "What is your current visa type?", "q1.o0": "E-9 (Non-professional)", "q1.o1": "H-2 (Working visit)", "q1.o2": "E-7 (Professional)", "q1.o3": "F-2 · F-4 (Resident / Overseas Korean)", "q1.o4": "F-5 · F-6 (Permanent / Marriage)", "q1.o5": "Other (D-2, D-10 …)", "q2.text": "How much longer do you plan to stay in Korea?", "q2.o0": "Less than 6 months", "q2.o1": "6–12 months", "q2.o2": "1–3 years", "q2.o3": "3+ years", "q2.o4": "Permanently", "q3.text": "How long have you worked in Korea?", "q3.o0": "Under 1 year", "q3.o1": "1–3 years", "q3.o2": "3–5 years", "q3.o3": "5+ years", "q4.text": "Average monthly take-home income?", "q4.o0": "Under ₩2.0M", "q4.o1": "₩2.0–2.5M", "q4.o2": "₩2.5–3.0M", "q4.o3": "₩3.0–4.0M", "q4.o4": "₩4.0M+", "q5.text": "What share of your income do you send home?", "q5.o0": "20% or less", "q5.o1": "20–40%", "q5.o2": "40–60%", "q5.o3": "60–80%", "q5.o4": "80% or more", "q6.text": "How do you usually send money?", "q6.o0": "Remittance app (Hanpass etc.)", "q6.o1": "Bank counter / online banking", "q6.o2": "Cash · friend · exchange shop", "q6.o3": "I don't send money", "q7.text": "How often do you send?", "q7.o0": "Once a month, fixed day", "q7.o1": "2–3 times a month", "q7.o2": "Weekly or more", "q7.o3": "Irregular", "q8.text": "Savings in Korean bank accounts?", "q8.o0": "None", "q8.o1": "Under ₩5M", "q8.o2": "₩5–10M", "q8.o3": "₩10–30M", "q8.o4": "₩30M+", "q9.text": "Select all insurance you have", "q9.o0": "National Health Insurance", "q9.o1": "National Pension", "q9.o2": "Workers' compensation", "q9.o3": "Employment insurance", "q9.o4": "Private medical / accident", "q9.o5": "Not sure", "q10.text": "Do you know about the Departure Guarantee Insurance?", "q10.o0": "Never heard of it", "q10.o1": "Heard of it", "q10.o2": "Confirmed I'm enrolled", "q10.o3": "I know how to claim it when leaving", "q10b.text": "Do you know about the pension lump-sum refund / totalization agreement?", "q10b.o0": "Never heard of it", "q10b.o1": "Heard of it", "q10b.o2": "I know the details", "ax.FS": "Financial stability", "ax.IR": "Insurance & risk cover", "ax.RE": "Remittance efficiency", "p.SAVER": "Steady Saver", "p.REMIT_FOCUSED": "Family First", "p.RISK_EXPOSED": "Uncovered", "g.A": "Stable", "g.B": "Good", "g.C": "Caution", "g.D": "Vulnerable"}, "vi": {"grp.stay": "Thông tin cư trú", "grp.income": "Thu nhập & chuyển tiền", "grp.asset": "Tiết kiệm & bảo hiểm", "q1.text": "Loại visa hiện tại của bạn?", "q1.o0": "E-9 (Lao động phổ thông)", "q1.o1": "H-2 (Thăm thân làm việc)", "q1.o2": "E-7 (Chuyên môn)", "q1.o3": "F-2 · F-4", "q1.o4": "F-5 · F-6 (Thường trú / Kết hôn)", "q1.o5": "Khác (D-2, D-10 …)", "q2.text": "Bạn dự định ở Hàn Quốc thêm bao lâu?", "q2.o0": "Dưới 6 tháng", "q2.o1": "6–12 tháng", "q2.o2": "1–3 năm", "q2.o3": "Trên 3 năm", "q2.o4": "Định cư lâu dài", "q3.text": "Bạn đã làm việc ở Hàn Quốc bao lâu?", "q3.o0": "Dưới 1 năm", "q3.o1": "1–3 năm", "q3.o2": "3–5 năm", "q3.o3": "Trên 5 năm", "q4.text": "Thu nhập trung bình hàng tháng (sau thuế)?", "q4.o0": "Dưới 2,0 triệu won", "q4.o1": "2,0–2,5 triệu", "q4.o2": "2,5–3,0 triệu", "q4.o3": "3,0–4,0 triệu", "q4.o4": "Trên 4,0 triệu", "q5.text": "Bạn gửi về nước bao nhiêu phần trăm thu nhập?", "q5.o0": "Dưới 20%", "q5.o1": "20–40%", "q5.o2": "40–60%", "q5.o3": "60–80%", "q5.o4": "Trên 80%", "q6.text": "Bạn thường chuyển tiền bằng cách nào?", "q6.o0": "Ứng dụng chuyển tiền (Hanpass…)", "q6.o1": "Ngân hàng", "q6.o2": "Tiền mặt · người quen · tiệm đổi tiền", "q6.o3": "Không chuyển tiền", "q7.text": "Bạn chuyển tiền bao lâu một lần?", "q7.o0": "Mỗi tháng 1 lần, ngày cố định", "q7.o1": "2–3 lần/tháng", "q7.o2": "Hàng tuần hoặc hơn", "q7.o3": "Không đều", "q8.text": "Số tiền tiết kiệm trong ngân hàng Hàn Quốc?", "q8.o0": "Không có", "q8.o1": "Dưới 5 triệu won", "q8.o2": "5–10 triệu", "q8.o3": "10–30 triệu", "q8.o4": "Trên 30 triệu", "q9.text": "Chọn tất cả bảo hiểm bạn đang có", "q9.o0": "Bảo hiểm y tế", "q9.o1": "Lương hưu quốc dân", "q9.o2": "Bảo hiểm tai nạn lao động", "q9.o3": "Bảo hiểm thất nghiệp", "q9.o4": "Bảo hiểm y tế tư nhân / tai nạn", "q9.o5": "Không rõ", "q10.text": "Bạn có biết về Bảo hiểm mãn hạn xuất cảnh không?", "q10.o0": "Chưa từng nghe", "q10.o1": "Đã nghe qua", "q10.o2": "Đã xác nhận có tham gia", "q10.o3": "Biết cách nhận khi xuất cảnh", "q10b.text": "Bạn có biết về hoàn trả lương hưu một lần / hiệp định BHXH không?", "q10b.o0": "Chưa từng nghe", "q10b.o1": "Đã nghe qua", "q10b.o2": "Biết rõ", "ax.FS": "Ổn định tài chính", "ax.IR": "Bảo hiểm & rủi ro", "ax.RE": "Hiệu quả chuyển tiền", "p.SAVER": "Người tiết kiệm", "p.REMIT_FOCUSED": "Gia đình là trên hết", "p.RISK_EXPOSED": "Chưa được bảo vệ", "g.A": "Ổn định", "g.B": "Tốt", "g.C": "Cần chú ý", "g.D": "Dễ tổn thương"}}, "actions": {"ko": {"IR_dgi": ["출국만기보험 가입 확인하기", "link", "dgi_check"], "IR_np": ["국민연금 반환일시금 · 협정 요건 확인", "link", "np_refund_guide"], "IR_wci": ["산재보험 가입 여부 회사에 확인", "link", "wci_guide"], "IR_indemn": ["외국인 실손·상해보험 알아보기", "partner_product", "fw_indemnity"], "IR_nhis": ["건강보험 자격 확인", "link", "nhis_check"], "FS_emerg": ["월 {save5}만원 자동 적립으로 비상금 6개월 만들기", "partner_product", "auto_saving"], "FS_stay": ["체류 연장·비자 변경 계획 점검", "link", "visa_guide"], "RE_ratio": ["송금 비율을 {lo}~{hi}%로 조정해 국내 저축 병행", "partner_product", "remit_plan"], "RE_channel": ["송금 앱으로 바꿔 수수료 연 {fee_save}만원 절감", "partner_product", "app_remit"], "RE_freq": ["송금을 월 1회로 모아 수수료·환차손 줄이기", "partner_product", "scheduled_remit"], "GEN_keep": ["지금 구조를 유지하고 6개월 뒤 다시 진단하기", "link", "rediagnose"]}, "en": {"IR_dgi": ["Check your Departure Guarantee Insurance", "link", "dgi_check"], "IR_np": ["Check pension lump-sum refund / totalization rules", "link", "np_refund_guide"], "IR_wci": ["Confirm workers' compensation coverage with employer", "link", "wci_guide"], "IR_indemn": ["Explore private medical / accident insurance", "partner_product", "fw_indemnity"], "IR_nhis": ["Verify National Health Insurance status", "link", "nhis_check"], "FS_emerg": ["Auto-save ₩{save5}0,000/month for a 6-month emergency fund", "partner_product", "auto_saving"], "FS_stay": ["Review visa extension / change plan", "link", "visa_guide"], "RE_ratio": ["Adjust remittance to {lo}–{hi}% and save the rest in Korea", "partner_product", "remit_plan"], "RE_channel": ["Switch to a remittance app and save ~₩{fee_save}0,000/yr in fees", "partner_product", "app_remit"], "RE_freq": ["Batch transfers to once a month to cut fees & FX loss", "partner_product", "scheduled_remit"], "GEN_keep": ["Keep it up — re-check in 6 months", "link", "rediagnose"]}, "vi": {"IR_dgi": ["Kiểm tra Bảo hiểm mãn hạn xuất cảnh", "link", "dgi_check"], "IR_np": ["Kiểm tra điều kiện hoàn trả lương hưu / hiệp định BHXH", "link", "np_refund_guide"], "IR_wci": ["Xác nhận bảo hiểm tai nạn lao động với công ty", "link", "wci_guide"], "IR_indemn": ["Tìm hiểu bảo hiểm y tế tư nhân / tai nạn", "partner_product", "fw_indemnity"], "IR_nhis": ["Kiểm tra tư cách bảo hiểm y tế", "link", "nhis_check"], "FS_emerg": ["Tự động tiết kiệm {save5} vạn won/tháng cho quỹ dự phòng 6 tháng", "partner_product", "auto_saving"], "FS_stay": ["Rà soát kế hoạch gia hạn / đổi visa", "link", "visa_guide"], "RE_ratio": ["Điều chỉnh tỷ lệ chuyển tiền về {lo}–{hi}% và tiết kiệm phần còn lại", "partner_product", "remit_plan"], "RE_channel": ["Chuyển sang ứng dụng chuyển tiền, tiết kiệm ~{fee_save} vạn won/năm", "partner_product", "app_remit"], "RE_freq": ["Gộp chuyển tiền 1 lần/tháng để giảm phí", "partner_product", "scheduled_remit"], "GEN_keep": ["Duy trì như hiện tại và chẩn đoán lại sau 6 tháng", "link", "rediagnose"]}}, "total": 10};</script>
+<script>
+/* fw_fin_health_v1 — JS engine (Python main.py 와 동일 로직 포팅). CAT_DATA 는 빌드 시 주입 */
+const FW = (function(){
+  const D = window.__FW_CAT__;
+  const QMAP = Object.fromEntries(D.questions.map(q=>[q.id,q]));
+  const t = (lang,k)=> (D.i18n[lang]||D.i18n.ko)[k] || D.i18n.ko[k] || k;
+  const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
+  const fmtMan = x => Math.round(x).toLocaleString('en-US');
+
+  function publicCatalog(lang){
+    return {survey_id:'fw_fin_health_v1',version:'1.0.0',lang,langs:Object.keys(D.i18n),total_questions:D.total,
+      groups:D.groups.map(g=>({id:g.id,order:g.order,title:t(lang,g.title_i18n),questions:g.questions})),
+      questions:D.questions.map(q=>({id:q.id,group:q.group,type:q.type,max_select:q.max_select||null,text:t(lang,q.text_i18n),show_if:q.show_if||null,
+        options:q.options.map(o=>({idx:o.idx,value:o.value,label:t(lang,o.label_i18n),exclusive:!!o.params.exclusive}))})),
+      labels:Object.fromEntries(['ax.FS','ax.IR','ax.RE','p.SAVER','p.REMIT_FOCUSED','p.RISK_EXPOSED','g.A','g.B','g.C','g.D'].map(k=>[k,t(lang,k)]))};
+  }
+  function sel(ans,qid){ const a=ans[qid]; if(!a||a.idx==null||Array.isArray(a.idx)) return null; return QMAP[qid].options.find(o=>o.idx===a.idx)||null; }
+  function sels(ans,qid){ const a=ans[qid]; if(!a) return []; let idxs=Array.isArray(a.idx)?a.idx:[a.idx]; return QMAP[qid].options.filter(o=>idxs.includes(o.idx)); }
+  function p(ans,qid,key,def){ const o=sel(ans,qid); return o&&o.params[key]!==undefined?o.params[key]:def; }
+
+  function buildCtx(ans){
+    const q1=sel(ans,'Q1'); const visa=q1?q1.params:{visa_class:'other',eps:false,dtl_ins:false,np_refund:true};
+    const stay_m=p(ans,'Q2','stay_m',24), stay_score=p(ans,'Q2','stay_score',65);
+    const inc=p(ans,'Q4','inc',250), inc_score=p(ans,'Q4','inc_score',60);
+    let remit_r=p(ans,'Q5','remit_r',0.4);
+    const ch=sel(ans,'Q6'); const ch_val=ch?ch.value:'bank'; const ch_score=ch?ch.params.ch_score:60; const fee_r=ch?ch.params.fee_r:0.035;
+    const freq_score=p(ans,'Q7','freq_score',55); const dep=p(ans,'Q8','dep',0);
+    const ins_set=sels(ans,'Q9').map(o=>o.value);
+    const living=clamp(inc*0.35,60,150);
+    if(ch_val==='none') remit_r=0;
+    const save_r=Math.max(0,1-remit_r-living/inc); const emerg_m=living?dep/living:0;
+    return {visa,stay_m,stay_score,tenure_y:p(ans,'Q3','tenure_y',2),inc,inc_score,remit_r,remit_amt:inc*remit_r,ch_val,ch_score,fee_r,freq_score,dep,ins_set,living,save_r,emerg_m,
+      dtl:p(ans,'Q10','dtl_score',null), np_know:p(ans,'Q10b','np_know',null)};
+  }
+  function scoreFS(c){ const em=c.emerg_m; const emerg=em>=6?35:em>=3?25:em>=1?15:em>0?5:0; const sr=c.save_r; const save=sr>=0.25?20:sr>=0.15?14:sr>=0.05?8:0;
+    let fs=emerg+c.inc_score*0.25+save+c.stay_score*0.20; if(c.visa.visa_class==='perm'&&c.dep>=1000) fs+=5; return clamp(fs,0,100); }
+  function scoreIR(c){ const ins=c.ins_set; let ins_pts=0; if(!ins.includes('unknown')) ins_pts=ins.reduce((s,v)=>s+({nhis:15,np:10,wci:10,ei:5}[v]||0),0);
+    const indemn=ins.includes('indemn')?20:0; const regime=c.visa.dtl_ins?(c.dtl??0)*0.25:(c.np_know??0)*0.25; const em=c.emerg_m; const emin=em>=1?15:em>=0.5?8:0;
+    let ir=ins_pts+indemn+regime+emin; if(c.visa.eps&&!ins.includes('wci')) ir-=10; if(c.visa.visa_class==='perm'&&!ins.includes('np')) ir-=5; return clamp(ir,0,100); }
+  function optimalBand(m){ if(m<12) return [0.50,0.80]; if(m<36) return [0.35,0.60]; if(m<120) return [0.20,0.45]; return [0.05,0.30]; }
+  function scoreRE(c){
+    if(c.ch_val==='none'){ const ratio=c.stay_m>=120?40:24; return {ratio,channel:30,freq:20,cost:10,total:ratio+60,fee_year:0}; }
+    const [lo,hi]=optimalBand(c.stay_m); const r=c.remit_r; const d=(lo<=r&&r<=hi)?0:Math.min(Math.abs(r-lo),Math.abs(r-hi));
+    const ratio=d===0?40:d<=0.10?28:d<=0.20?16:6; const channel=c.ch_score*0.30; const freq=c.freq_score*0.20;
+    const fee_year=c.remit_amt*12*c.fee_r; const cost=fee_year<=c.inc*0.05?10:fee_year<=c.inc*0.15?6:2;
+    return {ratio,channel,freq,cost,total:clamp(ratio+channel+freq+cost,0,100),fee_year};
+  }
+  const grade=x=>x>=80?'A':x>=65?'B':x>=50?'C':'D';
+  function assignPersona(FS,IR,RE,c){ const ins=c.ins_set;
+    if(IR<45||(c.visa.eps&&!ins.includes('wci'))||ins.includes('unknown')) return 'RISK_EXPOSED';
+    if(c.remit_r>=0.60&&FS<55) return 'REMIT_FOCUSED';
+    if(FS>=65&&c.emerg_m>=3) return 'SAVER';
+    const arr=[['FS',FS],['IR',IR],['RE',RE]].sort((a,b)=>a[1]-b[1]); return {FS:'REMIT_FOCUSED',IR:'RISK_EXPOSED',RE:'REMIT_FOCUSED'}[arr[0][0]]; }
+  function personaComment(code,c,lang){
+    const dep=c.dep,em=c.emerg_m,sm=c.stay_m,inc=c.inc,save5=inc*0.05,emf=em.toFixed(1);
+    if(lang==='en'){
+      if(code==='SAVER'){ const nxt=sm<36?'sorting out deposit maturities and remittance timing before departure':'reviewing pension and long-term savings products'; return `Your ₩${fmtMan(dep)}0,000 in Korean savings covers about ${emf} months of living costs. Next step: ${nxt}.`; }
+      if(code==='REMIT_FOCUSED') return `Sending ₩${fmtMan(c.remit_amt)}0,000 a month is a big support for your family. But your Korean emergency fund covers only ${emf} months — job loss or illness could stop the transfers. Move just ₩${fmtMan(save5)}0,000 a month into a Korean savings account and you'll have ₩${fmtMan(save5*6)}0,000 in six months.`;
+      const base=(c.visa.eps||c.visa.dtl_ins)?'The Departure Guarantee Insurance is paid by your employer and you must claim it yourself when you leave. Check your enrolment now. ':'Check your health-insurance status and the pension lump-sum refund / totalization rules for your country. ';
+      return base+(!c.ins_set.includes('indemn')?'Without private medical cover, one hospital stay can cost ₩1.5–3M out of pocket.':'');
+    }
+    if(lang==='vi'){
+      if(code==='SAVER') return `Tiết kiệm ${fmtMan(dep)} vạn won đủ cho khoảng ${emf} tháng sinh hoạt. Bước tiếp theo: ${sm<36?'sắp xếp đáo hạn và thời điểm chuyển tiền trước khi về nước':'xem xét sản phẩm hưu trí và tích lũy dài hạn'}.`;
+      if(code==='REMIT_FOCUSED') return `Gửi ${fmtMan(c.remit_amt)} vạn won/tháng là hỗ trợ lớn cho gia đình, nhưng quỹ dự phòng ở Hàn Quốc chỉ đủ ${emf} tháng. Hãy dành ${fmtMan(save5)} vạn won/tháng vào tài khoản tiết kiệm Hàn Quốc — sau 6 tháng bạn sẽ có ${fmtMan(save5*6)} vạn won.`;
+      const base=c.visa.dtl_ins?'Bảo hiểm mãn hạn xuất cảnh do chủ sử dụng đóng và bạn phải tự yêu cầu khi xuất cảnh. Hãy kiểm tra ngay. ':'Hãy kiểm tra bảo hiểm y tế và điều kiện hoàn trả lương hưu một lần / hiệp định BHXH. ';
+      return base+(!c.ins_set.includes('indemn')?'Không có bảo hiểm y tế tư nhân, một lần nhập viện có thể tốn 150–300 vạn won.':'');
+    }
+    if(code==='SAVER'){ const nxt=sm<36?'출국 전 예·적금 만기와 송금 시점 정리':'연금·장기 적립 상품 검토'; return `국내 예금 ${fmtMan(dep)}만원은 생활비 약 ${emf}개월분입니다. 다음 단계는 ${nxt}입니다.`; }
+    if(code==='REMIT_FOCUSED') return `송금 ${fmtMan(c.remit_amt)}만원/월은 가족에게 큰 힘입니다. 다만 국내 비상금이 ${emf}개월분이라 갑작스런 실직·질병 시 송금이 끊길 수 있습니다. 월 ${fmtMan(save5)}만원만 국내 적금으로 돌리면 6개월 후 비상금 ${fmtMan(save5*6)}만원이 됩니다.`;
+    const base=c.visa.dtl_ins?'출국만기보험은 사업주가 의무 가입하며 출국 시 본인이 청구해야 받습니다. 지금 가입 여부를 확인하세요. ':'건강보험 가입 상태와 국민연금 반환일시금·사회보장협정 요건을 확인하세요. ';
+    return base+(!c.ins_set.includes('indemn')?'실손보험이 없으면 입원 1회에 150~300만원 부담이 생길 수 있습니다.':'');
+  }
+  function topActions(c,scores,rep,lang,k=3){
+    const cands=[]; const ins=c.ins_set;
+    if(c.visa.dtl_ins&&(c.dtl||0)<75) cands.push([100-(c.dtl||0),'IR','IR_dgi']);
+    if(!c.visa.dtl_ins&&(c.np_know||0)<100&&c.visa.np_refund) cands.push([60,'IR','IR_np']);
+    if(c.visa.eps&&!ins.includes('wci')) cands.push([90,'IR','IR_wci']);
+    if(!ins.includes('indemn')) cands.push([70,'IR','IR_indemn']);
+    if(!ins.includes('nhis')&&!ins.includes('unknown')) cands.push([65,'IR','IR_nhis']);
+    if(ins.includes('unknown')) cands.push([85,'IR','IR_nhis']);
+    if(c.emerg_m<3) cands.push([80-c.emerg_m*10,'FS','FS_emerg']);
+    if(c.stay_m<12&&['nonpro','other'].includes(c.visa.visa_class)) cands.push([40,'FS','FS_stay']);
+    if(c.ch_val!=='none'){ if(rep.ratio<40) cands.push([55+(40-rep.ratio)/2,'RE','RE_ratio']); if(c.ch_val!=='fintech') cands.push([60,'RE','RE_channel']); if(c.freq_score<70) cands.push([45,'RE','RE_freq']); }
+    const order=Object.entries(scores).sort((a,b)=>a[1]-b[1]); const picked=[]; const used=new Set();
+    const byPr=[...cands].sort((a,b)=>b[0]-a[0]);
+    for(const [ax] of order){ for(const cd of byPr){ if(cd[1]===ax&&!used.has(cd[2])){ picked.push(cd); used.add(cd[2]); break; } } }
+    for(const cd of byPr){ if(picked.length>=k) break; if(!used.has(cd[2])){ picked.push(cd); used.add(cd[2]); } }
+    let pk=picked.slice(0,k); if(!pk.length) pk=[[0,'FS','GEN_keep']];
+    const [lo,hi]=optimalBand(c.stay_m); const fee_save=Math.max(0,c.remit_amt*12*(c.fee_r-0.010));
+    const vars={save5:fmtMan(c.inc*0.05),lo:Math.round(lo*100),hi:Math.round(hi*100),fee_save:fmtMan(fee_save)};
+    return pk.map((cd,i)=>{ const [title,ctype,target]=(D.actions[lang]||D.actions.ko)[cd[2]]; return {rank:i+1,axis:cd[1],key:cd[2],title:title.replace(/\{(\w+)\}/g,(_,v)=>vars[v]),cta:{type:ctype,target}}; });
+  }
+  function coherenceFlags(c,ans){
+    const f=[]; if(c.inc<=180&&c.dep>=4000&&c.remit_r>=0.85) f.push({code:'F1',msg:'소득 대비 예금·송금 비율이 동시에 매우 높습니다. 소득/예금 응답을 다시 확인해 주세요.'});
+    if(c.ch_val==='none'&&p(ans,'Q5','remit_r',0)>=0.5) f.push({code:'F2',msg:'송금하지 않는다고 답했지만 송금 비율이 50% 이상입니다.'});
+    if(c.visa.visa_class==='perm'&&c.stay_m<12) f.push({code:'F3',msg:'영주·결혼이민 비자인데 잔여 체류 6개월 미만으로 답했습니다.'});
+    if(c.ins_set.includes('unknown')&&c.ins_set.length>1) f.push({code:'F4',msg:"'잘 모름'과 다른 보험을 함께 선택했습니다."});
+    return f;
+  }
+  function diagnose(ans,lang='ko'){
+    const c=buildCtx(ans); const FS=scoreFS(c),IR=scoreIR(c),rep=scoreRE(c),RE=rep.total;
+    const [wFS,wIR,wRE]=c.visa.visa_class==='nonpro'?[0.35,0.40,0.25]:[0.40,0.35,0.25];
+    const total=Math.round(wFS*FS+wIR*IR+wRE*RE); const scores={FS:Math.round(FS),IR:Math.round(IR),RE:Math.round(RE)};
+    const code=assignPersona(FS,IR,RE,c); const g=grade(total);
+    return {survey_id:'fw_fin_health_v1',version:'1.0.0',lang,
+      scores:{...scores,total,grade:g,grade_label:t(lang,'g.'+g),weights:{FS:wFS,IR:wIR,RE:wRE},labels:{FS:t(lang,'ax.FS'),IR:t(lang,'ax.IR'),RE:t(lang,'ax.RE')}},
+      breakdown:{RE:rep,ctx:{emerg_m:+c.emerg_m.toFixed(1),save_r:+c.save_r.toFixed(2),remit_amt:Math.round(c.remit_amt),living_est:Math.round(c.living),visa_class:c.visa.visa_class,opt_band:optimalBand(c.stay_m)}},
+      persona:{code,name:t(lang,'p.'+code),comment:personaComment(code,c,lang)},
+      actions:topActions(c,scores,rep,lang), flags:coherenceFlags(c,ans)};
+  }
+  return {publicCatalog,diagnose,langs:Object.keys(D.i18n)};
+})();
+
+
+/* ── 로컬 모드: 서버 없이 동작 (draft는 localStorage) ── */
+window.FW_LOCAL = async function(path, opt={}){
+  const body = opt.body ? JSON.parse(opt.body) : {};
+  const url = new URL('http://x'+path); const p=url.pathname; const lang=url.searchParams.get('lang')||'ko';
+  const KEY='fw_local_drafts'; const load=()=>JSON.parse(localStorage.getItem(KEY)||'{}'); const save=d=>localStorage.setItem(KEY,JSON.stringify(d));
+  const now=()=>new Date().toISOString();
+  const visible=(ans)=>{ const q1=ans.Q1; const v1=q1?window.__FW_CAT__.questions[0].options[q1.idx]?.value:null; const dtl=v1==='E9'||v1==='H2';
+    return window.__FW_CAT__.questions.filter(q=>!q.show_if?true:(v1==null?false:(q.show_if.eq?dtl:!dtl))).map(q=>q.id); };
+  const state=(ans)=>{ const vis=visible(ans); const answered=vis.filter(q=>ans[q]!=null); const nxt=vis.find(q=>!answered.includes(q))||null;
+    return {current_group:nxt?window.__FW_CAT__.questions.find(q=>q.id===nxt).group:'G3',current_q:nxt,answered,progress_pct:Math.round(answered.length/10*100)}; };
+  if(p==='/health') return {ok:true,mode:'local'};
+  if(p==='/questions') return FW.publicCatalog(lang);
+  if(p==='/diagnose') return FW.diagnose(body.answers||{}, body.lang||'ko');
+  if(p==='/drafts' && (opt.method||'GET')==='POST'){
+    const all=load(); const id=(crypto.randomUUID?crypto.randomUUID():String(Date.now()));
+    const d={draft_id:id,survey_id:'fw_fin_health_v1',survey_version:'1.0.0',partner:{code:body.partner_code||'DIRECT',member_ref:null,channel:body.channel||'web'},locale:body.locale||'ko',
+      state:state({}),answers:{},timing:{started_at:now(),updated_at:now(),per_q_ms:{}},status:'draft'};
+    all[id]=d; save(all); return d;
+  }
+  const m=p.match(/^\/drafts\/([^/]+)(\/complete)?$/);
+  if(m){ const all=load(); const d=all[m[1]]; if(!d) throw new Error('draft not found');
+    if(m[2]){ const st=state(d.answers); if(st.current_q) throw new Error('unanswered: '+st.current_q); const res=FW.diagnose(d.answers,lang||d.locale); d.status='completed'; d.result=res; save(all); return res; }
+    if((opt.method||'GET')==='PATCH'){ for(const [k,v] of Object.entries(body.answers||{})){ if(v==null) delete d.answers[k]; else d.answers[k]={idx:v.idx}; }
+      Object.assign(d.timing.per_q_ms, body.per_q_ms||{}); if(body.locale) d.locale=body.locale; d.timing.updated_at=now(); d.state=state(d.answers); save(all); return d; }
+    return d;
+  }
+  throw new Error('unknown '+p);
+};
+
+</script>
+<script>
+/* ───── config ───── */
+const API_BASE = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:')
+  ? 'http://127.0.0.1:8010' : 'https://YOUR-RENDER-SERVICE.onrender.com';   // ← 배포 시 교체
+const PARTNER = new URLSearchParams(location.search).get('partner') || 'DIRECT';
+const MEMBER  = new URLSearchParams(location.search).get('uid') || null;
+const LS_KEY  = 'fw_fin_draft_v1';
+
+/* ───── UI strings (프론트 전용; 문항 텍스트는 서버 i18n) ───── */
+const UI = {
+ ko:{tag:'외국인 근로자 전용 · 3분',h1:'내 돈, 한국에서 안전한가요?',p:'비자·송금·보험까지 한 번에 점검하는 금융 건전성 진단',k1:'문항',k2:'단계',k3:'지표',desc:'재무 안정성 · 보험/리스크 대비 · 송금 효율성 3가지 점수를 산출하고, 나에게 맞는 다음 행동 3가지를 알려드립니다.',start:'진단 시작하기',priv:'답변은 진단 목적에만 사용되며 실명 정보는 저장되지 않습니다.',prev:'이전',next:'다음',done:'결과 보기',saved:'자동 저장됨',resume:'진행 중인 진단이 있습니다 ({p}%)',resumeBtn:'이어하기',ptitle:'나의 유형',axes:'3가지 지표',acts:'지금 할 일 3가지',again:'다시 진단',cta:'상담·상품 알아보기',note:'점수는 응답 기준 추정치이며 금융 상품 권유가 아닙니다.',err:'서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.',sel:'모두 선택 가능'},
+ en:{tag:'For foreign workers · 3 min',h1:'Is your money safe in Korea?',p:'A quick check across visa, remittance and insurance',k1:'questions',k2:'steps',k3:'scores',desc:'We score Financial stability, Insurance & risk cover and Remittance efficiency, then give you 3 next actions.',start:'Start',priv:'Answers are used only for this check. No real-name data is stored.',prev:'Back',next:'Next',done:'See result',saved:'Auto-saved',resume:'You have a check in progress ({p}%)',resumeBtn:'Resume',ptitle:'Your type',axes:'3 scores',acts:'3 things to do now',again:'Try again',cta:'Get advice / products',note:'Scores are estimates based on your answers, not financial advice.',err:'Cannot reach the server. Please try again later.',sel:'Select all that apply'},
+ vi:{tag:'Dành cho lao động nước ngoài · 3 phút',h1:'Tiền của bạn ở Hàn Quốc có an toàn?',p:'Kiểm tra nhanh visa, chuyển tiền và bảo hiểm',k1:'câu hỏi',k2:'bước',k3:'chỉ số',desc:'Chấm điểm Ổn định tài chính, Bảo hiểm & rủi ro, Hiệu quả chuyển tiền và gợi ý 3 việc cần làm.',start:'Bắt đầu',priv:'Câu trả lời chỉ dùng cho chẩn đoán. Không lưu thông tin thật.',prev:'Quay lại',next:'Tiếp',done:'Xem kết quả',saved:'Đã tự động lưu',resume:'Bạn có bài chẩn đoán đang dở ({p}%)',resumeBtn:'Tiếp tục',ptitle:'Kiểu của bạn',axes:'3 chỉ số',acts:'3 việc cần làm ngay',again:'Làm lại',cta:'Tư vấn / sản phẩm',note:'Điểm số là ước tính, không phải tư vấn tài chính.',err:'Không kết nối được máy chủ. Vui lòng thử lại.',sel:'Chọn nhiều'}
+};
+let lang = new URLSearchParams(location.search).get('lang') || (navigator.language||'ko').slice(0,2);
+if(!UI[lang]) lang='ko';
+const T = k => (UI[lang]||UI.ko)[k] || k;
+
+/* ───── state ───── */
+let CAT=null, draft=null, answers={}, visible=[], qi=0, tStart=0;
+
+const $ = id => document.getElementById(id);
+const show = id => { ['s-intro','s-quiz','s-result'].forEach(s=>$(s).classList.toggle('hidden', s!==id)); window.scrollTo(0,0); };
+const errBox = msg => { const e=$('err'); if(!msg){e.classList.add('hidden');return;} e.textContent=msg; e.classList.remove('hidden'); };
+
+async function api(path, opt={}){
+  if(window.FW_LOCAL) return window.FW_LOCAL(path, opt);
+  const r = await fetch(API_BASE+path, {headers:{'Content-Type':'application/json'}, ...opt});
+  if(!r.ok){ let m=''; try{m=(await r.json()).detail||''}catch(_){}; throw new Error(m||('HTTP '+r.status)); }
+  return r.json();
+}
+
+/* ───── i18n render ───── */
+function renderStatic(){
+  document.documentElement.lang = lang;
+  ['tag','h1','p','k1','k2','k3','desc','priv'].forEach(k=>{ const el=$('i_'+k); if(el) el.textContent=T(k); });
+  $('startBtn').textContent=T('start'); $('prevBtn').textContent=T('prev');
+  $('r_ptitle').textContent=T('ptitle'); $('r_h_axes').textContent=T('axes'); $('r_h_acts').textContent=T('acts');
+  $('againBtn').textContent=T('again'); $('ctaBtn').textContent=T('cta'); $('r_note').textContent=T('note');
+  $('resumeBtn').textContent=T('resumeBtn');
+  const lb=$('langBar'); lb.innerHTML='';
+  ['ko','en','vi'].forEach(l=>{ const b=document.createElement('button'); b.textContent=l.toUpperCase(); b.className=l===lang?'on':''; b.onclick=()=>setLang(l); lb.appendChild(b); });
+}
+async function setLang(l){
+  lang=l; renderStatic();
+  try{ CAT = await api('/questions?lang='+lang); }catch(e){ errBox(T('err')); return; }
+  if(!$('s-quiz').classList.contains('hidden')) renderQ();
+  if(draft) api('/drafts/'+draft.draft_id,{method:'PATCH',body:JSON.stringify({answers:{},locale:lang})}).catch(()=>{});
+}
+
+/* ───── visibility / progress ───── */
+function paramOf(qid){ return null; } // params는 서버 전용. show_if는 값 기반으로 프론트에서 근사 계산
+function computeVisible(){
+  // Q10 (dtl_ins=true) : Q1 value E9/H2 ; Q10b : 그 외.  (서버 카탈로그의 show_if를 값 매핑으로 처리)
+  const q1 = answers.Q1; const v1 = q1!=null ? CAT.questions[0].options[q1.idx]?.value : null;
+  const dtl = v1==='E9'||v1==='H2';
+  visible = CAT.questions.filter(q=>{
+    if(!q.show_if) return true;
+    if(v1==null) return false;
+    return q.show_if.eq ? dtl : !dtl;
+  }).map(q=>q.id);
+}
+function answeredCount(){ return visible.filter(id=>answers[id]!=null).length; }
+function renderProgress(){
+  const q = CAT.questions.find(x=>x.id===visible[qi]);
+  const st=$('steps'); st.innerHTML='';
+  CAT.groups.forEach(g=>{
+    const d=document.createElement('div'); d.className='step';
+    const gi=CAT.groups.indexOf(g), ci=CAT.groups.findIndex(x=>x.id===q.group);
+    if(gi<ci) d.classList.add('done'); if(gi===ci) d.classList.add('on');
+    d.textContent=(gi+1)+'. '+g.title; st.appendChild(d);
+  });
+  $('barFill').style.width = Math.round(answeredCount()/CAT.total_questions*100)+'%';
+}
+
+/* ───── quiz ───── */
+function renderQ(){
+  computeVisible();
+  if(qi>=visible.length) qi=visible.length-1;
+  const qid=visible[qi], q=CAT.questions.find(x=>x.id===qid);
+  renderProgress();
+  $('qnum').textContent = `Q${qi+1} / ${CAT.total_questions}` + (q.type==='multi' ? ' · '+T('sel') : '');
+  $('qtext').textContent = q.text;
+  const box=$('opts'); box.innerHTML='';
+  const cur = answers[qid];
+  q.options.forEach(o=>{
+    const b=document.createElement('button'); b.className='opt'+(q.type==='multi'?' multi':'');
+    const on = q.type==='multi' ? (cur&&Array.isArray(cur.idx)&&cur.idx.includes(o.idx)) : (cur&&cur.idx===o.idx);
+    if(on) b.classList.add('on');
+    b.innerHTML = `<span class="dot"></span><span>${o.label}</span>`;
+    b.onclick = ()=>pick(q,o);
+    box.appendChild(b);
+  });
+  $('prevBtn').disabled = qi===0;
+  const last = qi===visible.length-1;
+  $('nextBtn').textContent = last ? T('done') : T('next');
+  $('nextBtn').disabled = answers[qid]==null;
+  tStart=Date.now();
+}
+function pick(q,o){
+  if(q.type==='multi'){
+    let arr = (answers[q.id]&&Array.isArray(answers[q.id].idx)) ? [...answers[q.id].idx] : [];
+    if(o.exclusive){ arr = arr.includes(o.idx)?[]:[o.idx]; }
+    else { arr = arr.filter(i=>!q.options.find(x=>x.idx===i)?.exclusive); arr = arr.includes(o.idx)?arr.filter(i=>i!==o.idx):[...arr,o.idx]; }
+    if(arr.length) answers[q.id]={idx:arr}; else delete answers[q.id];
+    renderQ(); return;
+  }
+  answers[q.id]={idx:o.idx};
+  if(q.id==='Q1'){ delete answers.Q10; delete answers.Q10b; }
+  renderQ();
+  setTimeout(()=>next(), 180);
+}
+async function saveDraft(qid){
+  if(!draft) return;
+  const per={}; if(qid) per[qid]=Date.now()-tStart;
+  try{
+    const payload={answers:{}, per_q_ms:per, locale:lang};
+    CAT.questions.forEach(q=>{ payload.answers[q.id]= answers[q.id]||null; });
+    draft = await api('/drafts/'+draft.draft_id,{method:'PATCH',body:JSON.stringify(payload)});
+    localStorage.setItem(LS_KEY, JSON.stringify({id:draft.draft_id, lang}));
+    $('savedMsg').textContent='✓ '+T('saved'); setTimeout(()=>$('savedMsg').textContent='',1500);
+  }catch(e){}
+}
+async function next(){
+  const qid=visible[qi];
+  if(answers[qid]==null) return;
+  saveDraft(qid);
+  if(qi<visible.length-1){ qi++; renderQ(); return; }
+  await finish();
+}
+function prev(){ if(qi>0){qi--; renderQ();} }
+
+async function finish(){
+  $('nextBtn').disabled=true;
+  try{
+    let res;
+    if(draft){ await saveDraft(); res = await api('/drafts/'+draft.draft_id+'/complete?lang='+lang,{method:'POST'}); }
+    else res = await api('/diagnose',{method:'POST',body:JSON.stringify({answers,lang})});
+    localStorage.removeItem(LS_KEY);
+    renderResult(res); show('s-result');
+  }catch(e){ errBox(T('err')+' ('+e.message+')'); $('nextBtn').disabled=false; }
+}
+
+/* ───── result ───── */
+function renderResult(r){
+  errBox(null);
+  const s=r.scores;
+  $('rTotal').textContent=s.total;
+  const deg=Math.round(s.total*3.6);
+  $('ring').style.background=`conic-gradient(#C9A449 ${deg}deg, rgba(255,255,255,.18) ${deg}deg)`;
+  $('ring').style.boxShadow='inset 0 0 0 10px #124A2F';
+  $('rPersona').textContent=r.persona.name;
+  $('rGrade').textContent=`${s.grade} · ${s.grade_label}`;
+  const ax=$('axes'); ax.innerHTML='';
+  ['FS','IR','RE'].forEach(k=>{
+    const d=document.createElement('div'); d.className='ax';
+    d.innerHTML=`<span>${s.labels[k]}</span><div class="track"><i style="width:${s[k]}%"></i></div><b>${s[k]}</b>`; ax.appendChild(d);
+  });
+  $('rComment').textContent=r.persona.comment;
+  const ac=$('acts'); ac.innerHTML='';
+  r.actions.forEach(a=>{
+    const d=document.createElement('div'); d.className='act';
+    d.innerHTML=`<div class="n">${a.rank}</div><div class="t">${a.title}<div class="ax-tag">${s.labels[a.axis]||''}</div></div><div class="go">›</div>`;
+    d.onclick=()=>onCta(a); ac.appendChild(d);
+  });
+  const fl=$('flags'); fl.innerHTML='';
+  (r.flags||[]).forEach(f=>{ const d=document.createElement('div'); d.className='flag'; d.textContent='⚠ '+f.msg; fl.appendChild(d); });
+  window.__lastResult=r;
+}
+function onCta(a){
+  // 파트너 앱 연동 훅: 인앱 WebView에서는 postMessage로 전달, 웹은 URL 파라미터로 이동
+  const msg={type:'fw_cta',cta:a.cta,axis:a.axis,key:a.key};
+  if(window.ReactNativeWebView) window.ReactNativeWebView.postMessage(JSON.stringify(msg));
+  else if(window.parent!==window) window.parent.postMessage(msg,'*');
+  else console.log('CTA',msg);
+}
+
+/* ───── boot ───── */
+async function start(resume){
+  errBox(null);
+  try{
+    if(!CAT) CAT=await api('/questions?lang='+lang);
+    if(!resume){
+      draft = await api('/drafts',{method:'POST',body:JSON.stringify({partner_code:PARTNER,member_uid:MEMBER,channel:window.parent!==window?'inapp':'web',locale:lang,platform:/Android|iPhone/i.test(navigator.userAgent)?'mobile':'web'})});
+      answers = draft.answers||{}; // 회원 기준 기존 draft가 있으면 이어짐
+      localStorage.setItem(LS_KEY, JSON.stringify({id:draft.draft_id, lang}));
+    }
+    computeVisible();
+    qi = Math.max(0, visible.findIndex(id=>answers[id]==null)); if(qi<0) qi=0;
+    show('s-quiz'); renderQ();
+  }catch(e){ errBox(T('err')+' ('+e.message+')'); }
+}
+async function tryResume(){
+  const saved=localStorage.getItem(LS_KEY); if(!saved) return;
+  try{
+    const {id}=JSON.parse(saved);
+    const d=await api('/drafts/'+id);
+    if(d.status!=='draft') { localStorage.removeItem(LS_KEY); return; }
+    draft=d; answers=d.answers||{};
+    $('resumeTxt').textContent=T('resume').replace('{p}',d.state.progress_pct);
+    $('resumeBox').classList.remove('hidden');
+    $('resumeBtn').onclick=()=>start(true);
+  }catch(e){ localStorage.removeItem(LS_KEY); }
+}
+$('startBtn').onclick=()=>{ draft=null; answers={}; qi=0; start(false); };
+$('nextBtn').onclick=next; $('prevBtn').onclick=prev;
+$('againBtn').onclick=()=>{ draft=null; answers={}; qi=0; show('s-intro'); };
+$('ctaBtn').onclick=()=>onCta({cta:{type:'consult',target:'life20_consult'},axis:'ALL',key:'CTA'});
+renderStatic();
+api('/questions?lang='+lang).then(c=>{CAT=c;}).catch(()=>errBox(T('err')));
+tryResume();
+</script>
+<script>
+(function(){ var _rr=window.renderResult;
+window.renderResult=function(r){
+  try{ localStorage.setItem('l2p_fw_last', JSON.stringify({ts:Date.now(), title:'외국인 금융 건전성 진단 · Financial Health Check',
+    summary:(r&&r.scores? (r.scores.total+'점 · '+(r.scores.grade||'')+' '+(r.scores.grade_label||'')) : '')+(r&&r.persona&&r.persona.name?(' · '+r.persona.name):'')})); }catch(e){}
+  return _rr.apply(this,arguments);
+}; })();
+</script>
+</body>
+</html>
