@@ -1334,6 +1334,11 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
 // 1) 구글시트 저장 (8번 Apps Script 배포 후 URL/비밀키)
 const GAS_URL    = "https://script.google.com/macros/s/AKfycbzpkusUJi_tjYJ77r6VcwdSq4ijglH3d4Q7sNkuHj7fJoUWdxC5FkhQAgOe_cBcYsSzMw/exec";
 const GAS_SECRET = "life20!!";                 // 8번 스크립트의 SECRET과 똑같이
+
+/* ▼▼▼ 빠른진단 전용 웹앱 URL — 여기 따옴표 안에만 붙여넣으세요 ▼▼▼
+   (빈 칸으로 두면 위의 GAS_URL 로 보냅니다. 기존 Apps Script 를 고치셨다면 그대로 두세요) */
+const QUICK_GAS_URL = "";
+/* ▲▲▲ 여기까지 ▲▲▲ */
 // 2) 상담 버튼이 열 팔로업 설문(구글폼) 링크  ← 여기에 폼 링크를 붙여넣으면 상담 버튼이 자동 연결됩니다
 const FOLLOWUP_FORM_URL = "";                          // 예: "https://forms.gle/xxxxxxxx"
 const FORM_CODE_ENTRY   = "";                          // (선택) 참여코드 자동입력용 entry ID. 예: "entry.123456789"  ← 넣으면 설문에 코드가 자동으로 채워짐
@@ -1796,7 +1801,7 @@ function renderQuickResult(qr){
     +'</div>'
     +shock
     +'<div class="qr-card"><h3>📊 5각 영역 지도</h3><svg class="radar-svg" viewBox="0 0 320 300">'+radarSVG(qr.scores, qr.peer)+'</svg>'
-    +'<div style="font-size:13.5px;color:var(--app-muted);text-align:center;margin-top:4px;">─ 점선: 또래('+qr.band+') 평균</div></div>'
+    +window.l2pRadarLegend(qr.band)+'</div>'
     +'<div class="qr-card"><h3>💡 영역별 한 줄 진단</h3>'+insights+'</div>'
     +'<div class="qr-note">※ 빠른 진단은 12문항 기반의 압축 진단입니다. 정확한 분석과 맞춤 처방은 종합 진단(41문항)에서 무료로 제공됩니다. 결과는 이 기기에만 저장됩니다.</div>'
     +'<div class="qr-up">'
@@ -3095,6 +3100,24 @@ html[lang=en] .v29-tier{white-space:normal!important;line-height:1.35!important;
 .qk2-score span{font-size:13px;color:#7A837E;margin-left:6px}
 @media(max-width:400px){.qk2-hero h2{font-size:19px}.qk2-nums b{font-size:18px}}
 
+/* [FIX-I] ① 은퇴 시점 안내 · ② 5각 범례 · ③ 한 줄 진단 정렬 */
+.qv2-note{margin:0 0 9px;padding:9px 11px;border-radius:10px;background:#F4F8F5;
+  border:1px solid #DCE8E1;font-size:11.5px;line-height:1.6;color:#41504A}
+.qv2-note b{font-weight:800;color:#0A5C39}
+.radar-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;
+  margin-top:8px;font-size:12.5px;color:#6C766F;line-height:1}
+.radar-legend span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.radar-legend b{font-weight:800;color:#2A3630}
+.radar-legend svg{flex:none;display:block}
+.qr-insight{grid-template-columns:112px 46px 1fr!important;column-gap:10px!important;
+  align-items:baseline!important;row-gap:0!important}
+.qr-insight .ax{white-space:nowrap!important;font-weight:800!important}
+.qr-insight .pt{text-align:right!important}
+@media(max-width:430px){
+  .qr-insight{grid-template-columns:104px 1fr!important;row-gap:4px!important}
+  .qr-insight .pt{text-align:left!important}
+  .qr-insight>span:last-child{grid-column:1/-1!important;color:#4A544E}
+}
 /* [FIX-G] PART 1 도식 이미지 — 박스가 이미지에 딱 맞게 */
 #partIntro .pi-diagram.pi-photo-box,.pi-diagram.pi-photo-box{
   min-height:0!important;height:auto!important;padding:12px 8px!important;display:block!important;
@@ -4459,7 +4482,9 @@ window.__L2P_EN_RULES=[
         +(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>';
       if(q.kind==='dual'){
         [['a',q.a],['b',q.b]].forEach(function(p){
-          html+='<div class="qv2-sub">'+p[1].label+'</div><div class="opts row">'
+          html+='<div class="qv2-sub">'+p[1].label+'</div>'
+            +(p[1].note?'<div class="qv2-note">'+p[1].note+'</div>':'')
+            +'<div class="opts row">'
             +p[1].opts.map(function(o,i){return '<div class="opt'+(v[p[0]]===i?' sel':'')+'" onclick="qv2PickD(\''+q.id+'\',\''+p[0]+'\','+i+')">'+o.t+'</div>';}).join('')+'</div>';
         });
       } else if(q.kind==='multi'){
@@ -4546,8 +4571,10 @@ window.__L2P_EN_RULES=[
         '기기':(/Mobi|Android|iPhone/i.test(navigator.userAgent)?'mobile':'desktop'),
         '답변JSON':JSON.stringify(QA)
       }, utm());
-      if(typeof GAS_URL!=='undefined' && GAS_URL.indexOf('http')===0){
-        fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(row)}).catch(function(){});
+      var _gu = (typeof QUICK_GAS_URL!=='undefined' && QUICK_GAS_URL.indexOf('http')===0)
+                ? QUICK_GAS_URL : (typeof GAS_URL!=='undefined' ? GAS_URL : '');
+      if(_gu.indexOf('http')===0){
+        fetch(_gu,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(row)}).catch(function(){});
       }
       var q=JSON.parse(localStorage.getItem('l2p_quick_queue')||'[]'); q.push(row);
       localStorage.setItem('l2p_quick_queue', JSON.stringify(q.slice(-50)));
@@ -4577,7 +4604,7 @@ window.__L2P_EN_RULES=[
       +'<div class="qr-card"><h3>📊 나의 노후 준비 점수</h3>'
       +'<div class="qk2-score"><b>'+R.total+'</b><span>/ 100 · '+(R.grade?R.grade[0]:'')+'</span></div>'
       +'<svg class="radar-svg" viewBox="0 0 320 300">'+radarSVG(R.scores, R.peer||{})+'</svg>'
-      +'<div style="font-size:12.5px;color:var(--app-muted);text-align:center;margin-top:2px;">─ 점선: 또래('+band+') 평균</div></div>'
+      +window.l2pRadarLegend(band)+'</div>'
       +'<div class="qr-card"><h3>💡 영역별 한 줄 진단</h3>'+legend+'</div>'
       +'<div class="qr-note">※ 12문항 기반 압축 진단입니다. 정밀진단과 <b>동일한 산정 엔진</b>을 사용하며, 41문항 결과와 <b>약 92% 일치</b>합니다.</div>'
       +'<div class="qr-up"><span class="eyebrow" style="background:rgba(201,164,73,.18);color:#E7D594;">NEXT STEP · 무료</span>'
@@ -4616,5 +4643,22 @@ window.__L2P_EN_RULES=[
 })();
 </script>
 
+<script id="radar-legend">
+
+  /* [FIX-I] 5각 그래프 범례 — 실제 그래프의 선 모양·색과 동일하게 */
+  window.l2pRadarLegend=function(band){
+    var en=(window.L2P_LANG==='en');
+    return '<div class="radar-legend" data-no-i18n="1">'
+      +'<span><svg width="30" height="12" aria-hidden="true">'
+      +'<line x1="1" y1="6" x2="29" y2="6" stroke="#1E6B45" stroke-width="2.5"/>'
+      +'<circle cx="15" cy="6" r="4" fill="#124A2F" stroke="#fff" stroke-width="1.6"/></svg>'
+      +'<b>'+(en?'My score':'나의 점수')+'</b></span>'
+      +'<span><svg width="30" height="12" aria-hidden="true">'
+      +'<line x1="1" y1="6" x2="29" y2="6" stroke="#C08F3A" stroke-width="2.5" stroke-dasharray="5 3"/>'
+      +'<circle cx="15" cy="6" r="2.8" fill="#C08F3A"/></svg>'
+      +(en?('Peers ('+band+') average'):('또래('+band+') 평균'))+'</span>'
+      +'</div>';
+  };
+</script>
 </body>
 </html>
