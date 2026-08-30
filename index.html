@@ -5258,7 +5258,7 @@ window.L2P_STAT = (function(){
 var EN = function(){ try{ return window.L2P_LANG==='en'
   || document.documentElement.getAttribute('lang')==='en'; }catch(e){ return false; } };
 var BANDS = [{"k": "u45", "lo": 0, "hi": 44, "l": "44세 이하", "le": "Under 45"}, {"k": "a45", "lo": 45, "hi": 49, "l": "45~49세", "le": "Ages 45–49"}, {"k": "a50", "lo": 50, "hi": 55, "l": "50~55세", "le": "Ages 50–55"}, {"k": "a56", "lo": 56, "hi": 60, "l": "56~60세", "le": "Ages 56–60"}, {"k": "a61", "lo": 61, "hi": 65, "l": "61~65세", "le": "Ages 61–65"}, {"k": "o66", "lo": 66, "hi": 200, "l": "66세 이상", "le": "Ages 66+"}];
-var BASIS = {"40대 기준": "Ages 40s", "50대 기준": "Ages 50s", "60대 기준": "Ages 60s", "70대 기준": "Ages 70s", "70세 이상 기준": "Ages 70+", "60세 이상 기준": "Ages 60+", "전 연령 가구 평균": "All-age household average", "전 연령 가구": "All-age households", "부부 기준": "Couple basis", "부부 합산": "Couple combined", "20년 이상 가입자": "20+ yrs contributions", "55~79세": "Ages 55–79", "65세 이상": "Ages 65+", "60세 이상 가구": "Households 60+", "55~79세 조사": "Survey of ages 55–79", "전 연령 · 암 진료비": "All ages · cancer bills", "전 연령 가입자": "All-age policyholders", "19~69세 성인": "Adults 19–69", "주택연금 가입자": "Home-pension subscribers", "40대 → 60세 이상": "40s → 60+", "2026년 현행 제도": "Current 2026 rule", "전 연령 근로자": "All-age workers", "연금저축 수령 계약": "Pension-savings payouts", "50세 이상 응시자": "Candidates 50+", "60세 이상": "Ages 60+", "전국 법원 접수": "Court filings nationwide", "2024년 전국": "Nationwide, 2024", "장기요양 수급 노인": "Long-term-care recipients", "100대 생활업종": "Top-100 consumer trades", "50~54세 → 60~64세": "Ages 50–54 → 60–64"};
+var BASIS = {"40대 기준": "Ages 40s", "50대 기준": "Ages 50s", "60대 기준": "Ages 60s", "70대 기준": "Ages 70s", "70세 이상 기준": "Ages 70+", "60세 이상 기준": "Ages 60+", "전 연령 가구 평균": "All-age household average", "전 연령 가구": "All-age households", "부부 기준": "Couple basis", "부부 합산": "Couple combined", "20년 이상 가입자": "20+ yrs contributions", "55~79세": "Ages 55–79", "65세 이상": "Ages 65+", "60세 이상 가구": "Households 60+", "55~79세 조사": "Survey of ages 55–79", "전 연령 · 암 진료비": "All ages · cancer bills", "전 연령 가입자": "All-age policyholders", "19~69세 성인": "Adults 19–69", "주택연금 가입자": "Home-pension subscribers", "40대 → 60세 이상": "40s → 60+", "2026년 현행 제도": "Current 2026 rule", "전 연령 근로자": "All-age workers", "연금저축 수령 계약": "Pension-savings payouts", "50세 이상 응시자": "Candidates 50+", "60세 이상": "Ages 60+", "전국 법원 접수": "Court filings nationwide", "2024년 전국": "Nationwide, 2024", "장기요양 수급 노인": "Long-term-care recipients", "100대 생활업종": "Top-100 consumer trades", "50~54세 → 60~64세": "Ages 50–54 → 60–64", "2025년 4/4분기": "Q4 2025", "55~64세 · 민간조사": "Ages 55–64 · private survey"};
 var Q = {
  "Q3": {
   "cap": "은퇴 시점",
@@ -5320,14 +5320,14 @@ var Q = {
   "capE": "Monthly living costs",
   "ico": "🧾",
   "all": {
-   "v": "408만원",
-   "ve": "₩4.08M",
-   "n": "전 연령 가구 평균"
+   "v": "408.1만원",
+   "ve": "₩4.081M",
+   "n": "2025년 4/4분기"
   },
-  "l": "전국 가구 월평균 가계지출 (소비지출은 295만원)",
-  "le": "Average monthly household outlay nationwide — consumption alone is ₩2.95M",
-  "s": "국가데이터처 가계동향조사 2025년",
-  "se": "National Data Office, Household Trends Survey 2025"
+  "l": "전국 1인 이상 가구의 월평균 가계지출 — 소비지출만 따지면 300.8만원. 1인 가구가 섞인 평균이라 부부 가구는 이보다 높습니다",
+  "le": "Average monthly outlay of Korean households (1+ person) — consumption alone is ₩3.008M. Single-person households are included, so couples run higher",
+  "s": "국가데이터처 가계동향조사 2025년 4/4분기 · 전국 1인 이상 가구",
+  "se": "National Data Office, Household Trends Survey Q4 2025 · households of 1+"
  },
  "Q5": {
   "cap": "65세 이후 생활비",
@@ -5370,6 +5370,20 @@ var Q = {
   "le": "Combined monthly average where both spouses draw a pension — 9 in 10 couples get under ₩2M",
   "s": "국민연금공단 2026년 5월 · 부부 수급 93만 쌍",
   "se": "National Pension Service, May 2026 · 930,000 couples"
+ },
+ "Q8": {
+  "cap": "부양 자녀",
+  "capE": "Dependent children",
+  "ico": "👨‍👩‍👧",
+  "all": {
+   "v": "15%",
+   "ve": "15%",
+   "n": "55~64세 · 민간조사"
+  },
+  "l": "부모와 자녀를 동시에 부양하는 비율 — 그 경우 월평균 164만원이 나갑니다 (부모 지원 73만원 · 자녀 지원 88만원)",
+  "le": "Share supporting both parents and children at once — they spend ₩1.64M a month on it (₩730k to parents, ₩880k to children)",
+  "s": "돌봄과미래·한국리서치 2024 · 1960년대생 980명 (국가승인통계 아님)",
+  "se": "Care & Future Foundation / Hankook Research 2024 · 980 people born in the 1960s (not an official statistic)"
  },
  "Q9": {
   "cap": "퇴직 걱정",
@@ -5499,15 +5513,42 @@ var Q = {
   "cap": "간병 · 장기요양",
   "capE": "Long-term care",
   "ico": "🫶",
-  "all": {
-   "v": "67.9%",
-   "ve": "67.9%",
-   "n": "19~69세 성인"
+  "by": {
+   "u45": {
+    "v": "19.1%",
+    "ve": "19.1%",
+    "n": "40대 기준"
+   },
+   "a45": {
+    "v": "19.1%",
+    "ve": "19.1%",
+    "n": "40대 기준"
+   },
+   "a50": {
+    "v": "22.5%",
+    "ve": "22.5%",
+    "n": "50대 기준"
+   },
+   "a56": {
+    "v": "22.5%",
+    "ve": "22.5%",
+    "n": "50대 기준"
+   },
+   "a61": {
+    "v": "23.3%",
+    "ve": "23.3%",
+    "n": "60대 기준"
+   },
+   "o66": {
+    "v": "23.3%",
+    "ve": "23.3%",
+    "n": "60대 기준"
+   }
   },
-  "l": "노후 간병에 대비하지 못하고 있다 — 간병보험 가입률은 14.4%",
-  "le": "Say they are not prepared for later-life care — only 14.4% hold care insurance",
-  "s": "보험연구원 2024 · 19~69세 성인 1,900명",
-  "se": "Korea Insurance Research Institute 2024 · 1,900 adults aged 19–69"
+  "l": "치매·간병보험으로 간병 위험에 대비하고 있다는 응답 — 50대의 77.5%는 민영 간병 보장 없이 공적 장기요양(67.7%)에만 기대고 있습니다",
+  "le": "Share who say they cover care risk with dementia or long-term-care insurance — 77.5% of people in their 50s rely on public long-term care (67.7%) alone",
+  "s": "보험연구원 2023 보험소비자 행태조사 · 19~69세 1,900명 · 다중응답 (가입률 아님)",
+  "se": "Korea Insurance Research Institute, 2023 consumer behaviour survey · 1,900 adults 19–69 · multiple response, not an enrollment rate"
  },
  "Q16": {
   "cap": "현재 거주형태",
@@ -5671,10 +5712,10 @@ var Q = {
    "ve": "₩1.34M",
    "n": "전 연령 가구 평균"
   },
-  "l": "전국 가구의 월평균 흑자액 (소득 − 지출)",
-  "le": "Average monthly household surplus nationwide (income minus outlay)",
-  "s": "국가데이터처 가계동향조사 2025년 4분기",
-  "se": "National Data Office, Household Trends Survey Q4 2025"
+  "l": "전국 가구의 월평균 흑자액(소득−지출) — 가구 순자산은 50대 5억 5,161만원에서 정점을 찍고 60세 이후 줄어듭니다",
+  "le": "Average monthly household surplus (income minus outlay) — net worth peaks at ₩551.6M in the 50s and falls after 60",
+  "s": "국가데이터처 가계동향조사 2025년 4/4분기 · 순자산은 2025년 가계금융복지조사",
+  "se": "National Data Office, Household Trends Survey Q4 2025 · net worth from the 2025 household finance survey"
  },
  "Q25": {
   "cap": "절세계좌",
