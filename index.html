@@ -5258,7 +5258,7 @@ window.L2P_STAT = (function(){
 var EN = function(){ try{ return window.L2P_LANG==='en'
   || document.documentElement.getAttribute('lang')==='en'; }catch(e){ return false; } };
 var BANDS = [{"k": "u45", "lo": 0, "hi": 44, "l": "44세 이하", "le": "Under 45"}, {"k": "a45", "lo": 45, "hi": 49, "l": "45~49세", "le": "Ages 45–49"}, {"k": "a50", "lo": 50, "hi": 55, "l": "50~55세", "le": "Ages 50–55"}, {"k": "a56", "lo": 56, "hi": 60, "l": "56~60세", "le": "Ages 56–60"}, {"k": "a61", "lo": 61, "hi": 65, "l": "61~65세", "le": "Ages 61–65"}, {"k": "o66", "lo": 66, "hi": 200, "l": "66세 이상", "le": "Ages 66+"}];
-var BASIS = {"40대 기준": "Ages 40s", "50대 기준": "Ages 50s", "60대 기준": "Ages 60s", "70대 기준": "Ages 70s", "70세 이상 기준": "Ages 70+", "60세 이상 기준": "Ages 60+", "전 연령 가구 평균": "All-age household average", "전 연령 가구": "All-age households", "부부 기준": "Couple basis", "부부 합산": "Couple combined", "20년 이상 가입자": "20+ yrs contributions", "55~79세": "Ages 55–79", "65세 이상": "Ages 65+", "60세 이상 가구": "Households 60+", "55~79세 조사": "Survey of ages 55–79", "전 연령 · 암 진료비": "All ages · cancer bills", "전 연령 가입자": "All-age policyholders", "19~69세 성인": "Adults 19–69", "주택연금 가입자": "Home-pension subscribers", "40대 → 60세 이상": "40s → 60+", "2026년 현행 제도": "Current 2026 rule", "전 연령 근로자": "All-age workers", "연금저축 수령 계약": "Pension-savings payouts", "50세 이상 응시자": "Candidates 50+", "60세 이상": "Ages 60+", "전국 법원 접수": "Court filings nationwide", "2024년 전국": "Nationwide, 2024", "장기요양 수급 노인": "Long-term-care recipients", "100대 생활업종": "Top-100 consumer trades", "50~54세 → 60~64세": "Ages 50–54 → 60–64", "2025년 4/4분기": "Q4 2025", "55~64세 · 민간조사": "Ages 55–64 · private survey"};
+var BASIS = {"40대 기준": "Ages 40s", "50대 기준": "Ages 50s", "60대 기준": "Ages 60s", "70대 기준": "Ages 70s", "70세 이상 기준": "Ages 70+", "60세 이상 기준": "Ages 60+", "전 연령 가구 평균": "All-age household average", "전 연령 가구": "All-age households", "부부 기준": "Couple basis", "부부 합산": "Couple combined", "20년 이상 가입자": "20+ yrs contributions", "55~79세": "Ages 55–79", "65세 이상": "Ages 65+", "60세 이상 가구": "Households 60+", "55~79세 조사": "Survey of ages 55–79", "전 연령 · 암 진료비": "All ages · cancer bills", "전 연령 가입자": "All-age policyholders", "19~69세 성인": "Adults 19–69", "주택연금 가입자": "Home-pension subscribers", "40대 → 60세 이상": "40s → 60+", "2026년 현행 제도": "Current 2026 rule", "전 연령 근로자": "All-age workers", "연금저축 수령 계약": "Pension-savings payouts", "50세 이상 응시자": "Candidates 50+", "60세 이상": "Ages 60+", "전국 법원 접수": "Court filings nationwide", "2024년 전국": "Nationwide, 2024", "장기요양 수급 노인": "Long-term-care recipients", "100대 생활업종": "Top-100 consumer trades", "50~54세 → 60~64세": "Ages 50–54 → 60–64", "2025년 4/4분기": "Q4 2025", "55~64세 · 민간조사": "Ages 55–64 · private survey", "65세 이상 기준": "Ages 65+"};
 var Q = {
  "Q3": {
   "cap": "은퇴 시점",
@@ -5319,15 +5319,42 @@ var Q = {
   "cap": "월 생활비",
   "capE": "Monthly living costs",
   "ico": "🧾",
-  "all": {
-   "v": "408.1만원",
-   "ve": "₩4.081M",
-   "n": "2025년 4/4분기"
+  "by": {
+   "u45": {
+    "v": "531.7만원",
+    "ve": "₩5.317M",
+    "n": "40대 기준"
+   },
+   "a45": {
+    "v": "531.7만원",
+    "ve": "₩5.317M",
+    "n": "40대 기준"
+   },
+   "a50": {
+    "v": "504.7만원",
+    "ve": "₩5.047M",
+    "n": "50대 기준"
+   },
+   "a56": {
+    "v": "504.7만원",
+    "ve": "₩5.047M",
+    "n": "50대 기준"
+   },
+   "a61": {
+    "v": "353.1만원",
+    "ve": "₩3.531M",
+    "n": "60대 기준"
+   },
+   "o66": {
+    "v": "204.9만원",
+    "ve": "₩2.049M",
+    "n": "70세 이상 기준"
+   }
   },
-  "l": "전국 1인 이상 가구의 월평균 가계지출 — 소비지출만 따지면 300.8만원. 1인 가구가 섞인 평균이라 부부 가구는 이보다 높습니다",
-  "le": "Average monthly outlay of Korean households (1+ person) — consumption alone is ₩3.008M. Single-person households are included, so couples run higher",
-  "s": "국가데이터처 가계동향조사 2025년 4/4분기 · 전국 1인 이상 가구",
-  "se": "National Data Office, Household Trends Survey Q4 2025 · households of 1+"
+  "l": "가구주 연령대별 월평균 가계지출(세금·이자 포함) — 50대는 소비지출만 353.5만원, 평균 가구원수 2.53명입니다",
+  "le": "Average monthly household outlay by age of head (incl. tax and interest) — for the 50s, consumption alone is ₩3.535M with 2.53 people per household",
+  "s": "국가데이터처 가계동향조사 2025년 연간 · 전국 1인 이상 가구 · KOSIS DT_1L9U108",
+  "se": "National Data Office, Household Trends Survey 2025 · households of 1+ · KOSIS DT_1L9U108"
  },
  "Q5": {
   "cap": "65세 이후 생활비",
@@ -5707,15 +5734,42 @@ var Q = {
   "cap": "매월 저축·투자",
   "capE": "Monthly saving",
   "ico": "📥",
-  "all": {
-   "v": "134만원",
-   "ve": "₩1.34M",
-   "n": "전 연령 가구 평균"
+  "by": {
+   "u45": {
+    "v": "2억 8,384만원",
+    "ve": "₩283.8M",
+    "n": "40대 기준"
+   },
+   "a45": {
+    "v": "2억 8,384만원",
+    "ve": "₩283.8M",
+    "n": "40대 기준"
+   },
+   "a50": {
+    "v": "3억 1,685만원",
+    "ve": "₩316.9M",
+    "n": "50대 기준"
+   },
+   "a56": {
+    "v": "3억 1,685만원",
+    "ve": "₩316.9M",
+    "n": "50대 기준"
+   },
+   "a61": {
+    "v": "2억 5,000만원",
+    "ve": "₩250.0M",
+    "n": "60세 이상 기준"
+   },
+   "o66": {
+    "v": "2억 2,100만원",
+    "ve": "₩221.0M",
+    "n": "65세 이상 기준"
+   }
   },
-  "l": "전국 가구의 월평균 흑자액(소득−지출) — 가구 순자산은 50대 5억 5,161만원에서 정점을 찍고 60세 이후 줄어듭니다",
-  "le": "Average monthly household surplus (income minus outlay) — net worth peaks at ₩551.6M in the 50s and falls after 60",
-  "s": "국가데이터처 가계동향조사 2025년 4/4분기 · 순자산은 2025년 가계금융복지조사",
-  "se": "National Data Office, Household Trends Survey Q4 2025 · net worth from the 2025 household finance survey"
+  "l": "가구 순자산 중앙값 — 절반은 이 아래입니다. 50대 평균은 5억 5,161만원으로 중앙값의 1.74배라, 평균만 보면 대부분이 실제보다 뒤처져 보입니다",
+  "le": "Median household net worth — half of households sit below this. The average for the 50s is ₩551.6M, 1.74× the median, so averages make most people look further behind than they are",
+  "s": "2025년 가계금융복지조사 · KOSIS DT_1HDAAA06 · 2025.3.31 기준",
+  "se": "Survey of Household Finances and Living Conditions 2025 · KOSIS DT_1HDAAA06 · as of 31 Mar 2025"
  },
  "Q25": {
   "cap": "절세계좌",
@@ -5809,10 +5863,10 @@ var Q = {
     "n": "60세 이상 기준"
    }
   },
-  "l": "가구당 평균 부채 — 40대에 정점을 찍고 줄어든다",
-  "le": "Average household debt — it peaks in the 40s and falls from there",
-  "s": "2025년 가계금융복지조사 · 2025.3.31 기준",
-  "se": "Survey of Household Finances and Living Conditions 2025, as of 31 Mar 2025"
+  "l": "가구당 평균 부채 — 40대에 정점을 찍고 줄어듭니다. 빚이 있는 50대 가구만 보면 중앙값은 7,500만원입니다",
+  "le": "Average household debt — it peaks in the 40s. Among households in their 50s that carry debt, the median is ₩75M",
+  "s": "2025년 가계금융복지조사 · 2025.3.31 기준 · 중앙값은 KOSIS DT_1HDAAD01(보유가구 기준)",
+  "se": "Survey of Household Finances and Living Conditions 2025 · median from KOSIS DT_1HDAAD01 (debt-holding households)"
  },
  "Q31": {
   "cap": "퇴직 후 ~ 65세",
