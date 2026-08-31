@@ -1515,6 +1515,22 @@ function prevPart(){ if(curPart>1){ curPart--; document.getElementById('partIntr
 // ================= 계산 엔진 — 서버(main.py)로 이관 =================
 // ================= 리포트 렌더 =================
 // ACTION / FIRST_ACTION → 서버 반환값(R.actions / R.firstAction) 사용
+/* [FIX-P] 계산 엔진을 서버로 옮기면서 ACTION 상수를 지웠는데, whatifHTML·insights
+   세 곳(3509·3638·3639행)이 아직 ACTION[...] 을 참조하고 있었다.
+   그래서 /diagnose 가 200으로 잘 돌아와도 리포트를 그리다가
+   "ReferenceError: ACTION is not defined" 로 죽고, 그 예외가 apiPost 의
+   .catch(apiFail) 로 흘러들어가 "서버 연결이 지연되고 있습니다"로 표시되었다.
+   → 서버가 내려준 R.actions 를 ACTION 이름으로 읽어주는 얇은 뷰를 둔다. */
+window.ACTION = (function(){
+  var o={};
+  ['asset','health','housing','job','well'].forEach(function(k){
+    Object.defineProperty(o,k,{enumerable:true,get:function(){
+      try{ var R=(typeof _R!=='undefined'&&_R)||window._R; return (R&&R.actions&&R.actions[k])||''; }catch(e){ return ''; }
+    }});
+  });
+  return o;
+})();
+window.FIRST_ACTION = window.FIRST_ACTION || {};
 function money(v){ return (v>=10000?(v/10000).toFixed(v%10000?1:0)+'억':Math.round(v).toLocaleString()+'만'); }
 
 // ===== 기본 리포트 (무료 · 간략버전) — 종합점수 + 5각 지도 + 취약 영역 =====
@@ -4230,46 +4246,199 @@ window.__L2P_EN_RULES=[
   document.addEventListener('DOMContentLoaded',function(){ armGuards(); setTimeout(armGuards,600); setTimeout(fitQuiz,300); });
   if(document.readyState!=='loading'){ armGuards(); setTimeout(armGuards,600); setTimeout(fitQuiz,300); }
 
-  /* ══ [FIX-3] Render 콜드스타트 대응 — 사전 예열 + 재시도 ══ */
+  /* ══ [FIX-P] 서버 콜드스타트·수면 대응 — 킵얼라이브 + 마감시한 재시도 + 복구 배너 ══ */
   (function(){
     if(typeof API_BASE==='undefined') return;
-    var warm=false;
-    function ping(){ try{ fetch(API_BASE+'/health',{mode:'cors'}).then(function(){warm=true;}).catch(function(){}); }catch(e){} }
-    ping();                                   // 앱 진입 즉시 서버 깨우기
-    setTimeout(function(){ if(!warm) ping(); }, 20000);
-    document.addEventListener('DOMContentLoaded',function(){ setTimeout(function(){ if(!warm) ping(); },1500); });
-    // apiPost 재시도 래퍼 (콜드스타트 최대 60초 대비)
-    if(typeof window.apiPost==='function'){
-      var _post=window.apiPost;
-      window.apiPost=async function(path,body){
-        var delays=[0,3000,7000,12000,20000], last=null;
-        for(var i=0;i<delays.length;i++){
-          if(delays[i]) await new Promise(function(r){setTimeout(r,delays[i]);});
-          try{ var out=await _post(path,body); warm=true; return out; }
-          catch(e){ last=e;
-            if(i===1&&window.toast) toast('서버를 깨우는 중입니다… 최대 1분 정도 걸릴 수 있어요','ok');
-          }
+
+    /* ---------- A. 킵얼라이브 : 진단 중 서버가 잠들지 않게 한다 ----------
+       Render 무료 플랜은 15분 무요청이면 sleep → 다음 요청에 40~60초 콜드스타트.
+       42문항 응답에 15~25분이 걸리므로, 제출 직전에 잠들어 있는 것이 이번 증상의 원인. */
+    var lastPing=0, lastAct=Date.now(), KEEP=240000;      // 4분마다
+    function ping(){ lastPing=Date.now();
+      try{ fetch(API_BASE+'/health',{mode:'cors',cache:'no-store'}).catch(function(){}); }catch(e){} }
+    function touch(){ lastAct=Date.now(); }
+    ['click','keydown','touchstart'].forEach(function(ev){
+      document.addEventListener(ev, touch, {passive:true, capture:true}); });
+    ping();
+    setInterval(function(){
+      if(document.hidden) return;                          // 백그라운드 탭에선 쉰다
+      if(Date.now()-lastAct > 1800000) return;             // 30분 이상 방치된 화면도 쉰다
+      if(Date.now()-lastPing < KEEP) return;
+      ping();
+    }, 30000);
+    document.addEventListener('visibilitychange', function(){
+      if(!document.hidden && Date.now()-lastPing>KEEP) ping(); });
+
+    /* ---------- B. 마감시한 재시도 ---------- */
+    var DEADLINE=150000;                                   // 총 150초 안에 끝낸다
+    function withTimeout(p, ms, ctl){
+      return new Promise(function(res,rej){
+        var t=setTimeout(function(){ try{ ctl && ctl.abort(); }catch(e){} rej(new Error('TIMEOUT')); }, ms);
+        p.then(function(v){ clearTimeout(t); res(v); }, function(e){ clearTimeout(t); rej(e); });
+      });
+    }
+    function raw(method, path, body){
+      var ctl = (typeof AbortController!=='undefined') ? new AbortController() : null;
+      var opt = {method:method, signal: ctl?ctl.signal:undefined};
+      if(method==='POST'){ opt.headers={'Content-Type':'application/json'}; opt.body=JSON.stringify(body||{}); }
+      var p = fetch(API_BASE+path, opt).then(function(r){
+        if(!r.ok){
+          return r.json().catch(function(){ return {}; }).then(function(j){
+            var e=new Error('API '+r.status+' '+((j&&j.detail)||'')); e.status=r.status; throw e; });
         }
-        throw last;
-      };
+        return r.json();
+      });
+      return {p:p, ctl:ctl};
     }
-    if(typeof window.apiFail==='function'){
-      window.apiFail=function(e){
-        console.error(e);
-        var box=document.getElementById('l2pMsg');
-        var msg='서버 연결이 지연되고 있습니다. 잠시 후 [다시 시도]를 눌러 주세요. (입력하신 답변은 이 기기에 안전하게 보관됩니다)';
-        if(window.toast) toast(msg,'warn'); else alert(msg);
+    // 진행 안내 — 콜드스타트 동안 화면이 죽은 것처럼 보이지 않게 초를 센다
+    var _pgT=null;
+    function progressOn(){
+      progressOff();
+      var el=document.getElementById('l2pWake');
+      if(!el){
+        el=document.createElement('div'); el.id='l2pWake';
+        el.style.cssText='position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:9998;'
+          +'background:#124A2F;color:#fff;padding:10px 16px;border-radius:22px;font-size:13px;'
+          +'box-shadow:0 6px 20px rgba(0,0,0,.28);max-width:92vw;text-align:center;line-height:1.5';
+        document.body.appendChild(el);
+      }
+      var t0=Date.now(); el.style.display='block';
+      function tick(){
+        var s=Math.round((Date.now()-t0)/1000);
+        el.textContent = (window.L2P_LANG==='en')
+          ? ('Waking the server… '+s+'s (up to about a minute)')
+          : ('서버를 깨우는 중입니다… '+s+'초 (최대 1분 정도 걸릴 수 있어요)');
+      }
+      tick(); _pgT=setInterval(tick,1000);
+    }
+    function progressOff(){
+      if(_pgT){ clearInterval(_pgT); _pgT=null; }
+      var el=document.getElementById('l2pWake'); if(el) el.style.display='none';
+    }
+    window.__l2pWakeOff = progressOff;
+
+    async function call(method, path, body){
+      var end=Date.now()+DEADLINE, delays=[0,2000,4000,8000,12000,20000], i=0, last=null, shown=false;
+      while(Date.now()<end){
+        var d = delays[Math.min(i,delays.length-1)];
+        if(d){ await new Promise(function(r){setTimeout(r,d);}); }
+        var left = end-Date.now(); if(left<=0) break;
+        var per = Math.min(i===0?70000:35000, left);        // 첫 시도는 콜드스타트를 기다려준다
+        var h = raw(method, path, body);
+        if(!shown){ shown=true; setTimeout(function(){ if(shown) progressOn(); }, 3500); }
         try{
-          var nav=document.querySelector('#s-quiz .qnav');
-          if(nav && !document.getElementById('l2pRetry')){
-            var b=document.createElement('button'); b.id='l2pRetry'; b.className='btn btn-green';
-            b.textContent='↻ 다시 시도';
-            b.onclick=function(){ b.remove(); if(window.uiNextQuestion) uiNextQuestion(); };
-            nav.appendChild(b);
-          }
-        }catch(err){}
-      };
+          var out = await withTimeout(h.p, per, h.ctl);
+          shown=false; progressOff(); lastPing=Date.now();
+          return out;
+        }catch(e){
+          last=e;
+          // 4xx는 서버가 깨어 있는데 요청이 잘못된 것 — 재시도해도 같은 결과다
+          if(e && e.status && e.status>=400 && e.status<500){ shown=false; progressOff(); throw e; }
+        }
+        i++;
+      }
+      shown=false; progressOff();
+      throw last || new Error('TIMEOUT');
     }
+    window.apiPost = function(path, body){ return call('POST', path, body); };
+    window.apiGet  = function(path){ return call('GET', path, null); };
+    try{ apiPost = window.apiPost; apiGet = window.apiGet; }catch(e){}
+
+    /* ---------- C. 실패 복구 : 실패한 그 동작을 다시 시도한다 ---------- */
+    function guard(name){
+      var f=window[name]; if(typeof f!=='function') return;
+      window[name]=function(){
+        var self=this, args=arguments;
+        window.__l2pRetryFn=function(){ return f.apply(self,args); };
+        return f.apply(self,args);
+      };
+      try{ eval(name+' = window.'+name); }catch(e){}
+    }
+    ['buildReport','previewReport','runWhatif','submitQuick','loadCatalog'].forEach(guard);
+
+    function banner(msg){
+      var old=document.getElementById('l2pFailBar'); if(old) old.remove();
+      var en=(window.L2P_LANG==='en');
+      var bar=document.createElement('div'); bar.id='l2pFailBar';
+      bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#FDF6E3;'
+        +'border-top:2px solid #C9A449;padding:12px 14px calc(12px + env(safe-area-inset-bottom));'
+        +'box-shadow:0 -6px 20px rgba(0,0,0,.15);font-size:13px;color:#7A5C12;line-height:1.6';
+      var wrap=document.createElement('div');
+      wrap.style.cssText='max-width:560px;margin:0 auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap';
+      var t=document.createElement('div'); t.style.cssText='flex:1 1 220px;min-width:0'; t.textContent=msg;
+      var b=document.createElement('button'); b.className='btn btn-primary';
+      b.style.cssText='flex:0 0 auto;padding:9px 18px;font-size:13.5px';
+      b.textContent = en?'↻ Try again':'↻ 다시 시도';
+      b.onclick=function(){ bar.remove(); if(typeof window.__l2pRetryFn==='function') window.__l2pRetryFn(); };
+      var x=document.createElement('button');
+      x.style.cssText='flex:0 0 auto;background:none;border:0;color:#9A7C32;font-size:18px;cursor:pointer;padding:4px 8px';
+      x.textContent='✕'; x.setAttribute('aria-label', en?'Close':'닫기');
+      x.onclick=function(){ bar.remove(); };
+      wrap.appendChild(t); wrap.appendChild(b); wrap.appendChild(x); bar.appendChild(wrap);
+      document.body.appendChild(bar);
+    }
+    window.apiFail=function(e){
+      console.error(e);
+      progressOff();
+      var saved=false; try{ saved = !!localStorage.getItem('l2p_auto'); }catch(err){}
+      var en=(window.L2P_LANG==='en');
+      var msg = en
+        ? ('The server is not responding. Please press [Try again] in a moment.'
+           + (saved?' Your answers are kept on this device.':''))
+        : ('서버가 응답하지 않습니다. 잠시 후 [다시 시도]를 눌러 주세요.'
+           + (saved?' (입력하신 답변은 이 기기에 보관되어 있습니다)':''));
+      banner(msg);
+    };
+    try{ apiFail = window.apiFail; }catch(err){}
+
+    /* ---------- D. 답변 자동 임시저장 ---------- */
+    var AKEY='l2p_auto';
+    function autoSave(){
+      try{
+        if(typeof answers==='undefined') return;
+        var n=Object.keys(answers||{}).length; if(n<2) return;
+        localStorage.setItem(AKEY, JSON.stringify({
+          answers:answers, curPart:(typeof curPart!=='undefined'?curPart:1),
+          preAware:(typeof preAware!=='undefined'?preAware:''),
+          n:n, ts:new Date().toISOString() }));
+      }catch(e){}
+    }
+    ['pick','toggleMulti','uiNextQuestion','enterPart'].forEach(function(nm){
+      var f=window[nm]; if(typeof f!=='function') return;
+      window[nm]=function(){ var r=f.apply(this,arguments); autoSave(); return r; };
+      try{ eval(nm+' = window.'+nm); }catch(e){}
+    });
+    window.l2pAutoSave=autoSave;
+    window.l2pAutoDraft=function(){
+      try{
+        var d=JSON.parse(localStorage.getItem(AKEY)||'null');
+        if(!d || !d.ts) return null;
+        if(Date.now()-new Date(d.ts).getTime() > 14*864e5) return null;   // 2주 지나면 버린다
+        return d;
+      }catch(e){ return null; }
+    };
+    window.l2pAutoRestore=function(){
+      var d=window.l2pAutoDraft(); if(!d) return false;
+      try{
+        answers=d.answers||{}; curPart=d.curPart||1;
+        if(d.preAware) preAware=d.preAware;
+        if(typeof enterPart==='function') enterPart(curPart);
+        if(typeof show==='function') show('s-quiz');
+        if(window.toast) toast('작성 중이던 답변을 불러왔습니다 — PART '+curPart+'부터 이어집니다.','ok');
+        return true;
+      }catch(e){ return false; }
+    };
+    // 리포트가 나오면 자동 임시저장본은 역할을 다했다
+    (function(){
+      var f=window.renderReportFromServer; if(typeof f!=='function') return;
+      window.renderReportFromServer=function(){
+        try{ localStorage.removeItem(AKEY); }catch(e){}
+        var bar=document.getElementById('l2pFailBar'); if(bar) bar.remove();
+        progressOff();
+        return f.apply(this,arguments);
+      };
+      try{ renderReportFromServer = window.renderReportFromServer; }catch(e){}
+    })();
   })();
 })();
 </script>
@@ -5540,42 +5709,15 @@ var Q = {
   "cap": "간병 · 장기요양",
   "capE": "Long-term care",
   "ico": "🫶",
-  "by": {
-   "u45": {
-    "v": "19.1%",
-    "ve": "19.1%",
-    "n": "40대 기준"
-   },
-   "a45": {
-    "v": "19.1%",
-    "ve": "19.1%",
-    "n": "40대 기준"
-   },
-   "a50": {
-    "v": "22.5%",
-    "ve": "22.5%",
-    "n": "50대 기준"
-   },
-   "a56": {
-    "v": "22.5%",
-    "ve": "22.5%",
-    "n": "50대 기준"
-   },
-   "a61": {
-    "v": "23.3%",
-    "ve": "23.3%",
-    "n": "60대 기준"
-   },
-   "o66": {
-    "v": "23.3%",
-    "ve": "23.3%",
-    "n": "60대 기준"
-   }
+  "all": {
+   "v": "116만 5천명",
+   "ve": "1.165 million",
+   "n": "2024년 전국"
   },
-  "l": "치매·간병보험으로 간병 위험에 대비하고 있다는 응답 — 50대의 77.5%는 민영 간병 보장 없이 공적 장기요양(67.7%)에만 기대고 있습니다",
-  "le": "Share who say they cover care risk with dementia or long-term-care insurance — 77.5% of people in their 50s rely on public long-term care (67.7%) alone",
-  "s": "보험연구원 2023 보험소비자 행태조사 · 19~69세 1,900명 · 다중응답 (가입률 아님)",
-  "se": "Korea Insurance Research Institute, 2023 consumer behaviour survey · 1,900 adults 19–69 · multiple response, not an enrollment rate"
+  "l": "공적 장기요양보험 인정을 받은 사람 수 — 1년 새 6.1% 늘었고, 급여비용은 16조 1,762억원입니다",
+  "le": "People approved for public long-term-care insurance — up 6.1% in a year, costing ₩16.18 trillion in benefits",
+  "s": "국민건강보험공단 2024 노인장기요양보험 통계연보 · 2025.6 발표 (언론 2곳 교차확인)",
+  "se": "NHIS, 2024 Long-Term Care Insurance Yearbook, June 2025 · cross-checked in two media reports"
  },
  "Q16": {
   "cap": "현재 거주형태",
@@ -5725,10 +5867,10 @@ var Q = {
    "ve": "87.3%",
    "n": "전 연령 가구"
   },
-  "l": "여유자금을 예금으로 굴리겠다는 가구 비율 (주식은 9.6%)",
-  "le": "Share of households that would park spare cash in deposits — only 9.6% in stocks",
-  "s": "2025년 가계금융복지조사 · 여유자금 운용 방법",
-  "se": "Survey of Household Finances and Living Conditions 2025, use of spare funds"
+  "l": "금융자산에 투자한다면 예금을 택하겠다는 응답 — 주식 9.6%, 개인연금 1.7%에 그칩니다",
+  "le": "Share who would choose deposits if investing in financial assets — stocks get 9.6%, personal pensions 1.7%",
+  "s": "2025년 가계금융복지조사 · 금융자산 투자 시 선호하는 운용방법 (여유자금 운용방법과는 다른 문항)",
+  "se": "Survey of Household Finances and Living Conditions 2025 · preferred vehicle when investing in financial assets (a separate question from use of spare funds)"
  },
  "Q24": {
   "cap": "매월 저축·투자",
@@ -5796,8 +5938,8 @@ var Q = {
   },
   "l": "60세 이상 가구의 연평균 재산소득 (이자·배당·임대)",
   "le": "Average annual property income of households aged 60+ (interest, dividends, rent)",
-  "s": "2024년 가계금융복지조사",
-  "se": "Survey of Household Finances and Living Conditions 2024"
+  "s": "2024년 가계금융복지조사 (2025년판 해당 표 미확인)",
+  "se": "Survey of Household Finances and Living Conditions 2024 (2025 edition table not yet verified)"
  },
  "Q27": {
   "cap": "연금 3층",
@@ -5948,8 +6090,8 @@ var Q = {
   },
   "l": "국가기술자격 50세 이상 응시자 증가율 — 역대 최다",
   "le": "Growth in national technical-certification candidates aged 50+ — an all-time high",
-  "s": "고용노동부·한국산업인력공단 국가기술자격 통계연보 2023년 기준",
-  "se": "Ministry of Employment and Labor / HRDK certification yearbook, 2023"
+  "s": "한국산업인력공단 2024년 국가기술자격 통계연보 · 2023년 응시 기준 (2025·2026년판 미확인)",
+  "se": "HRD Korea, 2024 certification yearbook (2023 candidates) · 2025/2026 editions not yet checked"
  },
  "Q35": {
   "cap": "임의계속가입",
@@ -5984,14 +6126,14 @@ var Q = {
   "capE": "Will · inheritance",
   "ico": "✍️",
   "all": {
-   "v": "3,613건",
-   "ve": "3,613 cases",
+   "v": "3,075건",
+   "ve": "3,075 cases",
    "n": "전국 법원 접수"
   },
-  "l": "상속재산 분할 심판청구 건수 (2023년 2,945건 → 2025년)",
-  "le": "Petitions to divide an estate in court — 2,945 in 2023, rising to this in 2025",
-  "s": "법원행정처 사법연감",
-  "se": "National Court Administration, Judicial Yearbook"
+  "l": "상속재산 분할 심판청구 건수 — 2021년 2,379건 · 2023년 2,945건 · 2024년 3,075건으로 계속 늘고 있습니다",
+  "le": "Petitions to divide an estate in court — 2,379 in 2021, 2,945 in 2023, 3,075 in 2024 and still rising",
+  "s": "법원행정처 2025 사법연감 · 2024년 기준 (언론 2곳 교차확인)",
+  "se": "National Court Administration, 2025 Judicial Yearbook (2024 basis) · cross-checked in two media reports"
  },
  "Q38": {
   "cap": "상조 · 장례",
@@ -6177,6 +6319,18 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   #s-quiz.cmp1 .v32-stat .s32-ico{font-size:26px}
   #s-quiz.cmp1 .v32-stat .s32-v{font-size:21px}
 }
+/* ── [FIX-R] 압축 단계에서도 통계 카드 높이는 내용에 맞춘다 ──
+   .v24-q-visual 의 단계별 고정 높이(92/72/56px)가 .v32-stat 보다 선택자가 강해
+   숫자 윗부분이 잘리고 설명이 겹쳐 보였다. 높이 강제만 해제하고,
+   줄이는 일은 위에 이미 있는 글자·여백 규칙에 맡긴다. */
+#s-quiz.cmp1 .v32-stat,
+#s-quiz.cmp2 .v32-stat,
+#s-quiz.cmp3 .v32-stat{height:auto!important;min-height:0!important;overflow:visible!important}
+#s-quiz.cmp2 .v32-stat,
+#s-quiz.cmp3 .v32-stat{display:flex!important}
+#s-quiz.cmp1 .v32-stat .s32-l{display:block!important;-webkit-line-clamp:none!important;overflow:visible!important}
+#s-quiz.cmp2 .v32-stat .s32-l{font-size:11px!important;line-height:1.42!important}
+
 @media (max-width:400px){
   .v32-stat .s32-v{font-size:23px}
   .v32-stat .s32-ico{font-size:30px}
