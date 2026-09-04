@@ -4850,6 +4850,7 @@ window.__L2P_EN_RULES=[
         '코호트':R.cohort, '연령':R.age, '성별':gender,
         '월공백':R.gap, '크레바스년수':R.crevasse, '크레바스총액(억)':R.crevasseTotal,
         '이중부양':R.dualCare?'Y':'N', '자녀교육비':R.childEdu?'Y':'N', '부모부양':R.parentCare?'Y':'N',
+        '가족대화':((QA.k12||{}).c||{}).family_talk?'Y':'N',   /* [FIX-Y] 웰다잉 가족 대화 */
         '총점':R.total, '동산':R.scores.asset, '건강':R.scores.health, '부동산':R.scores.housing,
         '일자리':R.scores.job, '웰다잉':R.scores.well,
         '예상월소득':R.fixedIncome, '목표충족률':R.fulfillGoal, '자산고갈나이':R.depletion,
