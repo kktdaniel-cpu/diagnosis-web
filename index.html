@@ -1071,7 +1071,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
       <div class="sc-specs">
         <div><span class="sl">특징</span><span class="sv">연금 · 자산 · 건강 · 일자리 · 웰다잉까지 정밀 분석 — <b>자산 고갈 나이 시나리오</b> 포함</span></div>
         <div><span class="sl">소요시간</span><span class="sv">약 8분</span></div>
-        <div><span class="sl">문항 수</span><span class="sv">41문항</span></div>
+        <div><span class="sl">문항 수</span><span class="sv">최대 41문항</span></div>
         <div><span class="sl">제공</span><span class="sv">정밀 리포트 + 전문가 상담 연결</span></div>
         <div><span class="sl gold">혜택</span><span class="sv"><b>설문 참여 시 정밀 리포트 무료</b> (5,000원 상당)</span></div>
       </div>
@@ -3304,11 +3304,12 @@ html[lang=en] .v24-intro-screen .v25-hero-photo{width:200px!important}
 .modal-box.mini{max-height:86vh!important;overflow-y:auto!important}
 body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
 #s-quiz.cmp3 .qcard .qq{font-size:16.5px!important;line-height:1.35!important;margin-bottom:8px!important}
-#s-quiz.cmp3 .qhint{display:none!important}
+/* [FIX-Z] 힌트는 숨기지 않는다 — 없으면 응답이 틀어지는 안내가 많다 */
+#s-quiz.cmp3 .qhint,#s-quiz.cmp4 .qhint{display:block!important;font-size:10.5px!important;line-height:1.5!important;margin-top:4px!important}
 #s-quiz.cmp3 .opt{padding:7px 10px 7px 31px!important;font-size:12.5px!important;line-height:1.35!important}
 #s-quiz.cmp3 .opt:before{left:10px;width:14px;height:14px}
 #s-quiz.cmp3 .opts{gap:5px!important}
-#s-quiz.cmp3 .bench{display:none!important}
+#s-quiz.cmp3 .bench,#s-quiz.cmp4 .bench{display:block!important;font-size:10px!important;line-height:1.45!important;padding:6px 8px!important}
 #s-quiz.cmp3 .progress-wrap{margin:0 0 6px!important}
 #s-quiz.cmp3 .qnav{margin-top:6px!important;padding-top:6px!important}
 #s-quiz.cmp3 .qnav .btn{height:42px!important}
