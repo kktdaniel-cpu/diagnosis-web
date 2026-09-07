@@ -4288,6 +4288,40 @@ window.__L2P_EN_RULES=[
       if(!box||!box.contains(e.target)) e.preventDefault();
     },{passive:false});
   }
+  /* ══ [FIX-AG] 하단 메뉴바를 본문 폭에 정확히 맞춘다 ══
+     .page 는 스크롤바를 뺀 폭에서, 하단바(fixed)는 뷰포트 폭에서 가운데를 잡는다.
+     윈도우처럼 스크롤바가 자리를 차지하면 둘이 7~8px 어긋난다.
+     계산에 맡기지 말고 본문이 실제로 앉은 자리를 그대로 물려준다. */
+  function alignBottomNav(){
+    var pg=document.querySelector('.page');
+    var nv=document.querySelector('.app-bottom-nav');
+    if(!pg||!nv) return;
+    // 데스크톱 상단탭 모드 · 인쇄 등 fixed 가 아닐 때는 손대지 않는다
+    if(nv.classList.contains('web-top')||getComputedStyle(nv).position!=='fixed'){
+      nv.style.left=''; nv.style.width=''; nv.style.transform=''; return;
+    }
+    var r=pg.getBoundingClientRect();
+    if(!r.width) return;
+    nv.style.left=Math.round(r.left)+'px';
+    nv.style.width=Math.round(r.width)+'px';
+    nv.style.transform='none';
+  }
+  window.l2pAlignBottomNav=alignBottomNav;
+  (function(){
+    var t=null;
+    function later(){ clearTimeout(t); t=setTimeout(alignBottomNav,60); }
+    if(document.readyState==='loading')
+      document.addEventListener('DOMContentLoaded',alignBottomNav);
+    else alignBottomNav();
+    window.addEventListener('load',alignBottomNav);
+    window.addEventListener('resize',later);
+    window.addEventListener('orientationchange',later);
+    try{
+      var pg=document.querySelector('.page');
+      if(pg&&window.ResizeObserver) new ResizeObserver(later).observe(pg);
+    }catch(e){}
+  })();
+
   function armGuards(){
     guard(document.getElementById('miniModal'),'.modal-box');
     guard(document.getElementById('previewModal'),'.modal-box');
