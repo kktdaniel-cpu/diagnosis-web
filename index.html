@@ -1745,6 +1745,7 @@ function openMydata(){
    +'<div class="fg"><label>연락처(휴대폰)</label><input class="qtext" id="mdPhone" placeholder="010-0000-0000"></div>'
    +'<button class="btn btn-primary" onclick="mydataApply()">오픈 알림 사전 신청 →</button>');
 }
+/* [FIX-AB] 사전신청은 [임시저장]이 아니라 [상담신청] 으로 — 이어하기 오작동 방지 + 신청 메일 발송 */
 function mydataApply(){
   var n=(document.getElementById('mdName')||{value:''}).value.trim();
   var p=(document.getElementById('mdPhone')||{value:''}).value.trim();
@@ -1752,7 +1753,7 @@ function mydataApply(){
   try{ var q=JSON.parse(localStorage.getItem('l2p_mydata')||'[]'); q.push({name:n,phone:p,ts:new Date().toISOString()}); localStorage.setItem('l2p_mydata',JSON.stringify(q)); }catch(e){}
   if(GAS_URL && GAS_URL.indexOf('http')===0){
     try{ fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({__target:'draft',__secret:GAS_SECRET,'이름':n,'연락처':p,'진행파트':'마이데이터 사전신청','저장시각':new Date().toISOString(),'답변JSON':''})}).catch(function(e){}); }catch(e){}
+      body:JSON.stringify({__target:'consult',__secret:GAS_SECRET,'유형':'마이데이터 사전신청','이름':n,'연락처':p,'신청시각':new Date().toISOString(),'메모':'오픈 알림 사전 신청'})}).catch(function(e){}); }catch(e){}
   }
   closeMini(); toast('사전 신청이 완료되었습니다. 오픈 시 가장 먼저 안내드릴게요!','ok');
 }
