@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<!-- [FIX-AA] 자체 도메인 diag.lpp20.com · 형제 페이지 링크 상대화 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2막1장 · 은퇴 정밀진단 Ver32 · Web · API 연동</title>
@@ -3375,8 +3376,8 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     return '<div class="fr-sec"><h3>🌏 정주 외국인을 위한 진단 · For Foreign Residents</h3>'
       +'<div class="sub">비자·국민연금 반환일시금·사회보장협정까지 반영한 외국인 전용 진단입니다 · Diagnosis designed for foreign residents in Korea</div>'
       +'<div class="fr-cards">'
-      +'<a class="fr-card" href="https://kktdaniel-cpu.github.io/diagnosis-web/fw.html"><b>💰 외국인 금융 건전성 진단 · Financial Health Check</b><span>비자·송금·보험·국민연금 반환일시금까지 10문항 3분 · 10 questions, 3 min — visa, remittance, insurance & pension refund</span></a>'
-      +'<a class="fr-card" href="https://kktdaniel-cpu.github.io/diagnosis-web/career.html"><b>🧭 장기 체류·커리어 정착 진단 · Long-stay & Career Check</b><span>F-2-7 점수제 자가 산정과 정착 경로 · F-2-7 points self-check & settlement path</span></a>'
+      +'<a class="fr-card" href="fw.html"><b>💰 외국인 금융 건전성 진단 · Financial Health Check</b><span>비자·송금·보험·국민연금 반환일시금까지 10문항 3분 · 10 questions, 3 min — visa, remittance, insurance & pension refund</span></a>'
+      +'<a class="fr-card" href="career.html"><b>🧭 장기 체류·커리어 정착 진단 · Long-stay & Career Check</b><span>F-2-7 점수제 자가 산정과 정착 경로 · F-2-7 points self-check & settlement path</span></a>'
       +'</div></div>';
   }
   document.addEventListener('DOMContentLoaded', function(){
@@ -3680,8 +3681,8 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
         var d=new Date(o.ts||0), dt=isNaN(d)?'':(d.getFullYear()+'.'+(d.getMonth()+1)+'.'+d.getDate());
         return '<a class="fr-card" href="'+url+'"><b>'+(o.title||fallbackTitle)+'</b><span>'+(o.summary||'')+' · '+dt+' · '+simT('결과 다시 보기 ›','View result ›')+'</span></a>';
       }
-      var r1=row(fw,'https://kktdaniel-cpu.github.io/diagnosis-web/fw.html','외국인 금융 건전성 진단');
-      var r2=row(cr,'https://kktdaniel-cpu.github.io/diagnosis-web/career.html','장기 체류·커리어 정착 진단');
+      var r1=row(fw,'fw.html','외국인 금융 건전성 진단');
+      var r2=row(cr,'career.html','장기 체류·커리어 정착 진단');
       if(r1||r2) out='<div class="fr-sec"><h3>🌏 '+simT('외국인 진단 결과','Foreign-resident check results')+'</h3><div class="fr-cards">'+r1+r2+'</div></div>';
     }catch(e){}
     return out;
