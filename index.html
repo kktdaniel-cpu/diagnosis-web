@@ -1400,7 +1400,8 @@ function loadCatalog(){
   /* 내장본이 먼저 이겼는데 뒤늦게 서버 응답이 와서 Q 를 다시 갈아끼우면,
      사용자가 문항을 푸는 도중에 카탈로그가 교체된다. 내용은 같지만
      그런 일이 일어날 이유가 없으므로 '아직 아무도 안 이겼을 때'만 적용한다. */
-  var live = apiGet('/questions');
+  var live = (fb && window.apiGetQuiet) ? window.apiGetQuiet('/questions')
+                                        : apiGet('/questions');   // [FIX-AD]
   live.catch(function(){});                       // 미처리 거부 방지
 
   if(!fb){                                        // 내장본이 없으면 예전 동작 그대로
@@ -2553,7 +2554,10 @@ function uiQuestionHTML(q){
   var qBadge=qNo?('<span class="v25-q-number">'+qNo+'</span>'):('<span class="v26-value-badge">가치관 · 점수 미반영</span>');
   var html='<div class="qcard" data-qid="'+q.id+'"><div class="v25-question-meta">'+qBadge+'<span class="v25-part-badge">PART '+step+' · '+PARTS[q.part-1]+'</span></div><div class="qq">'+q.q+(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>'+uiVisualFor(q);
   if(q.id==='Q2'){
-    html+='<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:6px;">현재 나이</div><input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" placeholder="예: 50"></div><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:7px;">성별</div>';
+    /* [FIX-AD] 주 사용자가 40~60대다. 스피너가 20부터 오르지 않도록
+       기본값을 50으로 두고, 표시값과 실제 응답을 같이 맞춘다. */
+    if(!answers['Q2A']) answers['Q2A']='50';
+    html+='<div style="margin-bottom:12px;"><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:6px;">현재 나이</div><input class="qtext" type="number" min="20" max="100" inputmode="numeric" value="'+String(answers['Q2A']||'50').replace(/"/g,'&quot;')+'" oninput="setText(\'Q2A\',this.value)" onfocus="this.select()" placeholder="예: 50"></div><div style="font-size:12px;font-weight:700;color:#32513F;margin-bottom:7px;">성별</div>';
   }
   if(q.cond==='home') html+='<div class="cond-note">자가 주택 보유자만 응답합니다</div>';
   if(q.cond==='rent') html+='<div class="cond-note">전월세·기타 거주자만 응답합니다</div>';
@@ -4421,7 +4425,9 @@ window.__L2P_EN_RULES=[
     }
     window.__l2pWakeOff = progressOff;
 
-    async function call(method, path, body){
+    /* [FIX-AD] quiet=true 면 대기 문구를 띄우지 않는다.
+       배경에서 도는 카탈로그 재시도가 사용자 화면을 점거하지 않게 한다. */
+    async function call(method, path, body, quiet){
       var end=Date.now()+DEADLINE, delays=[0,2000,4000,8000,12000,20000], i=0, last=null, shown=false;
       while(Date.now()<end){
         var d = delays[Math.min(i,delays.length-1)];
@@ -4429,7 +4435,7 @@ window.__L2P_EN_RULES=[
         var left = end-Date.now(); if(left<=0) break;
         var per = Math.min(i===0?70000:35000, left);        // 첫 시도는 콜드스타트를 기다려준다
         var h = raw(method, path, body);
-        if(!shown){ shown=true; setTimeout(function(){ if(shown) progressOn(); }, 3500); }
+        if(!shown && !quiet){ shown=true; setTimeout(function(){ if(shown) progressOn(); }, 3500); }
         try{
           var out = await withTimeout(h.p, per, h.ctl);
           shown=false; progressOff(); lastPing=Date.now();
@@ -4446,6 +4452,7 @@ window.__L2P_EN_RULES=[
     }
     window.apiPost = function(path, body){ return call('POST', path, body); };
     window.apiGet  = function(path){ return call('GET', path, null); };
+    window.apiGetQuiet = function(path){ return call('GET', path, null, true); };   // [FIX-AD]
     try{ apiPost = window.apiPost; apiGet = window.apiGet; }catch(e){}
 
     /* ---------- C. 실패 복구 : 실패한 그 동작을 다시 시도한다 ---------- */
