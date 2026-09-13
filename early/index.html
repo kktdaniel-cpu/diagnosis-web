@@ -538,6 +538,11 @@ body{background:#E9ECE9;min-height:100vh;}
   .page{width:100%;box-shadow:none;}
 }
 
+.early-card{margin:10px 0 16px;padding:14px 16px;border-radius:12px;background:linear-gradient(135deg,#FFF7E6,#FFF1D1);
+  border:1.5px solid #E4C177;font-size:13.5px;line-height:1.55;color:#5B4A1F;animation:earlyPop .35s ease-out}
+.early-card b{color:#8A5A00}
+.early-note{display:block;margin-top:4px;font-size:11.5px;color:#9C8656}
+@keyframes earlyPop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 </style>
 
 <style id="ver19-skin">
@@ -1062,6 +1067,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   .modal-box{max-width:600px!important;} .modal-box.mini{max-width:560px!important;}
 }
 </style>
+  <!-- [FIX-AI] 부분 결과 조기 노출 · 별도 버전(early) — 메인 index.html 과 별개 파일. 설문접근성_절박함유도_전략.md §2-1·§5-1 참고 -->
 </head>
 <body>
 
@@ -1539,7 +1545,63 @@ function toggleMulti(id,i){
   const card=document.querySelector('.qcard[data-qid="'+id+'"]');
   if(card)[...card.querySelectorAll('.opt')].forEach((el,idx)=>el.classList.toggle('sel', s.includes(idx)));
 }
-function setText(id,v){ answers[id]=v; }
+function setText(id,v){ answers[id]=v; if(id==='Q2A'){ try{ updateEarlyReveal(); }catch(e){} } }  /* [FIX-AI] */
+
+/* ══════════════════ [FIX-AI] 부분 결과 조기 노출 (early 전용) ══════════════════
+   전략: 설문접근성_절박함유도_전략.md §2-1·§5-1. Q1(이름)·Q2(나이)·Q3(퇴직시점)을
+   지난 PART1의 다음 문항(Q41)부터, 이미 답한 나이+퇴직시점만으로 "소득 공백"을
+   바로 보여주고, 소득·생활비까지 답하면 부족액 근사치를 덧붙인다.
+   공식·대표값은 main.py 와 완전히 동일 — 정밀 리포트와 숫자가 벌어지지 않게 한다. */
+var EARLY_NP_START_YEAR = 2026;
+function earlyNpStartAge(age){
+  var by = EARLY_NP_START_YEAR - (age||52);
+  if(by<=1952) return 60;
+  if(by<=1956) return 61;
+  if(by<=1960) return 62;
+  if(by<=1964) return 63;
+  if(by<=1968) return 64;
+  return 65;
+}
+function earlyGapYears(age,retire){ return Math.max(0, earlyNpStartAge(age)-(retire||60)); }
+var EARLY_RETIRE_BY_IDX=[60,65,70,76];    // Q3 opts 와 동일
+var EARLY_INC_BY_IDX=[250,400,600,800];   // Q41 opts 의 inc 값과 동일
+var EARLY_COST_BY_IDX=[250,300,400,500]; // Q4 opts 의 cost 값과 동일
+function updateEarlyReveal(){
+  var el = document.getElementById('earlyRevealCard');
+  if(!el) return;   // Q1·Q2·Q3 화면 등 카드 자리가 없는 화면에서는 조용히 무시
+  var age = parseInt(answers['Q2A'],10);
+  var q3 = answers['Q3'];
+  if(!age || age<20 || age>100 || !q3){ el.style.display='none'; el.innerHTML=''; return; }
+  var retire = EARLY_RETIRE_BY_IDX[q3.idx] || 60;
+  var npAge = earlyNpStartAge(age);
+  var gap = earlyGapYears(age, retire);
+  var html;
+  if(gap<=0){
+    html = '⚡ <b>조기 공개</b> — 지금 계획대로면 '+retire+'세 은퇴 시점에 국민연금(약 '+npAge+'세)이 이미 시작돼, '
+         + '별도 소득 공백 없이 이어집니다. <span class="early-note">답할수록 이 결과가 더 정밀해집니다</span>';
+  } else {
+    html = '⚡ <b>조기 공개</b> — 지금까지 답변만으로 벌써 하나 나왔습니다.<br>'
+         + retire+'세에 은퇴하면 국민연금 개시(약 '+npAge+'세)까지 <b>최소 '+gap+'년</b>의 소득 공백이 생깁니다.';
+    var q41 = answers['Q41'], q4 = answers['Q4'];
+    if(q41 && q4){
+      var inc = EARLY_INC_BY_IDX[q41.idx], cost = EARLY_COST_BY_IDX[q4.idx];
+      var monthlyGap = Math.max(0, cost - inc);
+      if(monthlyGap>0){
+        var totalEok = Math.round(gap*12*monthlyGap/10000*10)/10;
+        html += '<br>소득·생활비 응답 기준 근사치로는, 이 공백기 동안 월 약 '+monthlyGap+'만원이 부족해 '
+              + '총 <b>약 '+totalEok+'억원</b>을 미리 마련해야 할 수 있습니다.';
+      } else {
+        html += '<br>현재 소득이 생활비를 웃돌아, 이 공백기 자체는 비교적 안정적입니다.';
+      }
+      html += '<br><span class="early-note">· 근사치입니다 — 남은 문항까지 답하면 정밀 리포트에서 정확한 시나리오로 다시 계산됩니다</span>';
+    } else {
+      html += '<br><span class="early-note">· 소득·생활비까지 답하면 이 공백을 메울 금액까지 바로 보여드립니다</span>';
+    }
+  }
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
 
 function nextPart(){
   // 필수 응답 검증 (컨텍스트/점수 단일문항)
@@ -2593,6 +2655,7 @@ function uiQuestionHTML(q){
     var sel=answers[q.id]!==undefined?answers[q.id].idx:-1;
     html+='<div class="opts">'+q.opts.map(function(o,i){return '<div class="opt'+(sel===i?' sel':'')+'" onclick="pick(\''+q.id+'\','+i+')">'+o.t+'</div>';}).join('')+'</div>';
   }
+  if(q.part===1 && q.id!=='Q1' && q.id!=='Q2' && q.id!=='Q3'){ html+='<div id="earlyRevealCard" class="early-card" style="display:none"></div>'; }  /* [FIX-AI] 조기공개 카드 자리 — Q41부터 */
   return html+'</div>';
 }
 function renderSingleQuestion(preferId){
@@ -2613,6 +2676,7 @@ function renderSingleQuestion(preferId){
   /* [FIX-M] 자동 넘김 문항에서는 '다음' 버튼을 숨긴다 */
   _nb.style.display=(window.l2pAutoNext && window.l2pAutoNext(q))?'none':'';
   window.scrollTo({top:0,behavior:'smooth'});
+  try{ updateEarlyReveal(); }catch(e){}   // [FIX-AI]
 }
 function uiValidateQuestion(q){
   if(q.id==='Q2'){ var a=parseInt(answers['Q2A'],10); if(!a||a<20||a>100){alert('나이를 만 20~100세 숫자로 입력해 주세요.');return false;} }
@@ -2635,7 +2699,7 @@ function uiPrevQuestion(){
   if(idx>0) renderSingleQuestion(flow[idx-1].id);
 }
 // override conditional-answer behavior for the one-question UI
-function pick(id,i){ _markTime(id); var q=Q.find(function(x){return x.id===id;}); answers[id]={idx:i,opt:q.opts[i]}; var card=document.querySelector('.qcard[data-qid="'+id+'"]'); if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',idx===i);}); /* [FIX-M] 단일 선택은 선택 즉시 다음 문항으로 */ if(window.l2pAutoNext && window.l2pAutoNext(q)){ setTimeout(function(){ uiNextQuestion(); },200); return; } if(id==='Q16'||id==='Q20') setTimeout(function(){renderSingleQuestion(id);},20); }
+function pick(id,i){ _markTime(id); var q=Q.find(function(x){return x.id===id;}); answers[id]={idx:i,opt:q.opts[i]}; try{ updateEarlyReveal(); }catch(e){} var card=document.querySelector('.qcard[data-qid="'+id+'"]'); if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',idx===i);}); /* [FIX-M] 단일 선택은 선택 즉시 다음 문항으로 */ if(window.l2pAutoNext && window.l2pAutoNext(q)){ setTimeout(function(){ uiNextQuestion(); },200); return; } if(id==='Q16'||id==='Q20') setTimeout(function(){renderSingleQuestion(id);},20); }
 function toggleMulti(id,i){ _markTime(id); var q=Q.find(function(x){return x.id===id;}); var s=answers[id]||[]; if(s.indexOf(i)>=0){s=s.filter(function(x){return x!==i;});}else{if(q.opts[i].ex){s=[i];}else{s=s.filter(function(x){return !q.opts[x].ex;});s.push(i);}} answers[id]=s; var card=document.querySelector('.qcard[data-qid="'+id+'"]'); if(card) Array.prototype.forEach.call(card.querySelectorAll('.opt'),function(el,idx){el.classList.toggle('sel',s.indexOf(idx)>=0);}); }
 function enterPart(p){
   if(p===1 && !answers['Q2'] && !answers['Q2A']){window._cohBypass=false;_qT={};_lastClickT=Date.now();}
