@@ -1074,6 +1074,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   <!-- [FIX-AN] 상품 제안 디자인 개편 · A/B/C 비교표 · 제안 반영 전후 비교 -->
   <!-- [FIX-AO] 비교표·체크박스 조밀화 -->
   <!-- [FIX-AP] 전·후 비교 전역 참조 오류 수정 -->
+  <!-- [FIX-AQ] 전·후 비교 패널 유지(What-if 2.0 리셋 대응) -->
 </head>
 <body>
 
@@ -7361,6 +7362,32 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       done(res);
     } else { done(null); }
   };
+
+  /* ── [FIX-AQ] What-if 2.0 이 #t-wi 를 통째로 다시 그려도 전·후 비교를 살려둔다 ──
+     파일 뒤쪽 'What-if 2.0' 블록의 simReset() 이
+       document.getElementById('t-wi').innerHTML = whatifHTML(_R)
+     로 탭 내용을 전부 교체한다. 그대로 두면 '원래 내 답변으로'를 누를 때마다
+     전·후 비교 패널이 사라진다. 리셋·탭전환 뒤에 없으면 다시 붙인다. */
+  window.l2pEnsureSimPanel=function(){
+    try{
+      var host=document.getElementById('t-wi');
+      if(!host||host.querySelector('.wia')) return;
+      var R=G('_R',null)||window._R; if(!R) return;
+      var html=window.l2pSimHTML(R);
+      if(html) host.insertAdjacentHTML('afterbegin',html);
+    }catch(e){}
+  };
+  (function(){
+    var _reset=window.simReset;
+    if(typeof _reset==='function'){
+      window.simReset=function(){ var r=_reset.apply(this,arguments); window.l2pEnsureSimPanel(); return r; };
+    }
+    var _tab=window.tab;
+    if(typeof _tab==='function'){
+      window.tab=function(e,id){ var r=_tab.apply(this,arguments);
+        if(id==='t-wi') setTimeout(window.l2pEnsureSimPanel,30); return r; };
+    }
+  })();
 
   /* ── 리포트 탭에 끼워 넣기 ─────────────────────────────────────────────── */
   var _dt=window.detailTabsHTML;
