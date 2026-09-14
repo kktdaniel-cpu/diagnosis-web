@@ -1053,7 +1053,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   #s-report .metric-grid{grid-template-columns:repeat(3,1fr)!important;} #s-report .mcard:last-child{grid-column:auto!important;}
   #s-report .radar-grid{grid-template-columns:1fr 1fr!important;align-items:center;} .radar-svg{max-width:340px;}
   .rx-card,.cl-block{max-width:none;} #t-rx.active{display:grid;grid-template-columns:1fr 1fr;gap:12px;} #t-rx>.sec-block{grid-column:1/-1;}
-  #t-road.active{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .wi-sliders{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;}
+  #t-road.active{display:block;}   /* [FIX-AR] 상품 제안을 전폭으로 */ .wi-sliders{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;}
   .consult-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .premium-gate .pg-list{grid-template-columns:repeat(3,1fr)!important;}
   /* 상담·마이페이지 · 설문 */
   #s-consult .consult-option,#s-mypage .my-menu,#s-mypage .profile-card{max-width:680px;margin-left:auto!important;margin-right:auto!important;}
@@ -1069,6 +1069,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   <!-- [FIX-AO] 비교표·체크박스 조밀화 -->
   <!-- [FIX-AP] 전·후 비교 전역 참조 오류 수정 -->
   <!-- [FIX-AQ] 전·후 비교 패널 유지(What-if 2.0 리셋 대응) -->
+  <!-- [FIX-AR] 로드맵 이동 · 상품탭 전폭 · 통계표 접기 · 정밀/AI 전용 화면 -->
 </head>
 <body>
 
@@ -2222,8 +2223,8 @@ function detailTabsHTML(R){
   return `
    <div id="detailWrap" style="display:none;">
     <div class="tabs">
-      <button class="tab active" onclick="tab(event,'t-rx')">🤖 AI 영역별 처방</button>
-      <button class="tab" onclick="tab(event,'t-road')">🧭 AI 로드맵 · 상품</button>
+      <button class="tab active" onclick="tab(event,'t-rx')">🤖 AI 처방 · 로드맵</button>
+      <button class="tab" onclick="tab(event,'t-road')">💎 AI 맞춤 상품</button>
       <button class="tab" onclick="tab(event,'t-wi')">📊 전·후 비교</button>
     </div>
     <div id="t-rx" class="panel active"><div class="sec-block" style="margin-top:14px;"><h3>🤖 AI 영역별 정밀 처방</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;"><b>AI 알고리즘이 41개 문항 답변 × 5개 영역 점수를 교차 분석</b>해, 취약한 순서대로 지금 실행할 수 있는 조치를 정리했습니다.</p></div>${rx}</div>
@@ -2436,7 +2437,7 @@ function submitSurvey(){
   window._svDone=true; try{ if(_R&&_R.code) localStorage.setItem('l2p_svdone',_R.code); }catch(e){}
   var host=document.getElementById('surveyForm');
   host.innerHTML='<div class="survey-thanks"><div class="st-ic">✓</div><h3>설문 감사합니다!</h3><p>소중한 의견이 저장되었어요. 아래에서 상세 처방과 무료 상담 안내를 확인하세요.</p>'
-    +'<button class="btn-pdf-on" onclick="printReport()">📄 정밀 리포트 PDF 다운로드 / 인쇄</button>'
+    +'<button class="btn-pdf-on" onclick="l2pOpenFullReport()">📄 정밀 리포트 보기 · 인쇄</button>'
     +'<div style="font-size:13.5px;color:var(--muted);margin-top:8px;">인쇄 창에서 \'PDF로 저장\'을 선택하면 파일로 보관할 수 있어요</div></div>';
   var _paidNow=false; try{_paidNow=localStorage.getItem('l2p_premium')==='1';}catch(e){}
   if(_paidNow){ var fw=document.getElementById('fullReportWrap'); if(fw) fw.style.display='block'; var d=document.getElementById('detailWrap'); if(d) d.style.display='block'; }
@@ -6853,6 +6854,48 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 }
 </style>
 
+<style id="ai-focus-css">
+/* [FIX-AR] 포커스 모드(새 페이지처럼 보기) · AI 배너 · 접이식 통계표 */
+.l2p-focusbar{display:none;align-items:center;gap:10px;position:sticky;top:0;z-index:40;
+  background:rgba(255,255,255,.96);backdrop-filter:saturate(140%) blur(6px);
+  border-bottom:1px solid #E4E8E4;padding:9px 10px;margin:-4px -4px 12px;}
+.l2p-focusbar .fb-back{border:1px solid #D7DED8;background:#fff;border-radius:9px;padding:7px 11px;
+  font-size:12.5px;font-weight:700;color:#124A2F;cursor:pointer;letter-spacing:-.02em;}
+.l2p-focusbar .fb-t{flex:1;font-size:13px;font-weight:800;color:#10331F;letter-spacing:-.03em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.l2p-focusbar .fb-print{border:0;background:#124A2F;color:#fff;border-radius:9px;padding:7px 11px;
+  font-size:12.5px;font-weight:700;cursor:pointer;letter-spacing:-.02em;}
+@media print{.l2p-focusbar{display:none!important;}}
+
+.aibn{display:flex;align-items:center;gap:12px;cursor:pointer;margin:16px 0 12px;padding:17px 16px;
+  border-radius:16px;color:#fff;border:1px solid #0E3A26;
+  background:linear-gradient(135deg,#0E3A26 0%,#155C3B 58%,#1C7A4E 100%);
+  box-shadow:0 6px 20px rgba(14,58,38,.22);transition:transform .12s ease,box-shadow .12s ease;}
+.aibn:hover{transform:translateY(-1px);box-shadow:0 9px 26px rgba(14,58,38,.30);}
+.aibn-l{flex:1;min-width:0;}
+.aibn-k{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:800;letter-spacing:.05em;
+  color:#EBD79B;background:rgba(255,255,255,.10);border:1px solid rgba(235,215,155,.35);
+  border-radius:999px;padding:3px 9px;}
+.aibn-k i{width:5px;height:5px;border-radius:50%;background:#EBD79B;display:inline-block;}
+.aibn-l b{display:block;margin:9px 0 5px;font-family:'Noto Serif KR',serif;font-size:18px;line-height:1.35;
+  letter-spacing:-.035em;font-weight:700;color:#fff;}
+.aibn-s{display:block;font-size:11.5px;line-height:1.6;color:rgba(255,255,255,.78);letter-spacing:-.01em;}
+.aibn-go{flex:0 0 auto;font-size:13px;font-weight:800;color:#14301F;background:linear-gradient(135deg,#D9AF52,#B8901F);
+  border-radius:999px;padding:9px 14px;letter-spacing:-.02em;white-space:nowrap;}
+
+.cmp32-fold{border:1px solid #E4E8E4;border-radius:12px;background:#fff;margin:0 0 14px;overflow:hidden;}
+.cmp32-fold>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:9px;
+  padding:13px 14px;font-size:13px;font-weight:700;color:#33413A;letter-spacing:-.02em;}
+.cmp32-fold>summary::-webkit-details-marker{display:none;}
+.cmp32-fold>summary .pm{flex:0 0 22px;width:22px;height:22px;border-radius:7px;background:#EEF4F0;
+  color:#124A2F;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;}
+.cmp32-fold>summary .pm::before{content:'+';}
+.cmp32-fold[open]>summary .pm::before{content:'−';}
+.cmp32-fold[open]>summary{border-bottom:1px solid #EDF0ED;}
+.cmp32-fold>.cmp32{margin:0;padding:12px 14px 14px;}
+@media print{.cmp32-fold{border:0;} .cmp32-fold>summary{display:none;}
+  .cmp32-fold>.cmp32{display:block!important;}}
+</style>
 <style id="ai-products-css">
 /* [FIX-AN] AI 기반 진단고객 맞춤형 상품 제안 */
 .apx{margin-top:18px;border-radius:18px;overflow:hidden;border:1px solid #DFE4DF;background:#fff;}
@@ -7299,6 +7342,93 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     } else { done(null); }
   };
 
+  /* ══ [FIX-AR] 정밀 리포트 / AI 화면을 '새 페이지'처럼 여는 포커스 모드 ══════════
+     대상에서 .screen 까지 올라가며 형제만 숨긴다 — 옮기지 않으니 되돌리기가 확실하다. */
+  var _focusHidden=null;
+  window.l2pFocus=function(target,title){
+    if(!target) return;
+    window.l2pUnfocus(true);
+    var hidden=[], n=target;
+    while(n && n.parentNode && !(n.classList && n.classList.contains('screen'))){
+      var sib=n.parentNode.children;
+      for(var i=0;i<sib.length;i++){
+        var el=sib[i];
+        if(el===n || el.classList.contains('l2p-focusbar')) continue;
+        if(getComputedStyle(el).display==='none') continue;
+        hidden.push([el, el.style.display]); el.style.display='none';
+      }
+      n=n.parentNode;
+    }
+    _focusHidden=hidden;
+    var scr=n&&n.classList&&n.classList.contains('screen')?n:document.getElementById('s-report');
+    var bar=document.querySelector('.l2p-focusbar');
+    if(!bar){
+      bar=document.createElement('div'); bar.className='l2p-focusbar';
+      bar.innerHTML='<button class="fb-back" onclick="l2pUnfocus()">‹ 돌아가기</button>'
+        +'<span class="fb-t"></span>'
+        +'<button class="fb-print" onclick="window.print()">인쇄 · PDF</button>';
+      if(scr) scr.insertBefore(bar, scr.firstChild);
+    } else if(scr && bar.parentNode!==scr){ scr.insertBefore(bar, scr.firstChild); }
+    bar.querySelector('.fb-t').textContent=title||'';
+    bar.style.display='flex';
+    window.scrollTo({top:0,behavior:'smooth'});
+  };
+  window.l2pUnfocus=function(quiet){
+    if(_focusHidden){
+      _focusHidden.forEach(function(p){ p[0].style.display=p[1]||''; });
+      _focusHidden=null;
+    }
+    var bar=document.querySelector('.l2p-focusbar'); if(bar) bar.style.display='none';
+    if(!quiet) window.scrollTo({top:0,behavior:'smooth'});
+  };
+  /* 정밀 리포트만 보는 화면 */
+  window.l2pOpenFullReport=function(){
+    var paid=false; try{ paid=localStorage.getItem('l2p_premium')==='1'; }catch(e){}
+    if(!paid && typeof memberCreditV27==='function'){
+      try{ toast('정밀 리포트는 무료회원 가입(리워드 5,000원 적용) 후 열립니다.','ok'); }catch(e){}
+      memberCreditV27(); return;
+    }
+    var fw=document.getElementById('fullReportWrap');
+    if(fw){
+      fw.style.display='block';
+      var dw=document.getElementById('detailWrap'); if(dw) dw.style.display='block';
+      var g=document.getElementById('premiumGate'); if(g) g.remove();
+    }
+    try{ if(typeof show==='function'){ show('s-report'); } if(typeof setNav==='function') setNav('report'); }catch(e){}
+    setTimeout(function(){ window.l2pFocus(fw,'정밀 리포트'); },40);
+  };
+  /* 처방 · 로드맵 · 상품 · 전후비교만 보는 화면 */
+  window.l2pOpenAI=function(){
+    var dw=document.getElementById('detailWrap'); if(!dw) return;
+    dw.style.display='block';
+    window.l2pFocus(dw,'AI 기반 진단고객 영역별 처방 · 맞춤형 상품 제안');
+  };
+  /* 다른 화면으로 가면 포커스를 자동으로 푼다 */
+  (function(){
+    var _show=window.show;
+    if(typeof _show==='function'){
+      window.show=function(id){ try{ window.l2pUnfocus(true); }catch(e){} return _show.apply(this,arguments); };
+    }
+  })();
+
+  /* [FIX-AR] 통계 대조표는 접어두고, 그 위에 AI 화면으로 가는 큰 배너를 놓는다 */
+  (function(){
+    var _st=window.l2pStatTable;
+    window.l2pStatTable=function(R){
+      var inner='';
+      try{ inner=_st?_st.apply(this,arguments):''; }catch(e){ inner=''; }
+      var banner='<div class="aibn" onclick="l2pOpenAI()">'
+        +'<div class="aibn-l">'
+          +'<span class="aibn-k"><i></i>AI ENGINE · 41문항 × 5영역 교차분석</span>'
+          +'<b>AI 기반 진단고객<br>영역별 처방 · 맞춤형 상품 제안</b>'
+          +'<span class="aibn-s">처방 · 실행 로드맵 · 맞춤 상품 · 반영 전후 비교를 한 화면에서 봅니다</span>'
+        +'</div><span class="aibn-go">열기 ›</span></div>';
+      var folded=inner?('<details class="cmp32-fold"><summary><span class="pm"></span>'
+        +'문항별 통계 대조표 — 내 답을 공식 통계와 나란히 보기</summary>'+inner+'</details>'):'';
+      return banner+folded;
+    };
+  })();
+
   /* ── [FIX-AQ] What-if 2.0 이 #t-wi 를 통째로 다시 그려도 전·후 비교를 살려둔다 ──
      파일 뒤쪽 'What-if 2.0' 블록의 simReset() 이
        document.getElementById('t-wi').innerHTML = whatifHTML(_R)
@@ -7340,6 +7470,19 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
         var key='<div id="t-wi" class="panel">';
         var k=h.indexOf(key);
         if(k>0&&sim) h=h.slice(0,k+key.length)+sim+h.slice(k+key.length);
+      }catch(e){}
+      /* [FIX-AR] 실행 로드맵을 '처방' 탭으로 옮긴다 — 상품 탭은 상품 제안만 전폭으로 */
+      try{
+        var tmp=document.createElement('div'); tmp.innerHTML=h;
+        var road=tmp.querySelector('#t-road'), rx=tmp.querySelector('#t-rx');
+        if(road&&rx){
+          [].slice.call(road.children).forEach(function(el){
+            var isList=el.classList&&el.classList.contains('cl-block');
+            var isHead=el.classList&&el.classList.contains('sec-block')&&/실행 로드맵/.test(el.textContent||'');
+            if(isList||isHead) rx.appendChild(el);
+          });
+          h=tmp.innerHTML;
+        }
       }catch(e){}
       return h;
     };
