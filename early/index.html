@@ -16,7 +16,7 @@
 /* [FIX-AC] 문항 카탈로그 내장본 — main.py questions() 를 그대로 구운 것.
    서버가 자고 있거나 죽어 있어도 진단을 시작할 수 있게 하는 안전망이다.
    catalog_check.py 가 main.py 와 매번 대조한다. 손으로 고치지 말 것. */
-window.__L2P_CAT_FB={"parts":["기본 정보","건강","부동산 (비금융자산)","동산 (금융자산)","일자리","웰다잉"],"seq":[1,4,3,2,5,6],"qnum":{"Q2":"Q1","Q3":"Q2","Q41":"Q3","Q4":"Q4","Q5":"Q5","Q6":"Q6","Q7":"Q7","Q8":"Q8","Q9":"Q9","Q23":"Q10","Q42":"Q11","Q24":"Q12","Q25":"Q13","Q26":"Q14","Q27":"Q15","Q28":"Q16","Q29":"Q17","Q30":"Q18","Q16":"Q19","Q17":"Q20","Q18":"Q21","Q19":"Q22","Q20":"Q23","Q44":"Q24","Q21":"Q25","Q22":"Q26","Q10":"Q27","Q11":"Q28","Q12":"Q29","Q13":"Q30","Q14":"Q31","Q31":"Q32","Q32":"Q33","Q33":"Q34","Q34":"Q35","Q35":"Q36","Q36":"Q37","Q37":"Q38","Q38":"Q39","Q39":"Q40","Q43":"Q41","Q45":"Q42","Q40":""},"areaInfo":{"asset":{"name":"동산(금융)","emoji":"💰","col":"자산구조"},"health":{"name":"건강","emoji":"🛡️","col":"건강방어"},"housing":{"name":"부동산","emoji":"🏠","col":"주거연장"},"job":{"name":"일자리","emoji":"💼","col":"일자리역량"},"well":{"name":"웰다잉","emoji":"🕯️","col":"웰다잉준비"}},"areaOrder":["asset","health","housing","job","well"],"questions":[{"id":"Q1","part":1,"area":null,"type":"text","q":"이름 또는 별명을 알려주세요","hint":"실명이 부담되면 별명·이니셜도 괜찮아요 · 점수에 반영 안 됨"},{"id":"Q2","part":1,"area":null,"type":"single","q":"나이와 성별을 알려주세요","opts":[{"t":"남성"},{"t":"여성"}]},{"id":"Q3","part":1,"area":null,"type":"single","q":"일을 완전히 그만두는 시점은 언제로 보시나요?","hint":"「퇴직」과 「연금 개시」는 다릅니다. 주된 일자리를 그만두는 나이는 평균 53세, 국민연금은 1969년생부터 65세입니다. 재취업·부업까지 포함해 소득이 완전히 끊기는 시점을 골라 주세요.","opts":[{"t":"60세"},{"t":"65세"},{"t":"70세"},{"t":"76세 이후"}]},{"id":"Q41","part":1,"area":null,"type":"single","q":"현재 (부부 합산) 월 소득은 어느 정도인가요?","hint":"근로·사업·임대 등 월 실수령액 기준입니다. 이자·배당 소득은 제외합니다.","opts":[{"t":"월 300만 원 미만"},{"t":"월 300만 ~ 500만 원"},{"t":"월 500만 ~ 700만 원"},{"t":"월 700만 원 이상"}]},{"id":"Q4","part":1,"area":null,"type":"single","q":"현재(부부 기준) 월 생활비 총액은?","hint":"대출이자·주거비·교육비·식비·통신비 등 매달 실제 지출을 합산해 주세요.","opts":[{"t":"월 250만 원 이하"},{"t":"월 300만 원"},{"t":"월 400만 원"},{"t":"월 500만 원 이상"}]},{"id":"Q5","part":1,"area":null,"type":"single","q":"65세 이후 목표 월 생활비는?","hint":"65세 이후 부부가 매달 필요하다고 생각하는 생활비입니다. 참고 — 부부 기준 최소 노후생활비 216.6만원 · 적정 노후생활비 298.1만원 (국민연금연구원 2024년 국민노후보장패널 제10차 부가조사)","opts":[{"t":"월 200만 원 — 절약형"},{"t":"월 300만 원 — 기본형 (최소선 ≈250만)"},{"t":"월 400만 원 — 안정형 (안정 목표 ≈350만)"},{"t":"월 500만 원 이상 — 여유·품위형"}]},{"id":"Q6","part":1,"area":null,"type":"single","q":"본인 국민연금 총 가입기간은? (앞으로 낼 기간 포함 - 60세까지)","hint":"노령연금 개시 연령: 1969년생 이후 만 65세 (1953~68년생은 61~64세). 10년 이상 가입해야 수급요건을 충족합니다.","opts":[{"t":"10년 미만 — 수급요건 미달 (반환일시금)"},{"t":"10~19년 — 평균 수령 약 44만 원/월"},{"t":"20~29년 — 평균 약 80만 원/월"},{"t":"30년 이상 — 평균 약 112만 원/월"}]},{"id":"Q7","part":1,"area":null,"type":"single","q":"배우자의 국민연금 가입 상황은?","hint":"부부의 노후 현금흐름을 함께 계산하기 위한 항목입니다.","opts":[{"t":"배우자 없음/미가입"},{"t":"가입 10년 미만"},{"t":"10~19년"},{"t":"20년 이상"}]},{"id":"Q8","part":1,"area":null,"type":"single","q":"현재 경제적으로 부양 중인 자녀가 있나요?","opts":[{"t":"없음 (무자녀 · 1인 가구 · 자녀 경제적 독립 완료)"},{"t":"1명 (교육비/양육비 지출 중)"},{"t":"2명 (교육비/양육비 지출 중)"},{"t":"3명 이상 (교육비/양육비 지출 중)"}]},{"id":"Q9","part":1,"area":null,"type":"multi","q":"퇴직을 생각할 때 가장 걱정되는 부분은 무엇인가요? (복수 선택)","opts":[{"t":"자녀 (교육비 · 결혼 비용)"},{"t":"부채 (주담대 · 신용대출 등)"},{"t":"자산 부족 (소득 · 현재 자산)"},{"t":"부모 (부양 · 의료 · 간병비)"},{"t":"나의 은퇴 · 연금 지식 부족"}]},{"id":"Q10","part":2,"area":"health","type":"single","q":"규칙적인 운동(주 3회)과 정기 건강검진을 실천하시나요?","opts":[{"t":"둘 다 꾸준히 실천"},{"t":"한 가지만 실천 중"},{"t":"거의 하지 않음"}]},{"id":"Q11","part":2,"area":"health","type":"single","q":"암과 혈관계 질환(뇌·심장)의 본인 병력이나 가족력이 있나요?","hint":"암과 혈관계 질환은 회복 과정과 일상생활 영향이 달라 구분해 확인합니다. 해당되는 항목을 선택해 주세요.","opts":[{"t":"모두 해당 없음"},{"t":"암 가족력/본인 병력"},{"t":"혈관계(뇌·심혈관) 가족력/본인 병력"},{"t":"암/혈관계 모두 해당"}]},{"id":"Q12","part":2,"area":"health","type":"single","q":"3대 진단비(암·뇌·심장) 보장 일시금은 얼마인가요?","hint":"진단(소견) 시 일시금으로 받는 보험 보장금(합산)입니다.","opts":[{"t":"없음/모름"},{"t":"3,000만 원 미만"},{"t":"3,000만 ~ 6,000만 원"},{"t":"6,000만 ~ 1억 원"},{"t":"1억 원 이상"}]},{"id":"Q13","part":2,"area":"health","type":"single","q":"실손·수술/입원 보험은 준비돼 있나요?","hint":"2026년 5월 5세대 실손이 출시되었습니다. 수술비·입원비 등 고액 항목은 별도 보완이 필요할 수 있습니다.","opts":[{"t":"없음/미가입"},{"t":"실손보험만 유지 중"},{"t":"실손 + 수술·입원비 보장"}]},{"id":"Q14","part":2,"area":"health","type":"single","q":"장기요양·간병(치매 등) 대비는?","opts":[{"t":"부족함/미가입"},{"t":"필요성 느낌 (알아보는 중)"},{"t":"간병·장기요양 보장 준비 완료"}]},{"id":"Q16","part":3,"area":"housing","type":"single","q":"현재 거주형태는?","hint":"자가를 선택하면 주택 시세·대출·주택연금 항목이 이어집니다.","opts":[{"t":"자가 (아파트)","home":true},{"t":"자가 (빌라·단독·오피스텔)","home":true},{"t":"전세/월세","home":false},{"t":"기타 (사택·숙박시설 등)","home":false}]},{"id":"Q17","part":3,"area":"housing","type":"single","q":"주거용 주택의 현재 시세는?","hint":"주택연금 활용 가능성과 예상 현금흐름을 계산하기 위한 기준입니다.","cond":"home","opts":[{"t":"5억 원 미만"},{"t":"5억~9억 원"},{"t":"9억~12억 원"},{"t":"12억 원 이상"}]},{"id":"Q18","part":3,"area":"housing","type":"single","q":"주택 대비 대출 비율(LTV)은?","hint":"주택가격 대비 남은 주택담보대출 비율입니다. 비율이 높을수록 노후 현금흐름 부담이 커집니다.","cond":"home","opts":[{"t":"없음"},{"t":"30% 미만"},{"t":"30~50%"},{"t":"50~70%"},{"t":"70% 이상"}]},{"id":"Q19","part":3,"area":"housing","type":"single","q":"주택연금(주택담보노후연금) 활용 계획은?","hint":"집에 계속 거주하면서 주택을 노후 월소득으로 활용할 의향을 확인합니다.","cond":"home","opts":[{"t":"가입 예정"},{"t":"자금 부족 시 고려"},{"t":"활용 계획 없음"},{"t":"주택연금을 잘 모름"}]},{"id":"Q20","part":3,"area":"housing","type":"single","q":"주거용 외 투자용 부동산·토지가 있나요?","hint":"상가·오피스텔·농지·임야·나대지 등을 시세 기준으로 합산해 주세요.","opts":[{"t":"없음"},{"t":"1억 원 미만"},{"t":"1억~3억 원"},{"t":"3억~5억 원"},{"t":"5억 원 이상"}]},{"id":"Q44","part":3,"area":"housing","type":"multi","q":"보유한 투자용 부동산·토지 유형은? (복수 선택)","hint":"여러 유형을 보유했다면 모두 선택해 주세요. 자산 유형별 현금화·연금화 방법을 확인합니다.","cond":"inv","opts":[{"t":"수익형 부동산 (상가·오피스텔·주택 등)"},{"t":"농지 (전·답·과수원)"},{"t":"임야 (산지)"},{"t":"나대지·기타"}]},{"id":"Q21","part":3,"area":"housing","type":"single","q":"노후에 주거지를 이동할 계획이 있나요?","opts":[{"t":"없음 (현재 주거지 유지)"},{"t":"평수 축소 (다운사이징)"},{"t":"수도권 외곽·지방 이동 (주거비 절감형)"},{"t":"실버타운·시니어 레지던스 (주거비 증가 가능)"}]},{"id":"Q22","part":3,"area":"housing","type":"single","q":"전월세 보증금 중 회수 가능한 주거 목돈은? (대출 제외)","hint":"전세대출 상환 후 실제로 회수 가능한 보증금 기준입니다. 월세 보증금도 포함합니다.","cond":"rent","opts":[{"t":"없음 또는 소액"},{"t":"5,000만 원 미만"},{"t":"5,000만 ~ 1억 5,000만 원"},{"t":"1억 5,000만 ~ 3억 원"},{"t":"3억 원 이상"}]},{"id":"Q23","part":4,"area":"asset","type":"single","q":"현금화 가능한 유동 금융자산 규모는?","hint":"예금·주식·펀드 합산액입니다. 연금저축·IRP·퇴직연금은 제외해 주세요.","opts":[{"t":"3,000만 원 미만"},{"t":"3,000만 ~ 1억 원"},{"t":"1억 ~ 2억 원"},{"t":"2억 ~ 3억 원"},{"t":"3억 원 이상"}]},{"id":"Q42","part":4,"area":"asset","type":"single","q":"위 유동 금융자산 중 주식·펀드 등 투자자산의 비중은?","hint":"앞에서 답한 금융자산 중 주식·펀드가 차지하는 비율입니다. 참고 — 금융자산에 투자한다면 예금을 택하겠다는 가구가 87.3%, 주식은 9.6%입니다 (2025년 가계금융복지조사)","opts":[{"t":"거의 없음 (예·적금 등 안전자산 위주)"},{"t":"30% 미만 — 50대 평균(≈25%) 수준"},{"t":"30~50%"},{"t":"50% 이상"}]},{"id":"Q24","part":4,"area":"asset","type":"single","q":"매월 고정적으로 붓는 저축/투자금은?","hint":"예·적금과 투자금 기준이며 연금상품 납입액은 제외합니다.","opts":[{"t":"월 50만 원 미만"},{"t":"월 50만 ~ 100만 원"},{"t":"월 100만 ~ 200만 원"},{"t":"월 200만 ~ 300만 원"},{"t":"월 300만 원 이상"}]},{"id":"Q25","part":4,"area":"asset","type":"single","q":"연금 절세계좌(연금저축·IRP·ISA) 활용은?","opts":[{"t":"없음 (미보유 / 활용 안 함)"},{"t":"일부 활용 중"},{"t":"세액공제 한도(연 900만 원)까지 활용"},{"t":"잘 모르겠음"}]},{"id":"Q26","part":4,"area":"asset","type":"single","q":"금융자산에서 나오는 연간 이자·배당 소득은?","hint":"예·적금 이자 + 주식 배당·펀드 분배금의 1년 합계입니다. 잘 모르면 예·적금 잔액×3%, 배당주·펀드 잔액×3~4%로 어림하세요 (연금계좌 수익은 제외).","opts":[{"t":"거의 없음 (연 120만 원 미만)"},{"t":"연 120만 ~ 600만 원 미만"},{"t":"연 600만 ~ 1,200만 원 미만"},{"t":"연 1,200만 ~ 2,400만 원 미만"},{"t":"연 2,400만 원 이상"}]},{"id":"Q27","part":4,"area":"asset","type":"single","q":"연금 3총사(국민/퇴직/개인) 준비 상태는?","hint":"국민·퇴직·개인연금 중 현재 준비된 연금 층을 확인합니다.","opts":[{"t":"1층만 — 국민연금"},{"t":"2층까지 — 국민 + 퇴직연금·IRP"},{"t":"3층 모두 — 국민 + 퇴직 + 개인연금"},{"t":"1층 + 3층 — 국민 + 개인연금"},{"t":"잘 모르겠음"}]},{"id":"Q28","part":4,"area":"asset","type":"single","q":"부부 합산 예상 국민연금 월 수령액은?","hint":"정확도 보정용 항목입니다. 공단 예상액을 알면 선택하고, 모르시면 앞의 가입기간으로 자동 추정합니다.","opts":[{"t":"잘 모르겠음"},{"t":"월 100만 원 미만"},{"t":"월 100만 ~ 150만 원 미만"},{"t":"월 150만 ~ 200만 원 미만"},{"t":"월 200만 ~ 250만 원 미만"},{"t":"월 250만 원 이상"}]},{"id":"Q29","part":4,"area":"asset","type":"single","q":"부부 합산 퇴직연금·개인연금 예상 월 수령액은?","hint":"국민연금은 제외합니다. 부부의 퇴직·개인연금 예상 수령액을 합산해 주세요.","opts":[{"t":"거의 없음 / 잘 모르겠음"},{"t":"월 50만 원 미만"},{"t":"월 50만 ~ 100만 원 미만"},{"t":"월 100만 ~ 200만 원 미만"},{"t":"월 200만 원 이상"}]},{"id":"Q30","part":4,"area":"asset","type":"single","q":"현재 남아있는 부채(대출) 총액은?","hint":"주택·사업·생활대출 등 현재 남은 부채를 모두 합산해 주세요.","opts":[{"t":"없음"},{"t":"1억 원 미만"},{"t":"1억 ~ 3억 원 미만"},{"t":"3억 ~ 5억 원 미만"},{"t":"5억 원 이상"}]},{"id":"Q31","part":5,"area":"job","type":"single","q":"주된 직장 퇴직 후 일할 계획·형태는?","hint":"퇴직 후부터 은퇴(연금 수령 기반) 전까지의 소득 공백기를 기준으로 답해 주세요.","opts":[{"t":"풀타임 재취업 (전일제)"},{"t":"주 2~3일 파트타임 · 긱워커"},{"t":"창업 · 자영업 · 프리랜서"},{"t":"일하지 않을 계획 (퇴직 후 근로 없음)"}]},{"id":"Q32","part":5,"area":"job","type":"single","q":"퇴직 후 예상 월 근로소득은?","hint":"퇴직 후부터 은퇴(연금 수령 기반) 전까지 예상 월 근로소득입니다. 참고 — 주된 일자리를 그만두는 평균 나이는 53.0세, 정년퇴직으로 그만둔 경우는 13.2%뿐입니다 (국가데이터처 2026년 5월 고령층 부가조사 · 55~79세)","opts":[{"t":"월 100만 원 이하"},{"t":"월 100만 ~ 200만 원"},{"t":"월 200만 ~ 300만 원"},{"t":"월 300만 ~ 400만 원"},{"t":"월 400만 원 이상"}]},{"id":"Q33","part":5,"area":"job","type":"single","q":"회사 직함 없이 내 기술로 돈을 벌어본 경험이 있으신가요?","opts":[{"t":"경험 있음 (독립적 소득 창출 가능)"},{"t":"경험은 없으나 가능함"},{"t":"경험 전혀 없음"}]},{"id":"Q34","part":5,"area":"job","type":"multi","q":"재취업/창업용 자격·기술을 보유하셨나요? (복수 선택)","opts":[{"t":"국가공인 자격증 보유"},{"t":"민간 자격증 / 전문 기술 보유"},{"t":"자격 취득 및 재교육 준비 중"},{"t":"보유한 자격/기술 없음","ex":true}]},{"id":"Q35","part":5,"area":"job","type":"single","q":"60세 이후에도 국민연금을 계속 불입(임의계속가입)할 의향은?","hint":"60세 이후에도 가입기간을 늘려 노령연금 수령액을 높이는 선택입니다.","opts":[{"t":"적극 참여할 의향 있음"},{"t":"여건이 되면 고려"},{"t":"참여할 생각 없음"},{"t":"제도를 처음 들어봄"}]},{"id":"Q36","part":6,"area":"well","type":"single","q":"사전연명의료의향서 등록 상태는?","hint":"향후 연명의료에 대한 본인의 의사를 미리 기록해 두었는지 확인합니다.","opts":[{"t":"이미 등록 완료"},{"t":"등록 긍정적 검토 중"},{"t":"등록 생각 없음"}]},{"id":"Q37","part":6,"area":"well","type":"single","q":"본인 유언 및 부모님 유산/상속 승계 준비 상태는?","hint":"유언·상속에 관한 가족 간 준비와 문서화 수준을 확인합니다.","opts":[{"t":"공정증서 · 유언대용신탁 · 의료/재정 대리인 지정 등 구체적 준비 완료"},{"t":"부모님 유산/상속 관련 가족 간 구두 협의 진행 중"},{"t":"상속 예정 자산이 있으나 사전 준비 없음 (분쟁/세금 리스크)"},{"t":"해당 없음 (준비 완료 또는 해당 자산 없음)"}]},{"id":"Q38","part":6,"area":"well","type":"single","q":"본인 및 부모님을 위한 상조 상품(또는 장례 예비자금) 준비는?","hint":"갑작스러운 장례비 지출에 대비한 상조 또는 별도 예비자금 준비 상태를 확인합니다.","opts":[{"t":"본인 및 부모님 상조 모두 가입/준비 완료"},{"t":"부모님 전용 상조/예비자금 준비 완료"},{"t":"본인 전용 상조만 가입 완료"},{"t":"미가입 / 미준비"}]},{"id":"Q39","part":6,"area":"well","type":"single","q":"갑작스러운 부재 시, 온라인 계좌·비밀번호 등 디지털 자산을 가족에게 전달할 준비가 되어 있나요?","hint":"가족이 필요한 계정·디지털 자산에 안전하게 접근할 수 있는 준비를 확인합니다.","opts":[{"t":"디지털 유산 서비스 또는 문서/파일로 안전하게 보관 완료"},{"t":"주요 비밀번호·계좌 정보를 가족 1인과 공유 중"},{"t":"구두로만 일부 전달함"},{"t":"아직 준비 안 됨 (사후 접근 불가 위험)"}]},{"id":"Q43","part":6,"area":"well","type":"single","q":"의료 결정·장례·상속 등 삶의 마무리에 대해 가족과 이야기해 본 적 있나요?","hint":"삶의 마무리에 대한 본인의 뜻을 가족과 어느 정도 공유했는지 확인합니다.","opts":[{"t":"구체적으로 합의까지 마쳤다"},{"t":"여러 번 대화해 봤다"},{"t":"한두 번 꺼내본 적 있다"},{"t":"한 번도 없다"}]},{"id":"Q45","part":6,"area":null,"type":"single","q":"나의 자서전·회고록·일상 대화를 기록해 주는 미니 AI 로봇이 있다면 활용할 의향이 있나요?","hint":"생애기록과 가족 소통을 위한 활용 의향을 묻는 참고 문항입니다. 웰다잉 점수에는 반영하지 않습니다.","opts":[{"t":"적극 활용하고 싶다"},{"t":"필요한 시기에 활용하고 싶다"},{"t":"관심은 있지만 개인정보가 걱정된다"},{"t":"활용할 의향이 없다"}]},{"id":"Q40","part":6,"area":null,"type":"single","q":"내가 바라는 삶의 아름다운 마무리는 어떤 모습인가요?","hint":"정답 없는 가치관 문항입니다. 점수에는 반영하지 않고 맞춤 상담에 참고합니다.","opts":[{"t":"가족에게 짐이 되지 않는 삶"},{"t":"가진 것을 나누고 베푸는 삶"},{"t":"나를 위한 온전한 휴식과 존엄을 지키는 삶"}]}],"quick":[{"id":"qk1","q":"연령대를 선택해 주세요","opts":[{"t":"40대 미만"},{"t":"40대"},{"t":"50대 초반"},{"t":"50대 후반"},{"t":"60대"},{"t":"65세 이상"}]},{"id":"qk2","q":"현재 일·소득 활동 상태는?","opts":[{"t":"정규직 등 안정된 소득으로 일하는 중"},{"t":"자영업·프리랜서로 일하는 중"},{"t":"시간제·간헐적으로 일하는 중"},{"t":"지금은 쉬지만 일할 의향 있음"},{"t":"은퇴 — 더 일할 계획 없음"}]},{"id":"qk3","q":"연금·예금·주식 등 금융자산은 대략 얼마인가요?","opts":[{"t":"5천만 원 미만"},{"t":"5천만 ~ 1억 5천"},{"t":"1억 5천 ~ 3억"},{"t":"3억 ~ 5억"},{"t":"5억 이상"}],"hint":"부동산 제외, 부부 합산"},{"id":"qk4","q":"한 달에 저축·투자로 남기는 돈은?","opts":[{"t":"거의 없음"},{"t":"50만 원 미만"},{"t":"50 ~ 100만 원"},{"t":"100 ~ 200만 원"},{"t":"200만 원 이상"}]},{"id":"qk5","q":"주거·부동산 상황은 어떤가요?","opts":[{"t":"자가 + 투자용 부동산도 보유"},{"t":"자가 (대출 없음·거의 상환)"},{"t":"자가 (대출 상환 중)"},{"t":"전세 거주"},{"t":"월세·기타"}]},{"id":"qk6","q":"큰 병이 생겼을 때의 대비는?","opts":[{"t":"보험 + 비상자금 모두 준비됨"},{"t":"보험 위주로 준비됨"},{"t":"비상자금(예금)으로만 대비"},{"t":"특별한 대비 없음"}]},{"id":"qk7","q":"유언·연명의료·상속 등 삶의 마무리 준비는?","opts":[{"t":"문서·자금까지 구체적으로 준비함"},{"t":"일부 준비함 (상조·보험 등)"},{"t":"생각은 해봤지만 실행 전"},{"t":"아직 생각해 본 적 없음"}]}]};
+window.__L2P_CAT_FB={"parts":["기본 정보","건강","부동산 (비금융자산)","동산 (금융자산)","일자리","웰다잉"],"seq":[1,4,3,2,5,6],"qnum":{"Q2":"Q1","Q3":"Q2","Q41":"Q3","Q4":"Q4","Q5":"Q5","Q6":"Q6","Q7":"Q7","Q8":"Q8","Q9":"Q9","Q23":"Q10","Q42":"Q11","Q24":"Q12","Q25":"Q13","Q26":"Q14","Q27":"Q15","Q28":"Q16","Q29":"Q17","Q30":"Q18","Q16":"Q19","Q17":"Q20","Q18":"Q21","Q19":"Q22","Q20":"Q23","Q44":"Q24","Q21":"Q25","Q22":"Q26","Q10":"Q27","Q11":"Q28","Q12":"Q29","Q13":"Q30","Q14":"Q31","Q46":"Q32","Q31":"Q33","Q32":"Q34","Q33":"Q35","Q34":"Q36","Q35":"Q37","Q36":"Q38","Q37":"Q39","Q38":"Q40","Q39":"Q41","Q43":"Q42","Q45":"Q43","Q40":""},"areaInfo":{"asset":{"name":"동산(금융)","emoji":"💰","col":"자산구조"},"health":{"name":"건강","emoji":"🛡️","col":"건강방어"},"housing":{"name":"부동산","emoji":"🏠","col":"주거연장"},"job":{"name":"일자리","emoji":"💼","col":"일자리역량"},"well":{"name":"웰다잉","emoji":"🕯️","col":"웰다잉준비"}},"areaOrder":["asset","health","housing","job","well"],"questions":[{"id":"Q1","part":1,"area":null,"type":"text","q":"이름 또는 별명을 알려주세요","hint":"실명이 부담되면 별명·이니셜도 괜찮아요 · 점수에 반영 안 됨"},{"id":"Q2","part":1,"area":null,"type":"single","q":"나이와 성별을 알려주세요","opts":[{"t":"남성"},{"t":"여성"}]},{"id":"Q3","part":1,"area":null,"type":"single","q":"일을 완전히 그만두는 시점은 언제로 보시나요?","hint":"「퇴직」과 「연금 개시」는 다릅니다. 주된 일자리를 그만두는 나이는 평균 53세, 국민연금은 1969년생부터 65세입니다. 재취업·부업까지 포함해 소득이 완전히 끊기는 시점을 골라 주세요.","opts":[{"t":"60세"},{"t":"65세"},{"t":"70세"},{"t":"76세 이후"}]},{"id":"Q41","part":1,"area":null,"type":"single","q":"현재 (부부 합산) 월 소득은 어느 정도인가요?","hint":"근로·사업·임대 등 월 실수령액 기준입니다. 이자·배당 소득은 제외합니다.","opts":[{"t":"월 300만 원 미만"},{"t":"월 300만 ~ 500만 원"},{"t":"월 500만 ~ 700만 원"},{"t":"월 700만 원 이상"}]},{"id":"Q4","part":1,"area":null,"type":"single","q":"현재(부부 기준) 월 생활비 총액은?","hint":"대출이자·주거비·교육비·식비·통신비 등 매달 실제 지출을 합산해 주세요.","opts":[{"t":"월 250만 원 이하"},{"t":"월 300만 원"},{"t":"월 400만 원"},{"t":"월 500만 원 이상"}]},{"id":"Q5","part":1,"area":null,"type":"single","q":"65세 이후 목표 월 생활비는?","hint":"65세 이후 부부가 매달 필요하다고 생각하는 생활비입니다. 참고 — 부부 기준 최소 노후생활비 216.6만원 · 적정 노후생활비 298.1만원 (국민연금연구원 2024년 국민노후보장패널 제10차 부가조사)","opts":[{"t":"월 200만 원 — 절약형"},{"t":"월 300만 원 — 기본형 (최소선 ≈250만)"},{"t":"월 400만 원 — 안정형 (안정 목표 ≈350만)"},{"t":"월 500만 원 이상 — 여유·품위형"}]},{"id":"Q6","part":1,"area":null,"type":"single","q":"본인 국민연금 총 가입기간은? (앞으로 낼 기간 포함 - 60세까지)","hint":"노령연금 개시 연령: 1969년생 이후 만 65세 (1953~68년생은 61~64세). 10년 이상 가입해야 수급요건을 충족합니다.","opts":[{"t":"10년 미만 — 수급요건 미달 (반환일시금)"},{"t":"10~19년 — 평균 수령 약 44만 원/월"},{"t":"20~29년 — 평균 약 80만 원/월"},{"t":"30년 이상 — 평균 약 112만 원/월"}]},{"id":"Q7","part":1,"area":null,"type":"single","q":"배우자의 국민연금 가입 상황은?","hint":"부부의 노후 현금흐름을 함께 계산하기 위한 항목입니다.","opts":[{"t":"배우자 없음/미가입"},{"t":"가입 10년 미만"},{"t":"10~19년"},{"t":"20년 이상"}]},{"id":"Q8","part":1,"area":null,"type":"single","q":"현재 경제적으로 부양 중인 자녀가 있나요?","opts":[{"t":"없음 (무자녀 · 1인 가구 · 자녀 경제적 독립 완료)"},{"t":"1명 (교육비/양육비 지출 중)"},{"t":"2명 (교육비/양육비 지출 중)"},{"t":"3명 이상 (교육비/양육비 지출 중)"}]},{"id":"Q9","part":1,"area":null,"type":"multi","q":"퇴직을 생각할 때 가장 걱정되는 부분은 무엇인가요? (복수 선택)","opts":[{"t":"자녀 (교육비 · 결혼 비용)"},{"t":"부채 (주담대 · 신용대출 등)"},{"t":"자산 부족 (소득 · 현재 자산)"},{"t":"부모 (부양 · 의료 · 간병비)"},{"t":"나의 은퇴 · 연금 지식 부족"}]},{"id":"Q10","part":2,"area":"health","type":"single","q":"규칙적인 운동(주 3회)과 정기 건강검진을 실천하시나요?","opts":[{"t":"둘 다 꾸준히 실천"},{"t":"한 가지만 실천 중"},{"t":"거의 하지 않음"}]},{"id":"Q11","part":2,"area":"health","type":"single","q":"암과 혈관계 질환(뇌·심장)의 본인 병력이나 가족력이 있나요?","hint":"암과 혈관계 질환은 회복 과정과 일상생활 영향이 달라 구분해 확인합니다. 해당되는 항목을 선택해 주세요.","opts":[{"t":"모두 해당 없음"},{"t":"암 가족력/본인 병력"},{"t":"혈관계(뇌·심혈관) 가족력/본인 병력"},{"t":"암/혈관계 모두 해당"}]},{"id":"Q12","part":2,"area":"health","type":"single","q":"3대 진단비(암·뇌·심장) 보장 일시금은 얼마인가요?","hint":"진단(소견) 시 일시금으로 받는 보험 보장금(합산)입니다.","opts":[{"t":"없음/모름"},{"t":"3,000만 원 미만"},{"t":"3,000만 ~ 6,000만 원"},{"t":"6,000만 ~ 1억 원"},{"t":"1억 원 이상"}]},{"id":"Q13","part":2,"area":"health","type":"single","q":"실손·수술/입원 보험은 준비돼 있나요?","hint":"2026년 5월 5세대 실손이 출시되었습니다. 수술비·입원비 등 고액 항목은 별도 보완이 필요할 수 있습니다.","opts":[{"t":"없음/미가입"},{"t":"실손보험만 유지 중"},{"t":"실손 + 수술·입원비 보장"}]},{"id":"Q14","part":2,"area":"health","type":"single","q":"장기요양·간병(치매 등) 대비는?","opts":[{"t":"부족함/미가입"},{"t":"필요성 느낌 (알아보는 중)"},{"t":"간병·장기요양 보장 준비 완료"}]},{"id":"Q16","part":3,"area":"housing","type":"single","q":"현재 거주형태는?","hint":"자가를 선택하면 주택 시세·대출·주택연금 항목이 이어집니다.","opts":[{"t":"자가 (아파트)","home":true},{"t":"자가 (빌라·단독·오피스텔)","home":true},{"t":"전세/월세","home":false},{"t":"기타 (사택·숙박시설 등)","home":false}]},{"id":"Q17","part":3,"area":"housing","type":"single","q":"주거용 주택의 현재 시세는?","hint":"주택연금 활용 가능성과 예상 현금흐름을 계산하기 위한 기준입니다.","cond":"home","opts":[{"t":"5억 원 미만"},{"t":"5억~9억 원"},{"t":"9억~12억 원"},{"t":"12억 원 이상"}]},{"id":"Q18","part":3,"area":"housing","type":"single","q":"주택 대비 대출 비율(LTV)은?","hint":"주택가격 대비 남은 주택담보대출 비율입니다. 비율이 높을수록 노후 현금흐름 부담이 커집니다.","cond":"home","opts":[{"t":"없음"},{"t":"30% 미만"},{"t":"30~50%"},{"t":"50~70%"},{"t":"70% 이상"}]},{"id":"Q19","part":3,"area":"housing","type":"single","q":"주택연금(주택담보노후연금) 활용 계획은?","hint":"집에 계속 거주하면서 주택을 노후 월소득으로 활용할 의향을 확인합니다.","cond":"home","opts":[{"t":"가입 예정"},{"t":"자금 부족 시 고려"},{"t":"활용 계획 없음"},{"t":"주택연금을 잘 모름"}]},{"id":"Q20","part":3,"area":"housing","type":"single","q":"주거용 외 투자용 부동산·토지가 있나요?","hint":"상가·오피스텔·농지·임야·나대지 등을 시세 기준으로 합산해 주세요.","opts":[{"t":"없음"},{"t":"1억 원 미만"},{"t":"1억~3억 원"},{"t":"3억~5억 원"},{"t":"5억 원 이상"}]},{"id":"Q44","part":3,"area":"housing","type":"multi","q":"보유한 투자용 부동산·토지 유형은? (복수 선택)","hint":"여러 유형을 보유했다면 모두 선택해 주세요. 자산 유형별 현금화·연금화 방법을 확인합니다.","cond":"inv","opts":[{"t":"수익형 부동산 (상가·오피스텔·주택 등)"},{"t":"농지 (전·답·과수원)"},{"t":"임야 (산지)"},{"t":"나대지·기타"}]},{"id":"Q21","part":3,"area":"housing","type":"single","q":"노후에 주거지를 이동할 계획이 있나요?","opts":[{"t":"없음 (현재 주거지 유지)"},{"t":"평수 축소 (다운사이징)"},{"t":"수도권 외곽·지방 이동 (주거비 절감형)"},{"t":"실버타운·시니어 레지던스 (주거비 증가 가능)"}]},{"id":"Q22","part":3,"area":"housing","type":"single","q":"전월세 보증금 중 회수 가능한 주거 목돈은? (대출 제외)","hint":"전세대출 상환 후 실제로 회수 가능한 보증금 기준입니다. 월세 보증금도 포함합니다.","cond":"rent","opts":[{"t":"없음 또는 소액"},{"t":"5,000만 원 미만"},{"t":"5,000만 ~ 1억 5,000만 원"},{"t":"1억 5,000만 ~ 3억 원"},{"t":"3억 원 이상"}]},{"id":"Q23","part":4,"area":"asset","type":"single","q":"현금화 가능한 유동 금융자산 규모는?","hint":"예금·주식·펀드 합산액입니다. 연금저축·IRP·퇴직연금은 제외해 주세요.","opts":[{"t":"3,000만 원 미만"},{"t":"3,000만 ~ 1억 원"},{"t":"1억 ~ 2억 원"},{"t":"2억 ~ 3억 원"},{"t":"3억 원 이상"}]},{"id":"Q42","part":4,"area":"asset","type":"single","q":"위 유동 금융자산 중 주식·펀드 등 투자자산의 비중은?","hint":"앞에서 답한 금융자산 중 주식·펀드가 차지하는 비율입니다. 참고 — 금융자산에 투자한다면 예금을 택하겠다는 가구가 87.3%, 주식은 9.6%입니다 (2025년 가계금융복지조사)","opts":[{"t":"거의 없음 (예·적금 등 안전자산 위주)"},{"t":"30% 미만 — 50대 평균(≈25%) 수준"},{"t":"30~50%"},{"t":"50% 이상"}]},{"id":"Q24","part":4,"area":"asset","type":"single","q":"매월 고정적으로 붓는 저축/투자금은?","hint":"예·적금과 투자금 기준이며 연금상품 납입액은 제외합니다.","opts":[{"t":"월 50만 원 미만"},{"t":"월 50만 ~ 100만 원"},{"t":"월 100만 ~ 200만 원"},{"t":"월 200만 ~ 300만 원"},{"t":"월 300만 원 이상"}]},{"id":"Q25","part":4,"area":"asset","type":"single","q":"연금 절세계좌(연금저축·IRP·ISA) 활용은?","opts":[{"t":"없음 (미보유 / 활용 안 함)"},{"t":"일부 활용 중"},{"t":"세액공제 한도(연 900만 원)까지 활용"},{"t":"잘 모르겠음"}]},{"id":"Q26","part":4,"area":"asset","type":"single","q":"금융자산에서 나오는 연간 이자·배당 소득은?","hint":"예·적금 이자 + 주식 배당·펀드 분배금의 1년 합계입니다. 잘 모르면 예·적금 잔액×3%, 배당주·펀드 잔액×3~4%로 어림하세요 (연금계좌 수익은 제외).","opts":[{"t":"거의 없음 (연 120만 원 미만)"},{"t":"연 120만 ~ 600만 원 미만"},{"t":"연 600만 ~ 1,200만 원 미만"},{"t":"연 1,200만 ~ 2,400만 원 미만"},{"t":"연 2,400만 원 이상"}]},{"id":"Q27","part":4,"area":"asset","type":"single","q":"연금 3총사(국민/퇴직/개인) 준비 상태는?","hint":"국민·퇴직·개인연금 중 현재 준비된 연금 층을 확인합니다.","opts":[{"t":"1층만 — 국민연금"},{"t":"2층까지 — 국민 + 퇴직연금·IRP"},{"t":"3층 모두 — 국민 + 퇴직 + 개인연금"},{"t":"1층 + 3층 — 국민 + 개인연금"},{"t":"잘 모르겠음"}]},{"id":"Q28","part":4,"area":"asset","type":"single","q":"부부 합산 예상 국민연금 월 수령액은?","hint":"정확도 보정용 항목입니다. 공단 예상액을 알면 선택하고, 모르시면 앞의 가입기간으로 자동 추정합니다.","opts":[{"t":"잘 모르겠음"},{"t":"월 100만 원 미만"},{"t":"월 100만 ~ 150만 원 미만"},{"t":"월 150만 ~ 200만 원 미만"},{"t":"월 200만 ~ 250만 원 미만"},{"t":"월 250만 원 이상"}]},{"id":"Q29","part":4,"area":"asset","type":"single","q":"부부 합산 퇴직연금·개인연금 예상 월 수령액은?","hint":"국민연금은 제외합니다. 부부의 퇴직·개인연금 예상 수령액을 합산해 주세요.","opts":[{"t":"거의 없음 / 잘 모르겠음"},{"t":"월 50만 원 미만"},{"t":"월 50만 ~ 100만 원 미만"},{"t":"월 100만 ~ 200만 원 미만"},{"t":"월 200만 원 이상"}]},{"id":"Q30","part":4,"area":"asset","type":"single","q":"현재 남아있는 부채(대출) 총액은?","hint":"주택·사업·생활대출 등 현재 남은 부채를 모두 합산해 주세요.","opts":[{"t":"없음"},{"t":"1억 원 미만"},{"t":"1억 ~ 3억 원 미만"},{"t":"3억 ~ 5억 원 미만"},{"t":"5억 원 이상"}]},{"id":"Q46","part":5,"area":null,"type":"single","q":"현재(또는 마지막) 주된 직업 분야는?","hint":"재취업·자격증 제안을 이 답변에 맞춰 드립니다. 점수에는 반영되지 않습니다.","opts":[{"t":"사무·관리·경영"},{"t":"영업·서비스·판매"},{"t":"생산·기술·건설·운전"},{"t":"전문직 (의료·법률·회계·교육 등)"},{"t":"IT·디자인·미디어"},{"t":"자영업·소상공인"},{"t":"공무원·공공기관"},{"t":"기타 · 해당 없음"}]},{"id":"Q31","part":5,"area":"job","type":"single","q":"주된 직장 퇴직 후 일할 계획·형태는?","hint":"퇴직 후부터 은퇴(연금 수령 기반) 전까지의 소득 공백기를 기준으로 답해 주세요.","opts":[{"t":"풀타임 재취업 (전일제)"},{"t":"주 2~3일 파트타임 · 긱워커"},{"t":"창업 · 자영업 · 프리랜서"},{"t":"일하지 않을 계획 (퇴직 후 근로 없음)"}]},{"id":"Q32","part":5,"area":"job","type":"single","q":"퇴직 후 예상 월 근로소득은?","hint":"퇴직 후부터 은퇴(연금 수령 기반) 전까지 예상 월 근로소득입니다. 참고 — 주된 일자리를 그만두는 평균 나이는 53.0세, 정년퇴직으로 그만둔 경우는 13.2%뿐입니다 (국가데이터처 2026년 5월 고령층 부가조사 · 55~79세)","opts":[{"t":"월 100만 원 이하"},{"t":"월 100만 ~ 200만 원"},{"t":"월 200만 ~ 300만 원"},{"t":"월 300만 ~ 400만 원"},{"t":"월 400만 원 이상"}]},{"id":"Q33","part":5,"area":"job","type":"single","q":"회사 직함 없이 내 기술로 돈을 벌어본 경험이 있으신가요?","opts":[{"t":"경험 있음 (독립적 소득 창출 가능)"},{"t":"경험은 없으나 가능함"},{"t":"경험 전혀 없음"}]},{"id":"Q34","part":5,"area":"job","type":"multi","q":"재취업/창업용 자격·기술을 보유하셨나요? (복수 선택)","opts":[{"t":"국가공인 자격증 보유"},{"t":"민간 자격증 / 전문 기술 보유"},{"t":"자격 취득 및 재교육 준비 중"},{"t":"보유한 자격/기술 없음","ex":true}]},{"id":"Q35","part":5,"area":"job","type":"single","q":"60세 이후에도 국민연금을 계속 불입(임의계속가입)할 의향은?","hint":"60세 이후에도 가입기간을 늘려 노령연금 수령액을 높이는 선택입니다.","opts":[{"t":"적극 참여할 의향 있음"},{"t":"여건이 되면 고려"},{"t":"참여할 생각 없음"},{"t":"제도를 처음 들어봄"}]},{"id":"Q36","part":6,"area":"well","type":"single","q":"사전연명의료의향서 등록 상태는?","hint":"향후 연명의료에 대한 본인의 의사를 미리 기록해 두었는지 확인합니다.","opts":[{"t":"이미 등록 완료"},{"t":"등록 긍정적 검토 중"},{"t":"등록 생각 없음"}]},{"id":"Q37","part":6,"area":"well","type":"single","q":"본인 유언 및 부모님 유산/상속 승계 준비 상태는?","hint":"유언·상속에 관한 가족 간 준비와 문서화 수준을 확인합니다.","opts":[{"t":"공정증서 · 유언대용신탁 · 의료/재정 대리인 지정 등 구체적 준비 완료"},{"t":"부모님 유산/상속 관련 가족 간 구두 협의 진행 중"},{"t":"상속 예정 자산이 있으나 사전 준비 없음 (분쟁/세금 리스크)"},{"t":"해당 없음 (준비 완료 또는 해당 자산 없음)"}]},{"id":"Q38","part":6,"area":"well","type":"single","q":"본인 및 부모님을 위한 상조 상품(또는 장례 예비자금) 준비는?","hint":"갑작스러운 장례비 지출에 대비한 상조 또는 별도 예비자금 준비 상태를 확인합니다.","opts":[{"t":"본인 및 부모님 상조 모두 가입/준비 완료"},{"t":"부모님 전용 상조/예비자금 준비 완료"},{"t":"본인 전용 상조만 가입 완료"},{"t":"미가입 / 미준비"}]},{"id":"Q39","part":6,"area":"well","type":"single","q":"갑작스러운 부재 시, 온라인 계좌·비밀번호 등 디지털 자산을 가족에게 전달할 준비가 되어 있나요?","hint":"가족이 필요한 계정·디지털 자산에 안전하게 접근할 수 있는 준비를 확인합니다.","opts":[{"t":"디지털 유산 서비스 또는 문서/파일로 안전하게 보관 완료"},{"t":"주요 비밀번호·계좌 정보를 가족 1인과 공유 중"},{"t":"구두로만 일부 전달함"},{"t":"아직 준비 안 됨 (사후 접근 불가 위험)"}]},{"id":"Q43","part":6,"area":"well","type":"single","q":"의료 결정·장례·상속 등 삶의 마무리에 대해 가족과 이야기해 본 적 있나요?","hint":"삶의 마무리에 대한 본인의 뜻을 가족과 어느 정도 공유했는지 확인합니다.","opts":[{"t":"구체적으로 합의까지 마쳤다"},{"t":"여러 번 대화해 봤다"},{"t":"한두 번 꺼내본 적 있다"},{"t":"한 번도 없다"}]},{"id":"Q45","part":6,"area":null,"type":"single","q":"나의 자서전·회고록·일상 대화를 기록해 주는 미니 AI 로봇이 있다면 활용할 의향이 있나요?","hint":"생애기록과 가족 소통을 위한 활용 의향을 묻는 참고 문항입니다. 웰다잉 점수에는 반영하지 않습니다.","opts":[{"t":"적극 활용하고 싶다"},{"t":"필요한 시기에 활용하고 싶다"},{"t":"관심은 있지만 개인정보가 걱정된다"},{"t":"활용할 의향이 없다"}]},{"id":"Q40","part":6,"area":null,"type":"single","q":"내가 바라는 삶의 아름다운 마무리는 어떤 모습인가요?","hint":"정답 없는 가치관 문항입니다. 점수에는 반영하지 않고 맞춤 상담에 참고합니다.","opts":[{"t":"가족에게 짐이 되지 않는 삶"},{"t":"가진 것을 나누고 베푸는 삶"},{"t":"나를 위한 온전한 휴식과 존엄을 지키는 삶"}]}],"quick":[{"id":"qk1","q":"연령대를 선택해 주세요","opts":[{"t":"40대 미만"},{"t":"40대"},{"t":"50대 초반"},{"t":"50대 후반"},{"t":"60대"},{"t":"65세 이상"}]},{"id":"qk2","q":"현재 일·소득 활동 상태는?","opts":[{"t":"정규직 등 안정된 소득으로 일하는 중"},{"t":"자영업·프리랜서로 일하는 중"},{"t":"시간제·간헐적으로 일하는 중"},{"t":"지금은 쉬지만 일할 의향 있음"},{"t":"은퇴 — 더 일할 계획 없음"}]},{"id":"qk3","q":"연금·예금·주식 등 금융자산은 대략 얼마인가요?","opts":[{"t":"5천만 원 미만"},{"t":"5천만 ~ 1억 5천"},{"t":"1억 5천 ~ 3억"},{"t":"3억 ~ 5억"},{"t":"5억 이상"}],"hint":"부동산 제외, 부부 합산"},{"id":"qk4","q":"한 달에 저축·투자로 남기는 돈은?","opts":[{"t":"거의 없음"},{"t":"50만 원 미만"},{"t":"50 ~ 100만 원"},{"t":"100 ~ 200만 원"},{"t":"200만 원 이상"}]},{"id":"qk5","q":"주거·부동산 상황은 어떤가요?","opts":[{"t":"자가 + 투자용 부동산도 보유"},{"t":"자가 (대출 없음·거의 상환)"},{"t":"자가 (대출 상환 중)"},{"t":"전세 거주"},{"t":"월세·기타"}]},{"id":"qk6","q":"큰 병이 생겼을 때의 대비는?","opts":[{"t":"보험 + 비상자금 모두 준비됨"},{"t":"보험 위주로 준비됨"},{"t":"비상자금(예금)으로만 대비"},{"t":"특별한 대비 없음"}]},{"id":"qk7","q":"유언·연명의료·상속 등 삶의 마무리 준비는?","opts":[{"t":"문서·자금까지 구체적으로 준비함"},{"t":"일부 준비함 (상조·보험 등)"},{"t":"생각은 해봤지만 실행 전"},{"t":"아직 생각해 본 적 없음"}]}]};
 </script>
 <!-- [FIX-AA] 자체 도메인 diag.lpp20.com · 형제 페이지 링크 상대화 -->
 <meta charset="UTF-8">
@@ -1076,13 +1076,16 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   <!-- [FIX-AP] 전·후 비교 전역 참조 오류 수정 -->
   <!-- [FIX-AQ] 전·후 비교 패널 유지(What-if 2.0 리셋 대응) -->
   <!-- [FIX-AR] 로드맵 이동 · 상품탭 전폭 · 통계표 접기 · 정밀/AI 전용 화면 -->
+  <!-- [FIX-AS] 진단 결과 불러오기(마이·회원 로그인) -->
+  <!-- [FIX-AT] Set it and forget it 마무리 메시지 -->
+  <!-- [FIX-AV] 일자리 블록 신설 · 웰다잉 확장 -->
 </head>
 <body>
 
 <nav class="topnav">
   <div class="nav-inner">
     <div class="logo"><div class="ko">2막 1장</div><div class="en">LIFE 2.0</div></div>
-    <div class="nav-badge">AI 정밀진단 · 최대 41문항</div>
+    <div class="nav-badge">AI 정밀진단 · 최대 43문항</div>
   </div>
 </nav>
 
@@ -1120,9 +1123,9 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
         <span class="sc-arrow">›</span>
       </div>
       <div class="sc-specs">
-        <div><span class="sl">특징</span><span class="sv"><b>AI 알고리즘</b>이 41개 문항 × 5개 영역(연금·자산·건강·일자리·웰다잉)을 교차 분석 — <b>자산 고갈 나이 시나리오</b>와 <b>맞춤 상품 제안</b>까지</span></div>
+        <div><span class="sl">특징</span><span class="sv"><b>AI 알고리즘</b>이 43개 문항 × 5개 영역(연금·자산·건강·일자리·웰다잉)을 교차 분석 — <b>자산 고갈 나이 시나리오</b>와 <b>맞춤 상품 제안</b>까지</span></div>
         <div><span class="sl">소요시간</span><span class="sv">약 8분</span></div>
-        <div><span class="sl">문항 수</span><span class="sv">최대 41문항</span></div>
+        <div><span class="sl">문항 수</span><span class="sv">최대 43문항</span></div>
         <div><span class="sl">제공</span><span class="sv">AI 정밀 리포트 + 맞춤 상품 제안 + 전문가 상담 연결</span></div>
         <div><span class="sl gold">혜택</span><span class="sv"><b>설문 참여 시 정밀 리포트 무료</b> (5,000원 상당)</span></div>
       </div>
@@ -1152,7 +1155,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
       <div class="ev-note">※ 미니로봇은 마이데이터 정기구독 또는 전문가 1:1 심층상담 유료회원 대상입니다.</div>
     </div>
 
-    <button class="btn btn-ghost" style="width:calc(100% - 32px);margin:14px 16px 0;" onclick="resumeOpen()">🔄 기존 진단 이어하기</button>
+    <button class="btn btn-ghost" style="width:calc(100% - 32px);margin:14px 16px 0;" onclick="resumeOpen()">🔄 기존 진단 이어하기</button><button class="btn btn-ghost" style="width:calc(100% - 32px);margin:8px 16px 0;" onclick="l2pLookupOpen('login')">👤 회원 로그인 · 내 진단 불러오기</button>
   </section>
 
   <!-- ===== 0-1) 빠른 진단 (12문항) ===== -->
@@ -1194,7 +1197,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
 
     <div class="v24-stat-row">
       <div><span class="v24-stat-ic">◷</span><b>약 7분</b><small>소요 시간</small></div>
-      <div><span class="v24-stat-ic">▣</span><b>최대 41문항</b><small>진단 문항</small></div>
+      <div><span class="v24-stat-ic">▣</span><b>최대 43문항</b><small>진단 문항</small></div>
       <div><span class="v24-stat-ic">♢</span><b>진단·상담</b><small>목적 보관</small></div>
     </div>
 
@@ -1222,7 +1225,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
     <div class="v24-privacy"><span>🔒</span><div><b>개인정보는 안전하게 보호됩니다</b><small>입력하신 정보는 진단 및 리포트 제공 목적 외에 사용되지 않습니다.</small></div><strong class="v30-badge">안심<br>보장</strong></div>
 
     <button class="v24-start-btn" onclick="openStartSetup()">진단 시작하기 <span>›</span></button>
-    <button class="v24-resume" onclick="resumeOpen()">기존 진단 이어하기</button>
+    <button class="v24-resume" onclick="resumeOpen()">기존 진단 이어하기</button><button class="v24-resume" onclick="l2pLookupOpen('login')">회원 로그인 · 내 진단 불러오기</button>
 
     <div id="v24Setup" class="v24-setup-overlay" style="display:none;" onmousedown="window.__l2pOvDown=(event.target===this)" onclick="if(event.target===this&&window.__l2pOvDown)closeStartSetup();window.__l2pOvDown=false">
       <div class="v24-setup-sheet">
@@ -1362,7 +1365,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
       <span class="status-chip">최근 진단 결과 확인</span>
     </div>
     <div class="my-menu">
-      <button onclick="goPremiumReport()">📊 최근 진단 결과 <span>›</span></button>
+      <button onclick="l2pMyReport()">📊 최근 진단 결과 <span>›</span></button>
       <button onclick="goConsult()">🤝 상담 신청 / 예약 <span>›</span></button>
       <button onclick="showPaidStatus()">🔐 정밀 리포트 구매 상태 <span>›</span></button>
       <button onclick="restart()">↻ 새 진단 시작 <span>›</span></button>
@@ -1765,11 +1768,12 @@ function reportHTML(R, sample){
       <div class="ff-bar"><i style="width:${Math.min(R.fulfillGoal,100)}%"></i></div>
       <div class="ff-note">생활비 기준 충족률 <b style="color:var(--ink)">${R.fulfill}%</b> — <b>꼭 쓰는 최소선 ${R.minCost}만</b>은 연금으로, 여유분 ${Math.max(R.costAdj-R.minCost,0)}만은 일자리·자산소득으로 채우는 것이 안전합니다 · 참고: 적정 ${R.basis.coupleAdequate}만·최소 ${R.basis.coupleMinimum}만 (국민연금연구원)</div>
       <div class="scen-row">
-        <div class="scen-chip p"><div class="t">비관 (소득−5%·지출+10%)</div><div class="v">${R.scen.p>=90?'90+':R.scen.p}<span style="font-size:13.5px;">세</span></div></div>
-        <div class="scen-chip"><div class="t">평균 (현재 조건)</div><div class="v">${R.scen.a>=90?'90+':R.scen.a}<span style="font-size:13.5px;">세</span></div></div>
-        <div class="scen-chip o"><div class="t">낙관 (소득+5%·지출−5%)</div><div class="v">${R.scen.o>=90?'90+':R.scen.o}<span style="font-size:13.5px;">세</span></div></div>
+        <div class="scen-chip p"><div class="t">생활충격 (소득 −15% · 지출 +5% · 의료비↑)</div><div class="v">${R.scen.p>=90?'90+':R.scen.p}<span style="font-size:13.5px;">세</span></div></div>
+        <div class="scen-chip"><div class="t">기준 (현재 조건)</div><div class="v">${R.scen.a>=90?'90+':R.scen.a}<span style="font-size:13.5px;">세</span></div></div>
+        <div class="scen-chip o"><div class="t">시장·장수 (소득 −8% · 지출 +3%)</div><div class="v">${R.scen.o>=90?'90+':R.scen.o}<span style="font-size:13.5px;">세</span></div></div>
       </div>
       <div style="text-align:center;"><span class="scen-badge">🎯 90세 자산 유지 — 3개 시나리오 중 ${R.keep90}개 통과</span></div>
+      <div class="ff-note" style="margin-top:8px;">※ 세 시나리오는 <b>현재 조건이거나 그보다 나쁜 경우</b>입니다 — 낙관 시나리오는 넣지 않았습니다. 노후 준비에서 실제로 문제가 되는 것은 수익률이 좋을 때가 아니라 <b>재취업이 늦어지거나 의료비가 늘어날 때</b>이기 때문입니다.</div>
     </div>
 
     <div class="shield-card">
@@ -2289,7 +2293,7 @@ function detailTabsHTML(R){
       <button class="tab" onclick="tab(event,'t-road')">💎 AI 맞춤 상품</button>
       <button class="tab" onclick="tab(event,'t-wi')">📊 전·후 비교</button>
     </div>
-    <div id="t-rx" class="panel active"><div class="sec-block" style="margin-top:14px;"><h3>🤖 AI 영역별 정밀 처방</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;"><b>AI 알고리즘이 41개 문항 답변 × 5개 영역 점수를 교차 분석</b>해, 취약한 순서대로 지금 실행할 수 있는 조치를 정리했습니다.</p></div>${rx}</div>
+    <div id="t-rx" class="panel active"><div class="sec-block" style="margin-top:14px;"><h3>🤖 AI 영역별 정밀 처방</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;"><b>AI 알고리즘이 43개 문항 답변 × 5개 영역 점수를 교차 분석</b>해, 취약한 순서대로 지금 실행할 수 있는 조치를 정리했습니다.</p></div>${rx}</div>
     <div id="t-road" class="panel">
       <div class="sec-block" style="margin-top:14px;"><h3>🧭 AI 실행 로드맵</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;">AI 알고리즘이 <b>진단 결과에서 가장 급한 순서</b>로 정렬했습니다. 오늘 30분 안에 끝낼 일부터 1년 안에 준비할 일까지 — 아래 <b>AI 맞춤 상품 제안</b>에는 부족한 금액을 메울 수단과 필요 금액이 함께 계산돼 있습니다.</p></div>
       <div class="cl-block"><div class="cl-head"><div class="n">I</div><div class="t">오늘 안에 (30분)</div><div class="when">Today</div></div>${clList(rd.T)}</div>
@@ -2299,12 +2303,11 @@ function detailTabsHTML(R){
     </div>
     <div id="t-wi" class="panel">${whatifHTML(R)}</div>
 
-    <div class="sec-block consult-sec" style="margin-top:18px;">
+    <div class="sec-block consult-sec one" style="margin-top:18px;">
       <span class="eyebrow gold">상담 연결</span>
-      <h3 style="font-family:'Noto Serif KR',serif;font-size:19px;color:var(--green-deep);font-weight:700;margin:6px 0 4px;">설문을 마치셨다면, <em>라이프이점영 회원 가입 후 무료 상담</em>으로 이어집니다</h3>
-      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">진단 결과를 바탕으로 담당 플래너가 1:1로 도와드립니다.</p>
-      <div class="consult-grid">
-        <div class="cs-card cs-free"><h4>🤝 라이프이점영 회원 가입 후 무료 상담</h4><p>연금·보험·웰다잉 분야를 은퇴설계 전문가가 무료로 점검해 드립니다.</p><button class="cs-btn" onclick="consult('free')">회원가입 후 무료 상담 신청 →</button></div>
+      <h3 style="font-family:'Noto Serif KR',serif;font-size:19px;color:var(--green-deep);font-weight:700;margin:6px 0 4px;">더 깊은 검토가 필요하면 <em>외부 전문가(유료)</em>로 연결해 드립니다</h3>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;">라이프이점영 <b>무료 상담</b>은 위 맞춤형 상품 제안에서 바로 신청하실 수 있습니다.</p>
+      <div class="consult-grid one">
         <div class="cs-card cs-paid"><h4>📋 외부 전문가(유료)</h4><p>상속·증여 세무, 부동산·주택연금, 법률·유언 등 검증된 전문가와 연결.</p><button class="cs-btn" onclick="consult('paid')">외부 전문가 보기 →</button></div>
       </div>
     </div>
@@ -2675,7 +2678,7 @@ function renderSingleQuestion(preferId){
   uiQId=flow[idx].id; var q=flow[idx]; curPart=SEQ.indexOf(q.part)+1;
   document.getElementById('partIntro').style.display='none'; document.getElementById('partBody').style.display='block';
   document.getElementById('qContainer').innerHTML=uiQuestionHTML(q);
-  var total=42, num=(q.id==='Q40'?42:(parseInt(String(QNUM[q.id]||'Q1').replace(/\D/g,''),10)||1)), pct=Math.max(2,Math.min(100,Math.round(num/total*100)));
+  var total=43, num=(q.id==='Q40'?43:(parseInt(String(QNUM[q.id]||'Q1').replace(/\D/g,''),10)||1)), pct=Math.max(2,Math.min(100,Math.round(num/total*100)));
   document.getElementById('pNow').textContent='PART '+curPart;
   document.getElementById('pName2').textContent=' · '+num+' / '+total;
   document.getElementById('pPct').textContent=pct+'%'; document.getElementById('pFill').style.width=pct+'%';
@@ -6961,6 +6964,278 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   .cmp32-fold>.cmp32{display:block!important;}}
 </style>
 <style id="ai-products-css">
+/* ══ [FIX-BC] AI 은퇴진단 Dashboard ══════════════════════════════════════ */
+.dash{margin:0 0 16px;}
+.dash-top{background:linear-gradient(135deg,#0E3A26 0%,#155C3B 55%,#1C7A4E 100%);
+  color:#fff;border-radius:20px;padding:22px 20px 20px;display:grid;gap:18px;}
+.dt-eye{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+  background:rgba(255,255,255,.14);border-radius:20px;padding:5px 11px;}
+.dt-eye i{width:6px;height:6px;border-radius:50%;background:#7FD6A6;display:inline-block;}
+.dash-top h2{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;letter-spacing:-.03em;margin:10px 0 12px;word-break:keep-all;}
+.dt-state{display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap;background:rgba(255,255,255,.12);
+  border-radius:14px;padding:9px 14px;}
+.dt-state .dot{width:11px;height:11px;border-radius:50%;background:#4ADE80;flex:0 0 auto;}
+.dt-state.warn .dot{background:#FACC15;} .dt-state.bad .dot{background:#F87171;}
+.dt-state .sc{font-size:14.5px;font-weight:700;} .dt-state .sc b{font-size:25px;font-weight:900;letter-spacing:-.03em;}
+.dt-state .sc i{font-size:13px;font-style:normal;font-weight:700;}
+.dt-state .gd{font-size:12px;font-weight:800;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 10px;}
+.dt-msg{font-size:15px;line-height:1.6;margin:13px 0 0;word-break:keep-all;}
+.dt-msg b{color:#F2DFA6;}
+.dt-sub{font-size:12.5px;line-height:1.6;margin:5px 0 0;color:rgba(255,255,255,.7);word-break:keep-all;}
+.dt-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.dk{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:11px 12px;}
+.dk .l{display:block;font-size:10.5px;color:rgba(255,255,255,.72);font-weight:700;line-height:1.4;word-break:keep-all;margin-bottom:5px;}
+.dk .v{display:block;font-size:20px;font-weight:900;letter-spacing:-.04em;}
+.dk .v i{font-size:12px;font-style:normal;font-weight:700;margin-left:1px;}
+.dk.warn .v{color:#FDE68A;} .dk.bad .v{color:#FCA5A5;}
+@media (min-width:760px){
+  .dash-top{grid-template-columns:1.25fr 1fr;align-items:center;gap:22px;padding:26px 24px;}
+  .dt-kpi{grid-template-columns:1fr;gap:9px;}
+  .dash-top h2{font-size:26px;}
+}
+.dash-chart{margin-top:14px;}
+.dash-chart .tlc{margin-top:0;}
+
+.dash-sec{margin-top:16px;}
+.ds-h{margin-bottom:11px;}
+.ds-h h3{font-family:'Noto Serif KR',serif;font-size:18.5px;font-weight:700;color:#0F2B1D;letter-spacing:-.03em;margin:0 0 3px;word-break:keep-all;}
+.ds-h p{font-size:12.5px;color:#6E7C73;line-height:1.6;margin:0;word-break:keep-all;}
+
+/* 재무 지표 카드 */
+.dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+@media (min-width:760px){ .dm-grid{grid-template-columns:repeat(3,1fr);} }
+.dm{background:#fff;border:1px solid #E4E8E5;border-left:3px solid #C9D3CC;border-radius:14px;padding:12px 13px;}
+.dm.good{border-left-color:#1C7A4E;} .dm.warn{border-left-color:#C89A3C;} .dm.bad{border-left-color:#C2564B;}
+.dm-h{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;margin-bottom:6px;}
+.dm-l{font-size:12px;font-weight:800;color:#5E6B63;line-height:1.4;word-break:keep-all;}
+.dm-bd{flex:0 0 auto;font-size:10px;font-weight:900;border-radius:20px;padding:2px 8px;letter-spacing:-.02em;}
+.dm-bd.good{background:#E6F4EC;color:#146B44;} .dm-bd.warn{background:#FBF3E0;color:#8A6A20;}
+.dm-bd.bad{background:#FBEAE8;color:#9E3B32;} .dm-bd.info{background:#EEF1EF;color:#5E6B63;}
+.dm-v{font-size:26px;font-weight:900;color:#0F2B1D;letter-spacing:-.045em;line-height:1.1;}
+.dm.warn .dm-v{color:#8A6A20;} .dm.bad .dm-v{color:#9E3B32;}
+.dm-v i{font-size:13px;font-style:normal;font-weight:800;margin-left:2px;}
+.dm-s{font-size:11.5px;color:#6E7C73;line-height:1.55;margin-top:6px;word-break:keep-all;}
+.dm-n{font-size:10.5px;color:#98A19B;line-height:1.5;margin-top:5px;padding-top:5px;border-top:1px dashed #E7EBE7;word-break:keep-all;}
+
+/* AI 핵심 진단 */
+.di-grid{display:grid;gap:9px;}
+@media (min-width:760px){ .di-grid{grid-template-columns:repeat(3,1fr);} }
+.di{background:#fff;border:1px solid #E4E8E5;border-radius:14px;padding:13px 14px;}
+.di-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.di-h .ic{font-size:18px;line-height:1;}
+.di-h .no{font-size:12px;font-weight:900;color:#B7C0BA;}
+.di b{display:block;font-size:14px;font-weight:800;color:#12301F;letter-spacing:-.025em;line-height:1.45;word-break:keep-all;}
+.di p{font-size:12.5px;color:#5E6B63;line-height:1.65;margin:6px 0 0;word-break:keep-all;}
+.di p b{display:inline;font-size:inherit;color:#0F2B1D;}
+.di-why{margin-top:9px;padding-top:8px;border-top:1px solid #EDF1EE;font-size:11.5px;color:#6E7C73;line-height:1.6;word-break:keep-all;}
+.di-why span{display:block;font-size:10px;font-weight:900;color:#A8B2AC;letter-spacing:.04em;margin-bottom:3px;}
+.di-why b{display:inline;font-size:inherit;color:#0F2B1D;}
+
+/* 시나리오 비교 */
+.dbtn{display:block;width:100%;border:1px solid #CBDCD1;background:#F2F8F4;color:#0E3A26;border-radius:13px;
+  padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:-.02em;}
+.dbtn:disabled{opacity:.6;cursor:default;}
+.dbtn.primary{background:linear-gradient(135deg,#0E3A26,#1C7A4E);color:#fff;border:0;margin-top:12px;}
+.dsc-rows{margin-top:11px;display:grid;gap:7px;}
+.dsc-row{background:#fff;border:1px solid #E4E8E5;border-radius:13px;padding:11px 13px;}
+.dsc-row.now{background:#F7FAF8;} .dsc-row.best{border-color:#1C7A4E;box-shadow:0 0 0 1px #1C7A4E inset;}
+.dsc-nm{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
+.dsc-nm .ic{font-size:14px;} .dsc-nm b{font-size:13.5px;font-weight:800;color:#12301F;letter-spacing:-.02em;}
+.dsc-nm .dt{font-size:11.5px;color:#6E7C73;word-break:keep-all;}
+.dsc-nm .ovl{font-size:9.5px;font-weight:800;color:#8A6A20;background:#FBF3E0;border-radius:20px;padding:2px 7px;}
+.dsc-bar{position:relative;height:22px;background:#EFF3F0;border-radius:11px;margin:8px 0 6px;overflow:hidden;}
+.dsc-bar i{display:block;height:100%;background:linear-gradient(90deg,#3E9A6B,#1C7A4E);border-radius:11px;}
+.dsc-row.now .dsc-bar i{background:linear-gradient(90deg,#B7C0BA,#8A968E);}
+/* 막대가 길면 숫자가 초록 위에 겹쳐 읽히지 않는다 — 흰 알약 배경을 깐다 */
+.dsc-age{position:absolute;right:5px;top:3px;line-height:16px;font-size:11.5px;font-weight:900;color:#0F2B1D;background:rgba(255,255,255,.94);border-radius:9px;padding:0 8px;}
+.dsc-kv{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:#6E7C73;}
+.dsc-kv b{color:#0F2B1D;font-weight:800;}
+.dsc-kv .up{color:#146B44;font-weight:900;} .dsc-kv .dn{color:#9E3B32;font-weight:900;}
+.dsc-kv .dsc-base{color:#A8B2AC;font-weight:800;}
+.dsc-note{font-size:11px;color:#8A938D;line-height:1.65;margin-top:9px;word-break:keep-all;}
+.dsc-note b{color:#5E6B63;}
+
+.drec{margin-top:13px;background:#F7FAF8;border:1px solid #DEE7E1;border-radius:16px;padding:15px 14px;}
+.drec-h h3{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:700;color:#0F2B1D;margin:0 0 3px;letter-spacing:-.03em;}
+.drec-h p{font-size:12px;color:#6E7C73;line-height:1.6;margin:0 0 11px;word-break:keep-all;}
+.drec-l{list-style:none;margin:0;padding:0;display:grid;gap:7px;}
+.drec-l li{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E4E8E5;border-radius:12px;padding:10px 12px;}
+.drec-l .no{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#fff;background:#0E3A26;border-radius:20px;padding:4px 9px;}
+.drec-l li > div{flex:1 1 auto;min-width:0;}
+.drec-l b{display:block;font-size:13.5px;font-weight:800;color:#12301F;letter-spacing:-.02em;}
+.drec-l .dt{display:block;font-size:11.5px;color:#6E7C73;line-height:1.5;margin-top:2px;word-break:keep-all;}
+.drec-l .gn{flex:0 0 auto;font-size:13px;font-weight:900;color:#146B44;}
+.drec-sum{margin-top:11px;background:#0E3A26;color:#fff;border-radius:14px;padding:13px 14px;}
+.drec-sum b{display:block;font-size:12px;font-weight:800;color:#9FD9BB;margin-bottom:4px;}
+.drec-sum span{display:block;font-size:13.5px;line-height:1.65;word-break:keep-all;}
+.drec-sum em{font-style:normal;font-weight:900;color:#F2DFA6;}
+.drec-sum em.up{color:#7FD6A6;}
+
+/* 정밀 리포트 안의 점수 히어로는 대시보드 요약과 겹친다 — 숨긴다 */
+#fullReportWrap > .score-hero{display:none!important;}
+
+@media print{
+  .dash-top{background:#0E3A26!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #scenBtn,.drec-btn{display:none!important;}
+}
+
+/* [FIX-BC] 인쇄본 대시보드 */
+@media print{
+  #printDoc .dash-top{display:grid!important;grid-template-columns:1.3fr 1fr!important;gap:5mm!important;
+    padding:10px 12px!important;border-radius:12px!important;background:#0E3A26!important;color:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;margin-bottom:4mm!important;}
+  #printDoc .dash-top h2{font-size:15px!important;margin:5px 0 7px!important;}
+  #printDoc .dt-eye{font-size:8px!important;padding:3px 8px!important;}
+  #printDoc .dt-state .sc b{font-size:19px!important;} #printDoc .dt-state{padding:6px 10px!important;}
+  /* 등급 뱃지가 인쇄에서 반투명 배경만 남고 글자가 사라졌다 — 색을 고정한다 */
+  #printDoc .dt-state,#printDoc .dt-state *{color:#fff!important;}
+  #printDoc .dt-state .gd{background:#2F6B4C!important;font-size:9px!important;padding:3px 8px!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #printDoc .dt-state{background:#16593A!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #printDoc .dt-msg b{color:#F2DFA6!important;}
+  #printDoc .dt-msg{font-size:11px!important;margin-top:8px!important;} #printDoc .dt-sub{font-size:9px!important;}
+  #printDoc .dt-kpi{grid-template-columns:1fr!important;gap:4px!important;}
+  #printDoc .dk{padding:6px 9px!important;} #printDoc .dk .l{font-size:8.5px!important;} #printDoc .dk .v{font-size:15px!important;}
+  #printDoc .dm-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important;margin-bottom:4mm!important;}
+  #printDoc .dm{padding:7px 9px!important;break-inside:avoid;}
+  #printDoc .dm-l{font-size:9px!important;} #printDoc .dm-v{font-size:17px!important;}
+  #printDoc .dm-s{font-size:8.5px!important;line-height:1.45!important;} #printDoc .dm-n{font-size:8px!important;}
+  #printDoc .dm-bd{font-size:8px!important;padding:1px 6px!important;}
+  #printDoc .di-grid{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:4px!important;}
+  #printDoc .di{padding:8px 9px!important;break-inside:avoid;}
+  #printDoc .di b{font-size:10.5px!important;} #printDoc .di p{font-size:9px!important;line-height:1.5!important;}
+  #printDoc .di-why{font-size:8.5px!important;margin-top:6px!important;padding-top:5px!important;}
+  #printDoc .dsc-row{padding:7px 9px!important;break-inside:avoid;} #printDoc .dsc-nm b{font-size:10.5px!important;}
+  #printDoc .dsc-nm .dt{font-size:9px!important;} #printDoc .dsc-bar{height:16px!important;margin:5px 0 4px!important;}
+  #printDoc .dsc-age{line-height:12px!important;top:2px!important;font-size:9.5px!important;padding:0 6px!important;} #printDoc .dsc-kv{font-size:9px!important;}
+  #printDoc .dsc-note{font-size:8px!important;}
+  #printDoc .drec-sum{background:#0E3A26!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+
+/* [FIX-AX] 인쇄본에 추가된 페이지 — 시계열 · 상품 제안 · 전후 비교 */
+@media print{
+  #printDoc .tlc{border:1px solid #E4E8E5!important;border-radius:12px!important;padding:10px 12px!important;box-shadow:none!important;}
+  #printDoc .tlc h2{font-size:15px!important;margin:2px 0 4px!important;}
+  #printDoc .tl-sub{font-size:10px!important;margin-bottom:6px!important;}
+  #printDoc .tl-svg{max-width:150mm!important;}
+  #printDoc .tl-lg{font-size:9px!important;margin-top:5px!important;}
+  #printDoc .tl-aha{grid-template-columns:1fr 1fr!important;gap:4px!important;margin-top:8px!important;}
+  #printDoc .tl-a{padding:6px 8px!important;break-inside:avoid;page-break-inside:avoid;}
+  #printDoc .tl-a b{font-size:10.5px!important;margin-bottom:2px!important;}
+  #printDoc .tl-a span{font-size:9.5px!important;line-height:1.45!important;}
+  #printDoc .tl-ax{font-size:7.5px!important;}
+
+  #printDoc .apx-kpis{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:5px!important;margin:0 0 3mm!important;}
+  #printDoc .apx-kpi{background:#F2F6F3!important;border:1px solid #DFE6E1!important;color:#12301F!important;padding:6px 8px!important;border-radius:9px!important;}
+  #printDoc .apx-kpi .k{font-size:8.5px!important;} #printDoc .apx-kpi .v{font-size:14px!important;}
+  /* 화면에선 짙은 배경 위 흰 글씨다 — 인쇄용 밝은 배경에서는 글자가 사라진다 */
+  #printDoc .apx-kpi,#printDoc .apx-kpi *{color:#12301F!important;opacity:1!important;}
+  #printDoc .apx-kpi.warn,#printDoc .apx-kpi.warn *{color:#9E3B32!important;}
+  #printDoc .apx-kpi .v i{font-size:9px!important;font-style:normal!important;}
+  #printDoc .apx-assume{border:0!important;background:#F7FAF8!important;border-radius:8px!important;padding:5px 8px!important;margin:0 0 3mm!important;}
+  #printDoc .apx-assume>summary{display:none!important;}
+  #printDoc .apx-assume p{font-size:9px!important;line-height:1.5!important;margin:0!important;color:#5E6B63!important;}
+  #printDoc .apx-blk{break-inside:auto;margin:0 0 3.5mm!important;}
+  #printDoc .apx-bh{padding:6px 9px!important;}
+  #printDoc .apx-bt{font-size:12.5px!important;} #printDoc .apx-no{width:18px!important;height:18px!important;font-size:10px!important;}
+  #printDoc .apx-bm{font-size:9px!important;padding:2px 7px!important;}
+  #printDoc .apx-lead{font-size:10px!important;line-height:1.5!important;padding:6px 9px!important;}
+  #printDoc .apx-sub{margin:6px 0 0!important;break-inside:avoid;page-break-inside:avoid;}
+  #printDoc .apx-sh{padding:6px 9px!important;} #printDoc .apx-st{font-size:11px!important;}
+  #printDoc .apx-sk{width:17px!important;height:17px!important;font-size:9.5px!important;}
+  #printDoc .apx-sn{font-size:8.5px!important;padding:2px 6px!important;}
+  #printDoc .apx-sb{padding:7px 9px 9px!important;}
+  #printDoc .apx-item{padding:6px 8px!important;margin-top:5px!important;break-inside:avoid;}
+  #printDoc .apx-it{font-size:10.5px!important;} #printDoc .apx-id{font-size:9.5px!important;line-height:1.5!important;}
+  #printDoc .apx-spec table,#printDoc .apx-cmp table{font-size:9px!important;}
+  #printDoc .apx-spec .hd,#printDoc .apx-cmp .hd{font-size:9.5px!important;padding:5px 8px!important;}
+  #printDoc .apx-cmp .sc{overflow:visible!important;}
+  #printDoc .apx-guide{font-size:9.5px!important;padding:7px 9px!important;}
+  #printDoc .apx-note{font-size:8.5px!important;}
+  #printDoc .setit{padding:12px 13px!important;margin:4mm 0 0!important;border-radius:12px!important;break-inside:avoid;}
+  #printDoc .setit-en{font-size:9.5px!important;} #printDoc .setit h4{font-size:15px!important;}
+  #printDoc .setit .lead{font-size:10px!important;} #printDoc .setit-todo li{font-size:9.5px!important;}
+  #printDoc .setit-tail{font-size:9px!important;}
+  #printDoc .apx-legal{font-size:8px!important;line-height:1.6!important;margin-top:3mm!important;}
+
+  #printDoc .wia{border:1px solid #E4E8E5!important;border-radius:12px!important;}
+  #printDoc .wia-hd{padding:9px 11px!important;} #printDoc .wia-hd h3{font-size:14px!important;} #printDoc .wia-hd p{font-size:9.5px!important;}
+  #printDoc .wia-bd{padding:9px 11px!important;}
+  #printDoc .wia-tot .nm{font-size:22px!important;} #printDoc .wia-tot .lb{font-size:9px!important;}
+  #printDoc .wia-row{font-size:9.5px!important;} #printDoc .wia-vs{font-size:9.5px!important;}
+  #printDoc .wia-kv{font-size:9.5px!important;} #printDoc .wia-hint{font-size:8.5px!important;}
+  /* 인쇄본 안에서는 화면용 숨김 규칙이 이기지 않게 — 단, 버튼·체크박스는 계속 숨긴다 */
+  #printDoc .apx,#printDoc .wia,#printDoc .tlc{display:block!important;}
+  #printDoc .apx-cta,#printDoc .apx-ctan,#printDoc .wia-run,#printDoc .wia-pk{display:none!important;}
+}
+
+/* [FIX-BA] 자산 흐름 시계열 */
+.tlc{background:#fff;border:1px solid var(--line,#E4E8E5);border-radius:18px;padding:18px 16px 16px;margin-top:14px;
+  box-shadow:var(--shadow,0 1px 3px rgba(0,0,0,.05));}
+.tlc h2{font-family:'Noto Serif KR',serif;font-size:19px;font-weight:700;color:#0F2B1D;margin:6px 0 3px;letter-spacing:-.03em;}
+.tlc h2 em{font-style:normal;color:#146B44;}
+.tl-sub{font-size:13px;color:#6E7C73;line-height:1.6;margin:0 0 10px;word-break:keep-all;}
+.tl-svg{width:100%;height:auto;display:block;max-width:560px;margin:0 auto;}
+.tl-ax{font-size:8.5px;fill:#98A19B;font-family:inherit;}
+.tl-lg{display:flex;flex-wrap:wrap;gap:6px 14px;justify-content:center;margin-top:8px;font-size:11.5px;color:#6E7C73;}
+.tl-lg span{display:inline-flex;align-items:center;gap:5px;}
+.tl-lg i{display:inline-block;width:15px;height:0;border-top:2.6px solid #1C7A4E;border-radius:2px;}
+.tl-lg i.r{border-top-color:#C2564B;}
+.tl-lg i.d{border-top:1.6px dashed #8C9A92;}
+.tl-lg i.b{width:11px;height:11px;border:0;background:#C2564B;opacity:.18;border-radius:3px;}
+.tl-aha{margin-top:13px;display:grid;gap:8px;}
+.tl-a{display:flex;gap:10px;align-items:flex-start;background:#F7FAF8;border:1px solid #E6EDE8;border-radius:12px;padding:10px 12px;}
+.tl-a .ic{flex:0 0 auto;font-size:15px;line-height:1.35;}
+.tl-a > div > b{display:block;font-size:13.5px;font-weight:800;color:#12301F;letter-spacing:-.02em;margin-bottom:3px;word-break:keep-all;}
+.tl-a span b{font-weight:800;color:#12301F;}
+.tl-a span{display:block;font-size:12.5px;color:#5E6B63;line-height:1.62;word-break:keep-all;}
+@media (min-width:620px){ .tl-aha{grid-template-columns:1fr 1fr;} }
+
+/* [FIX-AY] 블록 안 소분류 A / B / C / D */
+.apx-sub{border:1px solid #E3E8E4;border-radius:14px;margin:12px 0 0;overflow:hidden;background:#FCFDFC;}
+.apx-sh{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:11px 13px;background:#F1F5F2;border-bottom:1px solid #E3E8E4;}
+.apx-sk{width:23px;height:23px;border-radius:7px;background:#0E3A26;color:#fff;font-size:12px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;letter-spacing:0;}
+.apx-st{font-size:14px;font-weight:800;color:#12301F;letter-spacing:-.2px;word-break:keep-all;}
+.apx-sn{font-size:11.5px;color:#6E7C73;font-weight:600;background:#fff;border:1px solid #DEE6E0;border-radius:20px;padding:3px 9px;}
+.apx-sb{padding:11px 13px 13px;}
+.apx-sb .apx-item{margin-top:8px;}
+.apx-sb .apx-item:first-child{margin-top:0;}
+.apx-sb .apx-cmp{margin-top:11px;}
+.apx-guide{font-size:12.5px;line-height:1.65;color:#6B5A2E;background:#FDF9EB;border:1px solid #E8DCB6;
+  border-radius:12px;padding:10px 12px;margin-top:12px;word-break:keep-all;}
+
+/* [FIX-AZ] 마무리 메시지를 전폭 배너로 키운다 */
+.setit.big{margin:22px -2px;padding:26px 20px 24px;border-radius:20px;}
+.setit.big .setit-en{font-size:12.5px;letter-spacing:.2em;}
+.setit.big h4{font-size:23px;line-height:1.38;}
+.setit.big .lead{font-size:14px;}
+@media (min-width:560px){ .setit.big h4{font-size:27px;} }
+
+/* [FIX-AZ] 상담 CTA — 무료 상담 신청으로 직접 연결 */
+.apx-cta{display:block;width:100%;text-align:left;border:0;cursor:pointer;font-family:inherit;
+  background:linear-gradient(135deg,#0E3A26 0%,#16673F 62%,#1C7A4E 100%);color:#fff;
+  border-radius:16px;padding:17px 18px;margin-top:18px;line-height:1.45;}
+.apx-cta .cta-k{display:inline-block;font-size:10.5px;font-weight:900;letter-spacing:.08em;
+  background:rgba(255,255,255,.18);border-radius:20px;padding:4px 10px;margin-bottom:8px;}
+.apx-cta .cta-t{display:block;font-size:16.5px;font-weight:900;letter-spacing:-.4px;word-break:keep-all;}
+.apx-cta .cta-s{display:block;font-size:12.5px;opacity:.88;margin-top:5px;word-break:keep-all;}
+.apx-ctan{font-size:12px;color:#7A837E;line-height:1.6;margin-top:9px;word-break:keep-all;}
+.consult-grid.one{grid-template-columns:1fr;}
+
+/* [FIX-AW] 불러온 진단 — 설문 안내 자리에 놓이는 카드 */
+.l2p-again{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:linear-gradient(135deg,#F2F8F4,#EAF4EE);
+  border:1px solid #CBE0D4;border-radius:16px;padding:15px 16px;margin:14px 0;}
+.l2p-again .ag-ic{width:38px;height:38px;border-radius:50%;background:#0E6B43;color:#fff;font-size:19px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.l2p-again .ag-tx{flex:1 1 210px;min-width:0;}
+.l2p-again .ag-tx b{display:block;font-size:14.5px;color:#0E3A26;font-weight:800;margin-bottom:2px;}
+.l2p-again .ag-tx span{display:block;font-size:12.5px;color:#4C6156;line-height:1.55;word-break:keep-all;}
+.l2p-again .ag-btn{flex:0 0 auto;background:#0E6B43;color:#fff;border:0;border-radius:11px;padding:11px 16px;
+  font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;}
+@media (max-width:430px){ .l2p-again .ag-btn{width:100%;} }
+@media print{ .l2p-again{display:none!important;} }
+
 /* [FIX-AN] AI 기반 진단고객 맞춤형 상품 제안 */
 .apx{margin-top:18px;border-radius:18px;overflow:hidden;border:1px solid #DFE4DF;background:#fff;}
 .apx-hd{background:linear-gradient(135deg,#0E3A26 0%,#155C3B 58%,#1C7A4E 100%);color:#fff;padding:20px 18px 17px;}
@@ -7021,8 +7296,30 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   background:#FDEDE4;border:1px solid #EBC3AC;border-radius:5px;padding:1px 6px;vertical-align:1.5px;letter-spacing:-.01em;}
 .apx-note{display:block;margin-top:7px;font-size:11.5px;color:#8A8F8B;background:#F4F6F4;border-radius:7px;padding:6px 9px;letter-spacing:-.01em;}
 .apx-note.gov{color:#1B5E8A;background:#EDF4FA;}
-.apx-cta{width:100%;margin-top:3px;border:0;border-radius:12px;padding:14px;cursor:pointer;
-  background:linear-gradient(135deg,#D9AF52,#B8901F);color:#14301F;font-size:14.5px;font-weight:800;letter-spacing:-.02em;}
+/* [FIX-AT] "Set it and forget it" — 제안 마무리 메시지 */
+.setit{margin:4px 0 12px;border-radius:15px;overflow:hidden;
+  background:linear-gradient(135deg,#0E3A26 0%,#14512F 55%,#1A6B44 100%);color:#fff;padding:19px 17px 17px;}
+.setit-en{font-size:11px;font-weight:800;letter-spacing:.18em;color:#EBD79B;margin-bottom:11px;}
+.setit-en span{opacity:.55;margin:0 2px;}
+.setit h4{margin:0;font-family:'Noto Serif KR',serif;font-size:19px;line-height:1.42;
+  letter-spacing:-.035em;font-weight:700;color:#fff;}
+.setit h4 em{font-style:normal;color:#F2DFA6;}
+.setit .lead{margin:9px 0 0;font-size:12.5px;line-height:1.75;color:rgba(255,255,255,.80);letter-spacing:-.01em;}
+.setit .lead b{color:#fff;font-weight:700;}
+.setit-todo{margin-top:13px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);
+  border-radius:11px;padding:12px 13px;}
+.setit-todo .t{font-size:11px;font-weight:800;color:#EBD79B;letter-spacing:.02em;margin-bottom:8px;}
+.setit-todo ol{margin:0;padding:0;list-style:none;counter-reset:si;}
+.setit-todo li{counter-increment:si;position:relative;padding:6px 0 6px 25px;font-size:12.5px;line-height:1.6;
+  color:rgba(255,255,255,.92);letter-spacing:-.01em;border-top:1px solid rgba(255,255,255,.10);}
+.setit-todo li:first-child{border-top:0;}
+.setit-todo li::before{content:counter(si);position:absolute;left:0;top:7px;width:17px;height:17px;
+  border-radius:50%;background:#EBD79B;color:#12341F;font-size:10.5px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;}
+.setit-todo li b{color:#F2DFA6;}
+.setit-tail{margin-top:11px;font-size:11.5px;line-height:1.65;color:rgba(255,255,255,.66);letter-spacing:-.01em;}
+/* [FIX-AZ] 예전 금색 CTA 규칙은 지운다 — 새 CTA(.apx-cta)가 위에 정의돼 있고,
+   여기 남겨두면 나중에 선언된 이쪽이 이겨서 새 디자인이 먹히지 않는다. */
 .apx-legal{margin-top:12px;font-size:10.5px;color:#909691;line-height:1.75;border-top:1px solid #E7EBE7;padding-top:10px;letter-spacing:-.01em;}
 /* 제안 반영 전·후 비교 */
 .wia{border:1px solid #DFE4DF;border-radius:16px;overflow:hidden;margin-bottom:16px;background:#fff;}
@@ -7093,6 +7390,12 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       {label:'총보수(연)',    v:['','','']},
       {label:'특징',          v:['','','']}
     ]},
+    career: { title:'재취업 · 교육 과정', cols:['A 과정','B 과정','C 과정'], rows:[
+      {label:'과정명',        v:['','','']},
+      {label:'기간',          v:['','','']},
+      {label:'비용 / 국비지원', v:['','','']},
+      {label:'취득 자격',      v:['','','']}
+    ]},
     welldying: { title:'상조 · 신탁', cols:['A 상품','B 상품','C 상품'], rows:[
       {label:'총 납입금',      v:['','','']},
       {label:'월 납입',        v:['','','']},
@@ -7136,6 +7439,50 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       +(badge?'<span class="apx-bm'+(good?' good':'')+'">'+badge+'</span>':'')+'</div>'+inner+'</div>';
   }
 
+  /* [FIX-AV] 직업군별 관련 자격 '예시' — 효과를 단정하지 않는다.
+     보기 순서(인덱스)로 맞춘다: 서버 카탈로그는 보기 텍스트만 내려주고 job 파라미터를 떼어낸다. */
+  var JOB_CODES=['office','sales','tech','pro','it','self','public','etc'];
+  var JOB_REC={
+    office:{ label:'사무 · 관리 · 경영',
+      certs:['직업상담사 2급','사회복지사 2급','전산회계 1급','컴퓨터활용능력 1급'],
+      tip:'문서 · 관리 역량은 상담 · 행정 · 회계 직무로 이어가기 좋습니다' },
+    sales:{ label:'영업 · 서비스 · 판매',
+      certs:['공인중개사','유통관리사 2급','요양보호사','산업안전기사'],
+      tip:'대인 · 상담 경험은 중개 · 돌봄 · 안전관리 직무와 맞닿아 있습니다' },
+    tech:{ label:'생산 · 기술 · 건설 · 운전',
+      certs:['전기기능사','지게차운전기능사','건설안전기사','산업안전기사'],
+      tip:'현장 경력은 안전관리 · 설비 직무에서 그대로 인정받는 경우가 많습니다' },
+    pro:{ label:'전문직 (의료 · 법률 · 회계 · 교육)',
+      certs:['보유 자격 유지 · 갱신','평생교육사','기술지도사'],
+      tip:'새 자격보다 기존 자격을 강의 · 자문 형태로 전환하는 편이 빠릅니다' },
+    it:{ label:'IT · 디자인 · 미디어',
+      certs:['정보처리기사','SQLD','웹디자인기능사','컴퓨터그래픽스운용기능사'],
+      tip:'프로젝트 단위 수주가 가능해 파트타임 · 긱워커 형태로 잇기 좋습니다' },
+    self:{ label:'자영업 · 소상공인',
+      certs:['위생교육 이수','유통관리사 2급','공인중개사'],
+      tip:'폐업 · 전환을 고려한다면 소상공인 재기 지원 프로그램을 함께 살펴보세요' },
+    public:{ label:'공무원 · 공공기관',
+      certs:['직업상담사 2급','사회복지사 2급','평생교육사'],
+      tip:'연금이 안정적인 편이라, 소득보다 활동 · 사회공헌형 일자리 설계가 유리합니다' },
+    etc:{ label:'기타 · 해당 없음',
+      certs:['요양보호사','직업상담사 2급','지게차운전기능사'],
+      tip:'진입 장벽이 낮고 중장년 채용 수요가 꾸준한 자격부터 살펴보세요' }
+  };
+  function jobOf(){
+    try{
+      var a=(G('answers',null)||window.answers||{})['Q46'];
+      if(a&&typeof a==='object'&&typeof a.idx==='number') return JOB_CODES[a.idx]||null;
+    }catch(e){}
+    return null;
+  }
+  function ansIdx(qid){
+    try{
+      var a=(G('answers',null)||window.answers||{})[qid];
+      if(a&&typeof a==='object'&&typeof a.idx==='number') return a.idx;
+    }catch(e){}
+    return -1;
+  }
+
   /* ── 진단 결과 → 부족분 산출 ───────────────────────────────────────────── */
   window.l2pProductPlan = function(R){
     var c=(R&&R.c)||{};
@@ -7156,61 +7503,101 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       hpRoom:Math.max(0,Math.round((R.hpFull||0)-(R.hp||0))),
       needCover:needCover, shield:shield, coverGap:Math.max(0,Math.round(needCover*(1-shield/100))),
       noSil:(c.sil===0||c.sil==='0'), retpen:Math.round(R.retpen||0),
-      sangjo:Math.round(c.sangjo||0), per1eok:Math.round(10000/(12*AF)) };
+      sangjo:Math.round(c.sangjo||0), per1eok:Math.round(10000/(12*AF)),
+      job:jobOf(),                                        /* [FIX-AV] 직업 분야 */
+      q36:ansIdx('Q36'), q37:ansIdx('Q37'), q39:ansIdx('Q39'), q43:ansIdx('Q43'),
+      q31:ansIdx('Q31'), q33:ansIdx('Q33') };
   };
 
   /* ── 섹션 렌더 ─────────────────────────────────────────────────────────── */
+  /* [FIX-BB] 시나리오 라벨 정정 적용됨 */
+  /* [FIX-AY] 소분류 한 칸 — 블록 안에서 A/B/C/D 로 나눈다 */
+  function sub(k,ti,inner,note){
+    return '<div class="apx-sub"><div class="apx-sh"><span class="apx-sk">'+k+'</span>'
+      +'<span class="apx-st">'+ti+'</span>'+(note?'<span class="apx-sn">'+note+'</span>':'')
+      +'</div><div class="apx-sb">'+inner+'</div></div>';
+  }
+
   window.l2pProductSectionHTML = function(R){
     var P=window.l2pProductPlan(R), out='';
 
-    /* ① 연금 */
+    /* ══ ① 연금 공백 메우기 — 퇴직연금(A)과 개인연금(B)을 한 지붕 아래로 ══════
+       예전에는 '연금 공백'과 '퇴직연금 재배치'가 따로 있어 같은 이야기를 두 번 하는
+       것처럼 보였다. 성격이 다르다 — A는 이미 쌓인 돈을 옮기고 굴리는 일,
+       B는 앞으로 더 넣거나 목돈을 연금으로 바꾸는 일이다. 그래서 A/B로 나눈다. */
     var pen='', cap=Math.max(150, P.inc?Math.round(P.inc*0.4):200);
     if(P.gapM>0){
       pen+='<div class="apx-lead">목표 연금까지 <b>월 '+W(P.gapM)+'만원</b>이 비어 있습니다. '
-          +'65~90세 동안 그만큼 받으려면 <b>약 '+eok(P.needFund)+'원</b>의 재원이 필요합니다.</div>';
-      pen+=specTable('내게 필요한 조건 · 연금', [
-        ['비어 있는 월 연금', '월 '+W(P.gapM)+'만원'],
-        ['필요 재원(65~90세)', eok(P.needFund)+'원'],
-        (P.yrs>0&&P.monthlySave>0)?['필요 월 적립액('+P.yrs+'년)', '월 '+W(P.monthlySave)+'만원']:null,
-        (P.taxSave>0)?['세액공제 효과', '연 약 '+W(P.taxSave)+'만원']:null,
-        ['일시납 환산(1억당)', '월 약 '+W(P.per1eok)+'만원']
-      ]);
+          +'65~90세 동안 그만큼 받으려면 <b>약 '+eok(P.needFund)+'원</b>의 재원이 필요합니다. '
+          +'이미 쌓인 돈을 <b>옮기고 굴리는 일(A)</b>과, 앞으로 <b>더 넣거나 목돈을 연금으로 바꾸는 일(B)</b>로 나눠서 봅니다.</div>';
+    } else {
+      pen+='<div class="apx-lead good">목표 연금이 이미 충족됩니다 — 새 상품보다 '
+          +'<b>세제 · 인출 순서 최적화</b>가 더 유리합니다. 아래는 점검 항목입니다.</div>';
+    }
+    pen+=specTable('내게 필요한 조건 · 연금', [
+      P.gapM>0?['비어 있는 월 연금', '월 '+W(P.gapM)+'만원']:['목표 연금', '충족'],
+      (P.needFund>0)?['필요 재원(65~90세)', eok(P.needFund)+'원']:null,
+      ['현재 퇴직 · 개인연금', '월 '+W(P.retpen)+'만원'],
+      ['은퇴까지 운용 기간', P.yrs+'년'],
+      (P.yrs>0&&P.monthlySave>0)?['필요 월 적립액('+P.yrs+'년)', '월 '+W(P.monthlySave)+'만원']:null,
+      (P.taxSave>0)?['세액공제 효과', '연 약 '+W(P.taxSave)+'만원']:null,
+      ['일시납 환산(1억당)', '월 약 '+W(P.per1eok)+'만원']
+    ]);
+
+    /* A · 퇴직연금 재배치 */
+    var penA=item('퇴직금 IRP 이전',
+      '퇴직금을 일시금으로 받지 않고 IRP로 옮기면 퇴직소득세를 <b>30~40% 감면</b>받고 '
+      +'과세 시점도 연금 수령 때로 미룹니다');
+    penA+=item('연금계좌 운용 재배치',
+      '원리금보장형에만 두면 물가를 못 따라갑니다. 은퇴까지 남은 '+P.yrs+'년에 맞춘 자산배분이 필요합니다'
+      +(P.retpen<50?' — 지금 퇴직 · 개인연금은 <b>월 '+W(P.retpen)+'만원</b>으로, 3층 연금 중 2 · 3층이 아직 얇습니다':''));
+    penA+=cmpTable('retirement');
+    pen+=sub('A','퇴직연금 재배치를 위한 상품 제안',penA,'이미 쌓인 돈을 옮기고 굴린다');
+
+    /* B · 개인연금 */
+    var penB='';
+    if(P.gapM>0){
       if(P.yrs<=0){
-        pen+=item('연금저축 · IRP — 적립 기간이 끝났습니다',
+        penB+=item('연금저축 · IRP — 적립 기간이 끝났습니다',
           '이미 은퇴 시점이라 적립으로 메울 시간이 없습니다. 보유 자산의 <b>연금화(즉시연금 · 주택연금)</b>와 '
           +'<b>인출 순서 설계</b>가 핵심입니다');
       } else if(P.monthlySave>0&&P.monthlySave<=cap){
-        pen+=item('연금저축 · IRP 추가 납입',
+        penB+=item('연금저축 · IRP 추가 납입',
           '남은 '+P.yrs+'년 동안 <b>월 '+W(P.monthlySave)+'만원</b>씩 적립하면 부족분을 메울 수 있습니다'
           +(P.taxSave>0?' · 세액공제로 <b>매년 약 '+W(P.taxSave)+'만원</b>을 돌려받습니다':''));
       } else if(P.monthlySave>0){
-        pen+=item('연금저축 · IRP 추가 납입',
+        penB+=item('연금저축 · IRP 추가 납입',
           '남은 '+P.yrs+'년 안에 적립만으로 메우려면 <b>월 '+W(P.monthlySave)+'만원</b>이 필요합니다 — '
           +'현실적인 금액이 아니라면 <b>은퇴 시점 연장 · 주택연금 · 퇴직 후 근로소득</b>을 함께 써야 합니다. '
           +'세액공제 한도(연 900만원)까지만 채워도 <b>매년 약 '+W(P.capSave)+'만원</b>을 돌려받습니다',
           '단독으로는 부족');
       }
-      pen+=item('즉시연금 전환 (일시납)',
+      penB+=item('즉시연금 전환 (일시납)',
         '목돈 <b>1억원</b>을 즉시연금으로 바꾸면 <b>월 약 '+W(P.per1eok)+'만원</b>이 나옵니다 — '
         +'부족분을 모두 메우려면 <b>약 '+eok(P.needFund)+'원</b>이 필요합니다');
       if(P.hpRoom>0){
-        pen+=item('주택연금 추가 활용',
+        penB+=item('주택연금 추가 활용',
           '아직 쓰지 않은 주택연금 여력이 <b>월 '+W(P.hpRoom)+'만원</b> 남아 있습니다 (한국주택금융공사)')
           +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
       }
-      pen+=cmpTable('pension');
-      out+=blk('1','연금 공백 메우기','월 '+W(P.gapM)+'만원 부족',pen);
     } else {
-      pen='<div class="apx-lead good">목표 연금이 이미 충족됩니다 — 새 상품보다 <b>세제 · 인출 순서 최적화</b>가 더 유리합니다.</div>';
-      out+=blk('1','연금 공백 메우기','충족',pen,true);
+      penB+=item('세액공제 한도 점검',
+        '충족 상태여도 연금계좌 납입은 <b>연 900만원</b>까지 세액공제 대상입니다 — '
+        +'남은 한도가 있으면 세금만큼은 그대로 이익입니다');
+      penB+=item('인출 순서 설계',
+        '어떤 계좌에서 먼저 꺼내느냐에 따라 세금과 건강보험료가 달라집니다. '
+        +'연금계좌 · 일반계좌 · 주택연금의 순서를 미리 정해두세요');
     }
+    penB+=cmpTable('pension');
+    pen+=sub('B','개인연금 상품 제안',penB,'앞으로 더 넣거나, 목돈을 연금으로 바꾼다');
+    out+=blk('1','💰 연금 공백 메우기',(P.gapM>0?'월 '+W(P.gapM)+'만원 부족':'충족'),pen,!(P.gapM>0));
 
-    /* ② 보장 */
+    /* ══ ② 건강 보장 공백 메우기 ══════════════════════════════════════════ */
     var ins='';
     if(P.coverGap>0||P.noSil){
       ins+='<div class="apx-lead">필요 보장 <b>'+eok(P.needCover)+'원</b> 중 현재 방어율은 <b>'+P.shield+'%</b>'
           +(P.coverGap>0?(' — <b>'+eok(P.coverGap)+'원</b>이 비어 있습니다'):'')+'.</div>';
-      ins+=specTable('내게 필요한 조건 · 보장', [
+      ins+=specTable('내게 필요한 조건 · 건강 보장', [
         ['필요 보장액', eok(P.needCover)+'원'],
         ['현재 방어율', P.shield+'%'],
         (P.coverGap>0)?['추가로 필요한 보장', eok(P.coverGap)+'원']:null,
@@ -7223,41 +7610,161 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       ins+=item('간병 · 장기요양',
         '노후 지출에서 변동이 가장 큰 항목입니다. 장기요양 등급 판정 시 본인부담분을 보장으로 대비합니다');
       ins+=cmpTable('insurance');
-      out+=blk('2','보장 공백 메우기',(P.coverGap>0?eok(P.coverGap)+'원 부족':'실손 미가입'),ins);
+      out+=blk('2','🛡️ 건강 보장 공백 메우기',(P.coverGap>0?eok(P.coverGap)+'원 부족':'실손 미가입'),ins);
     } else {
       ins='<div class="apx-lead good">필요 보장을 이미 충족합니다 — 갱신 시점마다 보험료와 보장 범위만 점검하세요.</div>';
-      out+=blk('2','보장 공백 메우기','충족',ins,true);
+      ins+=cmpTable('insurance');
+      out+=blk('2','🛡️ 건강 보장 공백 메우기','충족',ins,true);
     }
 
-    /* ③ 퇴직연금 */
-    var ret='<div class="apx-lead">현재 퇴직 · 개인연금 예상 수령은 <b>월 '+W(P.retpen)+'만원</b>'
-      +(P.retpen<50?'으로, 3층 연금 중 2 · 3층이 거의 비어 있습니다':'입니다')+'.</div>';
-    ret+=specTable('내게 필요한 조건 · 퇴직연금', [
-      ['현재 퇴직 · 개인연금', '월 '+W(P.retpen)+'만원'],
-      ['은퇴까지 운용 기간', P.yrs+'년'],
-      ['세액공제 한도', '연 900만원']
-    ]);
-    ret+=item('퇴직금 IRP 이전',
-      '퇴직금을 일시금으로 받지 않고 IRP로 옮기면 퇴직소득세를 <b>30~40% 감면</b>받고 과세 시점도 연금 수령 때로 미룹니다');
-    ret+=item('연금계좌 운용 재배치',
-      '원리금보장형에만 두면 물가를 못 따라갑니다. 은퇴까지 남은 '+P.yrs+'년에 맞춘 자산배분이 필요합니다');
-    ret+=cmpTable('retirement');
-    out+=blk('3','퇴직연금 재배치','월 '+W(P.retpen)+'만원',ret,P.retpen>=50);
-
-    /* ④ 웰다잉 */
-    var wel='';
-    if(P.sangjo<=0){
-      wel+='<div class="apx-lead">상조 · 장례 예비자금이 <b>준비되지 않은 상태</b>입니다 — '
-          +'갑작스러운 지출이 연금 계좌 중도 해지로 이어지는 경우가 많습니다.</div>';
-      wel+=item('상조 상품 (선수금 보전 확인)',
-        '가입 시 <b>선수금 50% 예치 보전</b> 여부를 반드시 확인하세요 (할부거래법)');
+    /* ══ ③ 일자리 · 재취업 · 창업 준비 — A(지금 경력 심화) / B(새 자격) ════ */
+    var J=P.job?JOB_REC[P.job]:null;
+    var car='';
+    if(J){
+      car+='<div class="apx-lead">현재(또는 마지막) 직업 분야는 <b>'+J.label+'</b>입니다. '+J.tip+'. '
+          +'길은 두 갈래입니다 — <b>하던 일을 더 깊게(A)</b> 가거나, <b>새 자격으로 갈아타는(B)</b> 길입니다.</div>';
     } else {
-      wel+='<div class="apx-lead good">상조 · 장례 준비 <b>'+W(P.sangjo)+'만원</b> — 본인과 부모님 양쪽이 모두 포함됐는지 점검하세요.</div>';
+      car+='<div class="apx-lead">직업 분야를 고르시면 그 직무에 맞는 자격 · 교육을 추려 드립니다. '
+          +'아래는 직업과 무관하게 누구나 쓸 수 있는 공적 경로입니다.</div>';
     }
-    wel+=item('유언대용신탁 · 상속 설계',
-      '상속 분쟁과 세금을 미리 차단합니다. 자산 구조에 따라 신탁 · 증여 설계가 달라집니다');
+    car+=specTable('내게 필요한 조건 · 일자리', [
+      J?['현재 직업 분야', J.label]:null,
+      ['은퇴까지 남은 기간', P.yrs+'년'],
+      (P.q31>=0)?['퇴직 후 계획', ['풀타임 재취업','주 2~3일 파트타임','창업 · 프리랜서','일하지 않을 계획'][P.q31]||'-']:null,
+      (P.q33>=0)?['독립 소득 경험', ['있음','없으나 가능','전혀 없음'][P.q33]||'-']:null
+    ]);
+
+    /* A · 현 직장 · 경력의 전문성 강화 */
+    var carA=item('지금 경력을 문서로 만들어 두기',
+      '재취업 시장에서 가장 먼저 보는 것은 <b>무엇을 해봤는가</b>입니다. '
+      +'맡았던 일 · 규모 · 성과를 한 장으로 정리해두면 그 자체가 자산이 됩니다'
+      +(J?' — '+J.label+' 경력은 특히 그렇습니다':''));
+    if(J&&P.job==='pro'){
+      carA+=item('보유 자격을 강의 · 자문으로 전환',
+        '새 자격을 따는 것보다 이미 가진 자격을 <b>강의 · 자문 · 감정</b> 형태로 바꾸는 편이 빠릅니다');
+    } else {
+      carA+=item('직무 심화 교육 (재직 중 가능)',
+        '고용보험 환급 과정은 재직 중에도 들을 수 있습니다. '
+        +'퇴직 전에 <b>같은 직무의 상위 자격 · 인증</b>을 붙여두면 재취업 협상력이 달라집니다');
+    }
+    carA+=item('사내 · 업계 네트워크 정리',
+      '중장년 재취업의 상당수는 공고가 아니라 <b>아는 사람</b>을 통해 이뤄집니다. '
+      +'퇴직 전에 연락 가능한 관계를 정리해두세요');
+    car+=sub('A','현 직장 · 경력의 전문성 강화',carA,'하던 일을 더 깊게');
+
+    /* B · 신규 자격 취득 후 재취업 · 창업 */
+    var carB='';
+    if(J){
+      carB+=item('관련 자격 <span class="apx-tag">예시</span>',
+        J.certs.map(function(c){ return '<b>'+c+'</b>'; }).join(' · ')
+        +'<br><span style="color:#8A8F8B;">어떤 자격이 유리한지는 지역 · 채용 수요에 따라 다릅니다. '
+        +'시험 일정과 응시 자격은 <b>Q-net</b>(한국산업인력공단)에서 확인하세요.</span>');
+    }
+    carB+=item('국비 지원으로 배우는 길',
+      '<b>국민내일배움카드</b>로 훈련비를 지원받을 수 있습니다 — <b>고용24</b>(work24.go.kr)에서 발급 · 신청. '
+      +'지원 한도와 자부담은 조건에 따라 다르니 고용24에서 확인하세요.')
+      +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
+    carB+=item('중장년 전용 창구',
+      '<b>중장년내일센터</b>(노사발전재단)에서 40세 이상 재취업 상담을 무료로 받을 수 있고, '
+      +'<b>한국폴리텍대학 신중년 특화과정</b>은 중장년 대상 기술 교육 과정입니다.')
+      +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
+    carB+=item('창업으로 갈 경우',
+      '<b>소상공인시장진흥공단</b>의 창업 교육 · 컨설팅과 정책자금 안내를 먼저 받아보세요. '
+      +'퇴직금을 창업 자금으로 쓰면 연금 재원이 그만큼 줄어드니, <b>연금에 손대지 않는 범위</b>를 먼저 정하는 것이 순서입니다.')
+      +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
+    carB+=cmpTable('career');
+    car+=sub('B','신규 자격 취득 후 재취업 · 창업',carB,'새 자격으로 갈아탄다');
+    out+=blk('3','💼 일자리 · 재취업 · 창업 준비',(J?J.label:'직업 미입력'),car,!!J);
+
+    /* ══ ④ 웰다잉 · 상조 준비 — 네 갈래로 나눠 '고르는 기준'을 준다 ════════
+       이 영역은 개인 조건을 충분히 묻지 않았다. 그래서 '이 상품을 사세요'가 아니라
+       '고를 때 무엇을 확인해야 하는가'를 준다. 업체 실명은 넣지 않는다. */
+    var wel='';
+    var welNeed=[];
+    if(P.sangjo<=0) welNeed.push('상조 · 장례 예비자금');
+    if(P.q36===1||P.q36===2) welNeed.push('사전연명의료의향서');
+    if(P.q37===1||P.q37===2) welNeed.push('유언 · 상속');
+    if(P.q39>=1) welNeed.push('디지털 유산');
+    if(welNeed.length){
+      wel+='<div class="apx-lead">아직 손대지 않은 항목이 <b>'+welNeed.length+'가지</b> 있습니다 — '
+          +welNeed.join(' · ')+'.</div>';
+    } else {
+      wel+='<div class="apx-lead good">웰다잉 준비가 고르게 갖춰져 있습니다 — 해마다 한 번 가족과 함께 점검만 하세요.</div>';
+    }
+    wel+=specTable('내게 필요한 조건 · 웰다잉', [
+      ['상조 · 장례 준비', P.sangjo<=0?'미준비':(W(P.sangjo)+'만원')],
+      (P.q36>=0)?['사전연명의료의향서', ['등록 완료','검토 중','계획 없음'][P.q36]||'-']:null,
+      (P.q37>=0)?['유언 · 상속 준비', ['준비 완료','구두 협의 중','준비 없음','해당 없음'][P.q37]||'-']:null,
+      (P.q39>=0)?['디지털 유산', ['정리 완료','가족 1인 공유','구두 전달','미준비'][P.q39]||'-']:null
+    ]);
+    wel+='<div class="apx-guide">이 영역은 진단에서 개인별 조건을 자세히 묻지 않았습니다. '
+        +'그래서 특정 업체를 고르는 대신, <b>어디를 고르든 무엇을 확인해야 하는지</b>를 기준으로 정리했습니다.</div>';
+
+    var welA=item('상조 업체를 고를 때 — 확인할 것 3가지',
+      '① <b>선수금 50% 예치 보전</b> 여부(할부거래법) · ② 공정거래위원회에 등록된 <b>선불식 할부거래업자</b>인지 · '
+      +'③ 해약 환급금 기준이 약관에 명시돼 있는지. '
+      +(P.sangjo<=0?'갑작스러운 장례 지출이 연금 계좌 중도 해지로 이어지는 경우가 많습니다'
+                   :'이미 준비하셨다면 위 3가지가 지금도 유효한지만 확인하세요'));
+    welA+=item('상조 대신 쓰는 방법도 있습니다',
+      '장례비 목적의 <b>소액 정기예금 · 보험 특약</b>으로 대신하는 방법도 있습니다. '
+      +'상조는 서비스가 묶여 있고, 적립은 유동성이 높습니다 — 어느 쪽이 맞는지는 가족 상황에 따라 다릅니다');
+    wel+=sub('A','상조 · 장례 준비',welA);
+
+    var welB=item('등록은 무료입니다 — 업체가 아니라 공공기관에서 합니다',
+      '<b>보건소 · 국민건강보험공단 지사 · 지정 의료기관</b> 등 등록기관에서 <b>무료</b>로 등록합니다(약 15분). '
+      +'국립연명의료관리기관(lst.go.kr)에서 가까운 등록기관을 찾을 수 있습니다. '
+      +'유료로 대행해 준다는 곳이 있다면 등록기관이 맞는지부터 확인하세요')
+      +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
+    welB+=item('가족에게 알려두는 것까지가 준비입니다',
+      '등록해두어도 가족이 모르면 응급 상황에서 뜻이 반영되지 않는 경우가 생깁니다. '
+      +'등록 사실과 조회 방법을 배우자 · 자녀 중 최소 1명과 공유하세요');
+    wel+=sub('B','사전연명의료의향서 등록',welB);
+
+    var welC=item('어디에 맡길지 — 세 가지 길',
+      '① <b>전문 세무법인 · 법무법인</b> — 자산이 많거나 가족 구성이 복잡할 때 · '
+      +'② <b>온라인 유언 · 상속 서비스</b> — 구성이 단순하고 비용을 낮추고 싶을 때 · '
+      +'③ <b>라이프2.0 상담</b> — 어느 쪽이 맞는지부터 같이 정리하고 싶을 때. '
+      +'금액 · 가족 수 · 분쟁 가능성에 따라 답이 달라집니다');
+    welC+=item('방식은 자산 구조가 정합니다',
+      '<b>유언대용신탁 · 생전 증여 · 공정증서 유언</b> 중 무엇이 맞는지는 자산의 형태(부동산 비중 · 사업체 유무)에 따라 다릅니다. '
+      +'자필 유언은 형식 요건을 하나만 빠뜨려도 무효가 되니 주의가 필요합니다');
+    wel+=sub('C','유언 · 상속 준비',welC);
+
+    var welD=item('먼저 목록부터 — 업체는 그다음입니다',
+      '계좌 · 증권 · 포인트 · 구독 서비스 · 사진 · SNS를 <b>목록으로 만들고 접근 방법을 한 곳에 적어</b> '
+      +'가족 1인과 보관 위치를 공유하는 것이 8할입니다. 이건 비용이 들지 않습니다');
+    welD+=item('대행 서비스를 쓴다면',
+      '<b>디지털 유산 정리 · 상속재산 조회 대행</b> 서비스가 있습니다. 맡길 때는 '
+      +'① 개인정보 처리 · 파기 절차가 계약서에 있는지 · ② 접근 권한을 어디까지 넘기는지를 확인하세요. '
+      +'금융 계좌는 상속 개시 후 <b>금융감독원 상속인 금융거래 조회 서비스</b>로 한 번에 조회할 수 있습니다 '
+      +'(fss.or.kr · 상속인 본인이 신청). 생전에 대행 업체에 계좌 접근 권한을 넘길 필요는 없습니다')
+      +'<span class="apx-note gov">공적 조회 제도입니다 · 수수료·절차는 금감원 안내를 확인하세요</span>';
+    wel+=sub('D','디지털 유산 정리',welD);
     wel+=cmpTable('welldying');
-    out+=blk('4','웰다잉 · 상조 준비',(P.sangjo<=0?'미준비':W(P.sangjo)+'만원'),wel,P.sangjo>0);
+    out+=blk('4','🕯️ 웰다잉 · 상조 준비',(welNeed.length?welNeed.length+'가지 미준비':'준비 완료'),wel,!welNeed.length);
+
+    /* [FIX-AT · AZ] 마무리 메시지 — 진단에서 나온 빈틈을 '오늘 설정하면 끝나는 것'으로 */
+    var todo=[];
+    if(P.gapM>0) todo.push('연금 공백 <b>월 '+W(P.gapM)+'만원</b> — 연금저축 · IRP 자동이체를 걸어두면 끝납니다');
+    if(P.coverGap>0) todo.push('보장 공백 <b>'+eok(P.coverGap)+'원</b> — 진단비를 한 번 보강해두면 끝납니다');
+    if(P.noSil) todo.push('실손의료비 — 한 번 가입해두면 그 뒤로 신경 쓸 일이 없습니다');
+    if(P.retpen<50) todo.push('퇴직연금 — IRP로 옮겨 운용만 정해두면 끝납니다');
+    if(P.sangjo<=0) todo.push('상조 · 장례 예비자금 — 선수금 보전 상품으로 한 번에 정리됩니다');
+    todo=todo.slice(0,4);
+    var setit='<div class="setit big"><div class="setit-en">SET IT <span>AND</span> FORGET IT</div>'
+      +'<h4>한 번 제대로 설정해두면,<br>그다음은 <em>잊고 사셔도 됩니다</em></h4>'
+      +'<p class="lead">노후 준비는 매일 들여다보며 관리하는 일이 아닙니다. '
+      +'연금 · 보장 · 인출 구조를 <b>한 번 제대로 세팅해두는 일</b>입니다.</p>';
+    if(todo.length){
+      setit+='<div class="setit-todo"><div class="t">지금 설정하면 끝나는 것 — '+todo.length+'가지</div><ol>'
+        +todo.map(function(t){ return '<li>'+t+'</li>'; }).join('')+'</ol></div>'
+        +'<div class="setit-tail">이 '+todo.length+'가지를 설정해두면, 그다음부터는 해마다 한 번 10분만 점검하시면 됩니다.</div>';
+    } else {
+      setit+='<div class="setit-todo"><div class="t">이미 설정이 끝나 있습니다</div><ol>'
+        +'<li>연금 · 보장 · 상조까지 필요한 구조가 모두 갖춰져 있습니다</li></ol></div>'
+        +'<div class="setit-tail">이제는 해마다 한 번, 10분만 점검하시면 됩니다. 나머지는 잊고 지내셔도 좋습니다.</div>';
+    }
+    setit+='</div>';
 
     /* 준법 고지 */
     var K=window.L2P_COMPLIANCE||{}, reg=[];
@@ -7266,7 +7773,8 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     if(K.reviewNo) reg.push('준법감시인 심의필 '+K.reviewNo);
     var legal='<div class="apx-legal">※ 본 제안은 진단 답변을 바탕으로 한 <b>상품군 안내</b>이며 특정 상품의 가입 권유가 아닙니다. '
       +'계약 전 상품설명서와 약관을 반드시 확인하시기 바랍니다. 기존 계약을 해지하고 새로 가입하면 인수 거절 · 보험료 인상 · 보장 축소가 생길 수 있습니다. '
-      +'금액은 공개된 제도 기준과 아래 가정으로 계산한 <b>추정치</b>이며 실제 상품의 수익률 · 보장과는 다를 수 있습니다.'
+      +'금액은 공개된 제도 기준과 아래 가정으로 계산한 <b>추정치</b>이며 실제 상품의 수익률 · 보장과는 다를 수 있습니다. '
+      +'웰다잉 · 일자리 영역은 개인별 조건을 충분히 묻지 않은 부분이 있어 <b>일반 안내</b>로 제공합니다.'
       +(reg.length?('<br>'+(K.firm||'')+' | '+reg.join(' | ')):'')+'</div>';
 
     /* 헤더 KPI */
@@ -7276,9 +7784,17 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     var k3=P.coverGap>0?('<div class="apx-kpi warn"><span class="k">보장 공백</span><span class="v">'+eokShort(P.coverGap)+'</span></div>')
                        :('<div class="apx-kpi good"><span class="k">보장</span><span class="v">충족</span></div>');
 
+    /* [FIX-AZ] 상담 CTA — 라이프2.0 회원 가입 후 무료 상담 신청으로 바로 연결한다 */
+    var cta='<button class="apx-cta" onclick="(window.consult?consult(\'free\'):(window.goConsult&&goConsult()))">'
+      +'<span class="cta-k">무료</span>'
+      +'<span class="cta-t">라이프이점영 회원 가입 후 무료 상담 신청</span>'
+      +'<span class="cta-s">내 조건에 맞는 상품을 비교해 드립니다 · 담당 플래너가 1영업일 내 연락</span></button>'
+      +'<div class="apx-ctan">가입비 · 상담료 없습니다. 상속 · 증여 세무나 법률처럼 더 깊은 검토가 필요하면 '
+      +'아래 <b>외부 전문가(유료)</b>로 연결해 드립니다.</div>';
+
     return '<div class="apx">'
       +'<div class="apx-hd">'
-        +'<span class="apx-kicker"><i></i>AI ENGINE · 41문항 × 5영역 교차분석</span>'
+        +'<span class="apx-kicker"><i></i>AI ENGINE · 43문항 × 5영역 교차분석</span>'
         +'<h3 class="apx-title">AI 기반 진단고객<br><b>맞춤형 상품 제안</b></h3>'
         +'<p class="apx-sub">진단 답변에서 비어 있는 금액을 계산하고, 그것을 메울 수단을 함께 제시합니다.</p>'
         +'<div class="apx-kpis">'+k1+k2+k3+'</div>'
@@ -7288,7 +7804,8 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
         +'<p>연금 적립 연 4% 운용 · 수령기 연 3% 할인 · 65~90세 25년 수령 · '
         +'세액공제율은 총급여 5,500만원 경계(16.5% / 13.2%) 기준으로 계산했습니다.</p></details>'
         +out
-        +'<button class="apx-cta" onclick="(window.consultTopic?consultTopic(\'연금 설계\'):(window.goConsult&&goConsult()))">내 조건에 맞는 상품 비교 상담 받기 →</button>'
+        +setit
+        +cta
         +legal
       +'</div></div>';
   };
@@ -7406,6 +7923,166 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     } else { done(null); }
   };
 
+  /* ══ [FIX-AS] 이미 끝낸 진단 결과 불러오기 ═══════════════════════════════════
+     저장된 결과는 문항별 '보기 텍스트'로 남아 있다. 그 텍스트를 카탈로그 보기와 맞춰
+     답변으로 되돌린 뒤, 앱이 원래 쓰는 buildReport() 를 그대로 태운다.
+     → 요약본이 아니라 처음 받았던 정밀 리포트가 그대로 복원된다. */
+  window.l2pAnswersFromPayload=function(p){
+    var QL=G('Q',null)||window.Q||[], out={}, matched=0, total=0;
+    QL.forEach(function(q){
+      var v=p[q.id];
+      if(v===undefined||v===null||String(v).trim()==='') return;
+      total++;
+      var t=String(v).trim();
+      if(q.type==='text'){ out[q.id]=t; matched++; return; }
+      if(!q.opts||!q.opts.length) return;
+      if(q.type==='multi'){
+        var idxs=[];
+        t.split('/').forEach(function(one){
+          var s=one.trim(); if(!s) return;
+          for(var i=0;i<q.opts.length;i++){ if(q.opts[i].t===s){ idxs.push(i); break; } }
+        });
+        if(idxs.length){ out[q.id]=idxs; matched++; }
+        return;
+      }
+      for(var i=0;i<q.opts.length;i++){
+        if(q.opts[i].t===t){ out[q.id]={idx:i,opt:q.opts[i]}; matched++; break; }
+      }
+    });
+    return { answers:out, matched:matched, total:total };
+  };
+
+  window.l2pRestoreReport=function(p, src){
+    var r=window.l2pAnswersFromPayload(p||{});
+    if(r.matched<5){
+      alert('저장된 답변을 불러오지 못했습니다.\n진단 문항이 그 사이 바뀌었을 수 있습니다. 새로 진단해 주세요.');
+      return false;
+    }
+    try{ closeMini(); }catch(e){}
+    /* 불러오기로 그린 리포트가 Master DB 에 또 쌓이지 않게 자동저장만 잠시 막는다 */
+    window.__l2pRestoring=true;
+    setTimeout(function(){ window.__l2pRestoring=false; },6000);
+    try{ answers=r.answers; }catch(e){ window.answers=r.answers; }
+    try{ _qT={}; }catch(e){}
+    window._cohBypass=true;                       /* 과거 답변을 다시 검증받게 하지 않는다 */
+    var ph=document.getElementById('uPhone'); if(ph&&p['연락처']) ph.value=String(p['연락처']);
+    var nm=document.getElementById('uName'); if(nm&&p['이름']) nm.value=String(p['이름']);
+    try{ toast('저장된 진단을 불러오는 중입니다…','ok'); }catch(e){}
+    /* [FIX-AW] 원래 진단 코드를 '리포트를 다시 만들기 전에' 잡아둔다.
+       이래야 새 코드가 발급되지 않고, 설문 완료 판정(l2p_svdone === _R.code)이 되살아난다. */
+    var code=p['참여자코드']?String(p['참여자코드']).trim():'';
+    window.__l2pRestoreCode = code || '';
+    window.__l2pRestorePending = true;
+    if(code){ try{ localStorage.setItem('l2p_svdone', code); }catch(e){} }
+    try{ localStorage.setItem('l2p_premium','1'); }catch(e){}
+    try{ buildReport(); }catch(e){ window.__l2pRestorePending=false; alert('리포트를 다시 만드는 데 실패했습니다.'); return false; }
+    var tries=0;
+    var t=setInterval(function(){
+      tries++;
+      var R=G('_R',null)||window._R;
+      if(R){
+        if(code){
+          R.code=code;
+          var el=document.getElementById('myCode'); if(el) el.textContent='진단 코드 '+code;
+          try{ var done=JSON.parse(localStorage.getItem('l2p_auto_saved')||'[]');
+               if(done.indexOf(code)<0){ done.push(code); localStorage.setItem('l2p_auto_saved',JSON.stringify(done.slice(-200))); } }catch(e){}
+        }
+        clearInterval(t);
+        try{ toast('진단 결과를 불러왔습니다'+(src?' ('+src+')':''),'ok'); }catch(e){}
+      }
+      if(tries>40) clearInterval(t);
+    },150);
+    return true;
+  };
+
+  /* 이 기기에 저장된 결과 */
+  function localResults(){
+    try{ return JSON.parse(localStorage.getItem('l2p_results')||'[]'); }catch(e){ return []; }
+  }
+  window.l2pLatestLocal=function(){
+    var a=localResults(); return a.length?(a[a.length-1].payload||null):null;
+  };
+  function digits(s){ return String(s||'').replace(/[^0-9]/g,''); }
+  function findLocal(name,phone,code){
+    var a=localResults();
+    for(var i=a.length-1;i>=0;i--){
+      var p=a[i]&&a[i].payload; if(!p) continue;
+      if(code){ if(String(p['참여자코드']||'').trim().toUpperCase()===code) return p; continue; }
+      if(String(p['이름']||'').trim()!==name) continue;
+      var rp=digits(p['연락처']);
+      if(!rp||rp!==digits(phone)) continue;      /* 이름만으로는 열지 않는다 */
+      return p;
+    }
+    return null;
+  }
+  function jsonp(url, cb){
+    var nm='__l2pCB'+String(Date.now()).slice(-7)+Math.floor(Math.random()*1000);
+    var s=document.createElement('script'), done=false;
+    function fin(d){ if(done) return; done=true; try{ cb(d); }finally{ try{ delete window[nm]; }catch(e){} if(s.parentNode) s.parentNode.removeChild(s); } }
+    window[nm]=fin;
+    s.src=url+(url.indexOf('?')<0?'?':'&')+'callback='+nm+'&_t='+Date.now();
+    s.onerror=function(){ fin(null); };
+    document.body.appendChild(s);
+    setTimeout(function(){ fin(null); },9000);
+  }
+
+  window.l2pLookupOpen=function(kind){
+    var login=(kind==='login');
+    openMini('<h3 class="mini-h">'+(login?'👤 회원 로그인 · 내 진단 불러오기':'🔎 최근 진단 결과 불러오기')+'</h3>'
+      +'<p class="mini-p">진단할 때 입력한 <b>이름(별명)과 연락처</b>를 넣어주세요. '
+      +'이 기기에 없으면 Master DB 에서 찾아옵니다.</p>'
+      +'<div class="fg"><label>이름 또는 별명</label><input class="qtext" id="lkName" placeholder="진단할 때 쓴 이름"></div>'
+      +'<div class="fg"><label>연락처(휴대폰)</label><input class="qtext" id="lkPhone" type="tel" placeholder="010-0000-0000"></div>'
+      +'<div class="fg"><label>또는 진단 코드로 찾기 <span style="color:var(--muted);font-weight:400;">· 더 정확합니다</span></label>'
+      +'<input class="qtext" id="lkCode" placeholder="예: L2P-260914-ABC"></div>'
+      +'<button class="btn btn-primary" onclick="l2pLookupGo()">불러오기 →</button>'
+      +'<div style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:9px;">'
+      +'※ 본인 확인을 위해 <b>이름과 연락처가 모두 일치</b>해야 조회됩니다. '
+      +'진단 코드를 아시면 코드만 넣으셔도 됩니다.</div>');
+  };
+
+  window.l2pLookupGo=function(){
+    var name=(document.getElementById('lkName')||{value:''}).value.trim();
+    var phone=(document.getElementById('lkPhone')||{value:''}).value.trim();
+    var code=(document.getElementById('lkCode')||{value:''}).value.trim().toUpperCase();
+    if(!code && (!name || !phone)){
+      alert('이름과 연락처를 모두 입력해 주세요.\n(또는 진단 코드를 입력하세요)'); return;
+    }
+    var hit=findLocal(name,phone,code);
+    if(hit){ window.l2pRestoreReport(hit,'이 기기에 저장된 결과'); return; }
+    if(!(typeof GAS_URL!=='undefined' && GAS_URL && GAS_URL.indexOf('http')===0)){
+      alert('이 기기에서는 찾을 수 없습니다.\n진단을 진행했던 기기·브라우저에서 다시 시도해 주세요.'); return;
+    }
+    try{ toast('Master DB 에서 찾는 중입니다…','ok'); }catch(e){}
+    var q='mode=result&name='+encodeURIComponent(name)+'&phone='+encodeURIComponent(phone)+'&code='+encodeURIComponent(code);
+    jsonp(GAS_URL+'?'+q, function(d){
+      if(d && d.ok && d.row){ window.l2pRestoreReport(d.row,'Master DB'); return; }
+      var why=(d && d.reason==='not_found')?'일치하는 진단 결과가 없습니다.'
+             :(d?'조회 결과가 없습니다.':'조회에 실패했습니다(응답 없음).');
+      alert(why+'\n\n· 이름과 연락처가 진단할 때와 같은지 확인해 주세요.\n· 진단 코드를 아시면 코드로 찾는 편이 정확합니다.');
+    });
+  };
+
+  /* [마이] 최근 진단 결과 — 메모리 → 이 기기 저장분 → 조회창 순서 */
+  window.l2pMyReport=function(){
+    var R=G('_R',null)||window._R;
+    if(R){ try{ goPremiumReport(); }catch(e){} return; }
+    var p=window.l2pLatestLocal();
+    if(p){ window.l2pRestoreReport(p,'이 기기에 저장된 결과'); return; }
+    window.l2pLookupOpen('my');
+  };
+
+  /* 불러오는 동안에는 '자동 저장'만 건너뛴다 — 직접 누르는 저장은 그대로 */
+  (function(){
+    var _sr=window.saveResult;
+    if(typeof _sr==='function'){
+      window.saveResult=function(R){
+        if(window.__l2pRestoring && window.__l2pQuietSave) return;
+        return _sr.apply(this,arguments);
+      };
+    }
+  })();
+
   /* ══ [FIX-AR] 정밀 리포트 / AI 화면을 '새 페이지'처럼 여는 포커스 모드 ══════════
      대상에서 .screen 까지 올라가며 형제만 숨긴다 — 옮기지 않으니 되돌리기가 확실하다. */
   var _focusHidden=null;
@@ -7483,7 +8160,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       try{ inner=_st?_st.apply(this,arguments):''; }catch(e){ inner=''; }
       var banner='<div class="aibn" onclick="l2pOpenAI()">'
         +'<div class="aibn-l">'
-          +'<span class="aibn-k"><i></i>AI ENGINE · 41문항 × 5영역 교차분석</span>'
+          +'<span class="aibn-k"><i></i>AI ENGINE · 43문항 × 5영역 교차분석</span>'
           +'<b>AI 기반 진단고객<br>영역별 처방 · 맞춤형 상품 제안</b>'
           +'<span class="aibn-s">처방 · 실행 로드맵 · 맞춤 상품 · 반영 전후 비교를 한 화면에서 봅니다</span>'
         +'</div><span class="aibn-go">열기 ›</span></div>';
@@ -7551,7 +8228,1419 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       return h;
     };
   }
+  /* ══ [FIX-AW] 이미 끝낸 진단은 불러오기만 하면 정밀 리포트가 바로 열린다 ══════
+     증상: 로그인해서 내 결과를 보려 하면 '설문을 다시 하세요' 화면이 나왔다.
+     원인: 불러오기가 리포트를 다시 만들 때 새 참여자코드가 발급돼
+           설문 완료 판정(_svDone = _R.code === l2p_svdone)이 깨지고,
+           다른 기기에는 해금 플래그(l2p_premium)도 없었다.
+     조치: ① 리포트를 다시 만들 때 '원래 코드'를 쓰게 하고
+           ② 불러온 리포트는 관문을 이미 지난 것으로 보고 정밀 리포트를 바로 연다. */
+  (function(){
+    function restoring(){ return !!window.__l2pRestorePending; }
+
+    /* ⓐ deploy · early — /diagnose 요청에 원래 코드를 실어 같은 코드로 돌려받는다 */
+    var _ap=window.apiPost;
+    if(typeof _ap==='function'){
+      window.apiPost=function(path, body){
+        try{
+          if(restoring() && window.__l2pRestoreCode && /diagnose/.test(String(path)) && body && !body.code){
+            body.code=window.__l2pRestoreCode;
+          }
+        }catch(e){}
+        return _ap.apply(this,arguments);
+      };
+    }
+    /* ⓐ' standalone · single — 코드를 스스로 만든다. 복원 중에만 원래 코드를 돌려준다 */
+    var _gc=window.genCode;
+    if(typeof _gc==='function'){
+      window.genCode=function(){
+        if(restoring() && window.__l2pRestoreCode) return window.__l2pRestoreCode;
+        return _gc.apply(this,arguments);
+      };
+    }
+
+    var AGAIN='<div class="l2p-again"><div class="ag-ic">✓</div><div class="ag-tx">'
+      +'<b>이전에 완료하신 진단입니다</b>'
+      +'<span>설문을 다시 하실 필요 없습니다. 아래 정밀 리포트를 그대로 보실 수 있어요.</span></div>'
+      +'<button class="ag-btn" onclick="l2pOpenFullReport()">정밀 리포트 열기 →</button></div>';
+
+    /* ⓑ 그려진 뒤 — 관문을 치우고 정밀 리포트를 펼친다 */
+    function unlock(){
+      var code=window.__l2pRestoreCode||'';
+      window.__l2pRestorePending=false;
+      try{ var R=G('_R',null)||window._R; if(R){ if(code) R.code=code; else code=R.code||''; } }catch(e){}
+      try{ if(code) localStorage.setItem('l2p_svdone',code); }catch(e){}
+      try{ localStorage.setItem('l2p_premium','1'); }catch(e){}
+      window._svDone=true;
+      var g=document.getElementById('premiumGate'); if(g) g.remove();
+      var px=document.getElementById('premiumExtra'); if(px) px.innerHTML=AGAIN;
+      var fw=document.getElementById('fullReportWrap'); if(fw) fw.style.display='block';
+      var dw=document.getElementById('detailWrap'); if(dw) dw.style.display='block';
+      var mc=document.getElementById('myCode'); if(mc&&code) mc.textContent='진단 코드 '+code;
+      setTimeout(function(){ try{ window.l2pOpenFullReport(); }catch(e){} },90);
+    }
+
+    /* 리포트를 그리는 함수 이름이 빌드마다 다르다.
+       deploy·early 는 buildReport() 가 서버 응답을 기다리는 '비동기'라서
+       buildReport 를 감싸면 아직 그려지지도 않은 화면에 대고 관문을 치우게 된다.
+       그래서 화면을 실제로 그리는 함수 하나만 감싼다 —
+       renderReportFromServer 가 있으면 그것을, 없으면(standalone·single) buildReport 를. */
+    var RENDER = (typeof window.renderReportFromServer==='function') ? 'renderReportFromServer'
+               : ((typeof window.buildReport==='function') ? 'buildReport' : null);
+    if(RENDER){
+      var f=window[RENDER];
+      window[RENDER]=function(){
+        var was=restoring();
+        var r=f.apply(this,arguments);
+        if(was){ try{ unlock(); }catch(e){} }
+        return r;
+      };
+    }
+  })();
+  /* ══ [FIX-BA] 자산 흐름 시계열 — 채점 엔진의 식을 그대로 그린다 ══════════════
+     새 추정을 만들지 않는다. 엔진이 쓰는 선형식을 그대로 따라 그리므로
+     그래프의 끝점 = 화면에 적힌 '예상 자산 고갈 나이' 가 정의상 일치한다. */
+  window.l2pAssetPath = function(R){
+    var c=(R&&R.c)||{};
+    var a0=Math.max(30, Math.min(85, parseInt(c.baseAge,10)||55));
+    var aR=Math.max(a0, Math.min(90, parseInt(c.retire,10)||65));
+    var P=Math.round(R.principal||0);                 /* 은퇴 시점 순자산(만원) */
+    if(!isFinite(P)) return null;
+    var save=Math.round(c.save||0);                   /* 월 저축(만원) */
+    var sf=Math.round(R.shortfall||0);                /* 은퇴 후 월 부족액(만원) */
+    var dep=Number(R.depletion||90);
+    function at(a){
+      if(a<=aR) return P-(aR-a)*12*save;
+      return P-sf*12*(a-aR);
+    }
+    return { a0:a0, aR:aR, P:P, save:save, sf:sf, dep:dep, at:at,
+             end:Math.min(90, sf>0?Math.min(dep,90):90) };
+  };
+
+  window.l2pTimelineHTML = function(R){
+    var T=window.l2pAssetPath(R); if(!T) return '';
+    var c=(R&&R.c)||{};
+    var X0=T.a0, X1=90, W0=320, H0=196, L=44, Rr=12, TOP=16, BOT=30;
+    var pw=W0-L-Rr, ph=H0-TOP-BOT;
+    /* 축 범위 — 자산은 고갈 시점에서 0 에 멈춘다. 그 뒤의 '음수 자산'을 축에 넣으면
+       눈금이 −1억 같은 없는 숫자로 찍힌다(실제로 그렇게 나왔다). 그리는 구간만 본다. */
+    var _end0=(T.sf>0)?Math.min(T.dep,90):90;
+    var vals=[T.at(T.a0), T.P, Math.max(0, T.at(_end0))];
+    var ymax=Math.max(1, Math.max.apply(null, vals))*1.14;
+    var ymin=0;
+    function px(a){ return L+(a-X0)/(X1-X0)*pw; }
+    function py(v){ return TOP+ph-((v-ymin)/(ymax-ymin))*ph; }
+
+    /* 본선 — 축적 구간과 인출 구간 */
+    var grow='M'+px(T.a0).toFixed(1)+','+py(T.at(T.a0)).toFixed(1)+' L'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1);
+    var drawEnd=(T.sf>0)?Math.min(T.dep,90):90;
+    var drawEndV=(T.sf>0&&T.dep<=90)?0:T.at(drawEnd);
+    var fall='M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)+' L'+px(drawEnd).toFixed(1)+','+py(drawEndV).toFixed(1);
+    var area=grow+' L'+px(drawEnd).toFixed(1)+','+py(drawEndV).toFixed(1)
+            +' L'+px(drawEnd).toFixed(1)+','+py(ymin).toFixed(1)
+            +' L'+px(T.a0).toFixed(1)+','+py(ymin).toFixed(1)+' Z';
+
+    /* 비관 · 낙관 — 이미 계산된 고갈 나이로 직선을 긋는다(모델이 선형이므로 같은 선) */
+    var sc=R.scen||{}, dash='', capped=[];
+    [['p',sc.p,'#C2564B'],['o',sc.o,'#2E7D5B']].forEach(function(s){
+      var a=Number(s[1]);
+      if(!isFinite(a)) return;
+      if(a>=90 || T.sf<=0){ capped.push(s[0]); return; }   /* 고갈 안 됨 — 기울기를 모르므로 안 그린다 */
+      dash+='<path d="M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)+' L'+px(Math.min(a,90)).toFixed(1)+','+py(0).toFixed(1)
+           +'" fill="none" stroke="'+s[2]+'" stroke-width="1.4" stroke-dasharray="4 3" opacity=".55"/>';
+    });
+
+    /* 눈금 */
+    var ticks='', step=(X1-X0)>34?10:5;
+    for(var a=Math.ceil(X0/step)*step; a<=X1; a+=step){
+      ticks+='<line x1="'+px(a).toFixed(1)+'" y1="'+TOP+'" x2="'+px(a).toFixed(1)+'" y2="'+(TOP+ph)+'" stroke="#EDF1EE" stroke-width="1"/>'
+        +'<text x="'+px(a).toFixed(1)+'" y="'+(TOP+ph+13)+'" class="tl-ax" text-anchor="middle">'+a+'</text>';
+    }
+    var gy=[0,0.5,1], grid='';
+    gy.forEach(function(g){
+      var v=ymin+(ymax-ymin)*g;
+      grid+='<line x1="'+L+'" y1="'+py(v).toFixed(1)+'" x2="'+(L+pw)+'" y2="'+py(v).toFixed(1)+'" stroke="#EDF1EE" stroke-width="1"/>'
+        +'<text x="'+(L-5)+'" y="'+(py(v)+3.5).toFixed(1)+'" class="tl-ax" text-anchor="end">'+eokShort(v)+'</text>';
+    });
+    if(ymin<0) grid+='<line x1="'+L+'" y1="'+py(0).toFixed(1)+'" x2="'+(L+pw)+'" y2="'+py(0).toFixed(1)+'" stroke="#D8DEDA" stroke-width="1"/>';
+
+    /* 아하 모먼트 — 점 + 말풍선 */
+    var moments=[];
+    moments.push({a:T.a0, v:T.at(T.a0), k:'지금', t:(T.a0)+'세 · '+eokShort(T.at(T.a0))});
+    moments.push({a:T.aR, v:T.P, k:'은퇴', t:(T.aR)+'세 · '+eokShort(T.P), top:true});
+    if(T.sf>0&&T.dep<90) moments.push({a:Math.min(T.dep,90), v:0, k:'고갈', t:(Math.round(T.dep*10)/10)+'세'});
+    var dots='';
+    moments.forEach(function(m){
+      dots+='<circle cx="'+px(m.a).toFixed(1)+'" cy="'+py(m.v).toFixed(1)+'" r="4.4" fill="#fff" stroke="#124A2F" stroke-width="2.2"/>';
+    });
+    if(T.aR<65){
+      dots+='<rect x="'+px(T.aR).toFixed(1)+'" y="'+TOP+'" width="'+(px(65)-px(T.aR)).toFixed(1)+'" height="'+ph+'" fill="#C2564B" opacity=".07"/>'
+         +'<line x1="'+px(65).toFixed(1)+'" y1="'+TOP+'" x2="'+px(65).toFixed(1)+'" y2="'+(TOP+ph)+'" stroke="#C2564B" stroke-width="1" stroke-dasharray="3 3" opacity=".6"/>';
+    }
+
+    var svg='<svg class="tl-svg" viewBox="0 0 '+W0+' '+H0+'" preserveAspectRatio="xMidYMid meet">'
+      +'<defs><linearGradient id="tlg" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0%" stop-color="#1C7A4E" stop-opacity=".22"/><stop offset="100%" stop-color="#1C7A4E" stop-opacity="0"/>'
+      +'</linearGradient></defs>'
+      +grid+ticks
+      +'<path d="'+area+'" fill="url(#tlg)"/>'
+      +dash
+      +'<path d="'+grow+'" fill="none" stroke="#1C7A4E" stroke-width="2.6" stroke-linecap="round"/>'
+      +'<path d="'+fall+'" fill="none" stroke="#C2564B" stroke-width="2.6" stroke-linecap="round"/>'
+      +dots+'</svg>';
+
+    /* 아하 모먼트 설명 카드 */
+    var aha=[];
+    aha.push(['🏁','은퇴 '+T.aR+'세 — 여기가 자산의 정점입니다',
+      '모으는 구간이 끝나고 꺼내 쓰는 구간이 시작됩니다. 이때 순자산은 <b>약 '+eok(T.P)+'원</b>입니다.'
+      +(T.save>0?' 지금부터 은퇴까지 월 '+W(T.save)+'만원씩 더 쌓입니다.':'')]);
+    if(T.sf>0){
+      aha.push(['📉','은퇴 직후부터 매달 '+W(T.sf)+'만원이 빠져나갑니다',
+        '연금 · 배당으로 들어오는 <b>월 '+W(R.fixedIncome||0)+'만원</b>보다 쓰는 돈이 많아, 모자란 만큼을 자산에서 꺼내 씁니다. '
+        +'기울기가 가파른 이유가 이것입니다.']);
+    } else {
+      aha.push(['✅','은퇴 후에도 소득이 지출보다 큽니다',
+        '연금 · 배당으로 들어오는 <b>월 '+W(R.fixedIncome||0)+'만원</b>이 지출을 덮습니다. 자산이 줄지 않습니다.']);
+    }
+    if(T.aR<65){
+      aha.push(['🔔','은퇴 '+T.aR+'세 → 국민연금 '+(65-T.aR)+'년의 공백',
+        '국민연금은 대체로 65세부터 나옵니다. 그래프의 붉은 구간이 그 사이입니다. '
+        +'<b>이 그래프는 은퇴 시점부터 연금 소득이 들어온다고 보고 그린 것</b>이라, '
+        +'실제로는 이 구간에서 곡선이 더 가파를 수 있습니다.']);
+    }
+    if(T.sf>0&&T.dep<90){
+      aha.push(['⚠️',''+(Math.round(T.dep*10)/10)+'세에 모아둔 돈이 바닥납니다',
+        '이 나이 이후로는 연금 · 배당 소득만 남습니다'
+        +(isFinite(sc.p)&&sc.p<90?(' · 생활충격 시나리오(재취업 지연 · 의료비 증가)에서는 <b>'+(Math.round(sc.p*10)/10)+'세</b>로 앞당겨집니다'):'')+'.']);
+    } else {
+      aha.push(['🎯','90세까지 자산이 유지됩니다',
+        '현재 조건에서는 90세 이전에 자산이 바닥나지 않습니다'
+        +(capped.length?' · 생활충격 · 시장·장수 시나리오에서도 마찬가지입니다':'')+'.']);
+    }
+    if((R.reemp||0)>0){
+      aha.push(['💼','재취업 소득 월 '+W(R.reemp)+'만원은 이 그래프에 없습니다',
+        '진단상 기대할 수 있는 근로소득이지만, 얼마나 오래 이어질지는 알 수 없어 <b>일부러 빼고 그렸습니다</b>. '
+        +'실제로 벌게 되면 고갈 시점은 그만큼 뒤로 밀립니다.']);
+    }
+
+    var lg='<div class="tl-lg">'
+      +'<span><i class="s g"></i>모으는 구간</span>'
+      +'<span><i class="s r"></i>꺼내 쓰는 구간</span>'
+      +(dash?'<span><i class="d"></i>생활충격 · 시장·장수 시나리오</span>':'')
+      +(T.aR<65?'<span><i class="b"></i>연금 수령 전 공백</span>':'')
+      +'</div>';
+
+    return '<div class="tlc">'
+      +'<span class="eyebrow">AI 시계열 분석</span>'
+      +'<h2>'+(c.name||'고객')+'님의 <em>노후 자산 흐름</em></h2>'
+      +'<p class="tl-sub">지금부터 90세까지, 진단 결과대로 살았을 때 자산이 어떻게 움직이는지를 그린 것입니다.</p>'
+      +svg+lg
+      +'<div class="tl-aha">'+aha.map(function(x){
+          return '<div class="tl-a"><span class="ic">'+x[0]+'</span><div><b>'+x[1]+'</b><span>'+x[2]+'</span></div></div>';
+        }).join('')+'</div>'
+      +'<div class="basis-note">📌 이 그래프는 리포트의 <b>예상 자산 고갈 나이</b>를 계산할 때 쓰는 식을 그대로 그린 것입니다 — '
+      +'은퇴 전에는 월 저축만큼 쌓이고, 은퇴 후에는 월 부족액만큼 줄어듭니다. '
+      +'물가 · 수익률 · 의료비 변동은 시나리오(생활충격 · 시장·장수)로만 반영했으며, 셋 다 현재 조건이거나 그보다 나쁜 경우입니다.</div>'
+      +'</div>';
+  };
+
+  /* ══ [FIX-BA] 정밀 리포트 카드 순서 — 5각 지도 → 시계열 → 연금충족률 → 건강방어율 ══ */
+  window.l2pReorderReport = function(){
+    var f=document.getElementById('fullReportWrap');
+    if(!f||f.getAttribute('data-l2p-ordered')==='1') return false;
+    var kids=[].slice.call(f.children);
+    function find(sel){
+      for(var i=0;i<kids.length;i++){ if(kids[i].matches&&kids[i].matches(sel)) return kids[i]; }
+      return null;
+    }
+    var hero=find('.score-hero'), radar=find('.radar-card'),
+        metric=find('.metric-grid'), ff=find('.fulfill-card'), sh=find('.shield-card');
+    if(!radar||!ff||!sh) return false;
+    /* [FIX-BC] 시계열 카드는 대시보드 안으로 들어간다 — 따로 또 넣지 않는다 */
+    var dash=null;
+    try{
+      var R=G('_R',null)||window._R;
+      if(R&&window.l2pDashHTML){ var box=document.createElement('div'); box.innerHTML=window.l2pDashHTML(R)||''; dash=box.firstChild; }
+    }catch(e){ dash=null; }
+    var tl=null;
+    if(!dash){
+      try{
+        var R2=G('_R',null)||window._R;
+        if(R2){ var b2=document.createElement('div'); b2.innerHTML=window.l2pTimelineHTML(R2)||''; tl=b2.firstChild; }
+      }catch(e){ tl=null; }
+    }
+    var order=[dash,hero,radar,tl,metric,ff,sh].filter(Boolean);
+    for(var i=order.length-1;i>=0;i--) f.insertBefore(order[i], f.firstChild);
+    f.setAttribute('data-l2p-ordered','1');
+    return true;
+  };
+  (function(){
+    var RENDER=(typeof window.renderReportFromServer==='function') ? 'renderReportFromServer'
+             : ((typeof window.buildReport==='function') ? 'buildReport' : null);
+    if(!RENDER) return;
+    var f=window[RENDER];
+    window[RENDER]=function(){
+      var r=f.apply(this,arguments);
+      try{ window.l2pReorderReport(); }catch(e){}
+      return r;
+    };
+  })();
+  /* ══ [FIX-AX] 인쇄본에 상품 제안 · 전·후 비교까지 담는다 ════════════════════
+     원인: 인쇄는 화면을 그대로 찍지 않고 buildPrintDoc() 이 만든 #printDoc 을 찍는데,
+           그 함수가 3페이지(점수·현금흐름·처방)까지만 만들고 끝났다.
+     조치: 원본은 두고 뒤에 페이지를 덧붙인다. */
+  (function(){
+    function pg(cls){ var d=document.createElement('div'); d.className='print-page '+(cls||''); return d; }
+    function hd(title,sub){
+      var h=document.createElement('div'); h.className='pp-head';
+      h.innerHTML='<div class="pp-brand">2막 1장 <span>· Life 2.0</span></div>'
+        +'<div class="pp-title">'+title+'</div>'+(sub?'<div class="pp-sub">'+sub+'</div>':'');
+      return h;
+    }
+    function clone(el){
+      if(!el) return null;
+      var c=el.cloneNode(true);
+      /* 접힌 것은 펴둔다 — details 는 닫혀 있으면 인쇄에도 안 나온다 */
+      try{ [].forEach.call(c.querySelectorAll('details'), function(d){ d.open=true; }); }catch(e){}
+      if(c.tagName==='DETAILS') c.open=true;
+      return c;
+    }
+
+    window.l2pPrintAppend=function(){
+      var doc=document.getElementById('printDoc');
+      var f=document.getElementById('fullReportWrap');
+      if(!doc||!f) return false;
+      if(f.style.display==='none'||!f.children.length) return false;   /* 기본 리포트만 인쇄 중 */
+
+      /* [FIX-BC] 대시보드 요약 · 지표 · 진단 · 시나리오를 1페이지 뒤에 넣는다 */
+      var dash=f.querySelector('.dash');
+      if(dash){
+        var pD=pg('pp-dash');
+        pD.appendChild(hd('은퇴 준비 대시보드','결론 · 핵심 숫자 · 재무 지표 · AI 핵심 이슈'));
+        ['.dash-top','.dm-grid','.di-grid'].forEach(function(sel){
+          var el=clone(dash.querySelector(sel)); if(el) pD.appendChild(el);
+        });
+        var so=dash.querySelector('#scenOut');
+        if(so && so.querySelector('.dsc-rows')){
+          var sh2=document.createElement('div'); sh2.className='pp-sec-title sec-block';
+          sh2.innerHTML='<h3>조건을 바꿨을 때</h3>'; pD.appendChild(sh2);
+          pD.appendChild(clone(so));
+        }
+        var first0=doc.querySelector('.print-page');
+        if(first0&&first0.nextSibling) doc.insertBefore(pD, first0.nextSibling);
+        else doc.appendChild(pD);
+      }
+
+      /* ② 자산 흐름 시계열 — 대시보드 뒤에 끼워 넣는다 */
+      var tl=clone(f.querySelector('.tlc'));
+      if(tl){
+        var p=pg('pp-tl');
+        p.appendChild(hd('정밀 리포트 ① 노후 자산 흐름','지금부터 90세까지 · 아하 모먼트'));
+        p.appendChild(tl);
+        var anchor=doc.querySelector('.pp-dash')||doc.querySelector('.print-page');
+        if(anchor&&anchor.nextSibling) doc.insertBefore(p, anchor.nextSibling);
+        else doc.appendChild(p);
+      }
+
+      /* [FIX-AX-2] 실행 로드맵이 비어 있으면 채운다.
+         FIX-AR 로 로드맵 카드가 #t-road → #t-rx 로 옮겨졌는데 buildPrintDoc 은
+         여전히 '#t-road .cl-block' 을 찾고 있어, 인쇄본에 제목만 나오고 내용이 없었다. */
+      try{
+        var rxPage=null;
+        [].forEach.call(doc.querySelectorAll('.print-page'), function(pEl){
+          var t=pEl.querySelector('.pp-title');
+          if(t && /영역별 처방/.test(t.textContent)) rxPage=pEl;
+        });
+        if(rxPage && !rxPage.querySelector('.cl-block')){
+          var cls=[].slice.call(f.querySelectorAll('#t-rx .cl-block, #t-road .cl-block'));
+          if(cls.length){
+            var g=document.createElement('div'); g.className='pp-grid2';
+            cls.forEach(function(el){ var c=clone(el); if(c) g.appendChild(c); });
+            rxPage.appendChild(g);
+          }
+        }
+      }catch(e){}
+
+      /* 맞춤형 상품 제안 — 길어서 두 페이지로 나눈다 */
+      var apx=f.querySelector('.apx');
+      if(apx){
+        var blks=[].slice.call(apx.querySelectorAll('.apx-blk'));
+        var pA=pg('pp-apx');
+        pA.appendChild(hd('AI 맞춤형 상품 제안 ① 연금 · 건강 보장','비어 있는 금액과 그것을 메울 수단'));
+        var kp=clone(apx.querySelector('.apx-kpis')); if(kp) pA.appendChild(kp);
+        var asm=clone(apx.querySelector('.apx-assume')); if(asm) pA.appendChild(asm);
+        blks.slice(0,2).forEach(function(b){ var c=clone(b); if(c) pA.appendChild(c); });
+        doc.appendChild(pA);
+
+        var pB=pg('pp-apx');
+        pB.appendChild(hd('AI 맞춤형 상품 제안 ② 일자리 · 웰다잉','재취업 · 창업 경로와 웰다잉 준비 가이드'));
+        blks.slice(2).forEach(function(b){ var c=clone(b); if(c) pB.appendChild(c); });
+        var si=clone(apx.querySelector('.setit')); if(si) pB.appendChild(si);
+        var lg=clone(apx.querySelector('.apx-legal')); if(lg) pB.appendChild(lg);
+        doc.appendChild(pB);
+      }
+
+      /* 제안 반영 전 · 후 비교 */
+      var wia=f.querySelector('.wia');
+      if(wia){
+        var pC=pg('pp-wia');
+        pC.appendChild(hd('제안 반영 전 · 후 비교','같은 채점 엔진으로 다시 계산한 결과'));
+        var c=clone(wia);
+        var out=c.querySelector('.wia-out');
+        if(out && !out.innerHTML.trim()){
+          out.innerHTML='<div class="wia-hint">화면에서 <b>‘반영 후 점수 계산’</b>을 누르면 '
+            +'이 자리에 전 · 후 비교 결과가 들어갑니다.</div>';
+        }
+        pC.appendChild(c);
+        doc.appendChild(pC);
+      }
+
+      /* 페이지 번호 · 꼬리말 다시 매기기 */
+      try{
+        [].forEach.call(doc.querySelectorAll('.pp-pageno'), function(n){ n.remove(); });
+        [].forEach.call(doc.querySelectorAll('.pp-foot'), function(n){ n.remove(); });
+        var pages=doc.querySelectorAll('.print-page');
+        [].forEach.call(pages, function(pEl,ix){
+          var n=document.createElement('div'); n.className='pp-pageno';
+          n.textContent='2막 1장 · 은퇴 준비 리포트  ·  '+(ix+1)+' / '+pages.length;
+          pEl.appendChild(n);
+        });
+        var foot=document.createElement('div'); foot.className='pp-foot';
+        foot.innerHTML='<b>2막 1장 · Life 2.0</b> — 본 진단은 상담 전 자가진단용 보수적 추정 모델입니다. '
+          +'실제 연금 수령액·세금·수익률·건강 변화에 따라 결과는 달라질 수 있습니다. · 주식회사 라이프 2.0';
+        if(pages.length) pages[pages.length-1].appendChild(foot);
+      }catch(e){}
+      return true;
+    };
+
+    var _bpd=window.buildPrintDoc;
+    if(typeof _bpd==='function'){
+      window.buildPrintDoc=function(){
+        var r=_bpd.apply(this,arguments);
+        try{ window.l2pPrintAppend(); }catch(e){}
+        return r;
+      };
+    }
+
+    /* 전 · 후 비교는 눌러야 내용이 생긴다 — 인쇄 전에 한 번 돌려준다 */
+    var _pr=window.printReport;
+    if(typeof _pr==='function'){
+      window.printReport=function(){
+        var self=this, args=arguments;
+        var out=document.getElementById('wiaOut'), btn=document.querySelector('.wia-run');
+        if(out && !out.innerHTML.trim() && btn && typeof window.l2pSimRun==='function'){
+          try{ window.l2pSimRun(btn); }catch(e){}
+          var n=0, t=setInterval(function(){
+            n++;
+            if((out.querySelector&&out.querySelector('.wia-tot')) || n>16){
+              clearInterval(t);
+              try{ _pr.apply(self,args); }catch(e){}
+            }
+          },160);
+          return;
+        }
+        return _pr.apply(self,args);
+      };
+    }
+  })();
+  /* ══════════════════════════════════════════════════════════════════════════
+     [FIX-BC] AI 은퇴진단 Dashboard
+     ① 결론 ② 핵심 숫자 ③ 자산 시계열 ④ 핵심 진단 ⑤ 시나리오 비교 ⑥ AI 추천
+     모든 숫자는 기존 결과(R)에서 나오거나, 문항 답을 바꿔 실제 채점 엔진을
+     다시 돌려 얻는다. 새 추정 공식은 쓰지 않는다.
+     ══════════════════════════════════════════════════════════════════════════ */
+
+  /* 은퇴 후 a 세 시점의 자산 — 엔진의 고갈 계산과 같은 선형식 */
+  function at90Of(R){
+    var c=(R&&R.c)||{}, ret=parseInt(c.retire,10)||65;
+    var v=Math.round((R.principal||0)-(R.shortfall||0)*12*Math.max(0,90-ret));
+    return Math.max(0,v);
+  }
+  function depOf(R){ var d=Number(R&&R.depletion); return isFinite(d)?d:90; }
+
+  /* 상태 뱃지 — 기준을 화면에 함께 적는다(숨은 기준을 만들지 않기 위해) */
+  function badge(level){
+    var t={good:'양호',warn:'주의',bad:'위험',info:'참고'}[level]||'참고';
+    return '<span class="dm-bd '+level+'">'+t+'</span>';
+  }
+  function mcard(label, value, unit, level, sub, note){
+    return '<div class="dm'+(level?' '+level:'')+'">'
+      +'<div class="dm-h"><span class="dm-l">'+label+'</span>'+(level?badge(level):'')+'</div>'
+      +'<div class="dm-v">'+value+(unit?'<i>'+unit+'</i>':'')+'</div>'
+      +(sub?'<div class="dm-s">'+sub+'</div>':'')
+      +(note?'<div class="dm-n">'+note+'</div>':'')+'</div>';
+  }
+
+  /* 현재 답변의 보기 인덱스 · 보기 수 */
+  function curIdx(qid){ return ansIdx(qid); }
+  function qOf(qid){ var QL=G('Q',null)||window.Q||[]; return QL.filter(function(x){return x.id===qid;})[0]||null; }
+  function optText(qid, i){ var q=qOf(qid); return (q&&q.opts&&q.opts[i])?q.opts[i].t:''; }
+
+  /* 답변을 서버/로컬 엔진이 받는 형태(인덱스 맵)로 */
+  function answersFlat(){
+    var mod={};
+    try{
+      if(typeof answersForApi==='function') mod=answersForApi();
+      else {
+        var src=G('answers',null)||window.answers||{};
+        Object.keys(src).forEach(function(k){ var v=src[k];
+          mod[k]=(v&&typeof v==='object'&&!Array.isArray(v))?v.idx:v; });
+      }
+    }catch(e){ mod={}; }
+    return mod;
+  }
+
+  /* 실제 채점 엔진 재호출 — What-if 전·후 비교와 같은 경로 */
+  function rescore(mod, cb){
+    if(typeof apiPost==='function' && typeof API_BASE!=='undefined'){
+      apiPost('/diagnose',{answers:mod, timings:{}, phone:'', consent:false, bypass:true,
+        peerData:window._peerData||null})
+        .then(function(d){ cb(d); }).catch(function(){ cb(null); });
+      return;
+    }
+    if(typeof computeReport==='function'){
+      var QL=G('Q',null)||window.Q||[], bak=G('answers',null)||window.answers||{}, rebuilt={};
+      Object.keys(mod).forEach(function(k){
+        var q=QL.filter(function(x){return x.id===k;})[0];
+        if(q&&q.opts&&typeof mod[k]==='number'&&q.opts[mod[k]]) rebuilt[k]={idx:mod[k],opt:q.opts[mod[k]]};
+        else rebuilt[k]=mod[k];
+      });
+      var res=null;
+      try{ try{ answers=rebuilt; }catch(e2){ window.answers=rebuilt; } res=computeReport(); }
+      catch(e){ res=null; }
+      try{ answers=bak; }catch(e3){ window.answers=bak; }
+      cb(res); return;
+    }
+    cb(null);
+  }
+
+  /* 쓸 수 있는 시나리오만 만든다 — 보기가 더 없으면 만들지 않는다 */
+  window.l2pScenList = function(R){
+    var out=[], base=answersFlat();
+    var q3=qOf('Q3'), i3=curIdx('Q3');
+    if(q3 && i3>=0 && q3.opts && i3+1<q3.opts.length){
+      var m=JSON.parse(JSON.stringify(base)); m['Q3']=i3+1;
+      out.push({key:'retire', icon:'🗓️',
+        name:'은퇴를 늦추면',
+        detail:optText('Q3',i3)+' → '+optText('Q3',i3+1),
+        why:'모으는 기간이 늘고 꺼내 쓰는 기간이 줄어듭니다',
+        mod:m});
+    }
+    var q4=qOf('Q4'), i4=curIdx('Q4');
+    if(q4 && i4>=1){
+      var m2=JSON.parse(JSON.stringify(base)); m2['Q4']=i4-1;
+      out.push({key:'cost', icon:'✂️',
+        name:'생활비를 줄이면',
+        detail:optText('Q4',i4)+' → '+optText('Q4',i4-1),
+        why:'매달 꺼내 쓰는 금액이 그만큼 줄어듭니다',
+        mod:m2});
+    }
+    if((R.reemp||0)>0 && curIdx('Q31')!==3){
+      out.push({key:'reemp', icon:'💼',
+        name:'재취업 소득을 5년 유지하면',
+        detail:'월 '+W(R.reemp)+'만원 × 5년',
+        why:'이 금액만큼 자산에서 덜 꺼내 쓰게 됩니다',
+        overlay:{years:5, amt:R.reemp}});
+    }
+    if(out.length>=2){
+      var mix=JSON.parse(JSON.stringify(base)), parts=[], ov=null;
+      out.forEach(function(s){
+        if(s.mod){ Object.keys(s.mod).forEach(function(k){ if(s.mod[k]!==base[k]) mix[k]=s.mod[k]; }); parts.push(s.name.replace('면','')); }
+        if(s.overlay){ ov=s.overlay; parts.push('재취업 5년'); }
+      });
+      out.push({key:'mix', icon:'⭐', best:true,
+        name:'AI 추천 복합 시나리오',
+        detail:parts.join(' + '),
+        why:'위 조건을 함께 적용했을 때입니다',
+        mod:mix, overlay:ov});
+    }
+    return out;
+  };
+
+  /* 오버레이(재취업) — 같은 선형 모델 위에 얹는다 */
+  function applyOverlay(res, ov){
+    if(!ov||!res) return res;
+    var c=(res.c)||{}, ret=parseInt(c.retire,10)||65;
+    var add=Math.round(ov.amt*12*ov.years);          /* 그 기간 동안 덜 꺼내 쓴 금액 */
+    var out=JSON.parse(JSON.stringify(res));
+    out.principal=Math.round((res.principal||0)+add);
+    var sf=res.shortfall||0;
+    out.depletion = sf>0 ? Math.round((ret+Math.max(out.principal,0)/(sf*12))*10)/10 : 90;
+    if(out.depletion>90) out.depletion=90;
+    out.__overlay=true;
+    return out;
+  }
+
+  window.l2pScenRun = function(btn){
+    var R=G('_R',null)||window._R;
+    if(!R){ alert('먼저 진단을 완료해 주세요.'); return; }
+    var host=document.getElementById('scenOut'); if(!host) return;
+    var list=window.l2pScenList(R);
+    if(!list.length){
+      host.innerHTML='<div class="dsc-note">바꿀 수 있는 조건이 남아 있지 않습니다 — '
+        +'은퇴 시점과 생활비가 이미 선택 가능한 끝에 있습니다.</div>';
+      return;
+    }
+    if(btn){ btn.disabled=true; btn.textContent='계산 중… (조건별로 다시 채점합니다)'; }
+    host.innerHTML='<div class="dsc-note">조건별로 채점 엔진을 다시 돌리는 중입니다…</div>';
+
+    var done=0, results=[];
+    function finish(){
+      if(btn){ btn.disabled=false; btn.textContent='다시 계산'; }
+      render(results);
+    }
+    list.forEach(function(s, ix){
+      function got(res){
+        var r = s.overlay ? applyOverlay(res||R, s.overlay) : res;
+        results[ix]={s:s, r:r};
+        done++; if(done===list.length) finish();
+      }
+      if(s.mod) rescore(s.mod, got);
+      else got(R);                                   /* overlay 전용 — 현재 결과 위에 얹는다 */
+    });
+
+    function render(rows){
+      var baseDep=depOf(R), baseAt90=at90Of(R);
+      var valid=rows.filter(function(x){ return x&&x.r; });
+      if(!valid.length){ host.innerHTML='<div class="dsc-note">계산에 실패했습니다. 잠시 후 다시 시도해 주세요.</div>'; return; }
+
+      var all=[{s:{key:'now', icon:'📍', name:'현재 계획', detail:'지금 답변 그대로', why:''}, r:R}].concat(valid);
+      var maxDep=Math.max.apply(null, all.map(function(x){ return Math.min(90, depOf(x.r)); }));
+
+      var bars=all.map(function(x){
+        var d=depOf(x.r), a=at90Of(x.r), gain=Math.round((d-baseDep)*10)/10;
+        var w=Math.max(6, Math.round(Math.min(90,d)/90*100));
+        var isNow=(x.s.key==='now');
+        return '<div class="dsc-row'+(isNow?' now':'')+(x.s.best?' best':'')+'">'
+          +'<div class="dsc-nm"><span class="ic">'+(x.s.icon||'')+'</span>'
+            +'<b>'+x.s.name+'</b><span class="dt">'+(x.s.detail||'')+'</span>'
+            +(x.r.__overlay?'<span class="ovl">모델 밖 계산</span>':'')+'</div>'
+          +'<div class="dsc-bar"><i style="width:'+w+'%"></i>'
+            +'<span class="dsc-age">'+(d>=90?'90세+':d+'세')+'</span></div>'
+          +'<div class="dsc-kv">'
+            +'<span>90세 자산 <b>'+(a>0?eokShort(a):'0')+'</b></span>'
+            +(isNow?'<span class="dsc-base">기준</span>'
+                   :'<span class="'+(gain>0?'up':(gain<0?'dn':''))+'">'
+                     +(gain>0?'+'+gain+'년':(gain<0?gain+'년':'변화 없음'))+'</span>')
+          +'</div></div>';
+      }).join('');
+
+      /* AI 추천 — 개선폭이 큰 순서 */
+      var ranked=valid.filter(function(x){ return x.s.key!=='mix'; })
+        .map(function(x){ return {s:x.s, r:x.r, gain:Math.round((depOf(x.r)-baseDep)*10)/10}; })
+        .sort(function(a,b){ return b.gain-a.gain; });
+      var mix=valid.filter(function(x){ return x.s.key==='mix'; })[0];
+
+      var rec='';
+      if(ranked.length){
+        rec='<div class="drec"><div class="drec-h"><h3>AI가 추천하는 가장 효과적인 방법</h3>'
+          +'<p>조건을 하나씩 바꿔 다시 채점했을 때, 자산이 버티는 기간이 많이 늘어난 순서입니다.</p></div>'
+          +'<ol class="drec-l">'+ranked.slice(0,3).map(function(x,i){
+            return '<li><span class="no">'+(i+1)+'순위</span>'
+              +'<div><b>'+x.s.name.replace(/면$/,'기')+'</b>'
+              +'<span class="dt">'+x.s.detail+(x.s.why?' · '+x.s.why:'')+'</span></div>'
+              +'<span class="gn">'+(x.gain>0?'+'+x.gain+'년':(x.gain<0?x.gain+'년':'변화 없음'))+'</span></li>';
+          }).join('')+'</ol>';
+        if(mix){
+          var md=depOf(mix.r), ma=at90Of(mix.r);
+          rec+='<div class="drec-sum"><b>가장 효과적인 조합을 적용하면</b>'
+            +'<span>예상 자산 소진 시점이 <em>'+baseDep+'세</em>에서 <em class="up">'
+            +(md>=90?'90세 이상':md+'세')+'</em>으로 '
+            +(md>baseDep?('약 '+Math.round((md-baseDep)*10)/10+'년 늦춰집니다'):'달라집니다')+'. '
+            +'90세 시점 예상 자산은 <em>'+(ma>0?eok(ma)+'원':'0원')+'</em>입니다.</span></div>';
+        }
+        rec+='<div class="drec-btn">'
+          +'<button class="dbtn primary" onclick="(window.consult?consult(\'free\'):(window.goConsult&&goConsult()))">이 시나리오로 무료 상담 신청 →</button>'
+          +'</div>'
+          +'<div class="dsc-note">※ 시나리오는 <b>문항 답을 바꿔 같은 채점 엔진을 다시 돌린 결과</b>입니다. '
+          +'문항 보기 단위로만 바꿀 수 있어 "2년 연기" 같은 임의 단위는 쓰지 않았습니다. '
+          +'‘모델 밖 계산’ 표시가 붙은 항목은 재취업 소득처럼 엔진의 고갈 계산에 들어가 있지 않은 값을 '
+          +'같은 식 위에 얹어 계산한 것입니다.</div>';
+        rec+='</div>';
+      }
+      host.innerHTML='<div class="dsc-rows">'+bars+'</div>'+rec;
+    }
+  };
+
+  /* ── 대시보드 본체 ───────────────────────────────────────────────────────── */
+  window.l2pDashHTML = function(R){
+    var c=(R&&R.c)||{}, nm=c.name||'고객';
+    var total=Math.round(R.total||0);
+    var gr=R.grade||['',''];
+    var ret=parseInt(c.retire,10)||65;
+    var dep=depOf(R), at90=at90Of(R);
+    var sf=Math.round(R.shortfall||0);
+    var fi=Math.round(R.fixedIncome||0);
+    var spend=fi+sf;                                   /* 은퇴 후 월 총지출 — 엔진 항에서 그대로 */
+    var lifeNeed=Math.max(0, Math.round(spend*12*Math.max(0,90-ret)));
+    var state = total>=70?'good':(total>=55?'warn':'bad');
+    var depState = dep>=90?'good':(dep>=85?'warn':'bad');
+
+    /* ① 결론 + ② 핵심 숫자 */
+    var top='<div class="dash-top">'
+      +'<div class="dt-l">'
+        +'<span class="dt-eye"><i></i>AI 은퇴진단 대시보드</span>'
+        +'<h2>'+nm+'님의 은퇴 준비 상태</h2>'
+        +'<div class="dt-state '+state+'"><span class="dot"></span>'
+          +'<span class="sc">노후 준비 건강도 <b>'+total+'</b><i>점</i></span>'
+          +'<span class="gd">'+(gr[0]||'')+'</span></div>'
+        +'<p class="dt-msg">'
+          +(dep>=90
+            ? '현재 계획대로라면 <b>90세까지 자산이 유지될</b> 것으로 예상됩니다.'
+            : '현재 계획대로라면 <b>'+dep+'세</b>까지 자산이 유지될 것으로 예상됩니다.')
+          +'</p>'
+        +(gr[1]?'<p class="dt-sub">'+gr[1]+'</p>':'')
+      +'</div>'
+      +'<div class="dt-kpi">'
+        +'<div class="dk"><span class="l">은퇴 예상 나이</span><span class="v">'+ret+'<i>세</i></span></div>'
+        +'<div class="dk"><span class="l">은퇴 시점 예상 순자산</span><span class="v">'+eokShort(R.principal||0)+'</span></div>'
+        +'<div class="dk '+depState+'"><span class="l">예상 자산 소진 시점</span><span class="v">'+(dep>=90?'90+':dep)+'<i>세</i></span></div>'
+      +'</div></div>';
+
+    /* ③ 자산 시계열 */
+    var chart='<div class="dash-chart">'+(window.l2pTimelineHTML?window.l2pTimelineHTML(R):'')+'</div>';
+
+    /* ④ 재무 웰니스 지표 */
+    var ff=Math.round(R.fulfillGoal||0);
+    var sh=Math.round(R.shield||0);
+    var keep=Math.round(R.keep90||0);
+    var mets='<div class="dash-sec"><div class="ds-h"><h3>핵심 재무 지표</h3>'
+      +'<p>기준은 각 카드에 함께 적었습니다 — 숨은 기준으로 판정하지 않습니다.</p></div>'
+      +'<div class="dm-grid">'
+      + mcard('은퇴 준비율', ff, '%',
+              ff>=100?'good':(ff>=70?'warn':'bad'),
+              '목표 연금 '+W(c.goal||0)+'만원 대비 예상 연금 '+W(fi)+'만원',
+              '100% 이상 양호 · 70% 이상 주의')
+      + mcard('은퇴 후 월 현금흐름', (sf>0?'−'+W(sf):'+'+W(-sf)), '만원',
+              sf<=0?'good':(sf<=50?'warn':'bad'),
+              '연금 · 배당 '+W(fi)+'만원 − 예상 지출 '+W(spend)+'만원',
+              '0 이상 양호 · −50만원까지 주의')
+      + mcard('예상 자산 소진 연령', (dep>=90?'90+':dep), '세', depState,
+              '은퇴 '+ret+'세부터 매달 '+(sf>0?W(sf)+'만원씩 인출':'인출 없음'),
+              '90세 이상 양호 · 85세 이상 주의')
+      + mcard('예상 최대 자산', eokShort(R.principal||0), '',
+              'info', '은퇴 '+ret+'세 시점 — 이때가 정점입니다',
+              '부채 · 자녀 지원분을 뺀 순자산')
+      + mcard('90세까지 버틴 시나리오', keep+' / 3', '',
+              keep>=3?'good':(keep>=1?'warn':'bad'),
+              '생활충격 · 기준 · 시장·장수 세 조건 중',
+              '확률이 아니라 <b>시나리오 통과 개수</b>입니다')
+      + mcard('은퇴 후 평생 필요자금', eokShort(lifeNeed), '',
+              'info', '은퇴 '+ret+'세 ~ 90세 · 월 '+W(spend)+'만원 기준',
+              '생활비 + 건강 예비비 + 건보료 (엔진 계산 항 그대로)')
+      +'</div></div>';
+
+    /* ⑤ AI 핵심 진단 — 실제 수치에서 고른다 */
+    var iss=[];
+    if(sf>0){
+      iss.push(['💸','은퇴 직후 현금흐름이 부족합니다',
+        '연금 · 배당 <b>월 '+W(fi)+'만원</b>보다 예상 지출 <b>월 '+W(spend)+'만원</b>이 커, '
+        +'매달 약 <b>'+W(sf)+'만원</b>을 자산에서 인출하게 됩니다.',
+        '자산이 줄어드는 속도를 그대로 결정하는 숫자입니다.']);
+    } else {
+      iss.push(['✅','은퇴 후 현금흐름이 플러스입니다',
+        '연금 · 배당 <b>월 '+W(fi)+'만원</b>이 예상 지출 <b>월 '+W(spend)+'만원</b>을 덮습니다.',
+        '자산을 헐지 않아도 되는 상태입니다 — 이 구조를 유지하는 것이 목표입니다.']);
+    }
+    if(dep<90){
+      iss.push(['📉',dep+'세 이후에는 연금 소득만 남습니다',
+        '모아둔 자산이 <b>'+dep+'세</b>에 바닥나고, 그 뒤로는 <b>월 '+W(fi)+'만원</b>으로만 생활하게 됩니다'
+        +(R.scen&&isFinite(R.scen.p)&&R.scen.p<90?(' · 생활충격 시나리오에서는 <b>'+R.scen.p+'세</b>로 앞당겨집니다'):'')+'.',
+        '몇 살까지 버티는지가 은퇴 설계에서 가장 먼저 봐야 할 숫자입니다.']);
+    } else {
+      iss.push(['🎯','90세까지 자산이 유지됩니다',
+        '현재 조건에서는 90세 이전에 자산이 바닥나지 않습니다 · 90세 시점 예상 자산 <b>'+eok(at90)+'원</b>.',
+        '지금은 늘리는 것보다 <b>구조를 지키는 것</b>이 중요합니다.']);
+    }
+    if((R.reemp||0)>0 && curIdx('Q31')!==3){
+      iss.push(['💼','재취업 소득이 가장 큰 변수입니다',
+        '진단상 기대할 수 있는 근로소득은 <b>월 '+W(R.reemp)+'만원</b>입니다. '
+        +'이 소득이 유지되는 기간에 따라 자산 소진 시점이 크게 달라집니다.',
+        '이 금액은 <b>그래프와 고갈 나이에 들어 있지 않습니다</b> — 보수적으로 빼고 계산했습니다.']);
+    } else if(sh<60){
+      iss.push(['🛡️','건강 방어율이 '+sh+'%로 낮습니다',
+        '필요 보장 <b>'+eok(R.needCover||0)+'원</b> 중 지금 준비된 몫이 '+sh+'%입니다. '
+        +'큰 병이 오면 치료비가 그대로 노후 자금을 깎습니다.',
+        '방어율이 낮으면 연금 납입까지 끊겨 평생 연금이 줄어듭니다.']);
+    } else {
+      var w1=(R.ranked&&R.ranked[0])||null;
+      var AI=G('AREA_INFO',null)||{};
+      if(w1&&AI[w1.a]){
+        iss.push(['⚠️',AI[w1.a].name+' 영역이 가장 약합니다 ('+w1.s+'점)',
+          (R.actions&&R.actions[w1.a])||'이 영역부터 보완하는 것이 효율적입니다.',
+          '5개 영역 중 점수가 가장 낮아, 같은 노력으로 가장 크게 개선됩니다.']);
+      }
+    }
+    iss=iss.slice(0,3);
+    var diag='<div class="dash-sec"><div class="ds-h"><h3>AI가 발견한 핵심 이슈</h3>'
+      +'<p>43개 문항 답변과 5개 영역 점수를 교차 분석해 가장 먼저 볼 세 가지를 골랐습니다.</p></div>'
+      +'<div class="di-grid">'+iss.map(function(x,i){
+        return '<div class="di"><div class="di-h"><span class="ic">'+x[0]+'</span>'
+          +'<span class="no">'+['①','②','③'][i]+'</span></div>'
+          +'<b>'+x[1]+'</b><p>'+x[2]+'</p>'
+          +'<div class="di-why"><span>왜 중요한가</span>'+x[3]+'</div></div>';
+      }).join('')+'</div></div>';
+
+    /* ⑥ 시나리오 비교 + 추천 */
+    var scen='<div class="dash-sec"><div class="ds-h"><h3>조건을 바꾸면 노후가 얼마나 달라질까요?</h3>'
+      +'<p>추정치를 새로 만들지 않고, <b>문항 답을 바꿔 같은 채점 엔진을 다시 돌린</b> 결과를 보여드립니다.</p></div>'
+      +'<button class="dbtn" id="scenBtn" onclick="l2pScenRun(this)">조건별로 다시 계산하기 →</button>'
+      +'<div id="scenOut"></div></div>';
+
+    return '<div class="dash">'+top+chart+mets+diag+scen+'</div>';
+  };
+  /* ══════════════════════════════════════════════════════════════════════════
+     [FIX-BD] 인쇄 전용 리포트 — 4페이지
+     화면 카드를 복제하지 않고 인쇄용 레이아웃을 따로 만든다.
+     이 함수가 기존 buildPrintDoc(원본 + FIX-AX 덧붙이기)을 완전히 대체한다.
+     ══════════════════════════════════════════════════════════════════════════ */
+  (function(){
+    function el(tag, cls, html){
+      var d=document.createElement(tag); if(cls) d.className=cls;
+      if(html!==undefined&&html!==null) d.innerHTML=html; return d;
+    }
+    function nf(n){ return (Math.round(n||0)).toLocaleString('ko-KR'); }
+    function won(man){ man=Math.round(man||0);
+      if(man>=10000){ var e=Math.floor(man/10000), r=man%10000;
+        return e+'억'+(r?' '+nf(r)+'만':''); }
+      return nf(man)+'만'; }
+    function wonS(man){ man=Math.round(man||0);
+      if(man>=10000) return (Math.round(man/1000)/10)+'억';
+      return nf(man)+'만'; }
+
+    /* ── 인쇄 전용 자산 흐름 그래프 ────────────────────────────────────────
+       화면용(320×196)을 확대하지 않고 A4 폭에 맞춰 새로 그린다.
+       계산식은 화면과 같다 — l2pAssetPath(R). */
+    function chartSVG(R){
+      var T=(window.l2pAssetPath?window.l2pAssetPath(R):null); if(!T) return '';
+      var W=1000, H=640, L=78, RG=26, TP=44, BT=66;   /* [FIX-BD-5] 그래프를 더 키워 2페이지가 고르게 차게 */
+      var pw=W-L-RG, ph=H-TP-BT;
+      var X0=T.a0, X1=90;
+      var endA=(T.sf>0)?Math.min(T.dep,90):90;
+      var endV=(T.sf>0&&T.dep<=90)?0:Math.max(0,T.at(endA));
+      var ymax=Math.max(1, Math.max(T.at(T.a0), T.P, endV))*1.16;
+      function px(a){ return L+(a-X0)/(X1-X0)*pw; }
+      function py(v){ return TP+ph-(v/ymax)*ph; }
+      var s='';
+
+      /* 격자 · 눈금 */
+      var ys=[0,0.5,1];
+      ys.forEach(function(g){
+        var v=ymax*g, y=py(v);
+        s+='<line x1="'+L+'" y1="'+y.toFixed(1)+'" x2="'+(L+pw)+'" y2="'+y.toFixed(1)
+          +'" stroke="'+(g===0?'#C9D3CC':'#EDF1EE')+'" stroke-width="'+(g===0?1.4:1)+'"/>'
+          +'<text x="'+(L-10)+'" y="'+(y+5).toFixed(1)+'" class="rc-ax" text-anchor="end">'+wonS(v)+'</text>';
+      });
+      for(var a=Math.ceil(X0/5)*5; a<=X1; a+=5){
+        var big=(a%10===0);
+        s+='<line x1="'+px(a).toFixed(1)+'" y1="'+TP+'" x2="'+px(a).toFixed(1)+'" y2="'+(TP+ph)
+          +'" stroke="#F2F5F3" stroke-width="1"/>';
+        if(big) s+='<text x="'+px(a).toFixed(1)+'" y="'+(TP+ph+24)+'" class="rc-ax2" text-anchor="middle">'+a+'세</text>';
+      }
+
+      /* 연금 수령 전 공백 */
+      if(T.aR<65){
+        s+='<rect x="'+px(T.aR).toFixed(1)+'" y="'+TP+'" width="'+(px(65)-px(T.aR)).toFixed(1)
+          +'" height="'+ph+'" fill="#C2564B" opacity=".06"/>'
+          +'<line x1="'+px(65).toFixed(1)+'" y1="'+TP+'" x2="'+px(65).toFixed(1)+'" y2="'+(TP+ph)
+          +'" stroke="#C2564B" stroke-width="1.2" stroke-dasharray="5 4" opacity=".5"/>'
+          +'<text x="'+((px(T.aR)+px(65))/2).toFixed(1)+'" y="'+(TP+16)+'" class="rc-band" text-anchor="middle">국민연금 수령 전</text>';
+      }
+
+      /* 면적 — 모으는 구간(초록) / 꺼내 쓰는 구간(붉은색) */
+      var v0=Math.max(0,T.at(T.a0));
+      s+='<path d="M'+px(T.a0).toFixed(1)+','+py(v0).toFixed(1)
+        +' L'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)
+        +' L'+px(T.aR).toFixed(1)+','+py(0).toFixed(1)
+        +' L'+px(T.a0).toFixed(1)+','+py(0).toFixed(1)+' Z" fill="url(#rcG)"/>';
+      s+='<path d="M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)
+        +' L'+px(endA).toFixed(1)+','+py(endV).toFixed(1)
+        +' L'+px(endA).toFixed(1)+','+py(0).toFixed(1)
+        +' L'+px(T.aR).toFixed(1)+','+py(0).toFixed(1)+' Z" fill="url(#rcR)"/>';
+
+      /* 시나리오 점선 — 이미 계산된 고갈 나이로 잇는다(모델이 선형).
+         [FIX-BD-2] 이름·나이는 차트에 찍지 않는다 — x축 눈금과 겹쳤다. 범례에 적는다. */
+      var sc=R.scen||{};
+      [[sc.p,'생활충격'],[sc.o,'시장·장수']].forEach(function(x){
+        var aa=Number(x[0]);
+        if(!isFinite(aa)||aa>=90||T.sf<=0) return;
+        s+='<path d="M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)+' L'+px(aa).toFixed(1)+','+py(0).toFixed(1)
+          +'" fill="none" stroke="#9AA6A0" stroke-width="1.6" stroke-dasharray="6 4"/>';
+      });
+
+      /* 본선 */
+      s+='<path d="M'+px(T.a0).toFixed(1)+','+py(v0).toFixed(1)+' L'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)
+        +'" fill="none" stroke="#1C7A4E" stroke-width="4.5" stroke-linecap="round"/>';
+      s+='<path d="M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)+' L'+px(endA).toFixed(1)+','+py(endV).toFixed(1)
+        +'" fill="none" stroke="#C2564B" stroke-width="4.5" stroke-linecap="round"/>';
+
+      /* 점과 라벨 */
+      function dot(a,v,col){ return '<circle cx="'+px(a).toFixed(1)+'" cy="'+py(v).toFixed(1)
+        +'" r="7" fill="#fff" stroke="'+col+'" stroke-width="3.5"/>'; }
+      s+=dot(T.a0, v0, '#1C7A4E')+dot(T.aR, T.P, '#0E3A26')+dot(endA, endV, '#C2564B');
+
+      /* 정점 라벨 (위쪽) */
+      var lx=px(T.aR), ly=py(T.P);
+      s+='<line x1="'+lx.toFixed(1)+'" y1="'+(ly-12)+'" x2="'+lx.toFixed(1)+'" y2="'+(TP+4)+'" stroke="#0E3A26" stroke-width="1" stroke-dasharray="3 3"/>'
+        +'<text x="'+lx.toFixed(1)+'" y="'+(TP-6)+'" class="rc-lb b" text-anchor="middle">은퇴 '+T.aR+'세 · '+won(T.P)+'원 (정점)</text>';
+      /* 시작 라벨 — 선 위에 겹치지 않게 점 아래로 */
+      s+='<text x="'+(px(T.a0)+2).toFixed(1)+'" y="'+(py(v0)+26)+'" class="rc-lb" text-anchor="start">지금 '+T.a0+'세 · '+wonS(v0)+'</text>';
+      /* 끝 라벨 */
+      if(T.sf>0&&T.dep<90){
+        s+='<text x="'+(px(endA)+8).toFixed(1)+'" y="'+(py(0)-14)+'" class="rc-lb r" text-anchor="start">'
+          +(Math.round(T.dep*10)/10)+'세 자산 소진</text>';
+      } else {
+        s+='<text x="'+(px(endA)-6).toFixed(1)+'" y="'+(py(endV)-16)+'" class="rc-lb b" text-anchor="end">90세 '+wonS(endV)+' 유지</text>';
+      }
+      /* 인출 구간 화살표 설명 */
+      if(T.sf>0){
+        /* 인출 문구는 하강선 '오른쪽 위'에 둔다 — 선 위에 겹치지 않게 */
+        var mx=px(T.aR)+(px(endA)-px(T.aR))*0.66;
+        s+='<text x="'+mx.toFixed(1)+'" y="'+py(T.P*0.58).toFixed(1)+'" class="rc-note" text-anchor="middle">매달 '+nf(T.sf)+'만원씩 인출</text>';
+      }
+
+      return '<svg class="rc-svg" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">'
+        +'<defs>'
+        +'<linearGradient id="rcG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1C7A4E" stop-opacity=".30"/><stop offset="100%" stop-color="#1C7A4E" stop-opacity=".03"/></linearGradient>'
+        +'<linearGradient id="rcR" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C2564B" stop-opacity=".26"/><stop offset="100%" stop-color="#C2564B" stop-opacity=".03"/></linearGradient>'
+        +'</defs>'+s+'</svg>';
+    }
+
+    /* [FIX-BD-2] standalone·single 은 이 값들을 결과에 담지 않고 화면을 그릴 때 만든다.
+       deploy 만 서버가 담아 내려준다. 없으면 전역 함수로 만들어 네 빌드가 같아지게 한다. */
+    function actionOf(R, a){
+      if(R.actions && R.actions[a]) return R.actions[a];
+      var A=G('ACTION',null); return (A&&A[a])||'';
+    }
+    function firstActionOf(R){
+      if(R.firstAction) return R.firstAction;
+      var FA=G('FIRST_ACTION',null), w=(R.ranked&&R.ranked[0]);
+      return (FA&&w&&FA[w.a])||'';
+    }
+    function adviceOf(R, a){
+      if(R.advice && R.advice[a]) return R.advice[a];
+      try{ if(typeof areaAdvice==='function') return areaAdvice(a, R); }catch(e){}
+      return {};
+    }
+    function roadmapOf(R){
+      if(R.roadmap) return R.roadmap;
+      try{ if(typeof roadmap==='function') return roadmap(R); }catch(e){}
+      return {};
+    }
+
+    function head(no, title, sub){
+      return el('div','rp-head','<div class="rp-brand">2막 1장 <span>Life 2.0</span></div>'
+        +'<div class="rp-ttl"><span class="no">'+no+'</span>'+title+'</div>'
+        +'<div class="rp-sub">'+(sub||'')+'</div>');
+    }
+
+    /* ── 1페이지 · 한눈에 보기 ───────────────────────────────────────────── */
+    function page1(R, meta){
+      var c=R.c||{}, gr=R.grade||['',''], dep=Number(R.depletion)||90;
+      var p=el('div','rp-page');
+      p.appendChild(head('01','한눈에 보기', meta));
+
+      var okDep=dep>=90;
+      p.appendChild(el('div','rp-hero'
+        +(okDep?' good':(dep>=85?' warn':' bad')),
+        '<div class="rp-hero-l">'
+        +'<span class="eye">종합 판정</span>'
+        +'<h1>'+(okDep
+            ? '현재 계획대로라면 <em>90세까지</em> 자산이 유지됩니다'
+            : '현재 계획대로라면 <em>'+dep+'세</em>까지 자산이 유지됩니다')+'</h1>'
+        +'<p>'+(gr[1]||'')+'</p></div>'
+        +'<div class="rp-hero-r"><div class="rp-ring">'
+          +'<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#E4E8E5" stroke-width="11"/>'
+          +'<circle cx="60" cy="60" r="50" fill="none" stroke="#1C7A4E" stroke-width="11" stroke-linecap="round"'
+          +' stroke-dasharray="'+(Math.round(R.total||0)/100*314).toFixed(1)+' 314" transform="rotate(-90 60 60)"/></svg>'
+          +'<div class="num"><b>'+Math.round(R.total||0)+'</b><i>/100</i></div></div>'
+        +'<div class="rp-grade">'+(gr[0]||'')+'</div></div>'));
+
+      var sf=Math.round(R.shortfall||0);
+      var kpi=[
+        ['은퇴 예상 나이', (c.retire||65)+'<i>세</i>', ''],
+        ['은퇴 시점 순자산', wonS(R.principal||0), ''],
+        ['자산 소진 시점', (dep>=90?'90<i>세+</i>':dep+'<i>세</i>'), okDep?'good':'bad'],
+        ['은퇴 후 월 현금흐름', (sf>0?'−'+nf(sf):'+'+nf(-sf))+'<i>만원</i>', sf>0?'bad':'good'],
+        ['65세 전 건강 방어율', Math.round(R.shield||0)+'<i>%</i>', (R.shield>=60?'good':'bad')]
+      ];
+      p.appendChild(el('div','rp-kpi', kpi.map(function(k){
+        return '<div class="k'+(k[2]?' '+k[2]:'')+'"><span class="l">'+k[0]+'</span><span class="v">'+k[1]+'</span></div>';
+      }).join('')));
+
+      /* 5각 지도 + 먼저 볼 3가지 */
+      var peer=R.peer||(typeof peerOf==='function'?peerOf(c.band):null)||{};
+      var AO=G('AREA_ORDER',null)||['asset','health','housing','job','well'];
+      var AI=G('AREA_INFO',null)||{};
+      /* [FIX-BD-2] radarSVG() 는 <svg> 안쪽 내용만 돌려준다 — 화면과 같은 방식으로 감싼다 */
+      var radar='';
+      try{ radar='<svg viewBox="0 0 320 300" class="rp-radar-svg">'+radarSVG(R.scores, peer)+'</svg>'; }
+      catch(e){ radar=''; }
+      var legend=AO.map(function(a){
+        var s=R.scores[a]||0, pv=peer[a]||0;
+        return '<div class="lg"><span class="nm">'+((AI[a]&&AI[a].name)||a)+'</span>'
+          +'<span class="bar"><i style="width:'+Math.min(100,s)+'%"></i></span>'
+          +'<span class="sc">'+s+'</span><span class="pr">또래 '+pv+'</span></div>';
+      }).join('');
+
+      var w1=(R.ranked&&R.ranked[0])||null, w2=(R.ranked&&R.ranked[1])||null;
+      var firsts='';
+      if(w1&&AI[w1.a]) firsts+='<li><b>'+AI[w1.a].name+' '+w1.s+'점</b>'+actionOf(R,w1.a)+'</li>';
+      if(w2&&AI[w2.a]) firsts+='<li><b>'+AI[w2.a].name+' '+w2.s+'점</b>'+actionOf(R,w2.a)+'</li>';
+      var fa=firstActionOf(R);
+      if(fa) firsts+='<li class="ok"><b>권장 첫 액션</b>'+fa+'</li>';
+      if(R.risks&&R.risks.length) firsts+='<li class="rk"><b>리스크 신호</b>'+R.risks.slice(0,2).join(' · ')+'</li>';
+
+      p.appendChild(el('div','rp-grow rp-2col',
+        '<div class="rp-card"><h3>노후 준비 5각 지도</h3>'
+        +'<div class="rp-radar">'+radar+'</div>'
+        +'<div class="rp-lgs">'+legend+'</div></div>'
+        +'<div class="rp-card"><h3>먼저 볼 3가지</h3><ol class="rp-first">'+firsts+'</ol>'
+        +'<div class="rp-inc"><div class="t">은퇴 후 예상 월소득 <b>'+nf(R.fixedIncome||0)+'만원</b></div>'
+          +'<div class="r"><span>국민연금(부부)</span><b>'+nf(R.national||0)+'만</b></div>'
+          +'<div class="r"><span>퇴직 · 개인연금</span><b>'+nf(R.retpen||0)+'만</b></div>'
+          +'<div class="r"><span>배당 · 이자</span><b>'+nf(c.div||0)+'만</b></div>'
+          +(R.hp?'<div class="r"><span>주택연금</span><b>'+nf(R.hp)+'만</b></div>':'')
+          +'<div class="r tot"><span>목표 연금 '+nf(c.goal||0)+'만원 대비</span><b>'+Math.round(R.fulfillGoal||0)+'%</b></div>'
+        +'</div></div>'));
+      p.appendChild(el('div','rp-mets', metsHTML(R)));
+      return p;
+    }
+
+    /* ── 2페이지 · 자산 흐름 ─────────────────────────────────────────────── */
+    function page2(R, meta){
+      var c=R.c||{}, dep=Number(R.depletion)||90, sf=Math.round(R.shortfall||0);
+      var T=(window.l2pAssetPath?window.l2pAssetPath(R):null);
+      var p=el('div','rp-page');
+      p.appendChild(head('02','노후 자산 흐름', '지금부터 90세까지 · 진단 결과대로 살았을 때'));
+      var scn=R.scen||{}, scTxt=[];
+      if(isFinite(scn.p)&&scn.p<90&&sf>0) scTxt.push('생활충격 '+scn.p+'세');
+      if(isFinite(scn.o)&&scn.o<90&&sf>0) scTxt.push('시장·장수 '+scn.o+'세');
+      p.appendChild(el('div','rp-chart', chartSVG(R)
+        +'<div class="rc-lg"><span><i class="g"></i>모으는 구간</span><span><i class="r"></i>꺼내 쓰는 구간</span>'
+        +(scTxt.length?('<span><i class="d"></i>'+scTxt.join(' · ')+'</span>'):'')+'</div>'));
+
+      var aha=[];
+      aha.push(['은퇴 '+(T?T.aR:(c.retire||65))+'세가 자산의 정점',
+        '여기까지 모으고, 여기서부터 꺼내 씁니다. 정점은 <b>'+won(R.principal||0)+'원</b>.']);
+      if(sf>0) aha.push(['매달 '+nf(sf)+'만원이 빠져나갑니다',
+        '연금 · 배당 <b>'+nf(R.fixedIncome||0)+'만원</b>보다 지출 <b>'+nf((R.fixedIncome||0)+sf)+'만원</b>이 큽니다.']);
+      else aha.push(['은퇴 후에도 소득이 지출보다 큽니다',
+        '연금 · 배당 <b>'+nf(R.fixedIncome||0)+'만원</b>이 지출을 덮어 자산이 줄지 않습니다.']);
+      if(T&&T.aR<65) aha.push(['은퇴 후 '+(65-T.aR)+'년은 연금 공백',
+        '국민연금은 대체로 65세부터입니다. 이 그래프는 은퇴 시점부터 연금을 반영한 <b>낙관적 가정</b>입니다.']);
+      else if(dep<90) aha.push([dep+'세 이후는 연금 소득만',
+        '모아둔 자산이 바닥나면 <b>월 '+nf(R.fixedIncome||0)+'만원</b>으로만 생활하게 됩니다.']);
+      else aha.push(['90세까지 자산이 유지됩니다',
+        '현재 조건에서는 90세 이전에 바닥나지 않습니다. 구조를 지키는 것이 과제입니다.']);
+      if((R.reemp||0)>0) aha.push(['재취업 소득 '+nf(R.reemp)+'만원은 빼고 그렸습니다',
+        '얼마나 이어질지 알 수 없어 <b>일부러 반영하지 않았습니다</b>. 벌면 소진은 늦춰집니다.']);
+      else aha.push(['시나리오 셋 다 현재 조건 이하',
+        '낙관 시나리오는 넣지 않았습니다. 실제 위험은 재취업 지연과 의료비이기 때문입니다.']);
+      aha=aha.slice(0,4);
+
+      p.appendChild(el('div','rp-grow rp-aha', aha.map(function(x,i){
+        return '<div class="a"><span class="n">'+(i+1)+'</span><b>'+x[0]+'</b><p>'+x[1]+'</p></div>';
+      }).join('')));
+      p.appendChild(el('div','rp-fine','이 그래프는 리포트의 <b>자산 소진 나이</b>를 계산할 때 쓰는 식을 그대로 그린 것입니다 — '
+        +'은퇴 전에는 월 저축만큼 쌓이고, 은퇴 후에는 월 부족액만큼 줄어듭니다.'));
+      return p;
+    }
+
+    /* ── 핵심 재무 지표 6 (1페이지 하단) ─────────────────────────────────── */
+    function metsHTML(R){
+      var c=R.c||{}, dep=Number(R.depletion)||90, sf=Math.round(R.shortfall||0);
+      var fi=Math.round(R.fixedIncome||0), spend=fi+sf, ret=parseInt(c.retire,10)||65;
+      var life=Math.max(0, spend*12*Math.max(0,90-ret));
+      var ff=Math.round(R.fulfillGoal||0), keep=Math.round(R.keep90||0);
+      var M=[
+        ['은퇴 준비율', ff+'<i>%</i>', ff>=100?'good':(ff>=70?'warn':'bad'), '목표 '+nf(c.goal||0)+'만 대비 예상 '+nf(fi)+'만 · 100% 이상 양호'],
+        ['은퇴 후 월 현금흐름', (sf>0?'−'+nf(sf):'+'+nf(-sf))+'<i>만원</i>', sf<=0?'good':(sf<=50?'warn':'bad'), '소득 '+nf(fi)+'만 − 지출 '+nf(spend)+'만 · 0 이상 양호'],
+        ['예상 자산 소진', (dep>=90?'90<i>세+</i>':dep+'<i>세</i>'), dep>=90?'good':(dep>=85?'warn':'bad'), '은퇴 '+ret+'세부터 인출 시작 · 90세 이상 양호'],
+        ['예상 최대 자산', wonS(R.principal||0), 'info', '은퇴 '+ret+'세 시점 · 부채와 자녀 지원분을 뺀 순자산'],
+        ['90세까지 버틴 시나리오', keep+' / 3', keep>=3?'good':(keep>=1?'warn':'bad'), '확률이 아니라 <b>시나리오 통과 개수</b>입니다'],
+        ['은퇴 후 평생 필요자금', wonS(life), 'info', '월 '+nf(spend)+'만 × 12 × '+Math.max(0,90-ret)+'년 (엔진 계산 항 그대로)']
+      ];
+      return M.map(function(m){
+        return '<div class="m '+m[2]+'"><div class="h"><span class="l">'+m[0]+'</span>'
+          +'<span class="bd">'+({good:'양호',warn:'주의',bad:'위험',info:'참고'}[m[2]])+'</span></div>'
+          +'<div class="v">'+m[1]+'</div><div class="n">'+m[3]+'</div></div>';
+      }).join('');
+    }
+
+    /* ── 3페이지 · 진단과 실행 ──────────────────────────────────────────── */
+    function page3(R, meta){
+      var c=R.c||{}, dep=Number(R.depletion)||90, sf=Math.round(R.shortfall||0);
+      var fi=Math.round(R.fixedIncome||0), spend=fi+sf, ret=parseInt(c.retire,10)||65;
+      var at90=Math.max(0, Math.round((R.principal||0)-sf*12*Math.max(0,90-ret)));
+      var AO=G('AREA_ORDER',null)||['asset','health','housing','job','well'];
+      var AI=G('AREA_INFO',null)||{};
+      var p=el('div','rp-page');
+      p.appendChild(head('03','진단과 실행','핵심 이슈 · 조건을 바꾸면 · 지금부터 할 일'));
+
+      /* 핵심 이슈 3 */
+      var iss=[];
+      if(sf>0) iss.push(['현금흐름이 매달 '+nf(sf)+'만원 모자랍니다',
+        '연금 · 배당 '+nf(fi)+'만원보다 지출 '+nf(spend)+'만원이 커, 그만큼 자산을 헐게 됩니다.']);
+      else iss.push(['현금흐름은 플러스입니다','소득 '+nf(fi)+'만원이 지출 '+nf(spend)+'만원을 덮습니다.']);
+      if(dep<90) iss.push([dep+'세 이후에는 연금 소득만 남습니다',
+        '생활충격 시나리오에서는 '+((R.scen&&R.scen.p)||dep)+'세로 앞당겨집니다.']);
+      else iss.push(['90세 시점 예상 자산 '+won(at90)+'원','현재 조건에서는 자산이 바닥나지 않습니다.']);
+      if(Math.round(R.shield||0)<60) iss.push(['건강 방어율이 '+Math.round(R.shield)+'%로 낮습니다',
+        '필요 보장 '+won(R.needCover||0)+'원 중 부족분이 치료비로 노후 자금을 깎습니다.']);
+      else if((R.reemp||0)>0) iss.push(['재취업 소득 '+nf(R.reemp)+'만원이 가장 큰 변수',
+        '이 소득이 유지되는 기간에 따라 자산 소진 시점이 크게 달라집니다.']);
+      else {
+        var w=(R.ranked&&R.ranked[0]);
+        if(w&&AI[w.a]) iss.push([AI[w.a].name+' 영역이 '+w.s+'점으로 가장 약합니다',
+          actionOf(R,w.a)||'이 영역부터 보완하는 것이 효율적입니다.']);
+      }
+      p.appendChild(el('div','rp-iss','<h3>AI가 발견한 핵심 이슈</h3><div class="g">'
+        +iss.slice(0,3).map(function(x,i){
+          return '<div class="i"><span class="n">'+['①','②','③'][i]+'</span><div><b>'+x[0]+'</b><p>'+x[1]+'</p></div></div>';
+        }).join('')+'</div>'));
+
+      /* 시나리오 — 화면에서 계산해뒀으면 그 결과를 */
+      var so=document.querySelector('#scenOut .dsc-rows'), sc='';
+      if(so){
+        sc=[].map.call(so.querySelectorAll('.dsc-row'), function(r){
+          var nm=(r.querySelector('.dsc-nm b')||{}).textContent||'';
+          var dt=(r.querySelector('.dsc-nm .dt')||{}).textContent||'';
+          var age=(r.querySelector('.dsc-age')||{}).textContent||'';
+          var up=(r.querySelector('.dsc-kv .up')||r.querySelector('.dsc-kv .dn')||r.querySelector('.dsc-base')||{}).textContent||'';
+          var w2=Math.max(6, Math.round(parseFloat(age)/90*100))||6;
+          return '<div class="s'+(r.classList.contains('best')?' best':'')+(r.classList.contains('now')?' now':'')+'">'
+            +'<span class="nm"><b>'+nm+'</b> '+dt+'</span>'
+            +'<span class="bar"><i style="width:'+w2+'%"></i><em>'+age+'</em></span>'
+            +'<span class="gn">'+up+'</span></div>';
+        }).join('');
+      }
+      p.appendChild(el('div','rp-scen','<h3>조건을 바꾸면 얼마나 달라질까요?</h3>'
+        +(sc?('<div class="g">'+sc+'</div>')
+            :'<div class="none">화면의 <b>‘조건별로 다시 계산하기’</b>를 누른 뒤 인쇄하시면 '
+             +'이 자리에 은퇴 시점 · 생활비 · 재취업을 바꿨을 때의 비교표가 들어갑니다.</div>')));
+
+      /* [FIX-BD-6] 제안 반영 전 · 후 비교 — 예전 인쇄본에 있던 항목을 한 줄 띠로 되살린다.
+         화면에서 '반영 후 점수 계산'을 눌러둔 경우에만 값이 있다. */
+      var wt=document.querySelector('#wiaOut .wia-tot');
+      if(wt){
+        var cells=wt.querySelectorAll('.cell .nm');
+        var bfr=cells[0]?cells[0].textContent.trim():'', aft=cells[1]?cells[1].textContent.trim():'';
+        var dl=(wt.querySelector('.wia-dl')||{}).textContent||'';
+        var kv=[].map.call(document.querySelectorAll('#wiaOut .wia-kv > div'), function(x){
+          return '<span>'+x.textContent.replace(/\s+/g,' ').trim()+'</span>'; }).join('');
+        p.appendChild(el('div','rp-wia',
+          '<div class="l"><span class="t">맞춤 상품 제안을 실행하면</span>'
+          +'<span class="v">'+bfr+'<em>→</em>'+aft+'<i>점</i>'+(dl?'<b>'+dl+'</b>':'')+'</span></div>'
+          +(kv?'<div class="r">'+kv+'</div>':'')));
+      }
+
+      /* 영역별 처방 */
+      var rx=AO.slice().sort(function(x,y){ return (R.scores[x]||0)-(R.scores[y]||0); }).map(function(a){
+        var s=R.scores[a]||0, cls=s>=70?'good':(s>=50?'warn':'bad');
+        var adv=adviceOf(R,a)||{};
+        var first=(adv.bullets&&adv.bullets[0])||adv.diag||'';
+        return '<div class="r '+cls+'"><span class="nm">'+((AI[a]&&AI[a].name)||a)+'</span>'
+          +'<span class="sc">'+s+'</span><span class="tx">'+first+'</span></div>';
+      }).join('');
+      p.appendChild(el('div','rp-rx','<h3>영역별 처방 — 점수가 낮은 순서</h3>'+rx));
+
+      /* 보완 수단 */
+      var P=null; try{ P=window.l2pProductPlan(R); }catch(e){ P=null; }
+      if(P){
+        var rows=[];
+        if(P.gapM>0) rows.push(['연금 공백','월 '+nf(P.gapM)+'만원',
+          '65~90세 동안 채우려면 <b>'+won(P.needFund)+'원</b>의 재원 · 퇴직연금 재배치와 개인연금 추가 납입']);
+        else rows.push(['연금','충족','새 상품보다 세제 · 인출 순서 최적화가 유리합니다']);
+        if(P.coverGap>0) rows.push(['건강 보장 공백', won(P.coverGap)+'원',
+          '필요 보장 '+won(P.needCover)+'원 중 부족분 · 3대 진단비'+(P.noSil?' · 실손 미가입':'')]);
+        else rows.push(['건강 보장','충족','갱신 시점마다 보험료와 보장 범위만 점검']);
+        rows.push(['일자리 · 재취업', (P.job?'분야 확인됨':'직업 미입력'),
+          '현 경력 심화(A) 또는 신규 자격 취득(B) · 국민내일배움카드 · 중장년내일센터']);
+        rows.push(['웰다잉 · 상조', (P.sangjo<=0?'미준비':nf(P.sangjo)+'만원'),
+          '상조 선수금 보전 확인 · 사전연명의료의향서(무료) · 유언 · 디지털 유산']);
+        p.appendChild(el('div','rp-prod','<h3>무엇으로 메울 수 있나</h3>'
+          +rows.map(function(r){
+            return '<div class="r"><span class="k">'+r[0]+'</span><span class="v">'+r[1]+'</span>'
+              +'<span class="d">'+r[2]+'</span></div>'; }).join('')));
+      }
+
+      /* 실행 로드맵 */
+      var rd=roadmapOf(R)||{};
+      var when=[['오늘 안에','T'],['이번 주','W'],['이번 달','M'],['3개월~1년','Y']];
+      var road=when.map(function(w3){
+        var arr=(rd[w3[1]]||[]).slice(0,2);
+        var li=arr.length?arr.map(function(it){ return '<li>'+(Array.isArray(it)?it[1]:it)+'</li>'; }).join('')
+                         :'<li class="e">이 시점에 급한 항목은 없습니다</li>';
+        return '<div class="c"><div class="t">'+w3[0]+'</div><ul>'+li+'</ul></div>';
+      }).join('');
+      p.appendChild(el('div','rp-road','<h3>실행 로드맵</h3><div class="g">'+road+'</div>'));
+
+      p.appendChild(el('div','rp-end','<b>한 번 제대로 설정해두면, 그다음은 잊고 사셔도 됩니다.</b>'
+        +'<span>노후 준비는 매일 관리하는 일이 아니라 연금 · 보장 · 인출 구조를 한 번 세팅해두는 일입니다. '
+        +'라이프2.0 회원 가입 후 무료 상담에서 내 조건에 맞는 방법을 함께 정리해 드립니다.</span>'));
+      return p;
+    }
+
+    /* ── 조립 ───────────────────────────────────────────────────────────── */
+    window.buildPrintDoc = function(){
+      var old=document.getElementById('printDoc'); if(old) old.remove();
+      var rep=document.getElementById('s-report'), rr=document.getElementById('realReport');
+      var R=G('_R',null)||window._R;
+      if(!R||!rep||!rr||!rr.children.length) return;
+      var f=document.getElementById('fullReportWrap');
+      var paid=!!(f && f.style.display!=='none' && f.children.length);
+      var c=R.c||{}, d=new Date();
+      var ds=d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0');
+      var meta=(c.name||'고객')+'님 · '+ds+(R.code?' · '+R.code:'');
+
+      var doc=el('div',''); doc.id='printDoc';
+      doc.appendChild(page1(R, meta));
+      if(paid){
+        doc.appendChild(page2(R, meta));
+        doc.appendChild(page3(R, meta));
+      }
+      var pages=doc.querySelectorAll('.rp-page');
+      [].forEach.call(pages, function(pg, i){
+        pg.appendChild(el('div','rp-foot','<span>2막 1장 · 은퇴 준비 리포트</span>'
+          +'<span class="c">본 진단은 상담 전 자가진단용 보수적 추정 모델입니다 · 주식회사 라이프 2.0</span>'
+          +'<span>'+(i+1)+' / '+pages.length+'</span>'));
+      });
+      rep.appendChild(doc);
+    };
+
+    /* 인쇄 직전에 전·후 비교를 한 번 돌려주던 동작은 그대로 둔다 */
+  })();
 })();
 </script>
+
+<style id="rp-print-css">
+/* FIX-BD-2 적용됨 */
+/* ══ [FIX-BD] 인쇄 전용 리포트 — 4페이지 ══════════════════════════════════
+   화면 카드를 복제하지 않고 인쇄용으로 새로 짠 레이아웃.
+   페이지 높이를 A4 로 고정하고 flex 로 채워 아래 공백이 생기지 않게 한다. */
+@media print{
+  @page{ size:A4 portrait; margin:9mm; }
+  #printDoc{display:block!important;}
+  #s-report > *:not(#printDoc){display:none!important;}
+  html,body{background:#fff!important;}
+
+  #printDoc{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;color:#1A2621;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #printDoc *{box-shadow:none!important;animation:none!important;transition:none!important;}
+
+  .rp-page{height:276mm;display:flex;flex-direction:column;gap:2.8mm;
+    break-after:page;page-break-after:always;overflow:hidden;}
+  .rp-page:last-child{break-after:auto;page-break-after:auto;}
+
+  /* 상단 띠 */
+  .rp-head{display:flex;align-items:baseline;gap:10px;background:#0E3A26;color:#fff;
+    border-radius:3mm;padding:3.4mm 4.5mm;flex:0 0 auto;}
+  .rp-brand{font-size:9.5px;font-weight:800;letter-spacing:.02em;white-space:nowrap;}
+  .rp-brand span{opacity:.62;font-weight:600;}
+  .rp-ttl{flex:1 1 auto;font-size:14px;font-weight:900;letter-spacing:-.03em;text-align:center;}
+  .rp-ttl .no{display:inline-block;background:rgba(255,255,255,.18);border-radius:20px;
+    padding:1px 8px;font-size:9px;margin-right:7px;vertical-align:1px;}
+  .rp-sub{font-size:8.5px;color:#A9CBB8;white-space:nowrap;}
+  .rp-head,.rp-head .rp-brand,.rp-head .rp-ttl{color:#fff;}
+
+  /* 결론 */
+  .rp-hero{display:flex;align-items:center;gap:6mm;border:1px solid #DCE4DE;border-left:4px solid #1C7A4E;
+    border-radius:3mm;padding:5mm 5.5mm;background:#FAFCFB;flex:0 0 auto;}
+  .rp-hero.warn{border-left-color:#C89A3C;} .rp-hero.bad{border-left-color:#C2564B;}
+  .rp-hero-l{flex:1 1 auto;min-width:0;}
+  .rp-hero .eye{display:inline-block;font-size:8.5px;font-weight:900;letter-spacing:.06em;color:#5E6B63;
+    background:#EDF2EE;border-radius:20px;padding:2px 8px;margin-bottom:3mm;}
+  .rp-hero h1{font-size:19px;font-weight:900;letter-spacing:-.04em;line-height:1.36;margin:0;word-break:keep-all;}
+  .rp-hero h1 em{font-style:normal;color:#146B44;}
+  .rp-hero.bad h1 em{color:#B0463B;}
+  .rp-hero p{font-size:10.5px;color:#66716B;margin:2.4mm 0 0;line-height:1.5;}
+  .rp-hero-r{flex:0 0 auto;text-align:center;}
+  .rp-ring{position:relative;width:26mm;height:26mm;}
+  .rp-ring svg{width:100%;height:100%;display:block;}
+  .rp-ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;line-height:1;}
+  .rp-ring .num b{font-size:22px;font-weight:900;letter-spacing:-.05em;color:#0F2B1D;}
+  .rp-ring .num i{font-size:8px;font-style:normal;color:#8A938D;margin-top:2px;}
+  .rp-grade{font-size:10px;font-weight:900;color:#146B44;margin-top:1.6mm;}
+
+  /* KPI 5 */
+  .rp-kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:2.4mm;flex:0 0 auto;}
+  .rp-kpi .k{border:1px solid #E4E8E5;border-top:2.6px solid #C9D3CC;border-radius:2.4mm;padding:3mm 3mm 3.2mm;}
+  .rp-kpi .k.good{border-top-color:#1C7A4E;} .rp-kpi .k.bad{border-top-color:#C2564B;}
+  .rp-kpi .l{display:block;font-size:8.2px;font-weight:700;color:#6E7C73;line-height:1.35;
+    word-break:keep-all;min-height:2.2em;}
+  .rp-kpi .v{display:block;font-size:19px;font-weight:900;letter-spacing:-.05em;color:#0F2B1D;margin-top:1.4mm;}
+  .rp-kpi .k.bad .v{color:#B0463B;} .rp-kpi .k.good .v{color:#146B44;}
+  .rp-kpi .v i{font-size:9.5px;font-style:normal;font-weight:800;margin-left:1px;}
+
+  /* 공통 카드 */
+  .rp-grow{flex:1 1 auto;min-height:0;}
+  .rp-2col{display:grid;grid-template-columns:1fr 1fr;gap:3.4mm;}
+  .rp-card{border:1px solid #E4E8E5;border-radius:2.6mm;padding:4mm;display:flex;flex-direction:column;}
+  #printDoc h3{font-size:11.5px;font-weight:900;color:#0F2B1D;margin:0 0 2mm;letter-spacing:-.03em;}
+
+  .rp-radar{flex:1 1 auto;display:flex;align-items:center;justify-content:center;min-height:0;}
+  .rp-radar svg{width:100%;max-width:84mm;height:auto;}
+  .rp-radar .r-grid{fill:none;stroke:#E4E8E5;stroke-width:1;}
+  .rp-radar .r-axis{stroke:#E4E8E5;stroke-width:1;}
+  .rp-lgs{flex:0 0 auto;margin-top:2mm;}
+  .rp-lgs .lg{display:grid;grid-template-columns:15mm 1fr 7mm 12mm;align-items:center;gap:1.6mm;
+    font-size:8.6px;padding:1.1mm 0;border-top:1px solid #F0F3F1;}
+  .rp-lgs .lg:first-child{border-top:0;}
+  .rp-lgs .nm{font-weight:800;color:#3E4A44;}
+  .rp-lgs .bar{height:4px;background:#EDF1EE;border-radius:2px;overflow:hidden;}
+  .rp-lgs .bar i{display:block;height:100%;background:#1C7A4E;}
+  .rp-lgs .sc{font-weight:900;color:#0F2B1D;text-align:right;}
+  .rp-lgs .pr{color:#98A19B;text-align:right;}
+
+  .rp-first{list-style:none;margin:0 0 3mm;padding:0;flex:1 1 auto;display:flex;flex-direction:column;justify-content:space-evenly;}
+  .rp-first li{font-size:9.2px;line-height:1.5;color:#5E6B63;padding:2.2mm 0;border-top:1px solid #F0F3F1;word-break:keep-all;}
+  .rp-first li:first-child{border-top:0;padding-top:0;}
+  .rp-first li b{display:block;font-size:10px;color:#12301F;margin-bottom:.6mm;}
+  .rp-first li.ok b{color:#146B44;}
+  .rp-first li.rk b{color:#B0463B;}
+  .rp-first li b + *,.rp-first li b{}
+  .rp-inc{margin-top:auto;background:#F7FAF8;border-radius:2.2mm;padding:3mm;}
+  .rp-inc .t{font-size:9.5px;font-weight:800;color:#12301F;margin-bottom:1.6mm;}
+  .rp-inc .t b{font-size:12px;color:#146B44;}
+  .rp-inc .r{display:flex;justify-content:space-between;font-size:8.6px;color:#6E7C73;padding:.9mm 0;}
+  .rp-inc .r b{color:#3E4A44;font-weight:800;}
+  .rp-inc .r.tot{border-top:1px solid #DFE7E2;margin-top:1mm;padding-top:1.4mm;font-weight:800;color:#12301F;}
+  .rp-inc .r.tot b{color:#146B44;font-size:10px;}
+
+  /* 그래프 */
+  .rp-chart{flex:0 0 auto;border:1px solid #E4E8E5;border-radius:2.6mm;padding:4mm 4mm 3mm;}
+  .rc-svg{width:100%;height:auto;display:block;}
+  .rc-ax{font-size:13px;fill:#98A19B;font-weight:600;}
+  .rc-ax2{font-size:14px;fill:#7A847D;font-weight:700;}
+  .rc-lb{font-size:15px;fill:#3E4A44;font-weight:800;}
+  .rc-lb.b{fill:#0E3A26;font-size:16px;font-weight:900;}
+  .rc-lb.r{fill:#B0463B;font-size:16px;font-weight:900;}
+  .rc-sc{font-size:12px;fill:#8A938D;font-weight:700;}
+  .rc-band{font-size:12px;fill:#B0463B;font-weight:800;}
+  .rc-note{font-size:13px;fill:#A8564C;font-weight:800;}
+  .rc-lg{display:flex;gap:6mm;justify-content:center;margin-top:1.6mm;font-size:8.4px;color:#6E7C73;}
+  .rc-lg span{display:inline-flex;align-items:center;gap:1.4mm;}
+  .rc-lg i{display:inline-block;width:5mm;height:0;border-top:2.6px solid #1C7A4E;}
+  .rc-lg i.r{border-top-color:#C2564B;} .rc-lg i.d{border-top:1.6px dashed #9AA6A0;}
+
+  /* 아하 4칸 */
+  .rp-aha{display:grid;grid-template-columns:1fr;grid-auto-rows:1fr;gap:2.4mm;}
+  .rp-aha .a{display:grid;grid-template-columns:7mm 66mm 1fr;align-items:center;gap:3mm;
+    border:1px solid #E4E8E5;border-radius:2.4mm;padding:3.4mm 4mm;}
+  .rp-aha .n{width:6.6mm;height:6.6mm;border-radius:50%;background:#0E3A26;color:#fff;
+    font-size:9.5px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+  .rp-aha .a > b{display:block;font-size:11px;font-weight:900;color:#12301F;letter-spacing:-.03em;
+    line-height:1.4;word-break:keep-all;}
+  .rp-aha p b{display:inline;font-weight:800;color:#12301F;}
+  .rp-aha p{font-size:9.4px;color:#66716B;line-height:1.55;margin:0;word-break:keep-all;}
+  .rp-fine{flex:0 0 auto;font-size:8px;color:#98A19B;line-height:1.55;word-break:keep-all;}
+  .rp-fine b{color:#6E7C73;}
+
+  /* 재무 지표 6 */
+  .rp-mets{display:grid;grid-template-columns:repeat(3,1fr);gap:2.6mm;flex:0 0 auto;}
+  .rp-mets .m{border:1px solid #E4E8E5;border-left:3px solid #C9D3CC;border-radius:2.4mm;padding:3.2mm;}
+  .rp-mets .m.good{border-left-color:#1C7A4E;} .rp-mets .m.warn{border-left-color:#C89A3C;}
+  .rp-mets .m.bad{border-left-color:#C2564B;}
+  .rp-mets .h{display:flex;justify-content:space-between;align-items:flex-start;gap:2mm;}
+  .rp-mets .l{font-size:8.4px;font-weight:800;color:#5E6B63;line-height:1.35;word-break:keep-all;}
+  .rp-mets .bd{flex:0 0 auto;font-size:7.4px;font-weight:900;border-radius:20px;padding:1px 6px;
+    background:#EEF1EF;color:#5E6B63;}
+  .rp-mets .m.good .bd{background:#E6F4EC;color:#146B44;}
+  .rp-mets .m.warn .bd{background:#FBF3E0;color:#8A6A20;}
+  .rp-mets .m.bad .bd{background:#FBEAE8;color:#9E3B32;}
+  .rp-mets .v{font-size:20px;font-weight:900;letter-spacing:-.05em;color:#0F2B1D;margin-top:1.2mm;line-height:1.1;}
+  .rp-mets .m.warn .v{color:#8A6A20;} .rp-mets .m.bad .v{color:#9E3B32;}
+  .rp-mets .v i{font-size:9.5px;font-style:normal;font-weight:800;}
+  .rp-mets .n{font-size:8px;color:#8A938D;line-height:1.5;margin-top:1.4mm;word-break:keep-all;}
+  .rp-mets .n b{color:#5E6B63;}
+
+  /* 핵심 이슈 3 */
+  .rp-iss{flex:0 0 auto;}
+  .rp-iss .g{display:grid;grid-template-columns:repeat(3,1fr);gap:2.6mm;}
+  .rp-iss .i{display:flex;gap:2.2mm;border:1px solid #E4E8E5;border-radius:2.4mm;padding:3.2mm;align-items:flex-start;}
+  .rp-iss .n{flex:0 0 auto;font-size:11px;font-weight:900;color:#B7C0BA;line-height:1.2;}
+  .rp-iss .i > div > b{display:block;font-size:10px;font-weight:900;color:#12301F;line-height:1.42;
+    letter-spacing:-.03em;word-break:keep-all;}
+  .rp-iss p b{display:inline;font-weight:800;color:#12301F;}
+  .rp-iss p{font-size:8.8px;color:#66716B;line-height:1.55;margin:1.2mm 0 0;word-break:keep-all;}
+
+  /* 시나리오 */
+  .rp-scen .g{display:grid;gap:1.8mm;}
+  .rp-scen .s{display:grid;grid-template-columns:44mm 1fr 15mm;align-items:center;gap:2.6mm;
+    border:1px solid #E4E8E5;border-radius:2.2mm;padding:2.4mm 3mm;}
+  .rp-scen .s.best{border-color:#1C7A4E;background:#F7FBF8;}
+  .rp-scen .nm{font-size:8.8px;color:#6E7C73;line-height:1.35;word-break:keep-all;}
+  .rp-scen .nm b{display:block;font-size:9.8px;color:#12301F;font-weight:900;}
+  .rp-scen .bar{position:relative;height:6mm;background:#EFF3F0;border-radius:3mm;overflow:hidden;}
+  .rp-scen .bar i{display:block;height:100%;background:#1C7A4E;border-radius:3mm;}
+  .rp-scen .s.now .bar i{background:#AEB8B2;}
+  .rp-scen .bar em{position:absolute;right:2mm;top:0;line-height:6mm;font-size:8.6px;font-weight:900;
+    font-style:normal;color:#0F2B1D;background:rgba(255,255,255,.94);border-radius:2mm;padding:0 1.6mm;}
+  .rp-scen .gn{font-size:9.4px;font-weight:900;color:#146B44;text-align:right;}
+  .rp-scen .none{font-size:9px;color:#8A938D;line-height:1.6;border:1px dashed #DCE4DE;
+    border-radius:2.4mm;padding:4mm;word-break:keep-all;}
+
+  /* 제안 반영 전 · 후 한 줄 띠 */
+  .rp-wia{display:flex;align-items:center;gap:4mm;flex-wrap:wrap;background:#F2F8F4;
+    border:1px solid #CBDCD1;border-radius:2.4mm;padding:2mm 4mm;flex:0 0 auto;}
+  .rp-wia .l{display:flex;align-items:baseline;gap:3mm;flex:0 0 auto;}
+  .rp-wia .t{font-size:9.4px;font-weight:800;color:#3E4A44;}
+  .rp-wia .v{font-size:15px;font-weight:900;color:#0F2B1D;letter-spacing:-.04em;}
+  .rp-wia .v em{font-style:normal;color:#8A938D;margin:0 2mm;font-size:12px;}
+  .rp-wia .v i{font-size:9.5px;font-style:normal;font-weight:800;margin-left:1px;}
+  .rp-wia .v b{font-size:10px;color:#146B44;margin-left:2.6mm;}
+  .rp-wia .r{display:flex;gap:4mm;flex-wrap:wrap;font-size:8.4px;color:#5E6B63;}
+  .rp-wia .r span{white-space:nowrap;}
+
+  /* 영역별 처방 */
+  .rp-rx{flex:0 0 auto;}
+  .rp-rx .r{display:grid;grid-template-columns:16mm 8mm 1fr;align-items:center;gap:2.4mm;
+    font-size:9px;padding:1.4mm 0;border-top:1px solid #F0F3F1;}
+  .rp-rx .r:first-of-type{border-top:0;}
+  .rp-rx .nm{font-weight:900;color:#12301F;font-size:9.6px;}
+  .rp-rx .sc{font-weight:900;text-align:center;border-radius:2mm;padding:.8mm 0;font-size:9px;
+    background:#EEF1EF;color:#5E6B63;}
+  .rp-rx .r.good .sc{background:#E6F4EC;color:#146B44;}
+  .rp-rx .r.warn .sc{background:#FBF3E0;color:#8A6A20;}
+  .rp-rx .r.bad .sc{background:#FBEAE8;color:#9E3B32;}
+  .rp-rx .tx{color:#66716B;line-height:1.5;word-break:keep-all;}
+
+  /* 보완 수단 */
+  .rp-prod{flex:0 0 auto;}
+  .rp-prod .r{display:grid;grid-template-columns:22mm 20mm 1fr;align-items:baseline;gap:2.4mm;
+    font-size:8.8px;padding:1.6mm 0;border-top:1px solid #F0F3F1;}
+  .rp-prod .r:first-of-type{border-top:0;}
+  .rp-prod .k{font-weight:900;color:#12301F;font-size:9.4px;}
+  .rp-prod .v{font-weight:900;color:#B0463B;font-size:9.6px;}
+  .rp-prod .d{color:#66716B;line-height:1.5;word-break:keep-all;}
+
+  /* 로드맵 */
+  .rp-road{display:flex;flex-direction:column;}
+  .rp-road .g{display:grid;grid-template-columns:repeat(4,1fr);gap:2.6mm;flex:1 1 auto;min-height:0;}
+  .rp-road .c{border:1px solid #E4E8E5;border-radius:2.4mm;padding:3mm;display:flex;flex-direction:column;}
+  .rp-road .t{font-size:9px;font-weight:900;color:#146B44;margin-bottom:1.8mm;
+    border-bottom:1px solid #EDF1EE;padding-bottom:1.4mm;}
+  .rp-road ul{list-style:none;margin:0;padding:0;}
+  .rp-road li{font-size:8.4px;color:#5E6B63;line-height:1.45;padding:1mm 0 1mm 3mm;
+    position:relative;word-break:keep-all;}
+  .rp-road li:before{content:'';position:absolute;left:0;top:2.6mm;width:1.4mm;height:1.4mm;
+    border-radius:50%;background:#9CB3A6;}
+  .rp-road li.e{color:#A8B2AC;}
+  .rp-road li.e:before{background:#DCE4DE;}
+
+  /* 마무리 */
+  .rp-end{flex:0 0 auto;background:#0E3A26;color:#fff;border-radius:2.6mm;padding:2.8mm 4.5mm;}
+  .rp-end b{display:block;font-size:12px;font-weight:900;letter-spacing:-.03em;margin-bottom:1.4mm;}
+  .rp-end span{display:block;font-size:8.2px;line-height:1.55;color:rgba(255,255,255,.78);word-break:keep-all;}
+
+  /* 꼬리말 */
+  .rp-foot{margin-top:auto;flex:0 0 auto;display:flex;justify-content:space-between;align-items:baseline;
+    gap:4mm;font-size:7.4px;color:#A8B2AC;border-top:1px solid #EDF1EE;padding-top:2mm;}
+  .rp-foot .c{flex:1 1 auto;text-align:center;}
+}
+#printDoc{display:none;}
+</style>
 </body>
 </html>
