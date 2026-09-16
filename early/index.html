@@ -1061,7 +1061,8 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   #t-road.active{display:block;}   /* [FIX-AR] 상품 제안을 전폭으로 */ .wi-sliders{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;}
   .consult-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;} .premium-gate .pg-list{grid-template-columns:repeat(3,1fr)!important;}
   /* 상담·마이페이지 · 설문 */
-  #s-consult .consult-option,#s-mypage .my-menu,#s-mypage .profile-card{max-width:680px;margin-left:auto!important;margin-right:auto!important;}
+  #s-consult .consult-option,#s-mypage .my-menu,#s-mypage .profile-card,
+  #s-mypage .my-hero,#s-mypage #myJoinBar>*,#s-mypage #myDash>*,#s-mypage #myPlan>*,#s-mypage .my-foot{max-width:680px;margin-left:auto!important;margin-right:auto!important;}   /* [FIX-BG] 좌우 폭 통일 */
   #surveyForm .opts.row:not(.sv-scale):not(.sv-nps){display:grid!important;grid-template-columns:1fr 1fr!important;}
   #surveyForm .qcard[data-sk*="상품"] .opts.row{grid-template-columns:1fr 1fr!important;display:grid!important;}
   .modal-box{max-width:600px!important;} .modal-box.mini{max-width:560px!important;}
@@ -1093,10 +1094,52 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
 
   <!-- ===== 0) 첫 화면 · 3단계 진단 선택 ===== -->
   <section id="s-stage" class="screen">
-    <div class="stage-hero">
-      <span class="eyebrow gold">★ 2막 1장 · AI 은퇴 진단</span>
-      <h1>인생 2막 준비,<br><em>어디서부터 시작할까요?</em></h1>
-      <p>AI 알고리즘이 답변을 교차 분석해 <b>내 노후의 빈틈과 필요 금액</b>을 숫자로 계산합니다. 가볍게 시작해도, 언제든 정밀 진단으로 이어집니다.</p>
+    <!-- [FIX-BF] 홈 히어로 — 사진은 배경에 옅게 깔린다 -->
+    <div class="hm-hero">
+      <div class="hm-hero-bg" id="hmHeroBg" aria-hidden="true"></div>
+      <div class="hm-hero-in">
+        <span class="hm-eyebrow">SET IT AND LIVE YOUR LIFE</span>
+        <h1>한 번 제대로 설정해두면,<br><em>그다음은 인생을 사시면 됩니다</em></h1>
+        <p>연금 · 자산 · 건강 · 일자리 · 웰다잉 <b>다섯 영역</b>을 AI가 교차 분석해,
+           내 노후의 빈틈과 필요 금액을 숫자로 계산합니다.</p>
+        <div class="hm-hero-btns">
+          <button class="hm-b1" onclick="goDiagnosis()">진단 바로가기 <span>›</span></button>
+          <button class="hm-b2" onclick="l2pLookupOpen('login')">👤 회원 로그인 · 내 진단 불러오기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- [FIX-BF] 바로가기 -->
+    <div class="hm-quick">
+      <button onclick="startQuick()"><i>⚡</i><b>5분 빠른진단</b><small>12문항 · 무료</small></button>
+      <button onclick="goFullIntro()"><i>✦</i><b>AI 정밀진단</b><small>약 8분</small></button>
+      <button onclick="previewReport()"><i>▥</i><b>리포트 미리보기</b><small>결과 예시</small></button>
+      <button onclick="resumeOpen()"><i>↻</i><b>이어하기</b><small>임시저장</small></button>
+    </div>
+
+    <!-- [FIX-BF] 고객별 진단 -->
+    <div class="ks-sec"><h3>👥 고객별 진단</h3><div class="sub">지금 내 상황을 고르시면, 그 상황에서 이 진단이 무엇을 계산해 드리는지 먼저 알려드립니다.</div></div>
+    <div class="hm-segs">
+      <button class="hm-seg" onclick="l2pSegGo(1)">
+        <span class="sg-n">①</span>
+        <span class="sg-t"><b>45~55세 · 퇴직이 걱정되는 직장인</b>
+        <small>퇴직과 국민연금 개시 사이의 <em>소득 공백(크레바스)</em> 기간과 금액을 계산합니다.</small></span>
+        <span class="sg-a">›</span></button>
+      <button class="hm-seg" onclick="l2pSegGo(2)">
+        <span class="sg-n">②</span>
+        <span class="sg-t"><b>30 · 40대 · 부모와 자녀를 함께 부양</b>
+        <small>자녀 교육비 · 부모 부양비가 내 <em>노후 저축 여력</em>을 얼마나 깎는지 봅니다.</small></span>
+        <span class="sg-a">›</span></button>
+      <button class="hm-seg" onclick="l2pSegGo(3)">
+        <span class="sg-n">③</span>
+        <span class="sg-t"><b>이미 퇴직 · 연금과 노후 생활을 계획</b>
+        <small>지금 가진 연금·자산으로 <em>몇 살까지 버티는지(자산 고갈 나이)</em>를 계산합니다.</small></span>
+        <span class="sg-a">›</span></button>
+      <button class="hm-seg" onclick="l2pSegGo(4)">
+        <span class="sg-n">④</span>
+        <span class="sg-t"><b>정주 외국인 · 보험과 연금이 걱정</b>
+        <small>비자 · 국민연금 반환일시금 · 사회보장협정까지 반영한 <em>별도 진단</em>으로 안내합니다.</small></span>
+        <span class="sg-a">›</span></button>
     </div>
 
     <div class="ks-sec"><h3>🏠 국내 거주자를 위한 진단</h3><div class="sub">국내 30~50대 직장인과 은퇴 준비가 필요한 모든 분을 위한 진단입니다.</div></div>
@@ -1155,6 +1198,18 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
       <div class="ev-note">※ 미니로봇은 마이데이터 정기구독 또는 전문가 1:1 심층상담 유료회원 대상입니다.</div>
     </div>
 
+    <!-- [FIX-BF] 연결 배너 -->
+    <div class="ks-sec"><h3>🔗 함께 보시면 좋은 것</h3></div>
+    <div class="hm-links">
+      <button class="hm-link" onclick="goConsult()">
+        <span class="hl-bg" aria-hidden="true"></span>
+        <b>🤝 전문가 무료 상담 신청</b>
+        <small>연금 · 보장 · 상속 · 일자리 — 원하는 분야만 골라 상담받으세요</small></button>
+      <button class="hm-link" onclick="openMydata()">
+        <span class="hl-bg" aria-hidden="true"></span>
+        <b>🔐 마이데이터 정밀진단 사전 신청</b>
+        <small>은행 · 증권 · 보험을 연동해 실제 자산 데이터로 — 오픈 준비 중</small></button>
+    </div>
     <button class="btn btn-ghost" style="width:calc(100% - 32px);margin:14px 16px 0;" onclick="resumeOpen()">🔄 기존 진단 이어하기</button><button class="btn btn-ghost" style="width:calc(100% - 32px);margin:8px 16px 0;" onclick="l2pLookupOpen('login')">👤 회원 로그인 · 내 진단 불러오기</button>
   </section>
 
@@ -1357,20 +1412,31 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
 
   <!-- ===== 6) 마이페이지 ===== -->
   <section id="s-mypage" class="screen">
-    <div class="profile-card">
-      <div class="profile-row">
-        <div class="profile-avatar" id="myAvatar">2</div>
-        <div><div class="name" id="myName">내 이름</div><div class="code" id="myCode">진단 코드 준비 중</div></div>
+    <!-- [FIX-BG] 상단 배너 — 사진은 배경에 옅게 깔린다 -->
+    <div class="my-hero">
+      <div class="my-hero-bg" id="myHeroBg" aria-hidden="true"></div>
+      <div class="my-hero-in">
+        <div class="mh-row">
+          <div class="mh-av" id="myAvatar">2</div>
+          <div class="mh-id">
+            <div class="name" id="myName">로그인 · 최근 진단 결과 확인</div>
+            <div class="code" id="myCode">진단 코드나 이름 · 연락처로 내 결과를 불러올 수 있습니다</div>
+          </div>
+        </div>
+        <div class="mh-meta" id="myHeroMeta"></div>
+        <div class="mh-btns" id="myHeroBtns"></div>
       </div>
-      <span class="status-chip">최근 진단 결과 확인</span>
     </div>
+    <div id="myJoinBar"></div>
+    <div id="myDash"></div>
+    <div id="myPlan"></div>
     <div class="my-menu">
       <button onclick="l2pMyReport()">📊 최근 진단 결과 <span>›</span></button>
       <button onclick="goConsult()">🤝 상담 신청 / 예약 <span>›</span></button>
       <button onclick="showPaidStatus()">🔐 정밀 리포트 구매 상태 <span>›</span></button>
       <button onclick="restart()">↻ 새 진단 시작 <span>›</span></button>
     </div>
-    <div style="font-size:13.5px;color:#8A938E;line-height:1.6;margin:14px 4px;">진단 결과와 상담 신청 내역을 확인할 수 있습니다.</div>
+    <div class="my-foot">진단 결과 · 실행 계획의 진행 상황 · 상담 신청 내역을 이곳에서 확인하실 수 있습니다.</div>
   </section>
 
 </div>
@@ -2729,7 +2795,7 @@ function beginPart(){
   var g=grpOf(curPart), first=Q.find(function(q){return q.part===g&&q.id!=='Q1'&&qVisible(q);});
   renderSingleQuestion(first?first.id:null);
 }
-function goHome(){ show('s-intro'); setNav('home'); }
+function goHome(){ show('s-stage'); setNav('home'); try{ if(window.l2pHomeBuild) window.l2pHomeBuild(); }catch(e){} }  /* [FIX-BF] 홈은 입구(s-stage) — 진단(s-intro)과 분리 */
 function goDiagnosis(){ if(_R){show('s-report');setNav('report');return;} if(answers['Q1']){ if(uiQId){show('s-quiz');renderSingleQuestion(uiQId);} else enterPart(curPart||1); setNav('diagnosis');return;} show('s-intro');setNav('diagnosis'); }
 function restart(){answers={};curPart=1;_R=null;quickAns={};_quickR=null;uiQId=null;preAware=0;show('s-intro');setNav('home');}
 // close setup just before starting full diagnosis
@@ -3537,10 +3603,8 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   }
   document.addEventListener('DOMContentLoaded', function(){
     try{
-      var st=document.getElementById('s-stage'); if(!st) return;
-      var resume=st.querySelector('.stage-resume, [onclick*="resumeOpen"]');
-      var wrap=document.createElement('div'); wrap.innerHTML=frCardsHTML();
-      if(resume && resume.parentNode===st) st.insertBefore(wrap.firstChild, resume); else st.appendChild(wrap.firstChild);
+      /* [FIX-BF] 홈에는 따로 붙이지 않는다 — '고객별 진단 ④' 로 합쳤다 */
+      return;
     }catch(e){}
   });
 
@@ -3549,11 +3613,9 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   window.goMyPage = function(){
     var r=_goMy.apply(this,arguments);
     try{
-      var sec=document.getElementById('s-mypage');
-      if(sec && !document.getElementById('frMyCard')){
-        var d=document.createElement('div'); d.id='frMyCard'; d.innerHTML=frCardsHTML();
-        sec.appendChild(d);
-      }
+      /* [FIX-BG] 마이에서는 외국인 진단 섹션을 보여주지 않는다 (요청) */
+      var _old=document.getElementById('frMyCard');
+      if(_old && _old.parentNode) _old.parentNode.removeChild(_old);
     }catch(e){}
     return r;
   };
@@ -3667,7 +3729,10 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
   window.goDiagnosis = function(){
     if(_R){ show('s-report'); setNav('report'); return; }
     if(answers['Q1']){ if(uiQId){ show('s-quiz'); renderSingleQuestion(uiQId); } else enterPart(curPart||1); setNav('diagnosis'); return; }
-    show('s-stage'); setNav('home');
+    /* [FIX-BF-2] 여기가 s-stage 였다 — [홈]과 [진단]이 같은 화면을 열던 원인.
+       하던 진단이 없으면 진단 화면(s-intro)을 연다. */
+    show('s-intro'); setNav('diagnosis');
+    try{ if(window.l2pSegBar) window.l2pSegBar(); }catch(e){}
   };
   /* ── ⑫ What-if 2.0 — 처방 연계 시뮬레이터 (도식화 버전) ── */
   var SIM_AREAS=[
@@ -3827,6 +3892,7 @@ body.l2p-locked{position:fixed;left:0;right:0;width:100%;overflow:hidden}
     return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;display:block;">'+s+'</svg>';
   }
   function myFrCards(){
+    return '';                       /* [FIX-BG] 마이 화면에서 제외 (요청) */
     var out='';
     try{
       var fw=JSON.parse(localStorage.getItem('l2p_fw_last')||'null');
@@ -8044,7 +8110,12 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   window.l2pLookupGo=function(){
     var name=(document.getElementById('lkName')||{value:''}).value.trim();
     var phone=(document.getElementById('lkPhone')||{value:''}).value.trim();
-    var code=(document.getElementById('lkCode')||{value:''}).value.trim().toUpperCase();
+    /* [FIX-BE] 전각 하이픈 ‐‑‒–—―－ · 사이 공백 · 소문자를 흡수한다 */
+    var code=(document.getElementById('lkCode')||{value:''}).value
+               .replace(/[\u2010-\u2015\uFF0D\u2212]/g,'-').replace(/[^A-Za-z0-9]/g,'').toUpperCase();
+    /* [FIX-BE-2] L2P-YYMMDD-XXX 꼴이면 원래 표기로 되돌린다 — 옛 스크립트도 찾을 수 있게 */
+    var _cm=/^L2P(\d{6})([A-Z0-9]{3})$/.exec(code);
+    if(_cm) code='L2P-'+_cm[1]+'-'+_cm[2];
     if(!code && (!name || !phone)){
       alert('이름과 연락처를 모두 입력해 주세요.\n(또는 진단 코드를 입력하세요)'); return;
     }
@@ -8057,9 +8128,29 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     var q='mode=result&name='+encodeURIComponent(name)+'&phone='+encodeURIComponent(phone)+'&code='+encodeURIComponent(code);
     jsonp(GAS_URL+'?'+q, function(d){
       if(d && d.ok && d.row){ window.l2pRestoreReport(d.row,'Master DB'); return; }
-      var why=(d && d.reason==='not_found')?'일치하는 진단 결과가 없습니다.'
-             :(d?'조회 결과가 없습니다.':'조회에 실패했습니다(응답 없음).');
-      alert(why+'\n\n· 이름과 연락처가 진단할 때와 같은지 확인해 주세요.\n· 진단 코드를 아시면 코드로 찾는 편이 정확합니다.');
+      /* [FIX-BE] 왜 못 찾았는지 그대로 말해준다 — '조회 결과가 없습니다'만 뜨던 문제 */
+      if(!d){
+        alert('Master DB 가 응답하지 않았습니다.\n\n· 잠시 뒤 다시 시도해 주세요.\n· 계속되면 관리자에게 알려주세요.'); return;
+      }
+      if(d.sheets && d.version && !d.reason){
+        /* mode=result 를 모르는 옛 스크립트가 '상태'를 돌려준 것 */
+        alert('Master DB 스크립트가 예전 버전입니다.\n\n'
+            +'시트의 Apps Script 에 [진단결과] 조회 기능(mode=result)이 아직 없습니다.\n'
+            +'관리자가 스크립트를 최신본으로 붙여넣고 ‘새 버전으로 배포’ 하면 바로 열립니다.\n\n'
+            +'(스크립트 버전 '+d.version+' · 그 전까지는 진단했던 기기에서 열어 주세요)'); return;
+      }
+      if(d.reason==='empty'){
+        alert('Master DB 의 [진단결과] 시트가 비어 있습니다.\n\n· 시트 이름이 바뀌지 않았는지 확인해 주세요.'); return;
+      }
+      if(d.reason==='need_key'){
+        alert('진단 코드, 또는 이름과 연락처를 모두 넣어 주세요.'); return;
+      }
+      if(d.reason==='not_found'){
+        alert(code
+          ? '진단 코드 '+code+' 에 해당하는 결과가 없습니다.\n\n· 코드를 정확히 옮겨 적었는지 확인해 주세요(예: L2P-260915-HV7).\n· 코드는 진단을 마친 뒤 결과 화면과 문자로 안내됩니다.'
+          : '이름과 연락처가 모두 일치하는 결과가 없습니다.\n\n· 진단할 때 쓴 이름(별명)과 같은지 확인해 주세요.\n· 진단 코드를 아시면 코드로 찾는 편이 정확합니다.'); return;
+      }
+      alert('조회하지 못했습니다.\n\n· 잠시 뒤 다시 시도해 주세요.');
     });
   };
 
@@ -9642,5 +9733,651 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 }
 #printDoc{display:none;}
 </style>
+
+<style id="fixbf-home-css">
+/* [FIX-BF] 홈 화면 */
+.hm-hero{position:relative;overflow:hidden;border-radius:22px;margin:0 16px 14px;
+  background:linear-gradient(135deg,#0F2B1D 0%,#16452D 62%,#1B5638 100%);color:#fff;min-height:250px;}
+.hm-hero-bg{position:absolute;inset:0;background-position:right -4px bottom -6px;background-size:auto 100%;
+  background-repeat:no-repeat;opacity:.32;
+  -webkit-mask-image:linear-gradient(100deg,transparent 40%,#000 88%);
+          mask-image:linear-gradient(100deg,transparent 40%,#000 88%);}   /* [FIX-BG-2] 사진 구간에 맞춰 페이드 */
+.hm-hero-in{position:relative;padding:22px 18px 20px;}
+.hm-eyebrow{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.16em;color:#E4C878;
+  border:1px solid rgba(228,200,120,.45);border-radius:999px;padding:4px 10px;}
+.hm-hero h1{margin:12px 0 0;font-size:24px;line-height:1.38;font-weight:900;letter-spacing:-.02em;word-break:keep-all;}
+.hm-hero h1 em{font-style:normal;color:#E9CE84;}
+.hm-hero p{margin:11px 0 0;font-size:13.5px;line-height:1.72;color:#CFDDD5;word-break:keep-all;max-width:88%;}
+.hm-hero p b{color:#fff;font-weight:800;}
+.hm-hero-btns{margin-top:16px;display:flex;flex-direction:column;gap:8px;}
+.hm-hero-btns button{border:0;border-radius:13px;font-weight:800;cursor:pointer;text-align:center;}
+.hm-b1{background:#C9A449;color:#12301F;padding:14px 16px;font-size:15.5px;box-shadow:0 6px 16px rgba(201,164,73,.3);}
+.hm-b1 span{margin-left:4px;}
+.hm-b2{background:rgba(255,255,255,.12);color:#EAF2ED;padding:12px 16px;font-size:13.5px;
+  border:1px solid rgba(255,255,255,.26)!important;}
+
+.hm-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:0 16px 18px;}
+.hm-quick button{background:#fff;border:1px solid #E4E8E5;border-radius:15px;padding:13px 5px 11px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;}
+.hm-quick i{font-style:normal;font-size:19px;line-height:1;}
+.hm-quick b{font-size:12px;font-weight:800;color:#12301F;text-align:center;line-height:1.3;word-break:keep-all;}
+.hm-quick small{font-size:10px;color:#8A938E;text-align:center;line-height:1.3;word-break:keep-all;}
+
+.hm-segs{display:flex;flex-direction:column;gap:9px;margin:0 16px 20px;}
+.hm-seg{display:flex;align-items:flex-start;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:#fff;border:1px solid #E4E8E5;border-radius:16px;padding:14px 13px;}
+.hm-seg:hover{border-color:#B9D6C5;box-shadow:0 4px 14px rgba(15,43,29,.07);}
+.hm-seg .sg-n{flex:0 0 28px;height:28px;border-radius:9px;background:#EAF4EE;color:#0A5C39;
+  font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.hm-seg .sg-t{flex:1;min-width:0;}
+.hm-seg .sg-t b{display:block;font-size:14px;font-weight:800;color:#12301F;line-height:1.45;word-break:keep-all;}
+.hm-seg .sg-t small{display:block;margin-top:5px;font-size:12.5px;color:#5B655F;line-height:1.62;word-break:keep-all;}
+.hm-seg .sg-t small em{font-style:normal;font-weight:800;color:#0A5C39;}
+.hm-seg .sg-a{flex:0 0 auto;color:#B6BFB9;font-size:20px;line-height:1;align-self:center;}
+
+.hm-links{display:flex;flex-direction:column;gap:9px;margin:0 16px 4px;}
+.hm-link{position:relative;overflow:hidden;width:100%;text-align:left;cursor:pointer;
+  background:#0F2B1D;color:#fff;border:0;border-radius:16px;padding:15px 15px 14px;}
+.hm-link .hl-bg{position:absolute;right:-18px;top:50%;transform:translateY(-50%);
+  width:140px;height:120px;background-repeat:no-repeat;background-position:right center;background-size:contain;
+  opacity:.16;filter:invert(1);pointer-events:none;}
+.hm-link b{position:relative;display:block;font-size:14.5px;font-weight:800;}
+.hm-link small{position:relative;display:block;margin-top:5px;font-size:12px;color:#B9CCC1;line-height:1.6;
+  word-break:keep-all;max-width:calc(100% - 70px);}
+
+/* 진단 화면 상단 — 고르신 상황 띠 */
+.hm-segbar{display:flex;align-items:flex-start;gap:9px;margin:0 16px 12px;padding:12px 13px;
+  background:#EAF4EE;border:1px solid #C7E5D4;border-radius:14px;}
+.hm-segbar .sb-t{flex:1;min-width:0;font-size:12.5px;line-height:1.65;color:#1E4433;word-break:keep-all;}
+.hm-segbar .sb-t b{font-weight:800;color:#0A5C39;}
+.hm-segbar .sb-x{flex:0 0 auto;border:0;background:none;color:#5B8B72;font-size:17px;cursor:pointer;line-height:1;padding:2px 2px 0;}
+
+@media(min-width:700px){
+  .hm-hero,.hm-quick,.hm-segs,.hm-links,.hm-segbar{max-width:680px;margin-left:auto!important;margin-right:auto!important;}
+  .hm-hero h1{font-size:28px;}
+  .hm-hero-btns{flex-direction:row;}
+  .hm-b1{flex:1;} .hm-b2{flex:1;}
+}
+@media print{ .hm-hero,.hm-quick,.hm-segs,.hm-links,.hm-segbar{display:none!important;} }
+</style>
+<script id="fixbf-home-js">
+(function(){
+  /* [FIX-BF] 유입 화면 — 여기 한 줄만 바꾸면 됩니다.
+     'home'  : 입구(홈) 화면부터     ← 지금까지와 같은 동작
+     'diag'  : 정밀진단 소개로 바로
+     'quick' : 5분 빠른진단으로 바로
+     주소로도 덮을 수 있습니다:  diag.lpp20.com/?go=diag  */
+  var LANDING = 'home';
+
+  function dataFromIntro(){
+    var out={photo:'',ill:''};
+    try{
+      var box=document.querySelector('#s-intro .v25-hero-photo');
+      if(box){
+        var im=box.querySelector('img');
+        if(im && /^data:/.test(im.getAttribute('src')||'')) out.photo=im.getAttribute('src');
+        var bg=getComputedStyle(box).backgroundImage||'';
+        var m=/url\(["']?(data:[^"')]+)["']?\)/.exec(bg);
+        if(m) out.ill=m[1];
+      }
+    }catch(e){}
+    return out;
+  }
+
+  window.l2pHomeBuild=function(){
+    try{
+      var d=dataFromIntro();
+      var hb=document.getElementById('hmHeroBg');
+      if(hb && d.photo && hb.getAttribute('data-on')!=='1'){
+        hb.style.backgroundImage='url("'+d.photo+'")'; hb.setAttribute('data-on','1');
+      }
+      if(d.ill){
+        [].forEach.call(document.querySelectorAll('.hm-link .hl-bg'), function(el){
+          if(el.getAttribute('data-on')==='1') return;
+          el.style.backgroundImage='url("'+d.ill+'")'; el.setAttribute('data-on','1');
+        });
+      }
+    }catch(e){}
+  };
+
+  /* 고객별 진단 — 고르면 그 상황에서 무엇을 계산하는지 알려주고 진단으로 보낸다.
+     ※ 문항이나 점수는 손대지 않는다 — 답하지 않은 값을 대신 채워 넣지 않는다. */
+  var SEG={
+    1:{t:'45~55세 · 퇴직이 걱정되는 직장인',
+       d:'퇴직 시점과 국민연금 개시 사이의 <b>소득 공백(크레바스)</b> 기간·금액과, 그 동안 자산이 얼마나 줄어드는지를 계산합니다.'},
+    2:{t:'30 · 40대 · 부모와 자녀를 함께 부양',
+       d:'자녀 교육·결혼 자금과 부모 부양비를 반영해, 남는 <b>노후 저축 여력</b>과 은퇴 시점 자산을 계산합니다.'},
+    3:{t:'이미 퇴직 · 연금과 노후 생활을 계획',
+       d:'지금 받고 있거나 받을 연금·자산으로 월 부족액과 <b>자산 고갈 나이</b>를 계산하고, 세 가지 시나리오로 비교해 드립니다.'}
+  };
+  window.l2pSegGo=function(k){
+    if(k===4){
+      var h='<h3 class="mini-h">🌏 정주 외국인을 위한 진단</h3>'
+        +'<p class="mini-p">비자 · 국민연금 반환일시금 · 사회보장협정은 국내 거주자 진단과 기준이 달라 '
+        +'<b>별도 진단</b>으로 준비되어 있습니다.</p>'
+        +'<div class="fr-cards">'
+        +'<a class="fr-card" href="fw.html"><b>💰 외국인 금융 건전성 진단 · Financial Health Check</b>'
+        +'<span>10문항 3분 · 10 questions, 3 min — visa, remittance, insurance &amp; pension refund</span></a>'
+        +'<a class="fr-card" href="career.html"><b>🧭 장기 체류 · 커리어 정착 진단 · Long-stay &amp; Career Check</b>'
+        +'<span>F-2-7 점수제 자가 산정과 정착 경로 · F-2-7 points self-check</span></a>'
+        +'</div>';
+      try{ openMini(h); }catch(e){ location.href='fw.html'; }
+      return;
+    }
+    var s=SEG[k]; if(!s) return;
+    try{ window.__l2pSeg={k:k,t:s.t}; sessionStorage.setItem('l2p_seg',String(k)); }catch(e){}
+    try{ goFullIntro(); }catch(e){ show('s-intro'); }
+    l2pSegBar();
+    try{ window.scrollTo(0,0); }catch(e){}
+  };
+  window.l2pSegClear=function(){
+    try{ window.__l2pSeg=null; sessionStorage.removeItem('l2p_seg'); }catch(e){}
+    var b=document.getElementById('hmSegBar'); if(b&&b.parentNode) b.parentNode.removeChild(b);
+  };
+  function l2pSegBar(){
+    try{
+      var k=(window.__l2pSeg&&window.__l2pSeg.k)||parseInt(sessionStorage.getItem('l2p_seg'),10);
+      var s=SEG[k]; var sec=document.getElementById('s-intro'); if(!sec) return;
+      var b=document.getElementById('hmSegBar');
+      if(!s){ if(b&&b.parentNode) b.parentNode.removeChild(b); return; }
+      if(!b){ b=document.createElement('div'); b.id='hmSegBar'; b.className='hm-segbar'; sec.insertBefore(b, sec.firstChild); }
+      b.innerHTML='<div class="sb-t"><b>'+s.t+'</b><br>'+s.d+'</div>'
+                 +'<button class="sb-x" onclick="l2pSegClear()" aria-label="닫기">✕</button>';
+    }catch(e){}
+  }
+  window.l2pSegBar=l2pSegBar;
+
+  function boot(){
+    l2pHomeBuild();
+    var go='';
+    try{ go=(new URLSearchParams(location.search).get('go')||'').toLowerCase(); }catch(e){}
+    var want=go||LANDING;
+    try{
+      if(!location.hash){
+        if(want==='diag'){ show('s-intro'); setNav('diagnosis'); }
+        else if(want==='quick'){ startQuick(); }
+        else { show('s-stage'); setNav('home'); }
+      }
+    }catch(e){}
+    l2pSegBar();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){ setTimeout(boot,30); });
+  else setTimeout(boot,30);
+})();
+</script>
+
+
+<style id="fixbg-my-css">/* FIX-BG-2 */
+/* [FIX-BG] 마이 화면 */
+#s-mypage{padding-left:0;padding-right:0;}
+#s-mypage > *{margin-left:16px;margin-right:16px;}
+.my-hero{position:relative;overflow:hidden;border-radius:20px;color:#fff;margin-bottom:10px;
+  background:linear-gradient(135deg,#0F2B1D 0%,#17462E 64%,#1C5A3A 100%);}
+.my-hero-bg{position:absolute;inset:0;background-repeat:no-repeat;
+  background-position:right -6px bottom -6px;background-size:auto 100%;opacity:.22;
+  -webkit-mask-image:linear-gradient(100deg,transparent 42%,#000 90%);
+          mask-image:linear-gradient(100deg,transparent 42%,#000 90%);}   /* [FIX-BG-2] 사진 구간에 맞춰 페이드 */
+.my-hero-in{position:relative;padding:18px 17px 16px;}
+.mh-row{display:flex;align-items:center;gap:12px;}
+.mh-av{flex:0 0 46px;height:46px;border-radius:14px;background:#C9A449;color:#12301F;
+  font-size:18px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+.mh-id{flex:1;min-width:0;}
+.mh-id .name{font-size:17px;font-weight:900;line-height:1.35;word-break:keep-all;}
+.mh-id .code{font-size:12.5px;color:#B9CCC1;margin-top:3px;line-height:1.5;word-break:keep-all;}
+.mh-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.mh-meta span{font-size:11.5px;font-weight:700;color:#DCEAE2;background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 9px;}
+.mh-btns{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap;}
+.mh-btns button{flex:1 1 140px;border:0;border-radius:11px;padding:11px 10px;font-size:13px;font-weight:800;cursor:pointer;}
+.mh-btns .p{background:#C9A449;color:#12301F;}
+.mh-btns .g{background:rgba(255,255,255,.13);color:#EAF2ED;border:1px solid rgba(255,255,255,.24)!important;}
+
+/* 가입 안내 띠 — 상단에 얇게 */
+.my-join{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:11px 13px;border-radius:14px;
+  background:#FBF6E8;border:1px solid #E8D9A8;}
+.my-join .mj-t{flex:1;min-width:0;font-size:12.5px;line-height:1.6;color:#6E5412;word-break:keep-all;}
+.my-join .mj-t b{font-weight:800;color:#8A6A14;}
+.my-join .mj-t em{font-style:normal;display:block;margin-top:3px;font-size:11.5px;color:#9A7F30;}
+.my-join button{flex:0 0 auto;border:0;border-radius:10px;background:#C9A449;color:#12301F;
+  font-size:12.5px;font-weight:800;padding:9px 12px;cursor:pointer;white-space:nowrap;}
+
+/* 액션 플랜 */
+.ap-sec{background:#fff;border:1px solid #E4E8E5;border-radius:18px;padding:16px 15px;margin-bottom:12px;}
+.ap-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.ap-h b{font-size:15.5px;font-weight:900;color:#12301F;}
+.ap-h span{font-size:12px;color:#8A938E;}
+.ap-sub{margin-top:6px;font-size:12.5px;color:#5B655F;line-height:1.65;word-break:keep-all;}
+.ap-prog{margin-top:12px;display:flex;align-items:center;gap:9px;}
+.ap-prog .bar{flex:1;height:8px;border-radius:99px;background:#EDF1EE;overflow:hidden;}
+.ap-prog .bar i{display:block;height:100%;background:linear-gradient(90deg,#2E8B5A,#57B98A);border-radius:99px;}
+.ap-prog .n{font-size:12.5px;font-weight:800;color:#0A5C39;white-space:nowrap;}
+
+.ap-item{border:1px solid #E7EBE8;border-radius:14px;padding:12px 12px 11px;margin-top:9px;}
+.ap-item.done{background:#F2F9F5;border-color:#C7E5D4;}
+.ap-top{display:flex;align-items:flex-start;gap:9px;}
+.ap-top .ic{flex:0 0 26px;height:26px;border-radius:8px;background:#EAF4EE;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.ap-top .tx{flex:1;min-width:0;}
+.ap-top .tx b{display:block;font-size:13.5px;font-weight:800;color:#12301F;line-height:1.45;word-break:keep-all;}
+.ap-top .tx small{display:block;margin-top:4px;font-size:12px;color:#6B756F;line-height:1.6;word-break:keep-all;}
+.ap-area{display:inline-block;font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 6px;
+  background:#EEF3F0;color:#4C6A5A;margin-right:5px;vertical-align:1px;}
+.ap-now{margin-top:8px;font-size:11.5px;color:#8A938E;line-height:1.55;word-break:keep-all;}
+.ap-now em{font-style:normal;color:#3D6B52;font-weight:700;}
+.ap-btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.ap-btns button{border:1px solid #DCE3DE;background:#fff;border-radius:9px;font-size:12px;font-weight:700;
+  color:#4A5551;padding:7px 10px;cursor:pointer;}
+.ap-btns button.on{background:#0F2B1D;border-color:#0F2B1D;color:#fff;}
+.ap-btns button.calc{background:#EAF4EE;border-color:#C7E5D4;color:#0A5C39;}
+.ap-out{margin-top:9px;display:none;}
+.ap-out.on{display:block;}
+.ap-delta{display:flex;flex-wrap:wrap;gap:6px;}
+.ap-delta div{flex:1 1 30%;min-width:96px;background:#F6F9F7;border:1px solid #E2EAE5;border-radius:10px;padding:8px 9px;}
+.ap-delta .l{font-size:10.5px;color:#7C857F;line-height:1.4;}
+.ap-delta .v{margin-top:3px;font-size:12.5px;font-weight:800;color:#12301F;line-height:1.4;word-break:keep-all;}
+.ap-delta .v i{font-style:normal;font-weight:800;}
+.ap-delta .v i.up{color:#1B7A4B;} .ap-delta .v i.dn{color:#B85A5A;} .ap-delta .v i.eq{color:#8A938E;}
+.ap-note{margin-top:8px;font-size:11px;color:#8A938E;line-height:1.6;word-break:keep-all;}
+.ap-empty{background:#fff;border:1.5px dashed #D7DEDA;border-radius:16px;padding:20px 16px;
+  font-size:13.5px;color:#5B655F;line-height:1.7;word-break:keep-all;margin-bottom:12px;text-align:center;}
+
+.ap-gain{background:linear-gradient(135deg,#0F2B1D,#1B5638);color:#fff;border-radius:18px;padding:16px 15px;margin-bottom:12px;}
+.ap-gain .g-h{font-size:15px;font-weight:900;}
+.ap-gain .g-s{margin-top:5px;font-size:12px;color:#B9CCC1;line-height:1.6;word-break:keep-all;}
+.ap-gain .g-btn{margin-top:12px;width:100%;border:0;border-radius:12px;background:#C9A449;color:#12301F;
+  font-size:13.5px;font-weight:800;padding:12px;cursor:pointer;}
+.ap-gain .ap-delta div{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.18);}
+.ap-gain .ap-delta .l{color:#AFC5B8;} .ap-gain .ap-delta .v{color:#fff;}
+.ap-gain .ap-delta .v i.up{color:#8FE0B4;} .ap-gain .ap-delta .v i.dn{color:#F0B0B0;} .ap-gain .ap-delta .v i.eq{color:#AFC5B8;}
+.ap-gain .ap-note{color:#9FB6A8;}
+
+.ap-paid{margin-top:11px;border-top:1px dashed #DCE3DE;padding-top:11px;}
+.ap-paid .pd-h{font-size:12.5px;font-weight:800;color:#8A6A14;}
+.ap-paid ul{margin:7px 0 0;padding-left:16px;}
+.ap-paid li{font-size:12px;color:#6B756F;line-height:1.75;word-break:keep-all;}
+.ap-paid .pill{display:inline-block;font-size:10px;font-weight:800;color:#8A6A14;background:#FBF1D6;
+  border:1px solid #E8D9A8;border-radius:6px;padding:1px 5px;margin-left:4px;}
+
+.my-foot{font-size:12.5px;color:#8A938E;line-height:1.7;margin:14px 4px 4px;word-break:keep-all;}
+@media print{ #s-mypage{display:none!important;} }
+</style>
+<script id="fixbg-my-js">/* FIX-BG-3 */
+(function(){
+  function G(n,d){ try{ return eval(n); }catch(e){ return d; } }
+  function QL(){ return G('Q',null)||window.Q||[]; }
+  function qOf(id){ return QL().filter(function(x){ return x.id===id; })[0]||null; }
+  function ANS(){ return G('answers',null)||window.answers||{}; }
+  function idxOf(id){
+    var v=ANS()[id];
+    if(v&&typeof v==='object'&&!Array.isArray(v)&&typeof v.idx==='number') return v.idx;
+    if(typeof v==='number') return v;
+    return -1;
+  }
+  function flat(){
+    var o={};
+    try{
+      if(typeof answersForApi==='function') o=answersForApi();
+      else { var s=ANS(); Object.keys(s).forEach(function(k){ var v=s[k];
+        o[k]=(v&&typeof v==='object'&&!Array.isArray(v))?v.idx:v; }); }
+    }catch(e){ o={}; }
+    return o;
+  }
+  /* 채점 엔진 재호출 — 새 공식을 만들지 않고 엔진을 그대로 다시 돌린다 */
+  function rescore(mod, cb){
+    if(typeof apiPost==='function' && typeof API_BASE!=='undefined'){
+      /* [FIX-BG-4] 서버 래퍼(call)는 콜드스타트를 기다리느라 몇 분까지 재시도한다.
+         본 진단에는 맞지만 '예상 효과 계산' 한 번에 그만큼 붙잡아 두면
+         버튼이 '계산 중…' 에서 돌아오지 않는다. 20초면 끊고 그렇게 말한다. */
+      var done=false;
+      var fin=function(d){ if(done) return; done=true; cb(d); };
+      setTimeout(function(){ fin(null); }, 20000);
+      apiPost('/diagnose',{answers:mod,timings:{},phone:'',consent:false,bypass:true,
+        peerData:window._peerData||null}).then(fin).catch(function(){ fin(null); });
+      return;
+    }
+    if(typeof computeReport==='function'){
+      var L=QL(), bak=ANS(), rebuilt={};
+      Object.keys(mod).forEach(function(k){
+        var q=L.filter(function(x){return x.id===k;})[0];
+        if(q&&q.opts&&typeof mod[k]==='number'&&q.opts[mod[k]]) rebuilt[k]={idx:mod[k],opt:q.opts[mod[k]]};
+        else rebuilt[k]=mod[k];
+      });
+      var res=null;
+      try{ try{ answers=rebuilt; }catch(e2){ window.answers=rebuilt; } res=computeReport(); }catch(e){ res=null; }
+      try{ answers=bak; }catch(e3){ window.answers=bak; }
+      cb(res); return;
+    }
+    cb(null);
+  }
+
+  /* ── 실행 항목 목록 ─────────────────────────────────────────────
+     각 항목 = 진단 문항 하나를 한 단계 좋게 만드는 일.
+     goal:'best' 면 그 문항의 최고 점수 보기, 없으면 '지금보다 한 단계 나은 보기'. */
+  var CAT=[
+    {k:'q25',ar:'asset',a:'연금·자산',ic:'🧾',q:'Q25',t:'연금 절세계좌(연금저축·IRP·ISA) 활용 한 단계 올리기',
+      h:'자동이체를 걸어두면 해마다 따로 신경 쓸 일이 없습니다.'},
+    {k:'q27',ar:'asset',a:'연금·자산',ic:'🏛️',q:'Q27',t:'연금 3층 구조를 한 층 더 쌓기',
+      h:'국민 → 퇴직 → 개인 순서로 채웁니다.'},
+    {k:'q24',ar:'asset',a:'연금·자산',ic:'💰',q:'Q24',t:'매월 고정 저축·투자액을 한 구간 올리기',
+      h:'월 얼마를 더 넣을지부터 정하면 나머지는 자동이체가 합니다.'},
+    {k:'q30',ar:'asset',a:'연금·자산',ic:'📉',q:'Q30',t:'부채를 한 구간 줄이기',
+      h:'금리가 높은 것부터 갚으면 은퇴 후 현금흐름이 가장 크게 좋아집니다.'},
+    {k:'q12',ar:'health',a:'건강',ic:'🛡️',q:'Q12',t:'3대 진단비(암·뇌·심장)를 한 구간 보강',
+      h:'치료비보다 치료 기간의 생활비가 더 큽니다.'},
+    {k:'q13',ar:'health',a:'건강',ic:'🏥',q:'Q13',t:'실손 + 수술·입원 보장 채우기',goal:2,
+      h:'실손만으로는 입원 중 소득 공백이 메워지지 않습니다.'},
+    {k:'q14',ar:'health',a:'건강',ic:'🧑‍⚕️',q:'Q14',t:'간병·장기요양(치매 등) 대비하기',goal:2,
+      h:'노후 지출 중 예측이 가장 어려운 항목입니다.'},
+    {k:'q10',ar:'health',a:'건강',ic:'🏃',q:'Q10',t:'주 3회 운동과 정기 건강검진 실천하기',
+      h:'보험보다 먼저, 그리고 돈이 들지 않습니다.'},
+    {k:'q19',ar:'housing',a:'주거',ic:'🏠',q:'Q19',t:'주택연금 활용 계획 세우기',goal:0,
+      h:'집에 계속 살면서 매달 현금흐름으로 바꾸는 제도입니다.'},
+    {k:'q18',ar:'housing',a:'주거',ic:'🏦',q:'Q18',t:'주택담보대출 비율을 한 구간 낮추기',
+      h:'은퇴 전에 줄여둘수록 고정 지출이 가벼워집니다.'},
+    {k:'q31',ar:'job',a:'일자리',ic:'🧭',q:'Q31',t:'퇴직 후 일하는 형태를 정하기',
+      h:'주 2~3일 파트타임만으로도 자산이 줄어드는 속도가 달라집니다.'},
+    {k:'q35',ar:'job',a:'일자리',ic:'📆',q:'Q35',t:'60세 이후 국민연금 임의계속가입 신청하기',goal:0,
+      h:'가입기간을 늘리면 평생 받는 금액이 올라갑니다.'},
+    {k:'q36',ar:'well',a:'웰다잉',ic:'🕊️',q:'Q36',t:'사전연명의료의향서 등록하기',goal:0,
+      h:'국립연명의료관리기관(lst.go.kr) 등록기관에서 무료로 하실 수 있습니다.'},
+    {k:'q37',ar:'well',a:'웰다잉',ic:'📄',q:'Q37',t:'유언 · 상속 준비하기',goal:0,
+      h:'미리 정해두면 분쟁과 세금 부담이 함께 줄어듭니다.'},
+    {k:'q38',ar:'well',a:'웰다잉',ic:'🌿',q:'Q38',t:'상조 · 장례 예비자금 준비하기',goal:0,
+      h:'선수금 보전이 되는 상품인지부터 확인하십시오.'},
+    {k:'q39',ar:'well',a:'웰다잉',ic:'🔑',q:'Q39',t:'디지털 유산(계좌 · 비밀번호) 정리하기',goal:0,
+      h:'가족이 사후에 접근하지 못하는 일이 실제로 자주 생깁니다.'},
+    {k:'q43',ar:'well',a:'웰다잉',ic:'💬',q:'Q43',t:'가족과 마무리 이야기 한 걸음 더 나누기',
+      h:'가장 어렵지만, 가장 많이 바뀌는 항목입니다.'}
+  ];
+
+  /* [FIX-BG-3] 보기의 '나쁨 → 좋음' 순서.
+     배포 빌드는 서버가 배점(s)을 빼고 문항을 내려주기 때문에 화면에서 계산할 수 없다.
+     그래서 deploy/diagnosis-api/main.py 의 배점에서 기계로 뽑은 순서를 여기 적어 둔다.
+     o = 보기 번호를 나쁜 것부터 나열, s = 참고용 배점(대조 테스트가 이 값을 쓴다),
+     u = '본인 상태를 정말 모르는' 보기 (그 경우 변동을 계산하지 않는다).
+     ※ 배점을 고치면 qa25 의 대조 검사가 먼저 깨집니다 — 그때 이 표도 함께 고치세요. */
+  var ORD={
+    Q10:{o:[2,1,0],s:[100,60,20]},
+    Q12:{o:[0,1,2,3,4],s:[20,50,70,90,100]},
+    Q13:{o:[0,1,2],s:[20,70,100]},
+    Q14:{o:[0,1,2],s:[20,60,100]},
+    Q18:{o:[4,3,2,1,0],s:[100,80,55,30,15]},
+    Q19:{o:[3,2,1,0],s:[100,70,40,30]},
+    Q24:{o:[0,1,2,3,4],s:[25,50,70,85,100]},
+    Q25:{o:[0,3,1,2],s:[20,60,100,30],u:[3]},
+    Q27:{o:[4,0,3,1,2],s:[35,70,100,65,20],u:[4]},
+    Q30:{o:[4,3,2,1,0],s:[100,75,50,30,15]},
+    Q31:{o:[3,2,0,1],s:[80,100,70,30]},
+    Q35:{o:[3,2,1,0],s:[100,65,30,20]},
+    Q36:{o:[2,1,0],s:[100,60,20]},
+    Q37:{o:[2,1,0,3],s:[100,60,30,100]},
+    Q38:{o:[3,2,1,0],s:[100,80,70,40]},
+    Q39:{o:[3,2,1,0],s:[100,65,40,20]},
+    Q43:{o:[3,2,1,0],s:[100,70,40,20]}
+  };
+  window.__l2pORD=ORD;                      /* 대조 테스트가 읽는다 */
+  function rank(qid,i){ var d=ORD[qid]; return d?d.o.indexOf(i):-1; }
+  function unknown(qid,i){ var d=ORD[qid]; return !!(d&&d.u&&d.u.indexOf(i)>=0); }
+  function nextBetter(qid,cur){
+    var d=ORD[qid]; if(!d) return -1;
+    var r=d.o.indexOf(cur); if(r<0) return -1;
+    /* [FIX-BG-5] '잘 모르겠음' 은 건너뛴다.
+       Q25 는 배점만 보면 '없음(20)' 다음이 '잘 모르겠음(30)' 이라
+       "없음 → 잘 모르겠음" 이라는 말이 안 되는 목표가 나왔다. */
+    for(var k=r+1;k<d.o.length;k++){
+      if(unknown(qid,d.o[k])) continue;
+      return d.o[k];
+    }
+    return -1;
+  }
+  /* 지금 쓸 수 있는 항목만 고른다 — 올릴 곳이 없으면 넣지 않는다 */
+  function planList(){
+    var out=[];
+    CAT.forEach(function(c){
+      var q=qOf(c.q); if(!q||!q.opts||q.type==='multi') return;
+      if(!ORD[c.q]) return;
+      var cur=idxOf(c.q); if(cur<0||!q.opts[cur]) return;
+      var unk=unknown(c.q,cur);
+      var goal=(typeof c.goal==='number')?c.goal:nextBetter(c.q,cur);
+      if(goal<0||goal===cur||!q.opts[goal]) return;
+      /* 이미 목표만큼 좋거나 더 좋으면 넣지 않는다 */
+      if(!unk && rank(c.q,cur)>=rank(c.q,goal)) return;
+      out.push({c:c,q:q,cur:cur,goal:goal,unk:unk,
+        curT:q.opts[cur].t, goalT:(q.opts[goal]||{}).t||''});
+    });
+    return out;
+  }
+
+  /* 진행 상태 저장 — 진단 코드별 */
+  function planKey(){
+    var R=G('_R',null)||window._R;
+    return 'l2p_plan_'+(((R&&R.code)||'anon'));
+  }
+  function planGet(){ try{ return JSON.parse(localStorage.getItem(planKey())||'{}')||{}; }catch(e){ return {}; } }
+  function planSet(o){ try{ localStorage.setItem(planKey(),JSON.stringify(o)); }catch(e){} }
+  window.l2pPlanMark=function(k,st){
+    var o=planGet();
+    if(o[k]===st) delete o[k]; else o[k]=st;
+    o['__ts']=new Date().toISOString();
+    planSet(o); l2pMyBuild();
+  };
+
+  /* 값 표기 */
+  function man(v){
+    v=Math.round(Number(v)||0);
+    if(Math.abs(v)>=10000) return (v/10000).toFixed(1).replace(/\.0$/,'')+'억';
+    return v.toLocaleString('ko-KR')+'만';
+  }
+  function ageT(v){ var n=Number(v); if(!isFinite(n)) return '—'; return n>=90?'90세 이후':(Math.round(n*10)/10)+'세'; }
+  function delta(label, before, after, fmt, goodUp){
+    var b=Number(before), a=Number(after);
+    if(!isFinite(b)||!isFinite(a)) return '';
+    var d=a-b, cls=(Math.abs(d)<0.05)?'eq':((d>0)===!!goodUp?'up':'dn');
+    var sign=(Math.abs(d)<0.05)?'변화 없음':((d>0?'+':'−')+fmt(Math.abs(d)));
+    return '<div><div class="l">'+label+'</div><div class="v">'+fmt(b)+' → '+fmt(a)
+          +'<br><i class="'+cls+'">'+sign+'</i></div></div>';
+  }
+  var AREA_T={asset:'연금·자산',health:'건강',housing:'주거',job:'일자리',well:'웰다잉'};
+  function deltaHTML(R0,R1,ar){
+    var h='';
+    h+=delta('종합 점수', R0.total, R1.total, function(v){ return Math.round(v)+'점'; }, true);
+    /* 영역 점수 — 문항 하나의 무게가 작으면 종합은 그대로여도 영역은 움직인다 */
+    if(ar && R0.scores && R1.scores && typeof R0.scores[ar]==='number'){
+      h+=delta((AREA_T[ar]||ar)+' 영역', R0.scores[ar], R1.scores[ar], function(v){ return Math.round(v)+'점'; }, true);
+    }
+    var d0=Math.min(90,Number(R0.depletion)||90), d1=Math.min(90,Number(R1.depletion)||90);
+    h+=delta('자산 고갈 나이', d0, d1, function(v){ return ageT(v); }, true);
+    h+=delta('월 부족액', R0.shortfall, R1.shortfall, function(v){ return man(v)+'원'; }, false);
+    return '<div class="ap-delta">'+h+'</div>';
+  }
+
+  window.l2pPlanCalc=function(k,btn){
+    var R=G('_R',null)||window._R; if(!R) return;
+    var it=planList().filter(function(x){ return x.c.k===k; })[0]; if(!it) return;
+    var out=document.getElementById('apOut_'+k); if(!out) return;
+    btn.disabled=true; var old=btn.textContent; btn.textContent='계산 중…';
+    var mod=flat(); mod[it.c.q]=it.goal;
+    rescore(mod, function(R1){
+      btn.disabled=false; btn.textContent=old;
+      if(!R1||typeof R1.total!=='number'){
+        out.innerHTML='<div class="ap-note">지금은 계산하지 못했습니다. 잠시 뒤 다시 눌러 주세요.</div>';
+        out.classList.add('on'); return;
+      }
+      out.innerHTML=deltaHTML(R,R1,it.c.ar)
+        +'<div class="ap-note">※ 진단 문항 「'+it.q.q.slice(0,28)+(it.q.q.length>28?'…':'')+'」의 답을 '
+        +'<b>'+it.curT+'</b> → <b>'+it.goalT+'</b> 로 바꿔 <b>채점 엔진을 그대로 다시 돌린 값</b>입니다. '
+        +'새로 만든 추정식이 아닙니다.</div>';
+      out.classList.add('on');
+    });
+  };
+
+  window.l2pGainCalc=function(btn){
+    var R=G('_R',null)||window._R; if(!R) return;
+    var st=planGet(), list=planList().filter(function(x){ return st[x.c.k]==='done' && !x.unk; });
+    var out=document.getElementById('apGainOut'); if(!out) return;
+    if(!list.length){
+      out.innerHTML='<div class="ap-note">완료로 표시한 항목이 아직 없습니다.</div>'; return;
+    }
+    btn.disabled=true; var old=btn.textContent; btn.textContent='계산 중…';
+    var mod=flat(); list.forEach(function(x){ mod[x.c.q]=x.goal; });
+    rescore(mod, function(R1){
+      btn.disabled=false; btn.textContent=old;
+      if(!R1||typeof R1.total!=='number'){ out.innerHTML='<div class="ap-note">지금은 계산하지 못했습니다.</div>'; return; }
+      out.innerHTML=deltaHTML(R,R1)
+        +'<div class="ap-note">완료로 표시하신 '+list.length+'개 항목을 모두 반영해 채점 엔진을 다시 돌린 값입니다. '
+        +'체크는 본인 확인이므로 실제 답변이 바뀐 것은 아닙니다 — <b>다음 진단에서 실제 답변으로 확정됩니다.</b></div>';
+    });
+  };
+
+  /* ── 화면 그리기 ──────────────────────────────────────────────── */
+  function member(){ try{ return JSON.parse(localStorage.getItem('l2p_member')||'null'); }catch(e){ return null; } }
+  function paid(){ try{ return localStorage.getItem('l2p_premium')==='1'; }catch(e){ return false; } }
+
+  function heroBg(){
+    try{
+      var box=document.querySelector('#s-intro .v25-hero-photo'); if(!box) return;
+      var im=box.querySelector('img'), el=document.getElementById('myHeroBg');
+      if(!el||el.getAttribute('data-on')==='1') return;
+      var src=im&&im.getAttribute('src');
+      if(!src||!/^data:/.test(src)){
+        var m=/url\(["']?(data:[^"')]+)["']?\)/.exec(getComputedStyle(box).backgroundImage||'');
+        src=m?m[1]:'';
+      }
+      if(src){ el.style.backgroundImage='url("'+src+'")'; el.setAttribute('data-on','1'); }
+    }catch(e){}
+  }
+
+  function buildHero(){
+    var m=member(), R=G('_R',null)||window._R;
+    var nm=document.getElementById('myName'), cd=document.getElementById('myCode'),
+        av=document.getElementById('myAvatar'), mt=document.getElementById('myHeroMeta'),
+        bt=document.getElementById('myHeroBtns');
+    if(!nm||!cd||!bt) return;
+    if(m && m['이름']){
+      var name=String(m['이름']);
+      nm.textContent=name+'님';
+      cd.textContent='진단 코드 '+((R&&R.code)||m['참여자코드']||'—');
+      if(av) av.textContent=(name.charAt(0)||'2').toUpperCase();
+      var chips=[];
+      chips.push(paid()?'정밀 리포트 열림':'무료회원');
+      if(m['지역']) chips.push(String(m['지역']));
+      if(m['가입시각']) chips.push(String(m['가입시각']).slice(0,10).replace(/-/g,'.')+' 가입');
+      if(m['관심분야']) chips.push(String(m['관심분야']).split('/').slice(0,2).join(' · '));
+      if(mt) mt.innerHTML=chips.map(function(t){ return '<span>'+t+'</span>'; }).join('');
+      bt.innerHTML='<button class="p" onclick="l2pMyReport()">📊 내 진단 리포트</button>'
+                  +'<button class="g" onclick="l2pLookupOpen(\'login\')">🔄 다른 기기 결과 불러오기</button>';
+    }else{
+      nm.textContent='로그인 · 최근 진단 결과 확인';
+      cd.textContent='진단 코드나 이름 · 연락처로 내 결과를 불러올 수 있습니다';
+      if(av) av.textContent='2';
+      if(mt) mt.innerHTML='';
+      bt.innerHTML='<button class="p" onclick="l2pLookupOpen(\'login\')">👤 로그인 · 불러오기</button>'
+                  +'<button class="g" onclick="goDiagnosis()">✦ 진단 시작하기</button>';
+    }
+    heroBg();
+  }
+
+  function buildJoin(){
+    var el=document.getElementById('myJoinBar'); if(!el) return;
+    var m=member();
+    if(!m){
+      el.innerHTML='<div class="my-join"><div class="mj-t">'
+        +'<b>회원 가입 후 이용하실 수 있는 서비스입니다</b>'
+        +'<em>가입 즉시 리워드 5,000원 · 정밀 리포트 열림 · 실행 계획 진행 관리</em>'
+        +'</div><button onclick="memberCreditV27()">가입하기</button></div>';
+    }else{
+      el.innerHTML='<div class="my-join"><div class="mj-t">'
+        +'<b>유료회원 특전 — 사전 신청을 받고 있습니다</b>'
+        +'<em>마이데이터 연동 정밀진단 · 전문가 1:1 심층상담 · 아이우술 AI 미니로봇 증정</em>'
+        +'</div><button onclick="openMydata()">사전 신청</button></div>';
+    }
+  }
+
+  function buildPlan(){
+    var el=document.getElementById('myPlan'); if(!el) return;
+    var R=G('_R',null)||window._R;
+    if(!R){
+      el.innerHTML='<div class="ap-empty">진단을 완료하시면 <b>나의 실행 계획</b>과 '
+        +'그 진행 상황을 이곳에서 관리하실 수 있습니다.<br>'
+        +'<button class="btn btn-green" style="margin-top:12px;width:100%;" onclick="goDiagnosis()">진단 시작하기 →</button></div>';
+      return;
+    }
+    var list=planList(), st=planGet();
+    if(!list.length){
+      el.innerHTML='<div class="ap-empty">지금 답변 기준으로는 <b>더 올릴 항목이 보이지 않습니다.</b><br>'
+        +'이미 각 영역에서 가장 나은 선택을 하고 계십니다.</div>';
+      return;
+    }
+    var done=list.filter(function(x){ return st[x.c.k]==='done'; }).length;
+    var doing=list.filter(function(x){ return st[x.c.k]==='doing'; }).length;
+    var pct=Math.round(done/list.length*100);
+
+    var h='<div class="ap-sec">'
+      +'<div class="ap-h"><b>🗂 나의 실행 계획</b><span>'+list.length+'개 항목</span></div>'
+      +'<div class="ap-sub">진단 결과에서 <b>지금보다 올릴 수 있는 항목</b>만 골라 두었습니다. '
+      +'하나를 실행하면 점수와 금액이 얼마나 달라지는지, <b>같은 채점 엔진으로 다시 계산해</b> 보여드립니다.</div>'
+      +'<div class="ap-prog"><div class="bar"><i style="width:'+pct+'%"></i></div>'
+      +'<div class="n">완료 '+done+' / '+list.length+(doing?' · 진행 중 '+doing:'')+'</div></div>';
+
+    list.forEach(function(x){
+      var s=st[x.c.k]||'';
+      h+='<div class="ap-item'+(s==='done'?' done':'')+'">'
+        +'<div class="ap-top"><span class="ic">'+x.c.ic+'</span><div class="tx">'
+        +'<b><span class="ap-area">'+x.c.a+'</span>'+x.c.t+'</b>'
+        +'<small>'+x.c.h+'</small></div></div>'
+        +'<div class="ap-now">지금 답변 — <em>'+x.curT+'</em>'
+        +(x.unk?'' : ' · 올리면 → <em>'+x.goalT+'</em>')+'</div>'
+        +'<div class="ap-btns">'
+        +'<button class="'+(s==='doing'?'on':'')+'" onclick="l2pPlanMark(\''+x.c.k+'\',\'doing\')">진행 중</button>'
+        +'<button class="'+(s==='done'?'on':'')+'" onclick="l2pPlanMark(\''+x.c.k+'\',\'done\')">완료</button>'
+        +(x.unk
+           ? '<button class="calc" onclick="goDiagnosis()">먼저 확인하기</button>'
+           : '<button class="calc" onclick="l2pPlanCalc(\''+x.c.k+'\',this)">예상 효과 계산</button>')
+        +'</div>'
+        +'<div class="ap-out" id="apOut_'+x.c.k+'">'
+        +(x.unk?'<div class="ap-note">지금 답이 \'잘 모르겠음\' 이라 변동을 계산하지 않습니다 — 없는 숫자를 만들지 않기 위해서입니다. 확인하신 뒤 다시 진단하시면 반영됩니다.</div>':'')
+        +'</div></div>';
+      if(x.unk){ /* 안내는 항상 보이게 */ }
+    });
+
+    h+='<div class="ap-paid"><div class="pd-h">✦ 유료회원에게 열리는 기능</div><ul>'
+      +'<li>실행 항목 진행 여부를 <b>AI가 주기적으로 확인</b>하고 알려드립니다 <span class="pill">준비 중</span></li>'
+      +'<li>실행에 따른 <b>점수 · 금액 변동을 달마다 기록</b>해 추이로 보여드립니다 <span class="pill">준비 중</span></li>'
+      +'<li>마이데이터 연동으로 <b>실제 계좌 잔액과 대조</b>해 자동 확인합니다 <span class="pill">준비 중</span></li>'
+      +'</ul></div></div>';
+
+    /* 그 이후 좋아진 결과 */
+    h+='<div class="ap-gain">'
+      +'<div class="g-h">📈 실천한 뒤 좋아진 결과</div>'
+      +'<div class="g-s">완료로 표시하신 항목을 모두 반영해, 처음 진단과 무엇이 달라졌는지 계산해 드립니다.</div>'
+      +'<button class="g-btn" onclick="l2pGainCalc(this)">지금까지 실천한 효과 계산하기</button>'
+      +'<div id="apGainOut" style="margin-top:12px;"></div></div>';
+
+    el.innerHTML=h;
+    /* '잘 모르겠음' 안내는 펼쳐둔다 */
+    list.forEach(function(x){
+      if(!x.unk) return;
+      var o=document.getElementById('apOut_'+x.c.k); if(o) o.classList.add('on');
+    });
+  }
+
+  window.l2pMyBuild=function(){
+    try{
+      buildHero(); buildJoin(); buildPlan();
+      /* [FIX-BG-2] 진단 전에는 '진단 시작하기' 빈 카드가 두 장 겹쳤다 — 실행계획 쪽 한 장만 남긴다 */
+      var R=G('_R',null)||window._R, d=document.getElementById('myDash');
+      if(!R && d) d.innerHTML='';
+    }catch(e){}
+  };
+
+  var _goMy3 = window.goMyPage;
+  window.goMyPage = function(){
+    var r=(typeof _goMy3==='function')?_goMy3.apply(this,arguments):undefined;
+    setTimeout(window.l2pMyBuild,0);
+    return r;
+  };
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(window.l2pMyBuild,60); });
+})();
+</script>
+
 </body>
 </html>
