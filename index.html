@@ -1767,6 +1767,8 @@ function reportHTML(R, sample){
       <div class="mcard"><div class="ic">📉</div><div class="lb">은퇴 이후 월 부족액</div><div class="vl ${R.shortfall>0?'warn':''}">${R.shortfall>0?'-'+R.shortfall:'+'+(-R.shortfall)}<span class="u">만원</span></div><div class="ds">생활비 ${R.costAdj} + 건강예비 ${R.hb} − 소득 ${R.fixedIncome}</div></div>
     </div>
 
+    ${window.l2pBasicPensionHTML?window.l2pBasicPensionHTML(R):''}
+
     <div class="fulfill-card">
       <div class="ff-top"><span class="ff-lb">💧 목표 연금 충족률<span class="ff-sub">부부 합산 예상 연금 ÷ 65세 목표 연금 ${c.goal}만</span></span><span class="ff-val ${R.fulfillGoal<70?'warn':''}">${R.fulfillGoal}<span class="u">%</span></span></div>
       <div class="ff-bar"><i style="width:${Math.min(R.fulfillGoal,100)}%"></i></div>
@@ -2681,7 +2683,14 @@ function renderSingleQuestion(preferId){
   uiQId=flow[idx].id; var q=flow[idx]; curPart=SEQ.indexOf(q.part)+1;
   document.getElementById('partIntro').style.display='none'; document.getElementById('partBody').style.display='block';
   document.getElementById('qContainer').innerHTML=uiQuestionHTML(q);
-  var total=43, num=(q.id==='Q40'?43:(parseInt(String(QNUM[q.id]||'Q1').replace(/\D/g,''),10)||1)), pct=Math.max(2,Math.min(100,Math.round(num/total*100)));
+  /* [FIX-BJ] 번호 없는 문항(Q40 · Q47)에서 진행률이 1/43 로 되돌아가던 것을 고친다 — 앞의 번호를 물려받는다 */
+  var total=43, num=(function(){
+    if(q.id==='Q40') return 43;
+    var n=parseInt(String(QNUM[q.id]||'').replace(/\D/g,''),10); if(n) return n;
+    for(var k=Q.map(function(x){return x.id;}).indexOf(q.id)-1; k>=0; k--){
+      var m=parseInt(String(QNUM[Q[k].id]||'').replace(/\D/g,''),10); if(m) return m; }
+    return 1;
+  })(), pct=Math.max(2,Math.min(100,Math.round(num/total*100)));
   document.getElementById('pNow').textContent='PART '+curPart;
   document.getElementById('pName2').textContent=' · '+num+' / '+total;
   document.getElementById('pPct').textContent=pct+'%'; document.getElementById('pFill').style.width=pct+'%';
@@ -5298,7 +5307,7 @@ window.__L2P_EN_RULES=[
 
     /* 지역가입자 */
     var yIncome = pension*12*0.5 + other*12;                 // 연금소득은 50%만 산입
-    var incPart = yIncome * 0.082 / 12;
+    var incPart = yIncome * 0.081348 / 12;   /* [FIX-BJ] 건보 7.19% + 장기요양 0.9448% (2026) */
     var taxBase = priceEok*10000*0.4 + deposit*0.3;          // 재산 과세표준(만)
     var propPart= Math.max(0, (taxBase-10000)/10000) * 3.3;
     var local   = Math.max(2.0, incPart + propPart);
@@ -7444,30 +7453,46 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   /* [FIX-AV] 직업군별 관련 자격 '예시' — 효과를 단정하지 않는다.
      보기 순서(인덱스)로 맞춘다: 서버 카탈로그는 보기 텍스트만 내려주고 job 파라미터를 떼어낸다. */
   var JOB_CODES=['office','sales','tech','pro','it','self','public','etc'];
+  /* [FIX-BH] 자격마다 '일의 성격' 태그.
+       hands 사람 손 · 현장 판단이 필요  ·  teach 가르치고 전수하는 일로 이어짐
+       watch 자동화가 진행 중 — 출처 있는 것에만 붙인다
+     근거를 못 찾은 자격에는 태그를 붙이지 않는다(빈칸이 정직하다). */
+  var CERT_TAG={
+    hands:{ m:'🔵', t:'사람 손이 필요한 일' },
+    teach:{ m:'🟢', t:'가르치는 일로 이어짐' },
+    watch:{ m:'🟡', t:'자동화가 진행 중' }
+  };
+  /* skill:true = 손에 익은 숙련이 남는 분야 → D 경로에서 '암묵지 데이터화'까지 안내 */
   var JOB_REC={
-    office:{ label:'사무 · 관리 · 경영',
-      certs:['직업상담사 2급','사회복지사 2급','전산회계 1급','컴퓨터활용능력 1급'],
+    office:{ label:'사무 · 관리 · 경영', skill:false,
+      certs:[{n:'직업상담사 2급',tg:'teach'},{n:'사회복지사 2급',tg:'hands'},
+             {n:'전산회계 1급',tg:'watch',why:'정형 회계 업무는 AI 대체가 진행 중입니다 — 2026년 회계 직무 수요 20% 감소'},
+             {n:'컴퓨터활용능력 1급'}],
       tip:'문서 · 관리 역량은 상담 · 행정 · 회계 직무로 이어가기 좋습니다' },
-    sales:{ label:'영업 · 서비스 · 판매',
-      certs:['공인중개사','유통관리사 2급','요양보호사','산업안전기사'],
+    sales:{ label:'영업 · 서비스 · 판매', skill:false,
+      certs:[{n:'공인중개사',tg:'hands'},{n:'유통관리사 2급'},
+             {n:'요양보호사',tg:'hands'},{n:'산업안전기사',tg:'hands'}],
       tip:'대인 · 상담 경험은 중개 · 돌봄 · 안전관리 직무와 맞닿아 있습니다' },
-    tech:{ label:'생산 · 기술 · 건설 · 운전',
-      certs:['전기기능사','지게차운전기능사','건설안전기사','산업안전기사'],
+    tech:{ label:'생산 · 기술 · 건설 · 운전', skill:true,
+      certs:[{n:'전기기능사',tg:'hands'},
+             {n:'지게차운전기능사',tg:'watch',why:'물류 자동화가 가장 먼저 닿는 영역입니다 — 제조업 고용은 24개월 연속 감소했습니다. 단독으로 가지 말고 안전 · 점검과 묶으세요'},
+             {n:'건설안전기사',tg:'hands'},{n:'산업안전기사',tg:'hands'}],
       tip:'현장 경력은 안전관리 · 설비 직무에서 그대로 인정받는 경우가 많습니다' },
-    pro:{ label:'전문직 (의료 · 법률 · 회계 · 교육)',
-      certs:['보유 자격 유지 · 갱신','평생교육사','기술지도사'],
+    pro:{ label:'전문직 (의료 · 법률 · 회계 · 교육)', skill:true,
+      certs:[{n:'보유 자격 유지 · 갱신'},{n:'평생교육사',tg:'teach'},{n:'기술지도사',tg:'teach'}],
       tip:'새 자격보다 기존 자격을 강의 · 자문 형태로 전환하는 편이 빠릅니다' },
-    it:{ label:'IT · 디자인 · 미디어',
-      certs:['정보처리기사','SQLD','웹디자인기능사','컴퓨터그래픽스운용기능사'],
+    it:{ label:'IT · 디자인 · 미디어', skill:false,
+      certs:[{n:'정보처리기사'},{n:'SQLD'},{n:'웹디자인기능사'},{n:'컴퓨터그래픽스운용기능사'}],
       tip:'프로젝트 단위 수주가 가능해 파트타임 · 긱워커 형태로 잇기 좋습니다' },
-    self:{ label:'자영업 · 소상공인',
-      certs:['위생교육 이수','유통관리사 2급','공인중개사'],
+    self:{ label:'자영업 · 소상공인', skill:true,
+      certs:[{n:'위생교육 이수'},{n:'유통관리사 2급'},{n:'공인중개사',tg:'hands'}],
       tip:'폐업 · 전환을 고려한다면 소상공인 재기 지원 프로그램을 함께 살펴보세요' },
-    public:{ label:'공무원 · 공공기관',
-      certs:['직업상담사 2급','사회복지사 2급','평생교육사'],
+    public:{ label:'공무원 · 공공기관', skill:false,
+      certs:[{n:'직업상담사 2급',tg:'teach'},{n:'사회복지사 2급',tg:'hands'},{n:'평생교육사',tg:'teach'}],
       tip:'연금이 안정적인 편이라, 소득보다 활동 · 사회공헌형 일자리 설계가 유리합니다' },
-    etc:{ label:'기타 · 해당 없음',
-      certs:['요양보호사','직업상담사 2급','지게차운전기능사'],
+    etc:{ label:'기타 · 해당 없음', skill:false,
+      certs:[{n:'요양보호사',tg:'hands'},{n:'직업상담사 2급',tg:'teach'},
+             {n:'지게차운전기능사',tg:'watch',why:'물류 자동화가 가장 먼저 닿는 영역입니다 — 안전 · 점검 자격과 묶어 보세요'}],
       tip:'진입 장벽이 낮고 중장년 채용 수요가 꾸준한 자격부터 살펴보세요' }
   };
   function jobOf(){
@@ -7624,7 +7649,14 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     var car='';
     if(J){
       car+='<div class="apx-lead">현재(또는 마지막) 직업 분야는 <b>'+J.label+'</b>입니다. '+J.tip+'. '
-          +'길은 두 갈래입니다 — <b>하던 일을 더 깊게(A)</b> 가거나, <b>새 자격으로 갈아타는(B)</b> 길입니다.</div>';
+          +'길은 세 갈래입니다 — <b>하던 일을 더 깊게(A)</b>, <b>새 자격으로 갈아타기(B)</b>, '
+          +'그리고 <b>내 숙련을 가르치기(D)</b>.</div>';
+      /* [FIX-BH] 생산 · 기술 분야에만 — 줄어드는 쪽과 늘어나는 쪽을 함께 말한다 */
+      if(P.job==='tech'){
+        car+='<div class="apx-lead warn">제조업 고용은 2024년 7월부터 <b>24개월 연속 줄고 있습니다</b>'
+            +'(2026년 5월 전년 대비 14만명 감소). 다만 같은 현장에서도 <b>로봇을 들이고 · 가르치고 · 지키는 쪽</b>은 '
+            +'이야기가 다릅니다. 아래 B의 🔵 표시 자격과 <b>D 경로</b>를 함께 보세요.</div>';
+      }
     } else {
       car+='<div class="apx-lead">직업 분야를 고르시면 그 직무에 맞는 자격 · 교육을 추려 드립니다. '
           +'아래는 직업과 무관하게 누구나 쓸 수 있는 공적 경로입니다.</div>';
@@ -7657,10 +7689,20 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     /* B · 신규 자격 취득 후 재취업 · 창업 */
     var carB='';
     if(J){
+      /* [FIX-BH] 자격 옆에 '일의 성격' 표시 — 예측이 아니라 서술이다 */
+      var cl=J.certs.map(function(c){
+        var g=c.tg?CERT_TAG[c.tg]:null;
+        return '<div class="apx-cert">'+(g?'<span class="ct-m">'+g.m+'</span>':'<span class="ct-m ct-none"></span>')
+          +'<span class="ct-b"><b>'+c.n+'</b>'
+          +(g?'<i class="ct-'+c.tg+'">'+g.t+'</i>':'')
+          +(c.why?'<small>'+c.why+'</small>':'')+'</span></div>';
+      }).join('');
       carB+=item('관련 자격 <span class="apx-tag">예시</span>',
-        J.certs.map(function(c){ return '<b>'+c+'</b>'; }).join(' · ')
-        +'<br><span style="color:#8A8F8B;">어떤 자격이 유리한지는 지역 · 채용 수요에 따라 다릅니다. '
-        +'시험 일정과 응시 자격은 <b>Q-net</b>(한국산업인력공단)에서 확인하세요.</span>');
+        cl
+        +'<div class="apx-certnote">표시는 <b>그 일의 성격</b>입니다 — 유망하다 · 사라진다는 예측이 아닙니다. '
+        +'🟡 은 자동화가 진행 중이라는 <b>공개 자료가 있는</b> 경우에만 붙였습니다. '
+        +'어떤 자격이 유리한지는 지역 · 채용 수요에 따라 다릅니다. '
+        +'시험 일정과 응시 자격은 <b>Q-net</b>(한국산업인력공단)에서 확인하세요.</div>');
     }
     carB+=item('국비 지원으로 배우는 길',
       '<b>국민내일배움카드</b>로 훈련비를 지원받을 수 있습니다 — <b>고용24</b>(work24.go.kr)에서 발급 · 신청. '
@@ -7676,6 +7718,57 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
     carB+=cmpTable('career');
     car+=sub('B','신규 자격 취득 후 재취업 · 창업',carB,'새 자격으로 갈아탄다');
+
+    /* ══ [FIX-BH] D · 내 숙련을 가르치는 길 ════════════════════════════
+       피지컬 AI를 '위협'으로만 보면 절반만 본 것이다. 로봇이 배우려면
+       누군가 가르쳐야 하고, 그 교사가 숙련공이다. 이미 예산이 붙어 있다.
+       ※ ①② 는 '이런 흐름이 있다'까지만 — 개인 참여 창구(공모 · 자격 · 보수)를
+          확인하지 못했으므로 '지원하세요'라고 쓰지 않는다. */
+    var carD='';
+    if(J&&J.skill){
+      carD+='<div class="apx-lead"><b>로봇이 배우려면 누군가 가르쳐야 합니다.</b> '
+          +'정부는 2026년부터 주조 · 용접 같은 숙련 기술의 <b>「암묵지」를 데이터로 만드는 사업</b>에 '
+          +'1,158억원을 투입합니다. 30년 쌓은 손끝은 <b>대체 대상이면서 동시에 학습 대상</b>입니다 — '
+          +'어느 쪽에 설지는 지금 정하실 수 있습니다.</div>';
+    } else {
+      carD+='<div class="apx-lead"><b>오래 해온 일에는 가르칠 것이 남습니다.</b> '
+          +'재취업 시장에서 가장 값이 매겨지는 것은 자격증이 아니라 '
+          +'<b>해봤고 · 설명할 수 있는 것</b>입니다.</div>';
+    }
+    if(J&&J.skill){
+      carD+=item('① 내 기술을 기록으로 남기기 <span class="apx-tag">흐름</span>',
+        '산업통상부가 <b>M.AX 얼라이언스</b>를 통해 주조 · 용접 등 숙련 노동자의 경험을 '
+        +'데이터로 만드는 사업을 2026년부터 시작합니다(1,158억원). 데이터는 반출하지 않고 '
+        +'학습한 AI 모델만 가져가는 방식입니다. '
+        +'<br><span style="color:#8A8F8B;">개인이 어떻게 참여하는지(공모 · 자격 · 보수)는 아직 공개되지 않았습니다. '
+        +'지금 하실 수 있는 일은 <b>내 작업을 설명할 수 있게 정리해두는 것</b>입니다 — '
+        +'순서 · 판단 기준 · 실패 사례.</span>')
+        +'<span class="apx-note gov">국가사업 안내 · 상품 가입이 아닙니다</span>';
+      carD+=item('② 로봇을 가르치는 일 <span class="apx-tag">흐름</span>',
+        '과기정통부의 피지컬 AI 사업(2026~2030, 1조 4,131억원) 이름이 '
+        +'<b>「인간–AI 협업형」</b>입니다. 로봇 교시(teaching) · 동작 보정 · 이상 판정은 '
+        +'그 공정을 <b>해본 사람</b>만 할 수 있습니다.'
+        +(P.yrs>0?' 은퇴까지 남은 <b>'+P.yrs+'년</b>이 이 흐름과 겹칩니다.':''))
+        +'<span class="apx-note gov">국가사업 안내 · 상품 가입이 아닙니다</span>';
+    } else {
+      carD+=item('내 일에도 「전수」가 있습니다',
+        '제조 현장만의 이야기가 아닙니다. 오래 해온 일에는 <b>말로 설명되지 않는 판단</b>이 있고, '
+        +'그걸 옮기는 일 자체가 직업이 됩니다 — 아래 두 갈래가 그 길입니다.');
+    }
+    carD+=item('③ 사람을 가르치는 일',
+      '<b>한국폴리텍대학 신중년 특화과정</b> · 기업 사내 기능 전수 · 직업훈련기관 강사. '
+      +'가르치려면 자격보다 <b>해본 경험</b>이 먼저 필요하고, 그건 이미 갖고 계십니다.'
+      +(J?' '+J.label+' 경력은 특히 그렇습니다.':''))
+      +'<span class="apx-note gov">공적 제도 · 상품 가입이 아닙니다</span>';
+    carD+=item('④ 로봇이 들어오는 현장을 지키는 일',
+      '설비가 바뀌면 <b>안전 · 공정 · 검수</b>를 다시 짜야 합니다. '
+      +'이건 그 현장을 아는 사람이 아니면 못 합니다. 위 B의 🔵 표시 자격과 이어집니다.');
+    carD+='<div class="apx-certnote">이 갈래는 <b>상품 제안이 아닙니다.</b> '
+        +'공적 교육 경로와 현장에서 실제로 늘고 있는 역할을 그대로 옮긴 것입니다.'
+        +((J&&J.skill)?' 출처 — 산업통상부 M.AX(2026, 1,158억원) · 과기정통부 피지컬AI(2026~2030, 1조 4,131억원).':'')
+        +'</div>';
+    car+=sub('D','내 숙련을 가르치는 길',carD,'대체되는 대신 가르친다');
+
     out+=blk('3','💼 일자리 · 재취업 · 창업 준비',(J?J.label:'직업 미입력'),car,!!J);
 
     /* ══ ④ 웰다잉 · 상조 준비 — 네 갈래로 나눠 '고르는 기준'을 준다 ════════
@@ -9264,6 +9357,13 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
         '얼마나 이어질지 알 수 없어 <b>일부러 반영하지 않았습니다</b>. 벌면 소진은 늦춰집니다.']);
       else aha.push(['시나리오 셋 다 현재 조건 이하',
         '낙관 시나리오는 넣지 않았습니다. 실제 위험은 재취업 지연과 의료비이기 때문입니다.']);
+      /* [FIX-BJ-PRINT] 기초연금을 답한 사람에게만 한 줄. 카드는 4개로 잘리므로 세로가 늘지 않는다. */
+      if(R.basicPension && R.basicPension.scenario){
+        var _bp=R.basicPension, _bd=_bp.scenario.depletion;
+        aha.splice(1,0,['기초연금을 넣으면 '+(_bd>=90?'90세 이후':(_bd+'세'))+'까지',
+          '월 <b>'+_bp.monthly+'만원</b>을 더하면 소진이 '+(dep>=90?'90세+':(dep+'세'))+' → <b>'
+          +(_bd>=90?'90세+':(_bd+'세'))+'</b>로 늦춰집니다. 위 그래프에는 <b>넣지 않았습니다</b> — 수급 여부는 심사로 정해집니다.']);
+      }
       aha=aha.slice(0,4);
 
       p.appendChild(el('div','rp-grow rp-aha', aha.map(function(x,i){
@@ -9329,16 +9429,21 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 
       /* 시나리오 — 화면에서 계산해뒀으면 그 결과를 */
       var so=document.querySelector('#scenOut .dsc-rows'), sc='';
-      if(so){
+      /* [FIX-BI-2] 시나리오 행은 계산 전에도 '이름만' 먼저 그려져 있다.
+         나이(.dsc-age)가 채워진 행이 하나도 없으면 아직 계산하지 않은 것으로 본다.
+         이걸 구분하지 않으면 계산도 안 했는데 장을 넘겨 빈 페이지가 생긴다. */
+      var _done = so && [].some.call(so.querySelectorAll('.dsc-row'), function(r){
+        return ((r.querySelector('.dsc-age')||{}).textContent||'').trim().length > 0; });
+      if(so && _done){
         sc=[].map.call(so.querySelectorAll('.dsc-row'), function(r){
           var nm=(r.querySelector('.dsc-nm b')||{}).textContent||'';
           var dt=(r.querySelector('.dsc-nm .dt')||{}).textContent||'';
           var age=(r.querySelector('.dsc-age')||{}).textContent||'';
           var up=(r.querySelector('.dsc-kv .up')||r.querySelector('.dsc-kv .dn')||r.querySelector('.dsc-base')||{}).textContent||'';
-          var w2=Math.max(6, Math.round(parseFloat(age)/90*100))||6;
+          /* [FIX-BI-3] 종이에서는 막대를 빼고 한 줄로 — 3페이지가 A4 를 넘기지 않게 */
           return '<div class="s'+(r.classList.contains('best')?' best':'')+(r.classList.contains('now')?' now':'')+'">'
-            +'<span class="nm"><b>'+nm+'</b> '+dt+'</span>'
-            +'<span class="bar"><i style="width:'+w2+'%"></i><em>'+age+'</em></span>'
+            +'<span class="nm"><b>'+nm+'</b><i>'+dt+'</i></span>'
+            +'<span class="ag">'+age+'</span>'
             +'<span class="gn">'+up+'</span></div>';
         }).join('');
       }
@@ -10313,6 +10418,107 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   };
   document.addEventListener('DOMContentLoaded', function(){ setTimeout(window.l2pMyBuild,60); });
 })();
+</script>
+
+
+<style id="fixbh-job-css">
+/* [FIX-BH] 일자리 블록 — 자격 성격 태그 · D 경로 */
+.apx-cert{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px dashed #E7EBE8;}
+.apx-cert:last-child{border-bottom:0;}
+.apx-cert .ct-m{flex:0 0 18px;font-size:13px;line-height:1.5;text-align:center;}
+.apx-cert .ct-m.ct-none{opacity:.18;}
+.apx-cert .ct-m.ct-none:before{content:'·';}
+.apx-cert .ct-b{flex:1;min-width:0;}
+.apx-cert .ct-b b{font-size:13.5px;font-weight:800;color:#12301F;}
+.apx-cert .ct-b i{display:inline-block;font-style:normal;margin-left:6px;font-size:10.5px;font-weight:700;
+  border-radius:5px;padding:1px 6px;vertical-align:1px;white-space:nowrap;}
+.apx-cert .ct-b i.ct-hands{background:#E8F1FA;color:#2B5C8A;}
+.apx-cert .ct-b i.ct-teach{background:#E6F5EC;color:#1B7A4B;}
+.apx-cert .ct-b i.ct-watch{background:#FBF1D6;color:#8A6A14;}
+.apx-cert .ct-b small{display:block;margin-top:4px;font-size:11.5px;color:#6B756F;line-height:1.6;word-break:keep-all;}
+.apx-certnote{margin-top:9px;font-size:11.5px;color:#8A938E;line-height:1.65;word-break:keep-all;}
+.apx-lead.warn{background:#FDF6E3;border:1px solid #E8D9A8;border-radius:11px;padding:10px 12px;color:#6E5412;}
+@media print{
+  .apx-cert{break-inside:avoid;}
+  .apx-cert .ct-b i{border:1px solid #CFD6D1!important;}
+}
+</style>
+
+
+<style id="fixbi3-scen-css">
+/* [FIX-BI-3] 인쇄본 시나리오 — 한 줄 표. 막대 없이 이름 · 바꾼 내용 · 고갈 나이 · 증감 */
+@media print{
+  #printDoc .rp-scen .g{display:block!important;}
+  #printDoc .rp-scen .s{display:flex!important;align-items:baseline!important;gap:2.5mm!important;
+    padding:1.5mm 2.5mm!important;border:0!important;border-bottom:1px solid #EDF1EE!important;
+    border-radius:0!important;background:none!important;}
+  #printDoc .rp-scen .s:last-child{border-bottom:0!important;}
+  #printDoc .rp-scen .s.best{background:#F4FAF6!important;border-radius:1.6mm!important;}
+  #printDoc .rp-scen .s .nm{flex:1 1 auto!important;min-width:0!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;}
+  #printDoc .rp-scen .s .nm b{display:inline!important;font-size:9px!important;font-weight:800!important;color:#12301F!important;}
+  #printDoc .rp-scen h3{margin-bottom:1.5mm!important;}
+  #printDoc .rp-scen .s .nm i{font-style:normal!important;font-size:8.2px!important;color:#8A938E!important;
+    margin-left:2mm!important;}
+  #printDoc .rp-scen .s .ag{flex:0 0 auto!important;font-size:9px!important;font-weight:800!important;
+    color:#12301F!important;white-space:nowrap!important;}
+  #printDoc .rp-scen .s .gn{flex:0 0 18mm!important;text-align:right!important;font-size:9px!important;
+    font-weight:800!important;color:#1B7A4B!important;white-space:nowrap!important;}
+  #printDoc .rp-scen .bar{display:none!important;}
+
+  /* [FIX-BI-4] 3페이지가 A4 에 들어가도록 세로를 조금씩 줄인다.
+     시나리오를 계산하지 않은 경우에도 아래 여백이 30mm 를 넘지 않는 선에서만 줄였다. */
+  #printDoc .rp-page{gap:2.0mm!important;}
+  #printDoc .rp-iss .i{padding:2.6mm!important;}
+  /* 남는 세로 공간은 실행 로드맵이 흡수한다 — 아래에 빈 띠가 생기지 않게
+     (인쇄본을 처음 짤 때의 원칙 그대로. 시나리오 계산 여부에 따라 높이가 달라지므로 필요하다) */
+  #printDoc .rp-road{flex:1 1 auto!important;}
+  #printDoc .rp-road .c{padding:2.4mm!important;}
+  #printDoc .rp-road li{padding-top:0.7mm!important;padding-bottom:0.7mm!important;}
+  #printDoc .rp-prod .r{padding-top:1.4mm!important;padding-bottom:1.4mm!important;}
+}
+</style>
+
+
+<style id="fixbj-bp-css">
+.bp-card{border:1px solid #E3EAE5;border-radius:14px;padding:14px 16px;background:#F7FBF8;margin:10px 0;}
+.bp-card .bp-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.bp-card .bp-lb{font-size:14px;font-weight:800;color:#12301F;}
+.bp-card .bp-sub{display:block;font-size:11px;font-weight:600;color:#6B756F;margin-top:2px;}
+.bp-card .bp-val{font-size:20px;font-weight:900;color:#1B7A4B;white-space:nowrap;}
+.bp-card .bp-val .u{font-size:12px;margin-left:2px;}
+.bp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0 8px;}
+.bp-grid .r{background:#fff;border:1px solid #E7EDE9;border-radius:9px;padding:7px 9px;}
+.bp-grid .r .t{font-size:10.5px;color:#6B756F;font-weight:700;}
+.bp-grid .r .v{font-size:13px;font-weight:800;color:#12301F;margin-top:2px;white-space:nowrap;}
+.bp-grid .r .v i{font-style:normal;color:#9AA39E;font-weight:700;margin:0 4px;}
+.bp-grid .r .v b{color:#1B7A4B;}
+.bp-note{font-size:11px;line-height:1.6;color:#6B756F;}
+@media(min-width:720px){ .bp-grid{grid-template-columns:repeat(4,1fr);} }
+@media print{ .bp-card{background:#F7FBF8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;} }
+</style>
+<script id="fixbj-bp-js">
+/* [FIX-BJ] 「기초연금 포함 시」 — 숫자는 엔진이 낸 값을 그대로 옮긴다. 화면에서 다시 계산하지 않는다. */
+window.l2pBasicPensionHTML = function(R){
+  var b = R && R.basicPension; if(!b) return '';
+  if(b.answer === 0) return '';                       /* '대상 아님' — 아무 숫자도 만들지 않는다 */
+  var age = function(v){ return (v>=90? '90+' : v); };
+  var sc = b.scenario;
+  var h = '<div class="bp-card"><div class="bp-hd"><span class="bp-lb">🏛️ 기초연금 포함 시'
+        + '<span class="bp-sub">' + b.basisYear + '년 기준 · 단독 ' + b.single + '만원 · 부부 동시 수급 ' + b.couple + '만원(각자 20% 감액)</span>'
+        + '</span>' + (sc ? '<span class="bp-val">+' + b.monthly + '<span class="u">만원/월</span></span>' : '') + '</div>';
+  if(sc){
+    h += '<div class="bp-grid">'
+      +  '<div class="r"><div class="t">예상 월소득</div><div class="v">' + R.fixedIncome + '<i>→</i><b>' + sc.fixedIncome + '</b>만원</div></div>'
+      +  '<div class="r"><div class="t">월 부족액</div><div class="v">' + R.shortfall + '<i>→</i><b>' + sc.shortfall + '</b>만원</div></div>'
+      +  '<div class="r"><div class="t">자산 고갈 나이</div><div class="v">' + age(R.depletion) + '<i>→</i><b>' + age(sc.depletion) + '</b>세</div></div>'
+      +  '<div class="r"><div class="t">목표 연금 충족률</div><div class="v">' + R.fulfillGoal + '<i>→</i><b>' + sc.fulfillGoal + '</b>%</div></div>'
+      +  '</div>';
+  }
+  h += '<div class="bp-note">' + (b.note || '')
+     + ' 위 다른 숫자에는 기초연금을 <b>합치지 않았습니다</b> — 실제 수급 여부는 소득·재산을 합친 소득인정액 심사로 정해지기 때문입니다.</div></div>';
+  return h;
+};
 </script>
 
 </body>
