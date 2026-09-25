@@ -11678,131 +11678,497 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
     return true;
   }
 
-  /* ───── ③ 마이 탭 ───── */
-  function who(){
-    var m = mem(), s = ses(), R = getR();
-    if(m && m['이름']) return { name:String(m['이름']), how:'회원', code:(R&&R.code)||m['참여자코드']||'', at:m['가입시각']||'' };
-    if(s && s.name)    return { name:String(s.name),    how:'결과 불러오기', code:s.code||((R&&R.code)||''), at:s.ts||'' };
-    if(R && R.c && R.c.name) return { name:String(R.c.name), how:'이번 진단', code:R.code||'', at:'' };
-    return null;
-  }
-  window.l2pLogout = function(){
-    if(!confirm('이 기기에서 로그인 상태를 지울까요? 진단 결과는 서버에 그대로 남아 있고, 진단 코드로 다시 불러올 수 있습니다.')) return;
-    try{ localStorage.removeItem('l2p_session'); localStorage.removeItem('l2p_member'); }catch(e){}
-    try{ if(typeof buildHero==='function') buildHero(); }catch(e){}
-    renderMy();
-    alert('로그아웃했습니다.');
-  };
-  window.l2pMyGo = function(which){
-    if(which==='report'){ if(typeof l2pMyReport==='function') l2pMyReport(); return; }
-    if(which==='consult'){ if(typeof goConsult==='function') goConsult(); return; }
-    if(which==='restart'){ if(typeof restart==='function') restart(); return; }
-    if(which==='lookup'){ if(typeof l2pLookupOpen==='function') l2pLookupOpen('login'); return; }
-    if(which==='privacy'){ window.open('privacy.html','_blank'); return; }
-    if(which==='consent'){
-      var c={}; try{ c=JSON.parse(sessionStorage.getItem('l2p_consent')||'{}'); }catch(e){}
-      alert('내 동의 내역\n\n· 수집·이용 동의: ' + (c.use==='Y'?'동의':(c.use==='N'?'동의하지 않음':'선택 안 함'))
-        + '\n· 제3자 제공(상담 전문가): ' + (c.third==='Y'?'동의':'동의하지 않음')
-        + '\n\n동의 철회나 삭제 요청은 info@lpp20.com 으로 보내 주세요.'
-        + '\n(화면에서 직접 삭제하는 기능은 마이데이터 연동 단계에서 제공합니다)');
-      return;
-    }
-  };
-  function planCount(){
-    try{ var p=JSON.parse(localStorage.getItem('l2p_plan')||'{}'); var done=0,total=0;
-      Object.keys(p).forEach(function(k){ total++; if(p[k]==='done') done++; });
-      return total? (done+' / '+total) : null;
-    }catch(e){ return null; }
-  }
-  function renderMy(){
-    var host = $('myDash'); if(!host) return false;
-    var box = $('myTop');
-    if(!box){ box = document.createElement('div'); box.id='myTop'; host.parentNode.insertBefore(box, host); }
-    var w = who(), R = getR(), inv=''; try{ inv = sessionStorage.getItem('l2p_inv')||''; }catch(e){}
-    var h = '';
-
-    if(w){
-      h += '<div class="my-state"><span class="dot"></span><span class="tx">' + w.name + '님으로 로그인되어 있습니다'
-        + '<i>' + w.how + (w.code ? ' · 진단코드 ' + w.code : '') + (paid()?' · 정밀 리포트 열림':' · 무료회원') + '</i></span>'
-        + '<button onclick="l2pLogout()">로그아웃</button></div>';
-    }else{
-      h += '<div class="my-sec"><h4>아직 로그인되어 있지 않습니다</h4>'
-        + '<div class="d">진단 코드 또는 이름·연락처로 내 결과를 불러오면 이 화면에서 계속 관리하실 수 있습니다.</div>'
-        + '<div class="my-row"><button onclick="l2pMyGo(\'lookup\')">내 결과 불러오기</button>'
-        + '<button class="g" onclick="l2pMyGo(\'restart\')">새 진단 시작</button></div></div>';
-    }
-
-    if(R){
-      h += '<div class="my-sec"><h4>내 진단</h4><div class="d">가장 최근 진단 결과입니다. 아래에 자세한 대시보드가 이어집니다.</div>'
-        + '<div class="my-grid">'
-        + '<div class="m"><div class="k">종합 점수</div><div class="v">' + r0(n(R.total)) + '점</div></div>'
-        + '<div class="m"><div class="k">월 부족액</div><div class="v">' + r0(n(R.shortfall)) + '만원</div></div>'
-        + '<div class="m"><div class="k">자산 소진</div><div class="v">' + (n(R.depletion)>=90?'90+':r0(n(R.depletion))) + '세</div></div>'
-        + '</div>'
-        + '<div class="my-row"><button onclick="l2pMyGo(\'report\')">정밀 리포트 열기</button>'
-        + '<button class="g" onclick="l2pMyGo(\'restart\')">다시 진단</button></div></div>';
-    }
-
-    var pc = planCount();
-    h += '<div class="my-sec"><h4>내 실행 계획</h4>'
-      + '<div class="d">' + (pc ? '완료 ' + pc + ' 항목' : '리포트에서 실행 항목을 체크하면 여기에서 진행률을 봅니다.') + '</div>'
-      + '<div class="my-row"><button class="g" onclick="l2pMyGo(\'report\')">실행 계획 보기</button></div></div>';
-
-    h += '<div class="my-sec"><h4>상담 · 설계사 연결</h4>'
-      + '<div class="d">' + (inv
-          ? '담당 설계사(코드 ' + inv + ')의 초대 링크로 진단하셨습니다. 결과 공유에 동의하신 경우에만 요약이 전달됩니다.'
-          : '상담을 원하시면 신청해 주세요. 결과 요약은 동의하신 경우에만 전달됩니다.') + '</div>'
-      + '<div class="my-row"><button onclick="l2pMyGo(\'consult\')">상담 신청</button></div></div>';
-
-    h += '<div class="my-sec"><h4>개인정보</h4>'
-      + '<div class="my-link" onclick="l2pMyGo(\'consent\')">내 동의 내역 보기<span>›</span></div>'
-      + '<div class="my-link" onclick="l2pMyGo(\'privacy\')">개인정보 처리방침<span>›</span></div>'
-      + '<div class="my-link" onclick="alert(\'삭제 요청은 info@lpp20.com 으로 보내 주시면 확인 후 처리해 드립니다.\\n화면에서 직접 삭제하는 기능은 마이데이터 연동 단계에서 제공합니다.\')">내 정보 삭제 요청<span>›</span></div>'
-      + '</div>';
-
-    box.innerHTML = h;
-    return true;
-  }
-  window.l2pRenderMy = renderMy;
-
-  /* 결과 불러오기 성공 → 로그인 상태로 기록 */
-  function hookRestore(){
-    if(typeof window.l2pRestoreReport !== 'function' || window.__l2pRestoreHooked) return;
-    var orig = window.l2pRestoreReport;
-    window.l2pRestoreReport = function(row, src){
-      var out = orig.apply(this, arguments);
-      try{
-        var nm = (row && (row['이름'] || row.name)) || '';
-        var cd = (row && (row['참여자코드'] || row.code)) || '';
-        if(nm) localStorage.setItem('l2p_session', JSON.stringify({name:nm, code:cd, src:src||'', ts:new Date().toISOString()}));
-        if(typeof buildHero==='function') buildHero();
-        renderMy();
-      }catch(e){}
-      return out;
-    };
-    window.__l2pRestoreHooked = true;
-  }
-
-  /* 마이 탭이 열릴 때마다 갱신 */
-  function watchMy(){
-    var sec = $('s-mypage'); if(!sec) return;
-    var on = false;
-    setInterval(function(){
-      var now = sec.classList.contains('active');
-      if(now && !on) renderMy();
-      on = now;
-    }, 600);
-  }
-
   var tries = 0;
   var t = setInterval(function(){
     tries++;
-    mountConsent(); hookRestore();
-    if(tries === 2) watchMy();
+    mountConsent();
     if(tries > 60) clearInterval(t);
   }, 500);
 })();
 </script>
 <!-- [FIX-UI] end -->
+<!-- [FIX-STATE] start -->
+<style>
+.st-wait{background:#fff;border:1px solid #DCE5DF;border-radius:16px;padding:18px;margin:12px 0;
+  font-size:13.5px;color:#7C877F;text-align:center}
+.st-prog{height:7px;border-radius:99px;background:#E8EEEA;overflow:hidden;margin:9px 0 4px}
+.st-prog i{display:block;height:100%;background:#124A2F}
+.st-warn{background:#FFFBEF;border-color:#E8D9A8}
+.st-err{background:#FFF3F0;border-color:#E7C3BC}
+</style>
+<script>
+(function(){
+  /* ═══════════════════════════════════════════════════════════
+     1. STATE — 저장소 판독과 상태 산출 (화면을 보지 않는다)
+     ═══════════════════════════════════════════════════════════ */
+  var K = { member:'l2p_member', session:'l2p_session', out:'l2p_out', premium:'l2p_premium',
+            auto:'l2p_auto', results:'l2p_results', consult:'l2p_consult', recheck:'l2p_recheck' };
+  var SESSION_DAYS = 180;
+
+  function raw(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function j(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
+  function del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+  function put(k,v){ try{ localStorage.setItem(k, typeof v==='string'?v:JSON.stringify(v)); }catch(e){} }
+  function $(id){ return document.getElementById(id); }
+  function getR(){ try{ if(typeof _R!=='undefined' && _R) return _R; }catch(e){} return window._R||null; }
+  function nAnswers(){ try{ if(typeof answers!=='undefined' && answers) return Object.keys(answers).length; }catch(e){} return 0; }
+  function draft(){ try{ return (typeof window.l2pAutoDraft==='function') ? window.l2pAutoDraft() : null; }catch(e){ return null; } }
+  function totalQ(){
+    try{ if(typeof Q!=='undefined' && Q && Q.length>10) return Q.length; }catch(e){}
+    try{ var f=window.uiOrderedQuestions ? window.uiOrderedQuestions() : null; if(f && f.length>10) return f.length; }catch(e){}
+    return 47;
+  }
+  function num(v){ var x=parseFloat(v); return isFinite(x)?x:null; }
+  function r0(v){ return v==null?'-':Math.round(v); }
+
+  var L2P = window.L2P = window.L2P || {};
+  L2P.VERSION = 'state-1.0';
+  L2P.flags = { booted:false, busy:'', generating:false, reportErr:'' };
+  L2P.state = { auth:'BOOTING', membership:'NONE', identity:{name:'',how:'',code:'',region:''},
+                diagnosis:'NOT_STARTED', progress:{answered:0,total:47,pct:0},
+                report:'NO_REPORT', plan:'PLAN_HIDDEN', planStat:{done:0,doing:0}, recheck:null,
+                consult:'CONSULT_NONE', premium:false, invite:'' };
+
+  L2P.read = function(){
+    var inv=''; try{ inv = sessionStorage.getItem('l2p_inv')||''; }catch(e){}
+    return {
+      member: j(K.member), session: j(K.session), loggedOut: raw(K.out)==='1',
+      premium: raw(K.premium)==='1', consult: j(K.consult), recheck: j(K.recheck),
+      R: getR(), nAns: nAnswers(), draft: draft(), invite: inv
+    };
+  };
+
+  function planKey(R){ return 'l2p_plan_' + ((R && R.code) || 'anon'); }
+  function planStat(R){
+    var o = j(planKey(R)) || {}, done=0, doing=0;
+    Object.keys(o).forEach(function(k){ if(k==='__ts') return; if(o[k]==='done') done++; else doing++; });
+    return { done:done, doing:doing };
+  }
+
+  L2P.compute = function(){
+    var d = L2P.read(), s = {};
+
+    /* ── AUTH ── */
+    var id = { name:'', how:'', code:'', region:'' };
+    if(!L2P.flags.booted)          s.auth = 'BOOTING';
+    else if(L2P.flags.busy)        s.auth = 'LOGGING_IN';
+    else if(d.loggedOut)           s.auth = 'GUEST';
+    else if(d.member && d.member['이름']){
+      s.auth = 'LOGGED_IN';
+      id = { name:String(d.member['이름']), how:'회원',
+             code:(d.R && d.R.code) || d.member['참여자코드'] || '', region:d.member['지역']||'' };
+    }
+    else if(d.session && d.session.name){
+      var age = (Date.now() - new Date(d.session.ts||0).getTime())/864e5;
+      s.auth = (isFinite(age) && age > SESSION_DAYS) ? 'SESSION_EXPIRED' : 'LOGGED_IN';
+      id = { name:String(d.session.name), how:'결과 불러오기', code:d.session.code||'', region:'' };
+    }
+    else s.auth = 'GUEST';
+    if(s.auth==='LOGGING_IN') id.how = L2P.flags.busy;
+    if(!id.code && d.R && d.R.code) id.code = d.R.code;
+    s.identity = id;
+
+    /* ── MEMBERSHIP ── */
+    s.membership = (!d.loggedOut && d.member && d.member['이름']) ? 'MEMBER' : 'NONE';
+
+    /* ── DIAGNOSIS ── */
+    /* 기본 화면이 계산용으로 answers 에 한두 개를 끼워 넣는 일이 있어, 임시저장과
+       같은 기준(2개 이상)을 씁니다. 1개만으로는 '작성 중'으로 보지 않습니다. */
+    var answered = Math.max(d.nAns, (d.draft && d.draft.n) || 0);
+    if(d.R)              s.diagnosis = 'COMPLETED';
+    else if(answered>=2) s.diagnosis = 'IN_PROGRESS';
+    else               { s.diagnosis = 'NOT_STARTED'; answered = 0; }
+    var tot = totalQ();
+    s.progress = { answered:answered, total:tot, pct: tot? Math.min(100, Math.round(answered/tot*100)) : 0 };
+
+    /* ── REPORT ── */
+    if(L2P.flags.generating)   s.report = 'REPORT_GENERATING';
+    else if(d.R)               s.report = 'REPORT_READY';
+    else if(L2P.flags.reportErr) s.report = 'REPORT_ERROR';
+    else                       s.report = 'NO_REPORT';
+
+    /* ── PLAN ── (리포트가 준비되지 않으면 존재하지 않는다) */
+    s.planStat = planStat(d.R);
+    if(s.report !== 'REPORT_READY') s.plan = 'PLAN_HIDDEN';
+    else s.plan = (s.planStat.done || s.planStat.doing) ? 'PLAN_ACTIVE' : 'PLAN_EMPTY';
+    s.recheck = d.recheck || null;
+
+    /* ── CONSULT ── (다른 상태와 독립) */
+    s.consult = (d.consult && d.consult.status==='done') ? 'CONSULT_DONE'
+              : (d.consult && d.consult.status==='requested') ? 'CONSULT_REQUESTED' : 'CONSULT_NONE';
+
+    s.premium = d.premium;
+    s.invite  = d.invite;
+    L2P.state = s;
+    return s;
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     2. BUSINESS LOGIC — 상태 변경은 오직 send() 로만
+     ═══════════════════════════════════════════════════════════ */
+  L2P.log = [];
+  L2P.send = function(ev, p){
+    p = p || {};
+    switch(ev){
+      case 'BOOT':          L2P.flags.booted = true; break;
+      case 'LOGIN_START':   L2P.flags.busy = '결과를 찾는 중'; break;
+      case 'JOIN_START':    L2P.flags.busy = '가입 처리 중'; break;
+      case 'LOGIN_OK':
+        L2P.flags.busy=''; del(K.out);
+        if(p.name) put(K.session, {name:p.name, code:p.code||'', src:p.src||'', ts:new Date().toISOString()});
+        break;
+      case 'LOGIN_FAIL':
+      case 'JOIN_FAIL':     L2P.flags.busy=''; break;
+      case 'JOIN_OK':       L2P.flags.busy=''; del(K.out); break;
+      case 'LOGOUT':
+        del(K.session); del(K.member); put(K.out,'1'); L2P.flags.busy='';
+        break;
+      case 'DIAG_START':
+      case 'DIAG_ANSWER':   L2P.flags.reportErr=''; break;
+      case 'DIAG_SUBMIT':
+        L2P.flags.generating=true; L2P.flags.reportErr='';
+        clearTimeout(L2P.__genT);
+        L2P.__genT = setTimeout(function(){                    /* 계산 중에서 멈추지 않게 하는 안전장치 */
+          if(L2P.flags.generating) L2P.send('DIAG_FAIL', {msg:'응답 시간 초과'});
+        }, 90000);
+        break;
+      case 'DIAG_REVIEW':   L2P.flags.generating=false; clearTimeout(L2P.__genT); break;
+      case 'DIAG_OK':       L2P.flags.generating=false; clearTimeout(L2P.__genT); L2P.flags.reportErr=''; break;
+      case 'DIAG_FAIL':     L2P.flags.generating=false; clearTimeout(L2P.__genT); L2P.flags.reportErr=(p.msg||'서버 응답 없음'); break;
+      case 'RESTART':       L2P.flags.generating=false; L2P.flags.reportErr=''; del(K.auto); break;
+      case 'PLAN_DONE':     L2P.setRecheck(); break;
+      case 'CONSULT_SUBMIT':put(K.consult, {status:'requested', ts:new Date().toISOString(), agent:p.agent||''}); break;
+      case 'SYNC':          break;
+      default: break;
+    }
+    L2P.log.push({ev:ev, t:Date.now()}); if(L2P.log.length>200) L2P.log.shift();
+    L2P.compute(); L2P.render();
+    return L2P.state;
+  };
+
+  L2P.setRecheck = function(){
+    var R=getR(), dt=new Date(); dt.setMonth(dt.getMonth()+6);
+    var o={ code:(R&&R.code)||'', due:dt.toISOString().slice(0,10), setAt:new Date().toISOString().slice(0,10) };
+    put(K.recheck, o); return o;
+  };
+  window.l2pSetRecheck = L2P.setRecheck;
+
+  /* ═══════════════════════════════════════════════════════════
+     3. UI — 상태만 보고 그린다. 여기서 저장소를 읽지 않는다
+     ═══════════════════════════════════════════════════════════ */
+  function heroBtn(cls, act, label){ return '<button class="'+cls+'" onclick="L2P.act(\''+act+'\')">'+label+'</button>'; }
+
+  function renderHero(s){
+    var nm=$('myName'), cd=$('myCode'), av=$('myAvatar'), mt=$('myHeroMeta'), bt=$('myHeroBtns');
+    if(!nm||!cd||!bt) return;
+    var busy = (s.auth==='BOOTING' || s.auth==='LOGGING_IN');
+    if(busy){
+      nm.textContent = (s.auth==='LOGGING_IN' && s.identity.how) ? (s.identity.how+'…') : '확인 중…';
+      cd.textContent = '잠시만 기다려 주세요';
+      if(av) av.textContent='2';
+      if(mt) mt.innerHTML='';
+      bt.innerHTML='';                                   /* G6 — 확인 전에는 CTA를 그리지 않는다 */
+      return;
+    }
+    var pg = s.progress, pgTx = '작성 중인 진단이 있습니다 — ' + pg.answered + '/' + pg.total + ' (' + pg.pct + '%)';
+    if(s.auth==='LOGGED_IN'){
+      nm.textContent = s.identity.name + '님';
+      cd.textContent = s.diagnosis==='COMPLETED' ? ('진단 코드 ' + (s.identity.code||'—'))
+                     : s.diagnosis==='IN_PROGRESS' ? pgTx
+                     : '아직 진단 전입니다 — 지금 바로 시작하실 수 있어요';
+      if(av) av.textContent = (s.identity.name.charAt(0)||'2');
+      var chips=[s.identity.how];
+      chips.push(s.premium?'정밀 리포트 열림':'무료회원');
+      if(s.identity.region) chips.push(s.identity.region);
+      if(mt) mt.innerHTML = chips.map(function(x){ return '<span>'+x+'</span>'; }).join('');
+      bt.innerHTML = s.diagnosis==='COMPLETED'
+        ? heroBtn('p','report','📊 내 진단 리포트') + heroBtn('g','restart','↻ 다시 진단하기')
+        : s.diagnosis==='IN_PROGRESS'
+        ? heroBtn('p','resume','▶ 진단 이어하기') + heroBtn('g','restart','↻ 처음부터')
+        : heroBtn('p','start','✦ 진단 시작하기') + heroBtn('g','lookup','🔄 예전 결과 불러오기');
+      return;
+    }
+    if(s.auth==='SESSION_EXPIRED'){
+      nm.textContent = s.identity.name + '님 — 다시 확인이 필요합니다';
+      cd.textContent = '로그인 정보가 만료되었습니다. 진단 코드로 다시 불러와 주세요';
+      if(av) av.textContent = (s.identity.name.charAt(0)||'2');
+      if(mt) mt.innerHTML='';
+      bt.innerHTML = heroBtn('p','lookup','🔄 다시 불러오기');
+      return;
+    }
+    /* GUEST */
+    nm.textContent = '로그인 · 최근 진단 결과 확인';                 /* G3 — 이름을 남기지 않는다 */
+    cd.textContent = s.diagnosis==='IN_PROGRESS' ? pgTx
+                   : s.diagnosis==='COMPLETED' ? '이 기기에 진단 결과가 있습니다'
+                   : '진단 코드나 이름 · 연락처로 내 결과를 불러올 수 있습니다';
+    if(av) av.textContent='2';
+    if(mt) mt.innerHTML='';
+    bt.innerHTML = s.diagnosis==='IN_PROGRESS'
+      ? heroBtn('p','resume','▶ 진단 이어하기') + heroBtn('g','lookup','👤 로그인 · 불러오기')
+      : s.diagnosis==='COMPLETED'
+      ? heroBtn('p','report','📊 내 진단 리포트') + heroBtn('g','lookup','👤 로그인 · 불러오기')
+      : heroBtn('p','lookup','👤 로그인 · 불러오기') + heroBtn('g','start','✦ 진단 시작하기');
+  }
+
+  function renderJoinBar(s){
+    var jb=$('myJoinBar'); if(!jb) return;
+    /* 확인 전 · 로그인 상태에서는 가입 권유를 아예 그리지 않는다 (G1·G6) */
+    if(s.auth!=='GUEST' || s.membership!=='NONE'){ jb.innerHTML=''; jb.style.display='none'; return; }
+    jb.style.display='';
+    jb.innerHTML = '<div class="my-join"><div class="mj-t">'
+      + '<b>회원 가입 후 이용하실 수 있는 서비스입니다</b>'
+      + '<em>가입 즉시 리워드 5,000원 · 정밀 리포트 열림 · 실행 계획 진행 관리</em>'
+      + '</div><button onclick="L2P.act(\'join\')">가입하기</button></div>';
+  }
+
+  function renderTop(s){
+    var host=$('myDash'); if(!host) return;
+    var box=$('myTop');
+    if(!box){ box=document.createElement('div'); box.id='myTop'; host.parentNode.insertBefore(box, host); }
+    if(s.auth==='BOOTING' || s.auth==='LOGGING_IN'){
+      box.innerHTML = '<div class="st-wait">' + (s.auth==='LOGGING_IN' ? (s.identity.how+'…') : '내 상태를 확인하고 있습니다…') + '</div>';
+      return;
+    }
+    var R=getR(), h='';
+
+    /* ① 신원 */
+    if(s.auth==='LOGGED_IN'){
+      h += '<div class="my-state"><span class="dot"></span><span class="tx">' + s.identity.name + '님으로 로그인되어 있습니다'
+        + '<i>' + s.identity.how + (s.diagnosis==='COMPLETED' && s.identity.code ? ' · 진단코드 ' + s.identity.code
+            : s.diagnosis==='IN_PROGRESS' ? ' · 진단 작성 중' : ' · 진단 전')
+        + (s.premium?' · 정밀 리포트 열림':'') + '</i></span>'
+        + '<button onclick="L2P.act(\'logout\')">로그아웃</button></div>';
+    }else if(s.auth==='SESSION_EXPIRED'){
+      h += '<div class="my-sec st-warn"><h4>로그인 정보가 만료되었습니다</h4>'
+        + '<div class="d">마지막 확인으로부터 ' + SESSION_DAYS + '일이 지났습니다. 진단 코드 또는 이름·연락처로 다시 불러와 주세요.</div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'lookup\')">다시 불러오기</button></div></div>';
+    }else{
+      h += '<div class="my-sec"><h4>로그인하면 여기에서 관리하실 수 있습니다</h4>'
+        + '<div class="d">진단 코드 또는 이름·연락처로 결과를 불러오거나, 회원으로 가입하시면 실행 계획까지 이어서 관리됩니다.</div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'lookup\')">내 결과 불러오기</button>'
+        + '<button class="g" onclick="L2P.act(\'join\')">회원 가입</button></div></div>';
+    }
+
+    /* ② 진단 · 리포트 — REPORT 상태가 문구를 결정한다 */
+    if(s.report==='REPORT_GENERATING'){
+      h += '<div class="my-sec"><h4>결과를 계산하고 있습니다…</h4>'
+        + '<div class="d">응답을 채점 엔진으로 보내 계산 중입니다. 잠시만 기다려 주세요.</div></div>';
+    }else if(s.report==='REPORT_ERROR'){
+      h += '<div class="my-sec st-err"><h4>결과를 불러오지 못했습니다</h4>'
+        + '<div class="d">' + s.progress.answered + '개 답변은 이 기기에 그대로 보관되어 있습니다. 잠시 후 다시 시도해 주세요.</div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'resume\')">다시 시도</button></div></div>';
+    }else if(s.report==='REPORT_READY' && R){
+      h += '<div class="my-sec"><h4>내 진단</h4><div class="d">가장 최근 결과입니다. 아래에 자세한 대시보드가 이어집니다.</div>'
+        + '<div class="my-grid">'
+        + '<div class="m"><div class="k">종합 점수</div><div class="v">' + r0(num(R.total)) + '점</div></div>'
+        + '<div class="m"><div class="k">월 부족액</div><div class="v">' + r0(num(R.shortfall)) + '만원</div></div>'
+        + '<div class="m"><div class="k">자산 소진</div><div class="v">' + (num(R.depletion)>=90?'90+':r0(num(R.depletion))) + '세</div></div>'
+        + '</div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'report\')">정밀 리포트 열기</button>'
+        + '<button class="g" onclick="L2P.act(\'restart\')">다시 진단</button></div></div>';
+    }else if(s.diagnosis==='IN_PROGRESS'){
+      h += '<div class="my-sec st-warn"><h4>작성 중인 진단이 있습니다</h4>'
+        + '<div class="d">' + s.progress.answered + '/' + s.progress.total + ' 문항까지 답하셨습니다. 이어서 진행하시면 결과가 나옵니다.</div>'
+        + '<div class="st-prog"><i style="width:' + s.progress.pct + '%"></i></div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'resume\')">▶ 진단 이어하기</button>'
+        + '<button class="g" onclick="L2P.act(\'restart\')">처음부터</button></div></div>';
+    }else{
+      h += '<div class="my-sec st-warn"><h4>아직 진단을 하지 않으셨습니다</h4>'
+        + '<div class="d">' + s.progress.total + '문항 · 약 8분이면 은퇴 후 월소득과 부족액, 자산이 언제 바닥나는지까지 숫자로 나옵니다.</div>'
+        + '<div class="my-row"><button onclick="L2P.act(\'start\')">✦ 지금 진단 시작하기</button></div></div>';
+    }
+
+    /* ③ 실행 계획 — PLAN_HIDDEN 이면 영역 자체를 만들지 않는다 (G4·G5) */
+    if(s.plan !== 'PLAN_HIDDEN'){
+      var due = s.recheck && s.recheck.due ? s.recheck.due : null;
+      var overdue = due && (new Date(due) <= new Date());
+      h += '<div class="my-sec"><h4>내 실행 계획</h4>'
+        + '<div class="d">' + (s.plan==='PLAN_ACTIVE'
+            ? ('완료 ' + s.planStat.done + '개 · 진행 중 ' + s.planStat.doing + '개')
+            : '리포트에서 실행 항목을 체크하시면 여기에 쌓입니다.')
+        + (due ? '<br><b>재진단 권장일: ' + due.replace(/-/g,'.') + '</b> — 설정을 마치신 날부터 6개월 뒤입니다.' : '') + '</div>'
+        + (overdue ? '<div class="my-state st-err"><span class="dot" style="background:#A5362C"></span>'
+            + '<span class="tx">재진단 권장일이 지났습니다<i>설정한 내용이 실제로 반영됐는지 다시 확인해 보세요</i></span>'
+            + '<button onclick="L2P.act(\'restart\')">재진단</button></div>' : '')
+        + '<div class="my-row"><button class="g" onclick="L2P.act(\'report\')">실행 계획 보기</button></div></div>';
+    }
+
+    /* ④ 상담 — 진단·로그인과 독립 */
+    h += '<div class="my-sec"><h4>상담 · 설계사 연결</h4><div class="d">'
+      + (s.consult==='CONSULT_REQUESTED' ? '상담 신청이 접수되었습니다 — 담당자가 연락드릴 예정입니다.'
+        : s.consult==='CONSULT_DONE' ? '상담이 완료되었습니다. 필요하시면 다시 신청하실 수 있습니다.'
+        : (s.invite ? '담당 설계사(코드 ' + s.invite + ')의 초대 링크로 진단하셨습니다. 결과 공유에 동의하신 경우에만 요약이 전달됩니다.'
+                    : '상담을 원하시면 신청해 주세요. 결과 요약은 동의하신 경우에만 전달됩니다.'))
+      + '</div><div class="my-row"><button onclick="L2P.act(\'consult\')">'
+      + (s.consult==='CONSULT_NONE'?'상담 신청':'상담 내역 · 다시 신청') + '</button></div></div>';
+
+    /* ⑤ 개인정보 */
+    h += '<div class="my-sec"><h4>개인정보</h4>'
+      + '<div class="my-link" onclick="L2P.act(\'consent\')">내 동의 내역 보기<span>›</span></div>'
+      + '<div class="my-link" onclick="L2P.act(\'privacy\')">개인정보 처리방침<span>›</span></div>'
+      + '<div class="my-link" onclick="L2P.act(\'erase\')">내 정보 삭제 요청<span>›</span></div></div>';
+
+    box.innerHTML = h;
+  }
+
+  /* 기본 화면이 그리던 #myPlan·하단 메뉴도 상태에 맞춰 통제한다 */
+  function renderLegacy(s){
+    var mp=$('myPlan');
+    if(mp && s.plan==='PLAN_HIDDEN'){ mp.innerHTML=''; mp.style.display='none'; }
+    else if(mp){ mp.style.display=''; }
+    var sec=$('s-mypage'); if(!sec) return;
+    var menu=sec.querySelector('.my-menu'); if(!menu) return;
+    Array.prototype.forEach.call(menu.querySelectorAll('button'), function(b){
+      var t=(b.textContent||'');
+      if(/최근 진단 결과|정밀 리포트 구매/.test(t)) b.style.display = (s.report==='REPORT_READY') ? '' : 'none';
+      if(/새 진단 시작/.test(t))                    b.style.display = (s.diagnosis==='NOT_STARTED') ? 'none' : '';
+    });
+    var foot=sec.querySelector('.my-foot');
+    if(foot) foot.style.display = (s.report==='REPORT_READY') ? '' : 'none';
+  }
+
+  var _painting=false;
+  L2P.render = function(){
+    if(_painting) return; _painting=true;
+    try{ var s=L2P.state; renderHero(s); renderJoinBar(s); renderTop(s); renderLegacy(s); }catch(e){ try{console.error(e);}catch(_){} }
+    _painting=false;
+  };
+
+  /* ── 화면에서 오는 행동은 모두 여기로 모은다 ── */
+  L2P.act = function(what){
+    var s=L2P.state;
+    if(what==='report'){ if(typeof window.l2pMyReport==='function') window.l2pMyReport(); return; }
+    if(what==='consult'){ if(typeof window.goConsult==='function') window.goConsult(); return; }
+    if(what==='start'){ L2P.send('DIAG_START'); if(typeof window.goDiagnosis==='function') window.goDiagnosis(); return; }
+    if(what==='resume'){
+      var ok=false;
+      try{ if(typeof window.l2pAutoRestore==='function') ok = window.l2pAutoRestore(); }catch(e){}
+      if(!ok && typeof window.goDiagnosis==='function') window.goDiagnosis();
+      L2P.send('SYNC'); return;
+    }
+    if(what==='restart'){
+      if(s.diagnosis!=='NOT_STARTED' && !confirm('처음부터 다시 진단할까요?\n작성 중이던 답변은 지워집니다.')) return;
+      L2P.send('RESTART');
+      if(typeof window.restart==='function') window.restart();
+      return;
+    }
+    if(what==='lookup'){ L2P.send('LOGIN_START'); if(typeof window.l2pLookupOpen==='function') window.l2pLookupOpen('login');
+      setTimeout(function(){ if(L2P.flags.busy) L2P.send('LOGIN_FAIL'); }, 600); return; }
+    if(what==='join'){ window.__l2pJoinFrom='my'; if(typeof window.memberCreditV27==='function') window.memberCreditV27(); return; }
+    if(what==='logout'){
+      if(!confirm('이 기기에서 로그아웃할까요?\n진단 결과는 그대로 남아 있고, 진단 코드로 다시 불러올 수 있습니다.')) return;
+      L2P.send('LOGOUT'); alert('로그아웃했습니다.'); return;
+    }
+    if(what==='privacy'){ window.open('privacy.html','_blank'); return; }
+    if(what==='erase'){ alert('삭제 요청은 info@lpp20.com 으로 보내 주시면 확인 후 처리해 드립니다.\n화면에서 직접 삭제하는 기능은 마이데이터 연동 단계에서 제공합니다.'); return; }
+    if(what==='consent'){
+      var c={}; try{ c=JSON.parse(sessionStorage.getItem('l2p_consent')||'{}'); }catch(e){}
+      alert('내 동의 내역\n\n· 수집·이용 동의: ' + (c.use==='Y'?'동의':(c.use==='N'?'동의하지 않음':'선택 안 함'))
+        + '\n· 제3자 제공(상담 전문가): ' + (c.third==='Y'?'동의':'동의하지 않음')
+        + '\n\n동의 철회나 삭제 요청은 info@lpp20.com 으로 보내 주세요.');
+      return;
+    }
+  };
+  window.l2pMyGo = L2P.act;            /* 옛 이름 호환 */
+  window.l2pLogout = function(){ L2P.act('logout'); };
+  window.l2pAuth = function(){ var s=L2P.state; return {loggedIn:s.auth==='LOGGED_IN', how:s.identity.how,
+    name:s.identity.name, code:s.identity.code, hasR:s.diagnosis==='COMPLETED'}; };
+
+  /* ═══════════════════════════════════════════════════════════
+     4. 후크 — 기존 함수는 이벤트만 보낸다 (상태를 직접 만지지 않는다)
+     ═══════════════════════════════════════════════════════════ */
+  function wrap(name, before, after){
+    var f = window[name]; if(typeof f!=='function' || f.__l2pWrapped) return false;
+    var g = function(){
+      if(before) try{ before.apply(null, arguments); }catch(e){}
+      var out = f.apply(this, arguments);
+      if(after) try{ after.call(null, out, arguments); }catch(e){}
+      return out;
+    };
+    g.__l2pWrapped = true; window[name] = g;
+    try{ eval(name + ' = window.' + name); }catch(e){}
+    return true;
+  }
+
+  function hooks(){
+    wrap('buildReport', function(){ L2P.send('DIAG_SUBMIT'); });
+    wrap('renderReportFromServer', null, function(){ L2P.send('DIAG_OK'); });
+    wrap('apiFail', null, function(){ if(L2P.flags.generating) L2P.send('DIAG_FAIL'); });
+    wrap('openCoherence', function(){ L2P.send('DIAG_REVIEW'); });   /* 정합성 재확인 모달 = 계산 중 해제 */
+    wrap('l2pRestoreReport', null, function(out, args){
+      var row = args && args[0] || {}, src = args && args[1] || '';
+      L2P.send('LOGIN_OK', { name:(row['이름']||row.name||''), code:(row['참여자코드']||row.code||''), src:src });
+    });
+    wrap('memberJoinV29', function(){ L2P.send('JOIN_START'); });
+    wrap('l2pPlanMark', null, function(out, args){
+      if(args && args[1]==='done') L2P.send('PLAN_DONE'); else L2P.send('SYNC');
+    });
+    wrap('restart', null, function(){ L2P.send('RESTART'); });
+    wrap('goDiagnosis', null, function(){ L2P.send('SYNC'); });
+    /* 가입 직후: 탭을 옮기지 않고 마이에 머문다 + 자동 로그인 상태로 전환 */
+    wrap('unlockPremium', null, function(){
+      var fromMy = (window.__l2pJoinFrom==='my');
+      L2P.send('JOIN_OK');
+      if(fromMy) setTimeout(function(){
+        try{ if(typeof show==='function') show('s-mypage'); if(typeof setNav==='function') setNav('my'); }catch(e){}
+        window.__l2pJoinFrom=''; L2P.send('SYNC');
+      }, 120);
+    });
+    /* 상담 신청 제출 */
+    wrap('consultSubmit', null, function(){ L2P.send('CONSULT_SUBMIT', {agent:L2P.state.invite}); });
+  }
+
+  /* 마이 탭을 다시 그릴 때 기본 화면의 build* 다음에 우리가 마지막으로 그린다 */
+  function hookMyBuild(){
+    if(L2P.__mb) return;
+    var orig = window.l2pMyBuild;
+    window.l2pMyBuild = function(){
+      if(typeof orig==='function'){ try{ orig.apply(this, arguments); }catch(e){} }
+      L2P.compute(); L2P.render();
+    };
+    L2P.__mb = true;
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     5. 자동 점검 — 「절대 금지」 7종
+     ═══════════════════════════════════════════════════════════ */
+  L2P.audit = function(){
+    var v=[], s=L2P.state, sec=$('s-mypage');
+    if(!sec || !sec.classList.contains('active')) return v;
+    var tx = sec.innerText || '';
+    var shown = Array.prototype.slice.call(sec.querySelectorAll('button'))
+      .filter(function(b){ return b.offsetParent!==null; })
+      .map(function(b){ return (b.textContent||'').trim(); });
+    function has(re){ return shown.some(function(t){ return re.test(t); }); }
+    if(s.auth==='LOGGED_IN' && has(/가입/))                       v.push('G1 로그인 상태에서 가입 CTA 노출');
+    if(s.auth==='LOGGED_IN' && has(/^[^가-힣]*로그인(?!.*로그아웃)/)) v.push('G2 로그인 상태에서 로그인 CTA 노출');
+    if(s.auth==='GUEST' && /님/.test(($('myName')||{textContent:''}).textContent)) v.push('G3 로그아웃 뒤 이름 잔존');
+    var mp=$('myPlan');
+    if(s.diagnosis!=='COMPLETED' && mp && (mp.innerHTML||'').trim()) v.push('G4 진단 전 실행계획 영역 노출');
+    if(s.report!=='REPORT_READY' && /실행 항목을 체크/.test(tx))   v.push('G5 진단 전 실행항목 안내 문구');
+    if((s.auth==='BOOTING'||s.auth==='LOGGING_IN') && has(/로그인|가입/)) v.push('G6 확인 중 CTA 노출');
+    if(s.diagnosis==='IN_PROGRESS' && !/\d+\s*\/\s*\d+/.test(tx))  v.push('G7 이어하기 상태에 진행률 없음');
+    return v;
+  };
+
+  /* ═══════════════════════════════════════════════════════════
+     6. 기동
+     ═══════════════════════════════════════════════════════════ */
+  function boot(){
+    hooks(); hookMyBuild();
+    L2P.send('BOOT');
+    var sec=$('s-mypage');
+    setInterval(function(){
+      hooks(); hookMyBuild();
+      if(sec && sec.classList.contains('active')){ L2P.compute(); L2P.render(); }
+    }, 700);
+  }
+  L2P.compute();                       /* BOOTING 상태로 한 번 그린다 */
+  setTimeout(function(){ L2P.render(); }, 0);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(boot, 40); });
+  else setTimeout(boot, 40);
+})();
+</script>
+<!-- [FIX-STATE] end -->
 </body>
 </html>

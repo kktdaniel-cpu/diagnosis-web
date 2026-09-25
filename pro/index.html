@@ -123,6 +123,22 @@ td.up{color:#1B6B44;font-weight:800}
   </div>
 </section>
 
+<!-- 지점장 -->
+<section id="s-branch" class="hide">
+  <div class="card">
+    <h2>지점 현황 <span class="badge" id="brName">-</span></h2>
+    <div class="muted" id="brSum">불러오는 중…</div>
+    <div class="tw" style="overflow-x:auto">
+      <table id="brTable" style="min-width:520px"><tr><th>설계사</th><th>요약카드</th><th>상담메모</th><th>평균 점수</th><th>최근</th></tr></table>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="sec" onclick="loadBranch()">새로고침</button>
+      <button class="sec" onclick="window.print()">인쇄 / PDF</button>
+    </div>
+    <p class="note">고객 이름·연락처는 지점장 화면에 표시되지 않습니다. 설계사별 활동량만 봅니다.</p>
+  </div>
+</section>
+
 <p class="muted" style="text-align:center;margin-top:18px">
   주식회사 라이프 2.0 · 내부 도구 · 고객에게 이 화면을 그대로 보여 주지 마세요
 </p>
@@ -161,7 +177,7 @@ function jpost(obj, cb){
 }
 
 function go(v){
-  ['login','home','detail'].forEach(function(x){
+  ['login','home','detail','branch'].forEach(function(x){
     document.getElementById('s-'+x).classList.toggle('hide', x!==v);
   });
   document.getElementById('btnOut').classList.toggle('hide', v==='login');
@@ -194,7 +210,7 @@ function login(){
   document.getElementById('loginErr').textContent = '확인 중…';
   jget({act:'login', code:code, pin:pin}, function(d){
     if(!d || !d.ok){ document.getElementById('loginErr').innerHTML = errMsg(d); return; }
-    ME = {code:d.code, pin:pin, name:d.name, agency:d.agency, branch:d.branch};
+    ME = {code:d.code, pin:pin, name:d.name, agency:d.agency, branch:d.branch, role:(d.role||'설계사')};
     try{ localStorage.setItem('l2p_pro_me', JSON.stringify(ME)); }catch(e){}
     afterLogin();
   });
@@ -203,7 +219,35 @@ function logout(){ ME=null; try{ localStorage.removeItem('l2p_pro_me'); }catch(e
 function afterLogin(){
   document.getElementById('loginErr').textContent = '';
   document.getElementById('invLink').textContent = inviteUrl();
+  var isBr = ME && (ME.role === '지점장' || ME.role === '관리자');
+  document.querySelector('header .t').innerHTML = isBr
+    ? '2막1장 지점장 화면<small>BRANCH · ' + (ME.branch||'') + '</small>'
+    : '2막1장 설계사 도구<small>MODE A · 내 고객용</small>';
+  if(isBr){ go('branch'); loadBranch(); return; }
   go('home'); loadList();
+}
+function loadBranch(){
+  document.getElementById('brSum').textContent = '불러오는 중…';
+  jget({act:'branch', code:ME.code, pin:ME.pin}, function(d){
+    if(!d || !d.ok){
+      document.getElementById('brSum').textContent = (d && d.err==='role')
+        ? '이 계정은 지점장 권한이 아닙니다. 시트 [설계사] 탭의 역할 칸을 「지점장」으로 바꿔 주세요.'
+        : '불러오지 못했습니다.';
+      return;
+    }
+    document.getElementById('brName').textContent = d.branch || d.role || '';
+    var a = d.agents || [];
+    document.getElementById('brSum').innerHTML = '설계사 <b>' + a.length + '명</b> · 요약카드 <b>'
+      + (d.total?d.total.cards:0) + '건</b> · 상담메모 <b>' + (d.total?d.total.memos:0) + '건</b>';
+    var rows = a.map(function(x){
+      return '<tr><td>' + esc(x.name||'') + ' <span class="muted">(' + esc(x.code) + ')</span></td>'
+        + '<td>' + x.cards + '</td><td>' + x.memos + '</td>'
+        + '<td>' + (x.avg===''?'-':x.avg + '점') + '</td>'
+        + '<td>' + esc(String(x.last||'').slice(0,10)) + '</td></tr>';
+    }).join('');
+    document.getElementById('brTable').innerHTML =
+      '<tr><th>설계사</th><th>요약카드</th><th>상담메모</th><th>평균 점수</th><th>최근</th></tr>' + rows;
+  });
 }
 function inviteUrl(){ return DIAG_URL + '?inv=' + (ME ? ME.code : ''); }
 function copyLink(){
