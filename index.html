@@ -1087,7 +1087,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
 <div class="page">
 
   <!-- ===== 0) 첫 화면 · 3단계 진단 선택 ===== -->
-  <section id="s-stage" class="screen">
+  <section id="s-stage" class="screen active">
     <!-- [FIX-BF] 홈 히어로 — 사진은 배경에 옅게 깔린다 -->
     <div class="hm-hero">
       <div class="hm-hero-bg" id="hmHeroBg" aria-hidden="true"></div>
@@ -1231,7 +1231,7 @@ textarea.qtext{height:auto!important;padding:12px!important;line-height:1.5!impo
   </section>
 
   <!-- ===== 1) 소개 · Ver25 reference UI ===== -->
-  <section id="s-intro" class="screen active v24-intro-screen">
+  <section id="s-intro" class="screen v24-intro-screen">
     <div class="v24-home">
       <span class="v24-chip">★ 은퇴 정밀진단</span>
       <h1>직장에서의 퇴직,<br><em>걱정되십니까?</em></h1>
@@ -11512,5 +11512,233 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 })();
 </script>
 <!-- [FIX-NPS] end -->
+<!-- [FIX-UI] start -->
+<style>
+/* ② 동의 카드 */
+.cs-wrap{border:1px solid #DCE5DF;border-radius:14px;background:#fff;padding:14px;margin:12px 0 6px}
+.cs-h{font-size:14.5px;font-weight:900;color:#0F2B1D;margin-bottom:6px}
+.cs-box{max-height:132px;overflow:auto;border:1px solid #E4E8E5;border-radius:10px;background:#FAFCFB;
+  padding:10px 12px;font-size:12.5px;line-height:1.65;color:#41504A;word-break:keep-all}
+.cs-box b{color:#124A2F}
+.cs-pick{display:flex;gap:14px;align-items:center;margin-top:8px;font-size:13.5px}
+.cs-pick label{display:flex;gap:6px;align-items:center;cursor:pointer;font-weight:700;color:#26352C}
+.cs-pick .req{margin-left:auto;font-size:11.5px;font-weight:900;color:#8A6A1F;background:#FFFBEF;
+  border:1px solid #E8D9A8;border-radius:999px;padding:2px 8px}
+.cs-pick .opt{margin-left:auto;font-size:11.5px;font-weight:900;color:#0E4F33;background:#E4F1E9;
+  border:1px solid #BFD8C9;border-radius:999px;padding:2px 8px}
+.cs-foot{margin-top:10px;font-size:12px;color:#7C877F;line-height:1.6}
+.cs-foot a{color:#124A2F;font-weight:800}
+/* ③ 마이 탭 */
+.my-sec{background:#fff;border:1px solid #DCE5DF;border-radius:16px;padding:16px;margin:12px 0}
+.my-sec h4{margin:0 0 4px;font-size:15.5px;font-weight:900;color:#0F2B1D}
+.my-sec .d{font-size:12.5px;color:#7C877F;margin-bottom:10px;line-height:1.55}
+.my-state{display:flex;align-items:center;gap:10px;background:#EAF2ED;border:1px solid #BFD8C9;
+  border-radius:12px;padding:11px 13px;margin:10px 0}
+.my-state .dot{width:9px;height:9px;border-radius:50%;background:#1B6B44;flex:0 0 auto}
+.my-state .tx{font-size:13.5px;color:#0F2B1D;font-weight:800;line-height:1.5}
+.my-state .tx i{display:block;font-style:normal;font-weight:600;color:#54635B;font-size:12px;margin-top:2px}
+.my-state button{margin-left:auto;background:#fff;border:1px solid #BFD8C9;color:#124A2F;border-radius:9px;
+  padding:7px 11px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer;white-space:nowrap}
+.my-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:8px}
+.my-grid .m{background:#F4F8F5;border:1px solid #E4E8E5;border-radius:12px;padding:10px 11px}
+.my-grid .m .k{font-size:11.5px;color:#7C877F}
+.my-grid .m .v{font-size:18px;font-weight:900;color:#124A2F;margin-top:2px}
+.my-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.my-row button{flex:1;min-width:130px;border:0;border-radius:10px;padding:11px 12px;font:inherit;
+  font-size:13.5px;font-weight:800;cursor:pointer;background:#124A2F;color:#fff}
+.my-row button.g{background:#EAF2ED;color:#124A2F}
+.my-link{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid #EDF2EF;
+  padding:11px 2px;font-size:13.5px;color:#26352C;cursor:pointer}
+.my-link:first-of-type{border-top:0}
+.my-link span{color:#9FB0A6}
+</style>
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function getR(){ try{ if(typeof _R!=='undefined' && _R) return _R; }catch(e){} return window._R||null; }
+  function mem(){ try{ return JSON.parse(localStorage.getItem('l2p_member')||'null'); }catch(e){ return null; } }
+  function ses(){ try{ return JSON.parse(localStorage.getItem('l2p_session')||'null'); }catch(e){ return null; } }
+  function paid(){ try{ return localStorage.getItem('l2p_premium')==='1'; }catch(e){ return false; } }
+  function n(v){ var x=parseFloat(v); return isFinite(x)?x:null; }
+  function r0(v){ return v==null?'-':Math.round(v); }
+
+  /* ───── ② 개인정보 동의 화면 ───── */
+  var CS_USE = '<b>가. 수집·이용 목적</b><br>은퇴 준비 진단 결과 계산과 리포트 제공, 결과 재조회, 이름 없는 통계 작성<br><br>'
+    + '<b>나. 수집 항목</b><br>· 필수: 이름(별명 가능), 진단 46문항 응답<br>· 선택: 휴대폰 번호(상담·결과 재조회를 원하실 때)<br>'
+    + '<span style="color:#7C877F">주민등록번호 등 고유식별정보는 수집하지 않습니다. 금융기관 연동(마이데이터)도 아직 없습니다.</span><br><br>'
+    + '<b>다. 보유 및 이용 기간</b><br>진단일로부터 3년. 삭제를 원하시면 info@lpp20.com 으로 요청해 주세요<br><br>'
+    + '<b>라. 동의 거부 권리</b><br>동의하지 않으셔도 진단과 결과 확인은 그대로 이용하실 수 있습니다. '
+    + '다만 결과 재조회와 상담 연결이 제한됩니다. 동의 여부는 응답과 함께 기록됩니다.';
+  var CS_3RD = '<b>제공받는 자</b><br>고객이 선택한 상담 전문가(설계사·플래너)<br><br>'
+    + '<b>제공 목적</b><br>진단 결과를 바탕으로 한 상담<br><br>'
+    + '<b>제공 항목</b><br>이름, 연락처, 진단 요약(점수·예상 월소득·부족액·자산 소진 나이 등 결과 금액)<br>'
+    + '<span style="color:#7C877F">문항별 배점과 산정 계수는 제공하지 않습니다.</span><br><br>'
+    + '<b>보유 기간</b><br>상담 종료 후 1년<br><br>'
+    + '<b>동의 거부 권리</b><br>동의하지 않으셔도 진단·리포트는 그대로 이용하실 수 있습니다. 상담 연결만 되지 않습니다.';
+
+  function consentHTML(agent){
+    return '<div class="cs-wrap" id="csWrap">'
+      + '<div class="cs-h">개인정보 수집 및 이용에 대한 안내</div>'
+      + '<div class="cs-box">' + CS_USE + '</div>'
+      + '<div class="cs-pick">위 수집·이용에 동의합니다'
+      +   '<label><input type="radio" name="csUse" value="Y" onchange="l2pCs()">동의</label>'
+      +   '<label><input type="radio" name="csUse" value="N" onchange="l2pCs()">동의하지 않음</label>'
+      +   '<span class="opt">선택</span></div>'
+      + '<div class="cs-h" style="margin-top:14px">개인정보 제3자 제공 동의' + (agent? ' — ' + agent + ' 설계사' : '') + '</div>'
+      + '<div class="cs-box">' + CS_3RD + '</div>'
+      + '<div class="cs-pick">상담 전문가에게 결과 요약을 제공하는 데 동의합니다'
+      +   '<label><input type="radio" name="cs3rd" value="Y" onchange="l2pCs()">동의</label>'
+      +   '<label><input type="radio" name="cs3rd" value="N" checked onchange="l2pCs()">동의하지 않음</label>'
+      +   '<span class="opt">선택</span></div>'
+      + '<div class="cs-foot">자세한 내용은 <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>에서 확인하실 수 있습니다. '
+      + '문의: info@lpp20.com</div>'
+      + '</div>';
+  }
+  window.l2pCs = function(){
+    var u = document.querySelector('input[name="csUse"]:checked');
+    var t = document.querySelector('input[name="cs3rd"]:checked');
+    var uc = $('uConsent'); if(uc) uc.checked = !!(u && u.value==='Y');
+    var sh = $('l2pShare');  if(sh) sh.checked = !!(t && t.value==='Y');
+    try{ sessionStorage.setItem('l2p_consent', JSON.stringify({use:(u?u.value:''), third:(t?t.value:'N'), ts:new Date().toISOString()})); }catch(e){}
+  };
+  function mountConsent(){
+    var uc = $('uConsent'); if(!uc || $('csWrap')) return !!$('csWrap');
+    var host = uc.closest ? uc.closest('.fg') : uc.parentNode;
+    if(!host) return false;
+    var agent = '';
+    try{ var el=document.getElementById('l2pInvBar'); if(el){ var b=el.querySelector('b'); agent = b?b.textContent:''; } }catch(e){}
+    host.style.display = 'none';                      /* 기존 체크박스는 숨기고 값만 이어받는다 */
+    var d = document.createElement('div');
+    d.innerHTML = consentHTML(agent);
+    host.parentNode.insertBefore(d.firstChild, host);
+    return true;
+  }
+
+  /* ───── ③ 마이 탭 ───── */
+  function who(){
+    var m = mem(), s = ses(), R = getR();
+    if(m && m['이름']) return { name:String(m['이름']), how:'회원', code:(R&&R.code)||m['참여자코드']||'', at:m['가입시각']||'' };
+    if(s && s.name)    return { name:String(s.name),    how:'결과 불러오기', code:s.code||((R&&R.code)||''), at:s.ts||'' };
+    if(R && R.c && R.c.name) return { name:String(R.c.name), how:'이번 진단', code:R.code||'', at:'' };
+    return null;
+  }
+  window.l2pLogout = function(){
+    if(!confirm('이 기기에서 로그인 상태를 지울까요? 진단 결과는 서버에 그대로 남아 있고, 진단 코드로 다시 불러올 수 있습니다.')) return;
+    try{ localStorage.removeItem('l2p_session'); localStorage.removeItem('l2p_member'); }catch(e){}
+    try{ if(typeof buildHero==='function') buildHero(); }catch(e){}
+    renderMy();
+    alert('로그아웃했습니다.');
+  };
+  window.l2pMyGo = function(which){
+    if(which==='report'){ if(typeof l2pMyReport==='function') l2pMyReport(); return; }
+    if(which==='consult'){ if(typeof goConsult==='function') goConsult(); return; }
+    if(which==='restart'){ if(typeof restart==='function') restart(); return; }
+    if(which==='lookup'){ if(typeof l2pLookupOpen==='function') l2pLookupOpen('login'); return; }
+    if(which==='privacy'){ window.open('privacy.html','_blank'); return; }
+    if(which==='consent'){
+      var c={}; try{ c=JSON.parse(sessionStorage.getItem('l2p_consent')||'{}'); }catch(e){}
+      alert('내 동의 내역\n\n· 수집·이용 동의: ' + (c.use==='Y'?'동의':(c.use==='N'?'동의하지 않음':'선택 안 함'))
+        + '\n· 제3자 제공(상담 전문가): ' + (c.third==='Y'?'동의':'동의하지 않음')
+        + '\n\n동의 철회나 삭제 요청은 info@lpp20.com 으로 보내 주세요.'
+        + '\n(화면에서 직접 삭제하는 기능은 마이데이터 연동 단계에서 제공합니다)');
+      return;
+    }
+  };
+  function planCount(){
+    try{ var p=JSON.parse(localStorage.getItem('l2p_plan')||'{}'); var done=0,total=0;
+      Object.keys(p).forEach(function(k){ total++; if(p[k]==='done') done++; });
+      return total? (done+' / '+total) : null;
+    }catch(e){ return null; }
+  }
+  function renderMy(){
+    var host = $('myDash'); if(!host) return false;
+    var box = $('myTop');
+    if(!box){ box = document.createElement('div'); box.id='myTop'; host.parentNode.insertBefore(box, host); }
+    var w = who(), R = getR(), inv=''; try{ inv = sessionStorage.getItem('l2p_inv')||''; }catch(e){}
+    var h = '';
+
+    if(w){
+      h += '<div class="my-state"><span class="dot"></span><span class="tx">' + w.name + '님으로 로그인되어 있습니다'
+        + '<i>' + w.how + (w.code ? ' · 진단코드 ' + w.code : '') + (paid()?' · 정밀 리포트 열림':' · 무료회원') + '</i></span>'
+        + '<button onclick="l2pLogout()">로그아웃</button></div>';
+    }else{
+      h += '<div class="my-sec"><h4>아직 로그인되어 있지 않습니다</h4>'
+        + '<div class="d">진단 코드 또는 이름·연락처로 내 결과를 불러오면 이 화면에서 계속 관리하실 수 있습니다.</div>'
+        + '<div class="my-row"><button onclick="l2pMyGo(\'lookup\')">내 결과 불러오기</button>'
+        + '<button class="g" onclick="l2pMyGo(\'restart\')">새 진단 시작</button></div></div>';
+    }
+
+    if(R){
+      h += '<div class="my-sec"><h4>내 진단</h4><div class="d">가장 최근 진단 결과입니다. 아래에 자세한 대시보드가 이어집니다.</div>'
+        + '<div class="my-grid">'
+        + '<div class="m"><div class="k">종합 점수</div><div class="v">' + r0(n(R.total)) + '점</div></div>'
+        + '<div class="m"><div class="k">월 부족액</div><div class="v">' + r0(n(R.shortfall)) + '만원</div></div>'
+        + '<div class="m"><div class="k">자산 소진</div><div class="v">' + (n(R.depletion)>=90?'90+':r0(n(R.depletion))) + '세</div></div>'
+        + '</div>'
+        + '<div class="my-row"><button onclick="l2pMyGo(\'report\')">정밀 리포트 열기</button>'
+        + '<button class="g" onclick="l2pMyGo(\'restart\')">다시 진단</button></div></div>';
+    }
+
+    var pc = planCount();
+    h += '<div class="my-sec"><h4>내 실행 계획</h4>'
+      + '<div class="d">' + (pc ? '완료 ' + pc + ' 항목' : '리포트에서 실행 항목을 체크하면 여기에서 진행률을 봅니다.') + '</div>'
+      + '<div class="my-row"><button class="g" onclick="l2pMyGo(\'report\')">실행 계획 보기</button></div></div>';
+
+    h += '<div class="my-sec"><h4>상담 · 설계사 연결</h4>'
+      + '<div class="d">' + (inv
+          ? '담당 설계사(코드 ' + inv + ')의 초대 링크로 진단하셨습니다. 결과 공유에 동의하신 경우에만 요약이 전달됩니다.'
+          : '상담을 원하시면 신청해 주세요. 결과 요약은 동의하신 경우에만 전달됩니다.') + '</div>'
+      + '<div class="my-row"><button onclick="l2pMyGo(\'consult\')">상담 신청</button></div></div>';
+
+    h += '<div class="my-sec"><h4>개인정보</h4>'
+      + '<div class="my-link" onclick="l2pMyGo(\'consent\')">내 동의 내역 보기<span>›</span></div>'
+      + '<div class="my-link" onclick="l2pMyGo(\'privacy\')">개인정보 처리방침<span>›</span></div>'
+      + '<div class="my-link" onclick="alert(\'삭제 요청은 info@lpp20.com 으로 보내 주시면 확인 후 처리해 드립니다.\\n화면에서 직접 삭제하는 기능은 마이데이터 연동 단계에서 제공합니다.\')">내 정보 삭제 요청<span>›</span></div>'
+      + '</div>';
+
+    box.innerHTML = h;
+    return true;
+  }
+  window.l2pRenderMy = renderMy;
+
+  /* 결과 불러오기 성공 → 로그인 상태로 기록 */
+  function hookRestore(){
+    if(typeof window.l2pRestoreReport !== 'function' || window.__l2pRestoreHooked) return;
+    var orig = window.l2pRestoreReport;
+    window.l2pRestoreReport = function(row, src){
+      var out = orig.apply(this, arguments);
+      try{
+        var nm = (row && (row['이름'] || row.name)) || '';
+        var cd = (row && (row['참여자코드'] || row.code)) || '';
+        if(nm) localStorage.setItem('l2p_session', JSON.stringify({name:nm, code:cd, src:src||'', ts:new Date().toISOString()}));
+        if(typeof buildHero==='function') buildHero();
+        renderMy();
+      }catch(e){}
+      return out;
+    };
+    window.__l2pRestoreHooked = true;
+  }
+
+  /* 마이 탭이 열릴 때마다 갱신 */
+  function watchMy(){
+    var sec = $('s-mypage'); if(!sec) return;
+    var on = false;
+    setInterval(function(){
+      var now = sec.classList.contains('active');
+      if(now && !on) renderMy();
+      on = now;
+    }, 600);
+  }
+
+  var tries = 0;
+  var t = setInterval(function(){
+    tries++;
+    mountConsent(); hookRestore();
+    if(tries === 2) watchMy();
+    if(tries > 60) clearInterval(t);
+  }, 500);
+})();
+</script>
+<!-- [FIX-UI] end -->
 </body>
 </html>

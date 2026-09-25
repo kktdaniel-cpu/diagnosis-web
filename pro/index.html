@@ -66,6 +66,8 @@ td.up{color:#1B6B44;font-weight:800}
   <input id="inPin" type="password" inputmode="numeric" placeholder="4자리">
   <div style="height:12px"></div>
   <button class="pri" onclick="login()">로그인</button>
+  <div style="height:8px"></div>
+  <button class="sec" style="width:100%" onclick="proPing()">서버 연결 확인</button>
   <div class="err" id="loginErr"></div>
   <p class="note">코드와 PIN은 관리자가 시트 [설계사] 탭에 등록합니다. 이 기기에만 저장되며 서버로는 조회할 때만 전송됩니다.</p>
 </section>
@@ -167,12 +169,31 @@ function go(v){
 }
 
 /* ── 로그인 ───────────────────────────── */
+function errMsg(d){
+  if(!PRO_GAS_URL) return '① pro/index.html 의 PRO_GAS_URL 이 비어 있습니다. Apps Script 웹 앱 주소(…/exec)를 넣어 주세요.';
+  if(!d) return '② 서버에 닿지 못했습니다. 웹 앱 주소가 맞는지, 배포 설정이 「실행: 나 · 액세스: 모든 사용자」인지 확인해 주세요. (아래 연결 확인을 눌러 보세요)';
+  if(d.err === 'network' || d.err === 'timeout') return '② 서버 응답이 없습니다. 주소와 배포 권한을 확인해 주세요. (아래 연결 확인)';
+  if(d.err === 'auth') return '③ 시트 [설계사] 탭의 코드·PIN과 다릅니다. 대소문자와 PIN 자릿수, 활성 칸이 Y인지 확인해 주세요.';
+  if(d.err) return '오류: ' + d.err;
+  return '확인하지 못했습니다.';
+}
+window.proPing = function(){
+  var box = document.getElementById('loginErr');
+  if(!PRO_GAS_URL){ box.textContent = errMsg(null); return; }
+  box.textContent = '연결 확인 중…';
+  jget({act:'ping'}, function(d){
+    box.innerHTML = (d && d.ok)
+      ? '<span style="color:#1B6B44">서버 연결 정상 (' + (d.ts||'') + '). 이제 코드·PIN 문제만 보면 됩니다.</span>'
+      : errMsg(d);
+  });
+};
 function login(){
   var code = document.getElementById('inCode').value.trim().toUpperCase();
   var pin  = document.getElementById('inPin').value.trim();
+  if(!code || !pin){ document.getElementById('loginErr').textContent = '코드와 PIN을 모두 입력해 주세요.'; return; }
   document.getElementById('loginErr').textContent = '확인 중…';
   jget({act:'login', code:code, pin:pin}, function(d){
-    if(!d || !d.ok){ document.getElementById('loginErr').textContent = '코드나 PIN을 확인해 주세요.'; return; }
+    if(!d || !d.ok){ document.getElementById('loginErr').innerHTML = errMsg(d); return; }
     ME = {code:d.code, pin:pin, name:d.name, agency:d.agency, branch:d.branch};
     try{ localStorage.setItem('l2p_pro_me', JSON.stringify(ME)); }catch(e){}
     afterLogin();
