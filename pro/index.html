@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>2막1장 설계사 도구</title>
+<style>
+:root{--g:#124A2F;--g2:#1B6B44;--gold:#B8912F;--ink:#1E2A23;--mut:#5E6B63;--line:#DCE6E0;--bg:#F7F9F7;--card:#fff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;word-break:keep-all}
+.wrap{max-width:860px;margin:0 auto;padding:14px 14px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0 12px;border-bottom:2px solid var(--g);margin-bottom:14px}
+header .t{font-size:18px;font-weight:800;color:var(--g)}
+header .t small{display:block;font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.05em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+h2{font-size:17px;color:var(--g);margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px;font-weight:700}
+input,textarea,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff}
+textarea{min-height:90px}
+button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:12px 16px;cursor:pointer}
+.pri{background:var(--g);color:#fff;width:100%}
+.sec{background:#EAF2ED;color:var(--g)}
+.gold{background:var(--gold);color:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row>button{flex:1;min-width:120px}
+.muted{color:var(--mut);font-size:13px}
+.err{color:#A5362C;font-size:13.5px;margin-top:8px}
+.list{display:grid;gap:8px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;cursor:pointer}
+.item:hover{border-color:var(--g2)}
+.item b{font-size:15.5px}
+.item .s{font-size:12.5px;color:var(--mut)}
+.badge{background:#EAF2ED;color:var(--g);border-radius:99px;padding:3px 9px;font-size:12px;font-weight:800;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.m{background:#F4F8F5;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.m .k{font-size:12px;color:var(--mut)}
+.m .v{font-size:19px;font-weight:800;color:var(--g)}
+.lev{display:flex;gap:9px;align-items:flex-start;padding:9px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;background:#fff}
+.lev input{width:18px;height:18px;margin-top:3px;flex:0 0 auto}
+.lev .tx{font-size:14px}
+.lev .tx i{display:block;font-style:normal;color:var(--mut);font-size:12.5px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:10px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left}
+th{background:#EAF2ED;color:var(--g)}
+td.up{color:#1B6B44;font-weight:800}
+.hide{display:none}
+.link{word-break:break-all;background:#F4F8F5;border:1px dashed var(--g2);border-radius:9px;padding:10px;font-size:13.5px}
+.note{font-size:12.5px;color:var(--mut);margin-top:8px}
+@media print{header button,.noprint{display:none}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="t">2막1장 설계사 도구<small>MODE A · 내 고객용</small></div>
+  <button class="sec noprint hide" id="btnOut" onclick="logout()">로그아웃</button>
+</header>
+
+<!-- 로그인 -->
+<section id="s-login" class="card">
+  <h2>설계사 로그인</h2>
+  <label>설계사 코드</label>
+  <input id="inCode" placeholder="예: HIC01" autocapitalize="characters">
+  <label>PIN</label>
+  <input id="inPin" type="password" inputmode="numeric" placeholder="4자리">
+  <div style="height:12px"></div>
+  <button class="pri" onclick="login()">로그인</button>
+  <div class="err" id="loginErr"></div>
+  <p class="note">코드와 PIN은 관리자가 시트 [설계사] 탭에 등록합니다. 이 기기에만 저장되며 서버로는 조회할 때만 전송됩니다.</p>
+</section>
+
+<!-- 홈 -->
+<section id="s-home" class="hide">
+  <div class="card">
+    <h2>내 초대 링크</h2>
+    <div class="link" id="invLink">-</div>
+    <div class="row" style="margin-top:10px">
+      <button class="gold" onclick="copyLink()">링크 복사</button>
+      <button class="sec" onclick="shareLink()">문자·카톡으로 보내기</button>
+    </div>
+    <p class="note">고객이 이 링크로 진단을 마치고 <b>공유에 동의</b>하면 아래 목록에 요약카드가 올라옵니다.</p>
+  </div>
+  <div class="card">
+    <h2>내 고객 <span class="badge" id="cnt">0</span></h2>
+    <div class="list" id="list"></div>
+    <div class="muted" id="listMsg" style="margin-top:8px"></div>
+    <div style="height:10px"></div>
+    <button class="sec" onclick="loadList()">새로고침</button>
+  </div>
+</section>
+
+<!-- 상세 -->
+<section id="s-detail" class="hide">
+  <div class="card">
+    <button class="sec noprint" onclick="go('home')">← 목록</button>
+    <h2 style="margin-top:12px" id="dTitle">요약카드</h2>
+    <div class="muted" id="dSub"></div>
+    <div class="grid" style="margin-top:12px" id="dGrid"></div>
+    <p class="note">보기별 배점과 산정 계수는 표시하지 않습니다. 결과 금액만 공유됩니다.</p>
+  </div>
+
+  <div class="card noprint">
+    <h2>설정 후 다시 계산</h2>
+    <p class="muted">상담에서 함께 정한 항목을 고르면, 해당 문항의 답만 바꿔 <b>진단 엔진을 그대로 다시 돌립니다.</b> 추정식이 아닙니다.</p>
+    <div id="levers"></div>
+    <button class="pri" id="btnCalc" onclick="recalc()">설정 후 결과 계산 →</button>
+    <div id="calcOut"></div>
+  </div>
+
+  <div class="card">
+    <h2>상담 기록</h2>
+    <label>메모 (고객과 정한 것, 다음 할 일)</label>
+    <textarea id="memo" placeholder="예) 연금저축 월 30만원 시작 · 간병보험 비교 후 다음 주 결정"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button class="pri" onclick="saveMemo()">저장</button>
+      <button class="sec" onclick="window.print()">인쇄 / PDF</button>
+    </div>
+    <div class="muted" id="memoMsg"></div>
+    <div id="memoList" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<p class="muted" style="text-align:center;margin-top:18px">
+  주식회사 라이프 2.0 · 내부 도구 · 고객에게 이 화면을 그대로 보여 주지 마세요
+</p>
+</div>
+
+<script>
+/* ═══ 설정 — 배포 후 이 두 줄만 채우면 됩니다 ═══ */
+var PRO_GAS_URL = "";                 // Apps Script 웹 앱 URL (…/exec)
+var PRO_SECRET  = "life20pro!!";      // pro_gas.gs 의 SECRET 과 동일하게
+var DIAG_URL    = "https://diag.lpp20.com/";
+var API_BASE    = "https://my-diagnosis-server.onrender.com";
+/* ═══════════════════════════════════════════ */
+
+var ME = null, CUR = null;
+
+/* JSONP GET */
+function jget(params, cb){
+  if(!PRO_GAS_URL){ cb({ok:false,err:'설정 필요'}); return; }
+  var name = 'l2pcb_' + Math.random().toString(36).slice(2);
+  var url = PRO_GAS_URL + '?callback=' + name;
+  Object.keys(params).forEach(function(k){ url += '&' + k + '=' + encodeURIComponent(params[k]); });
+  var s = document.createElement('script');
+  var done = false;
+  window[name] = function(d){ done = true; cb(d); cleanup(); };
+  function cleanup(){ try{ delete window[name]; }catch(e){} if(s.parentNode) s.parentNode.removeChild(s); }
+  s.onerror = function(){ if(!done){ cb({ok:false,err:'network'}); cleanup(); } };
+  s.src = url; document.head.appendChild(s);
+  setTimeout(function(){ if(!done){ cb({ok:false,err:'timeout'}); cleanup(); } }, 15000);
+}
+/* no-cors POST */
+function jpost(obj, cb){
+  if(!PRO_GAS_URL){ cb(false); return; }
+  obj.__secret = PRO_SECRET;
+  fetch(PRO_GAS_URL, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(obj)}).then(function(){ cb(true); }).catch(function(){ cb(false); });
+}
+
+function go(v){
+  ['login','home','detail'].forEach(function(x){
+    document.getElementById('s-'+x).classList.toggle('hide', x!==v);
+  });
+  document.getElementById('btnOut').classList.toggle('hide', v==='login');
+  window.scrollTo(0,0);
+}
+
+/* ── 로그인 ───────────────────────────── */
+function login(){
+  var code = document.getElementById('inCode').value.trim().toUpperCase();
+  var pin  = document.getElementById('inPin').value.trim();
+  document.getElementById('loginErr').textContent = '확인 중…';
+  jget({act:'login', code:code, pin:pin}, function(d){
+    if(!d || !d.ok){ document.getElementById('loginErr').textContent = '코드나 PIN을 확인해 주세요.'; return; }
+    ME = {code:d.code, pin:pin, name:d.name, agency:d.agency, branch:d.branch};
+    try{ localStorage.setItem('l2p_pro_me', JSON.stringify(ME)); }catch(e){}
+    afterLogin();
+  });
+}
+function logout(){ ME=null; try{ localStorage.removeItem('l2p_pro_me'); }catch(e){} go('login'); }
+function afterLogin(){
+  document.getElementById('loginErr').textContent = '';
+  document.getElementById('invLink').textContent = inviteUrl();
+  go('home'); loadList();
+}
+function inviteUrl(){ return DIAG_URL + '?inv=' + (ME ? ME.code : ''); }
+function copyLink(){
+  var t = inviteUrl();
+  if(navigator.clipboard) navigator.clipboard.writeText(t).then(function(){ alert('링크를 복사했습니다.'); });
+  else { prompt('이 주소를 복사하세요', t); }
+}
+function shareLink(){
+  var msg = (ME?ME.name:'') + ' 설계사입니다. 은퇴 준비 상태를 8분이면 확인하실 수 있습니다.\n' + inviteUrl();
+  if(navigator.share) navigator.share({title:'2막1장 은퇴진단', text:msg}).catch(function(){});
+  else { prompt('아래 문구를 복사해 보내세요', msg); }
+}
+
+/* ── 목록 ─────────────────────────────── */
+function loadList(){
+  var box = document.getElementById('list');
+  document.getElementById('listMsg').textContent = '불러오는 중…';
+  jget({act:'list', code:ME.code, pin:ME.pin}, function(d){
+    if(!d || !d.ok){ document.getElementById('listMsg').textContent = '불러오지 못했습니다.'; return; }
+    var rows = d.rows || [];
+    document.getElementById('cnt').textContent = rows.length;
+    document.getElementById('listMsg').textContent = rows.length ? '' : '아직 받은 요약카드가 없습니다. 초대 링크를 보내 보세요.';
+    box.innerHTML = rows.map(function(r){
+      return '<div class="item" onclick="openCard(\'' + String(r.diag).replace(/'/g,'') + '\')">'
+        + '<div><b>' + esc(r.name||'(이름 없음)') + '</b>'
+        + '<div class="s">' + esc(String(r.ts||'').slice(0,16)) + ' · ' + esc(r.diag||'') + '</div></div>'
+        + '<div class="badge">' + (r.total!==''&&r.total!=null ? Math.round(r.total)+'점' : '-') + '</div></div>';
+    }).join('');
+  });
+}
+function esc(s){ return String(s==null?'':s).replace(/[<>&"]/g, function(c){ return {'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]; }); }
+function num(v){ var n = parseFloat(v); return isNaN(n) ? null : n; }
+function W(v){ var n = num(v); return n==null ? '-' : (Math.round(n*10)/10).toLocaleString(); }
+
+/* ── 상세 ─────────────────────────────── */
+function openCard(diag){
+  jget({act:'detail', code:ME.code, pin:ME.pin, diag:diag}, function(d){
+    if(!d || !d.ok){ alert('요약카드를 불러오지 못했습니다.'); return; }
+    CUR = d.card; CUR.memos = d.memos || [];
+    drawCard(); go('detail');
+  });
+}
+function drawCard(){
+  var c = CUR;
+  document.getElementById('dTitle').textContent = (c.name||'고객') + ' 님 요약카드';
+  document.getElementById('dSub').textContent = String(c.ts||'').slice(0,16) + ' · 진단코드 ' + (c.diag||'')
+    + (c.phone ? ' · ' + c.phone : '');
+  var m = [
+    ['종합 점수', num(c.total)!=null ? Math.round(num(c.total))+'점' : '-'],
+    ['예상 월소득', W(c.income)+'만원'],
+    ['목표 충족률', num(c.fulfill)!=null ? Math.round(num(c.fulfill))+'%' : '-'],
+    ['월 부족액', W(c.shortfall)+'만원'],
+    ['자산 소진 나이', num(c.depletion)!=null ? (num(c.depletion)>=90?'90+':Math.round(num(c.depletion)))+'세' : '-'],
+    ['건강 방어율', num(c.shield)!=null ? Math.round(num(c.shield))+'%' : '-'],
+    ['웰다잉 준비', num(c.well)!=null ? Math.round(num(c.well))+'점' : '-'],
+    ['기초연금 판정', ({sure:'수급 대상', border:'경계', no:'대상 아님', conflict:'확인 필요'})[String(c.bp||'')] || (c.bp||'-')]
+  ];
+  document.getElementById('dGrid').innerHTML = m.map(function(x){
+    return '<div class="m"><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div></div>';
+  }).join('');
+  drawLevers();
+  document.getElementById('calcOut').innerHTML = '';
+  document.getElementById('memo').value = '';
+  document.getElementById('memoMsg').textContent = '';
+  document.getElementById('memoList').innerHTML = (CUR.memos||[]).map(function(x){
+    return '<div class="m" style="margin-bottom:6px"><div class="k">'+esc(String(x.ts).slice(0,16))+'</div><div>'+esc(x.memo)+'</div></div>';
+  }).join('');
+}
+
+/* 설정 항목 → 문항 답 바꾸기 (기획서 2절 매핑) */
+var LEVERS = [
+  {k:'q25', q:'Q25', to:2,    t:'연금 절세계좌 한도까지 활용', s:'연금저축·IRP·ISA 세액공제 한도(연 900만원)'},
+  {k:'q29', q:'Q29', step:1,  t:'퇴직·개인연금 한 단계 증액',  s:'부부합산 예상 월 수령액을 한 칸 위로'},
+  {k:'q24', q:'Q24', step:1,  t:'매달 저축 한 단계 증액',      s:'예·적금·펀드 납입액을 한 칸 위로'},
+  {k:'q12', q:'Q12', to:3,    t:'3대 진단비 6천만~1억원',      s:'암·뇌·심장 일시금 보강'},
+  {k:'q13', q:'Q13', to:2,    t:'실손 + 수술·입원비 보장',      s:'의료비 본인부담 방어'},
+  {k:'q14', q:'Q14', to:2,    t:'간병·장기요양 준비 완료',      s:'치매·장기요양 대비'},
+  {k:'q38', q:'Q38', to:0,    t:'상조(본인·부모) 준비 완료',    s:'장례 예비자금 포함'},
+  {k:'q36', q:'Q36', to:0,    t:'사전연명의료의향서 등록',      s:'등록만 하면 끝나는 항목'}
+];
+function drawLevers(){
+  document.getElementById('levers').innerHTML = LEVERS.map(function(l){
+    return '<label class="lev"><input type="checkbox" id="lv_'+l.k+'"><span class="tx">'+l.t+'<i>'+l.s+'</i></span></label>';
+  }).join('');
+}
+
+function answersObj(){
+  var a = {};
+  try{ a = JSON.parse(CUR.answers || '{}'); }catch(e){ a = {}; }
+  var out = {};
+  Object.keys(a).forEach(function(k){
+    var v = a[k];
+    out[k] = (v && typeof v === 'object' && !Array.isArray(v) && 'idx' in v) ? v.idx : v;
+  });
+  return out;
+}
+function apiDiagnose(mod){
+  return fetch(API_BASE + '/diagnose', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({answers:mod, timings:{}, phone:'', consent:false, bypass:true})
+  }).then(function(r){ if(!r.ok) throw new Error('API '+r.status); return r.json(); });
+}
+function recalc(){
+  var base = answersObj();
+  if(!Object.keys(base).length){ alert('이 요약카드에는 답변 기록이 없어 다시 계산할 수 없습니다.'); return; }
+  var picked = LEVERS.filter(function(l){ var el=document.getElementById('lv_'+l.k); return el && el.checked; });
+  if(!picked.length){ document.getElementById('calcOut').innerHTML = '<p class="muted">항목을 하나 이상 골라 주세요.</p>'; return; }
+  var mod = {};
+  Object.keys(base).forEach(function(k){ mod[k] = base[k]; });
+  picked.forEach(function(l){
+    if(l.to != null) mod[l.q] = l.to;
+    else { var cur = parseInt(mod[l.q], 10); if(isNaN(cur)) cur = 0; mod[l.q] = Math.max(0, cur - 0 + l.step); }
+  });
+  var btn = document.getElementById('btnCalc');
+  btn.disabled = true; btn.textContent = '계산 중…';
+  Promise.all([apiDiagnose(base), apiDiagnose(mod)]).then(function(res){
+    btn.disabled = false; btn.textContent = '설정 후 결과 계산 →';
+    drawCompare(res[0], res[1], picked);
+  }).catch(function(){
+    btn.disabled = false; btn.textContent = '설정 후 결과 계산 →';
+    document.getElementById('calcOut').innerHTML = '<p class="err">계산에 실패했습니다. 잠시 후 다시 눌러 주세요.</p>';
+  });
+}
+function drawCompare(a, b, picked){
+  function r0(v){ return (v==null) ? '-' : Math.round(v); }
+  function dep(v){ return (v==null) ? '-' : (v>=90 ? '90+' : Math.round(v*10)/10); }
+  /* [지표, 지금, 설정 후, 변화값(설정후-지금), 단위, 낮을수록 좋은 지표인가] */
+  var rows = [
+    ['종합 점수', r0(a.total)+'점', r0(b.total)+'점', b.total-a.total, '점', false],
+    ['예상 월소득', W(a.fixedIncome)+'만원', W(b.fixedIncome)+'만원', b.fixedIncome-a.fixedIncome, '만원', false],
+    ['목표 충족률', r0(a.fulfillGoal)+'%', r0(b.fulfillGoal)+'%', b.fulfillGoal-a.fulfillGoal, '%p', false],
+    ['월 부족액', W(a.shortfall)+'만원', W(b.shortfall)+'만원', b.shortfall-a.shortfall, '만원', true],
+    ['자산 소진 나이', dep(a.depletion)+'세', dep(b.depletion)+'세', b.depletion-a.depletion, '년', false],
+    ['건강 방어율', r0(a.shield)+'%', r0(b.shield)+'%', b.shield-a.shield, '%p', false]
+  ];
+  var html = '<table><tr><th>지표</th><th>지금</th><th>설정 후</th><th>변화</th></tr>'
+    + rows.map(function(x){
+        var d = (typeof x[3]==='number' && isFinite(x[3])) ? (Math.round(x[3]*10)/10) : null;
+        var good = (d!=null && d!==0) ? (x[5] ? d<0 : d>0) : false;
+        var cell = (d==null||d===0) ? '-' : ((d>0?'+':'−') + Math.abs(d) + x[4]);
+        return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td><td><b>'+x[2]+'</b></td><td class="'+(good?'up':'')+'">'+cell+'</td></tr>';
+      }).join('')
+    + '</table><p class="note">고른 항목: ' + picked.map(function(p){ return p.t; }).join(' · ')
+    + '<br>진단 문항의 답만 바꿔 채점 엔진을 다시 돌린 값입니다.</p>';
+  document.getElementById('calcOut').innerHTML = html;
+  var m = document.getElementById('memo');
+  if(!m.value) m.value = '설정한 것: ' + picked.map(function(p){ return p.t; }).join(', ');
+}
+
+/* ── 메모 ─────────────────────────────── */
+function saveMemo(){
+  var txt = document.getElementById('memo').value.trim();
+  if(!txt){ document.getElementById('memoMsg').textContent = '내용을 적어 주세요.'; return; }
+  document.getElementById('memoMsg').textContent = '저장 중…';
+  jpost({act:'memo', code:ME.code, pin:ME.pin, diag:CUR.diag, memo:txt}, function(ok){
+    document.getElementById('memoMsg').textContent = ok ? '저장했습니다.' : '저장하지 못했습니다.';
+  });
+}
+
+/* ── 시작 ─────────────────────────────── */
+(function(){
+  try{
+    var s = JSON.parse(localStorage.getItem('l2p_pro_me')||'null');
+    if(s && s.code && s.pin){ ME = s; afterLogin(); return; }
+  }catch(e){}
+  go('login');
+})();
+</script>
+</body>
+</html>
