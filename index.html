@@ -11638,14 +11638,31 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
      1. STATE — 저장소 판독과 상태 산출 (화면을 보지 않는다)
      ═══════════════════════════════════════════════════════════ */
   var K = { member:'l2p_member', session:'l2p_session', out:'l2p_out', premium:'l2p_premium',
-            auto:'l2p_auto', results:'l2p_results', consult:'l2p_consult', recheck:'l2p_recheck' };
+            auto:'l2p_auto', results:'l2p_results', consult:'l2p_consult', recheck:'l2p_recheck',
+            lastR:'l2p_lastR' };
   var SESSION_DAYS = 180;
 
   function raw(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
   function j(k){ try{ return JSON.parse(localStorage.getItem(k)||'null'); }catch(e){ return null; } }
   function del(k){ try{ localStorage.removeItem(k); }catch(e){} }
   function put(k,v){ try{ localStorage.setItem(k, typeof v==='string'?v:JSON.stringify(v)); }catch(e){} }
-  function $(id){ return document.getElementById(id); }
+  /* ── DOM 소유권 잠금 ────────────────────────────────────────
+     아래 노드는 L2P 만 그린다. 레거시 코드가 document.getElementById 로
+     집어가려 하면 '삼키는 더미'를 돌려주어, 두 시스템이 같은 화면을
+     동시에 그리는 일 자체를 막는다. L2P 는 원본 함수($)를 쓴다. */
+  var _gid = document.getElementById.bind(document);
+  function $(id){ return _gid(id); }
+  var OWNED = { myName:1, myCode:1, myAvatar:1, myHeroMeta:1, myHeroBtns:1, myJoinBar:1, myTop:1, myPlan:1 };
+  var SINKS = {};
+  function sink(id){
+    if(SINKS[id]) return SINKS[id];
+    var d = document.createElement('div');
+    d.id = 'l2pSink_' + id; d.style.display='none';
+    try{ (document.body||document.documentElement).appendChild(d); }catch(e){}
+    SINKS[id] = d; return d;
+  }
+  document.getElementById = function(id){ return OWNED[id] ? sink(id) : _gid(id); };
+
   function getR(){ try{ if(typeof _R!=='undefined' && _R) return _R; }catch(e){} return window._R||null; }
   function nAnswers(){ try{ if(typeof answers!=='undefined' && answers) return Object.keys(answers).length; }catch(e){} return 0; }
   function draft(){ try{ return (typeof window.l2pAutoDraft==='function') ? window.l2pAutoDraft() : null; }catch(e){ return null; } }
@@ -11758,6 +11775,7 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
       case 'JOIN_OK':       L2P.flags.busy=''; del(K.out); break;
       case 'LOGOUT':
         del(K.session); del(K.member); put(K.out,'1'); L2P.flags.busy='';
+        del(K.lastR); L2P.clearResult();          /* 남의 결과가 화면에 남지 않게 */
         break;
       case 'DIAG_START':
       case 'DIAG_ANSWER':   L2P.flags.reportErr=''; break;
@@ -11769,7 +11787,10 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
         }, 90000);
         break;
       case 'DIAG_REVIEW':   L2P.flags.generating=false; clearTimeout(L2P.__genT); break;
-      case 'DIAG_OK':       L2P.flags.generating=false; clearTimeout(L2P.__genT); L2P.flags.reportErr=''; break;
+      case 'DIAG_OK':
+        L2P.flags.generating=false; clearTimeout(L2P.__genT); L2P.flags.reportErr='';
+        if(!L2P.flags.restoring) L2P.keepResult();   /* 새로고침해도 리포트가 유지되도록 */
+        break;
       case 'DIAG_FAIL':     L2P.flags.generating=false; clearTimeout(L2P.__genT); L2P.flags.reportErr=(p.msg||'서버 응답 없음'); break;
       case 'RESTART':       L2P.flags.generating=false; L2P.flags.reportErr=''; del(K.auto); break;
       case 'PLAN_DONE':     L2P.setRecheck(); break;
@@ -11780,6 +11801,41 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
     L2P.log.push({ev:ev, t:Date.now()}); if(L2P.log.length>200) L2P.log.shift();
     L2P.compute(); L2P.render();
     return L2P.state;
+  };
+
+  /* 결과 보존 — 새로고침 후에도 COMPLETED · REPORT_READY 를 유지한다 */
+  var KEEP_DAYS = 90;
+  L2P.keepResult = function(){
+    var R = getR(); if(!R || !R.code) return false;
+    try{ put(K.lastR, { ts:new Date().toISOString(), code:R.code, R:R }); }catch(e){}
+    return true;
+  };
+  /* 화면 전환 없이 조용히 되살린다 — 새로고침 때 완료화면으로 튀지 않게 */
+  function quietly(fn){
+    var _c = window.renderCompletion, _s = window.show, _n = window.setNav;
+    window.renderCompletion = function(){};
+    window.show = function(){}; window.setNav = function(){};
+    try{ return fn(); }
+    catch(e){ try{ console.error(e); }catch(_){} return false; }
+    finally{ window.renderCompletion=_c; window.show=_s; window.setNav=_n; }
+  }
+  L2P.restoreResult = function(){
+    if(getR()) return false;
+    var o = j(K.lastR); if(!o || !o.R || !o.ts) return false;
+    if(Date.now() - new Date(o.ts).getTime() > KEEP_DAYS*864e5){ del(K.lastR); return false; }
+    if(typeof window.renderReportFromServer !== 'function') return false;
+    L2P.flags.restoring = true;
+    quietly(function(){ window.renderReportFromServer(o.R); });
+    L2P.flags.restoring = false;
+    return !!getR();
+  };
+  /* 로그아웃 때 메모리에 남은 결과를 비운다 (작성 중 임시저장은 보존) */
+  L2P.clearResult = function(){
+    if(typeof window.restart !== 'function') return false;
+    var keep = raw(K.auto);
+    quietly(function(){ window.restart(); });
+    if(keep) put(K.auto, keep);
+    return true;
   };
 
   L2P.setRecheck = function(){
@@ -11949,6 +12005,10 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 
   /* 기본 화면이 그리던 #myPlan·하단 메뉴도 상태에 맞춰 통제한다 */
   function renderLegacy(s){
+    /* 통합 대시보드(레거시 #myDash)는 리포트가 준비됐을 때만 남긴다 */
+    var md=$('myDash');
+    if(md && s.report!=='REPORT_READY'){ md.innerHTML=''; md.style.display='none'; }
+    else if(md){ md.style.display=''; }
     var mp=$('myPlan');
     if(mp && s.plan==='PLAN_HIDDEN'){ mp.innerHTML=''; mp.style.display='none'; }
     else if(mp){ mp.style.display=''; }
@@ -12041,6 +12101,8 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
     });
     wrap('restart', null, function(){ L2P.send('RESTART'); });
     wrap('goDiagnosis', null, function(){ L2P.send('SYNC'); });
+    /* 레거시가 #myDash 를 채운 직후 같은 프레임에서 우리가 정리한다 */
+    wrap('goMyPage', null, function(){ L2P.compute(); L2P.render(); });
     /* 가입 직후: 탭을 옮기지 않고 마이에 머문다 + 자동 로그인 상태로 전환 */
     wrap('unlockPremium', null, function(){
       var fromMy = (window.__l2pJoinFrom==='my');
@@ -12079,8 +12141,9 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
     if(s.auth==='LOGGED_IN' && has(/가입/))                       v.push('G1 로그인 상태에서 가입 CTA 노출');
     if(s.auth==='LOGGED_IN' && has(/^[^가-힣]*로그인(?!.*로그아웃)/)) v.push('G2 로그인 상태에서 로그인 CTA 노출');
     if(s.auth==='GUEST' && /님/.test(($('myName')||{textContent:''}).textContent)) v.push('G3 로그아웃 뒤 이름 잔존');
-    var mp=$('myPlan');
+    var mp=$('myPlan'), md=$('myDash');
     if(s.diagnosis!=='COMPLETED' && mp && (mp.innerHTML||'').trim()) v.push('G4 진단 전 실행계획 영역 노출');
+    if(s.report!=='REPORT_READY' && md && (md.innerHTML||'').trim()) v.push('G4 진단 전 대시보드 영역 노출');
     if(s.report!=='REPORT_READY' && /실행 항목을 체크/.test(tx))   v.push('G5 진단 전 실행항목 안내 문구');
     if((s.auth==='BOOTING'||s.auth==='LOGGING_IN') && has(/로그인|가입/)) v.push('G6 확인 중 CTA 노출');
     if(s.diagnosis==='IN_PROGRESS' && !/\d+\s*\/\s*\d+/.test(tx))  v.push('G7 이어하기 상태에 진행률 없음');
@@ -12090,12 +12153,23 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
   /* ═══════════════════════════════════════════════════════════
      6. 기동
      ═══════════════════════════════════════════════════════════ */
+  /* 레거시 렌더링 함수를 상태 시스템에 종속시킨다 — 직접 그리지 못하게 한다 */
+  function neutralizeLegacy(){
+    if(L2P.__neut) return;
+    if(typeof window.renderMyPage==='function'){
+      window.renderMyPage = function(){ L2P.compute(); L2P.render(); };
+      try{ eval('renderMyPage = window.renderMyPage;'); }catch(e){}
+    }
+    L2P.__neut = true;
+  }
+
   function boot(){
-    hooks(); hookMyBuild();
+    neutralizeLegacy(); hooks(); hookMyBuild();
+    L2P.restoreResult();                 /* 새로고침 후에도 리포트·실행계획 유지 */
     L2P.send('BOOT');
     var sec=$('s-mypage');
     setInterval(function(){
-      hooks(); hookMyBuild();
+      neutralizeLegacy(); hooks(); hookMyBuild();
       if(sec && sec.classList.contains('active')){ L2P.compute(); L2P.render(); }
     }, 700);
   }
