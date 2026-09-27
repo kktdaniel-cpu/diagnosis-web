@@ -383,4 +383,287 @@ window.WD_LINK = {"med": {"now": "사전연명의료의향서 등록 — <b>무�
   renderStart();
 })();
 </script>
+<!-- [WD-VOICE] start -->
+<style>
+#vcBar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(255,255,255,.97);
+  border-top:1px solid var(--line);box-shadow:0 -6px 22px rgba(14,58,38,.10);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom));}
+#vcBar .in{max-width:860px;margin:0 auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#vcBar button{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--gd);
+  border-radius:11px;padding:11px 14px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;gap:6px}
+#vcBar button.on{background:var(--g);border-color:var(--g);color:#fff}
+#vcBar button:disabled{opacity:.4;cursor:default}
+#vcBar .st{flex:1 1 180px;min-width:160px;font-size:13px;color:var(--soft);line-height:1.45}
+#vcBar .st b{color:var(--gd)}
+#vcBar .heard{display:block;font-size:12.5px;color:var(--mute)}
+#vcNote{font-size:11.5px;color:var(--mute);line-height:1.5;max-width:860px;margin:6px auto 0}
+.vc-live{position:relative}
+.vc-live:after{content:'';position:absolute;right:9px;top:50%;width:8px;height:8px;margin-top:-4px;
+  border-radius:50%;background:#C2564B;animation:vcp 1s infinite}
+@keyframes vcp{0%,100%{opacity:1}50%{opacity:.25}}
+.opt.vc-pick{outline:3px solid var(--gold);outline-offset:2px}
+body{padding-bottom:150px}
+@media print{ #vcBar{display:none!important} body{padding-bottom:0} }
+</style>
+<script>
+(function(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var TTS = window.speechSynthesis || null;
+  var V = { read:false, listen:false, rec:null, speaking:false, lastQ:'', miss:0, hint:'' };
+
+  /* ── 화면에서 지금 문항을 읽어온다 (앱 코드를 고치지 않기 위해) ── */
+  function onQuiz(){ var q=document.getElementById('scQuiz'); return q && q.className!=='hide'; }
+  function onResult(){ var r=document.getElementById('scResult'); return r && r.className!=='hide'; }
+  function qText(){ var e=document.querySelector('#scQuiz .qtx'); return e? e.textContent.trim() : ''; }
+  function qMeta(){ var e=document.querySelector('#scQuiz .pmeta span'); return e? e.textContent.trim() : ''; }
+  function opts(){
+    return [].map.call(document.querySelectorAll('#scQuiz .opt'), function(b){
+      var sp = b.querySelectorAll('span');
+      var t = sp.length>1 ? sp[1].textContent.trim() : b.textContent.trim();
+      return { el:b, t:t };
+    });
+  }
+
+  /* ── 읽어주기 ───────────────────────────────────────────── */
+  function stopSpeak(){ try{ TTS && TTS.cancel(); }catch(e){} V.speaking=false; }
+  function speak(text, done){
+    if(!TTS || !text){ done && done(); return; }
+    stopSpeak();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang='ko-KR'; u.rate=0.95; u.pitch=1;
+    try{
+      var vs = TTS.getVoices()||[];
+      for(var i=0;i<vs.length;i++) if(/ko[-_]KR/i.test(vs[i].lang)){ u.voice=vs[i]; break; }
+    }catch(e){}
+    V.speaking=true;
+    var fired=false;
+    function fin(){ if(fired) return; fired=true; V.speaking=false; clearTimeout(wd); done && done(); }
+    /* 크롬은 긴 문장에서 onend 가 오지 않는 일이 있다 — 글자 수로 상한을 잡아 둔다 */
+    var wd = setTimeout(fin, Math.min(60000, 2500 + text.length * 130));
+    u.onend = fin; u.onerror = fin;
+    try{ TTS.speak(u); }catch(e){ fin(); }
+  }
+  function readQuestion(then){
+    if(!onQuiz()){ then && then(); return; }
+    var o = opts();
+    var t = qMeta().replace('/', '분의 ') + '번 문항. ' + qText() + ' ';
+    o.forEach(function(x,i){ t += (i+1) + '번, ' + x.t + '. '; });
+    t += '번호나 보기 내용을 말씀해 주세요.';
+    V.lastQ = qText();
+    speak(t, then);
+  }
+  function readResult(){
+    var c = document.querySelector('#scResult .card');
+    if(!c) return;
+    var t = (c.innerText||'').split('\n').filter(Boolean).slice(0,14).join('. ');
+    speak('진단이 끝났습니다. ' + t);
+  }
+
+  /* ── 말에서 보기 고르기 ─────────────────────────────────── */
+  var NUM = [
+    [/(^|\D)(1|일|하나|한|첫)\s*(번째|번|째)?(\D|$)/, 1],
+    [/(^|\D)(2|이|둘|두)\s*(번째|번|째)(\D|$)/, 2],
+    [/(^|\D)(3|삼|셋|세)\s*(번째|번|째)?(\D|$)/, 3],
+    [/(^|\D)(4|사|넷|네)\s*(번째|번|째)(\D|$)/, 4],
+    [/(^|\D)(5|오|다섯)\s*(번째|번|째)?(\D|$)/, 5],
+    [/(^|\D)(6|육|여섯)\s*(번째|번|째)?(\D|$)/, 6]
+  ];
+  function norm(s){ return String(s||'').replace(/[\s·,.!?()（）\[\]"'“”·]/g,''); }
+  function pickNum(said){
+    var m = /([0-9]+)\s*번/.exec(said); if(m) return parseInt(m[1],10);
+    for(var i=0;i<NUM.length;i++) if(NUM[i][0].test(said)) return NUM[i][1];
+    var only = norm(said);
+    if(/^[0-9]$/.test(only)) return parseInt(only,10);
+    return 0;
+  }
+  /* 보기 문구와 얼마나 겹치는지 — 두 글자 이상 토막만 센다 */
+  function scoreOpt(said, text){
+    var a = norm(said), b = norm(text), hit = 0;
+    if(!a || !b) return 0;
+    if(a.length>=3 && b.indexOf(a)>=0) hit += 3;
+    var toks = String(text).split(/[^가-힣A-Za-z0-9]+/).filter(function(w){ return w.length>=2; });
+    toks.forEach(function(w){ if(a.indexOf(w)>=0) hit += 2; });
+    for(var i=0;i+2<=b.length && i<40;i+=1){ if(a.indexOf(b.substr(i,3))>=0) hit += 1; }
+    return hit;
+  }
+  function resolve(said){
+    var o = opts(); if(!o.length) return null;
+    var n = pickNum(said);
+    if(n>=1 && n<=o.length) return { i:n-1, how:'번호' };
+    var best=-1, bs=0, tie=false;
+    o.forEach(function(x,i){ var s=scoreOpt(said,x.t); if(s>bs){ bs=s; best=i; tie=false; } else if(s===bs && s>0) tie=true; });
+    if(best>=0 && bs>=3 && !tie) return { i:best, how:'내용' };
+    return null;
+  }
+
+  /* ── 명령어 ─────────────────────────────────────────────── */
+  function command(said){
+    var a = norm(said);
+    if(/다시(읽|말|들)|한번더|다시한번/.test(a)) { readQuestion(listenSoon); return true; }
+    if(/^(다음|넘어가|넘겨|계속)/.test(a)) { clickNext(); return true; }
+    if(/(이전|뒤로|앞으로가)/.test(a)) { var p=document.getElementById('bPrev'); if(p&&!p.disabled) p.click(); return true; }
+    if(/(결과|결과보기)/.test(a)) { clickNext(); return true; }
+    if(/(그만|중지|멈춰|정지|종료)/.test(a)) { setListen(false); say('음성 답변을 껐습니다.'); return true; }
+    return false;
+  }
+  function clickNext(){ var b=document.getElementById('bNext'); if(b) b.click(); }
+
+  /* ── 듣기 ───────────────────────────────────────────────── */
+  function say(t){ status(t); }
+  function status(t, heard){
+    var s=document.getElementById('vcSt'); if(!s) return;
+    s.innerHTML = '<b>'+t+'</b>' + (heard? '<span class="heard">들린 말: “'+heard+'”</span>' : '');
+  }
+  function listenSoon(){ if(V.listen) setTimeout(startRec, 260); }
+
+  function startRec(){
+    if(!SR || !V.listen || V.speaking || !onQuiz()) return;
+    stopRec();
+    var r = new SR();
+    r.lang='ko-KR'; r.continuous=false; r.interimResults=true; r.maxAlternatives=3;
+    var got='';
+    r.onstart = function(){ mark(true); status('듣고 있습니다 — ' + (V.hint || '번호나 보기 내용을 말씀하세요')); };
+    r.onresult = function(ev){
+      var txt='';
+      for(var i=ev.resultIndex;i<ev.results.length;i++) txt += ev.results[i][0].transcript;
+      got = txt.trim();
+      status('듣고 있습니다', got);
+      if(ev.results[ev.results.length-1].isFinal) handle(got, ev);
+    };
+    r.onerror = function(ev){
+      mark(false);
+      var e = ev && ev.error;
+      if(e==='no-speech'){ status('소리가 들리지 않았습니다 — 다시 듣겠습니다'); listenSoon(); return; }
+      if(e==='aborted'){ return; }
+      if(e==='not-allowed' || e==='service-not-allowed'){
+        setListen(false);
+        status('마이크 사용이 허용되지 않았습니다');
+        alert('마이크 사용이 허용되지 않았습니다.\n\n· 주소창 왼쪽 자물쇠 → 마이크 → 허용\n· 카카오톡·네이버 안에서 열면 막히는 경우가 있습니다. 크롬이나 사파리로 열어 주세요.');
+        return;
+      }
+      if(e==='audio-capture'){ setListen(false); status('마이크를 찾지 못했습니다'); return; }
+      if(e==='network'){ status('네트워크 문제로 인식하지 못했습니다 — 다시 시도합니다'); listenSoon(); return; }
+      status('인식하지 못했습니다 — 다시 듣겠습니다'); listenSoon();
+    };
+    r.onend = function(){ mark(false); };
+    V.rec = r;
+    try{ r.start(); }catch(e){ /* 이미 켜져 있으면 무시 */ }
+  }
+  function stopRec(){ try{ V.rec && V.rec.abort(); }catch(e){} V.rec=null; mark(false); }
+  function mark(on){ var b=document.getElementById('vcMic'); if(b) b.className = 'on' + (on?' vc-live':''); }
+
+  function handle(said){
+    stopRec();
+    if(!said){ listenSoon(); return; }
+    if(command(said)) return;
+    var hit = resolve(said);
+    if(!hit){
+      V.miss++;
+      if(V.miss>=3){ status('계속 인식하지 못했습니다 — 화면에서 직접 골라 주세요', said); return; }
+      V.hint = '“2번”처럼 번호로 말씀해 주세요';
+      status('잘 못 들었습니다 — ' + V.hint, said);
+      speak('잘 못 들었습니다. 번호로 말씀해 주세요.', listenSoon);
+      return;
+    }
+    V.miss = 0; V.hint = '';
+    var o = opts()[hit.i];
+    o.el.classList.add('vc-pick');
+    status('“'+o.t+'” 선택했습니다 ('+hit.how+')', said);
+    setTimeout(function(){
+      o.el.click();                               /* 앱의 원래 동작 그대로 */
+      setTimeout(function(){
+        if(onQuiz() && qText()===V.lastQ) clickNext();   /* 학습 모드는 자동으로 안 넘어간다 */
+        setTimeout(tick, 80);                            /* 마지막 문항이면 곧바로 결과로 넘어간다 */
+      }, 320);
+    }, 500);
+  }
+
+  /* ── 문항이 바뀌면 이어서 읽는다 ─────────────────────────── */
+  function tick(){
+    if(onResult()){
+      if(V.listen) setListen(false);
+      if(V.read && V.lastQ!=='__done'){ V.lastQ='__done'; readResult(); }
+      return;
+    }
+    if(!onQuiz()) return;
+    var t = qText();
+    if(t && t!==V.lastQ && (V.read||V.listen)){
+      V.lastQ = t; V.miss = 0; V.hint = '';
+      if(V.read) readQuestion(listenSoon);
+      else listenSoon();
+    }
+  }
+
+  /* ── 버튼 ───────────────────────────────────────────────── */
+  function setRead(on){
+    V.read = on;
+    var b=document.getElementById('vcRead'); if(b) b.className = on?'on':'';
+    if(!on) stopSpeak();
+    else if(onQuiz()){ V.lastQ=qText(); readQuestion(listenSoon); }
+    else if(onResult()){ readResult(); }
+  }
+  function setListen(on){
+    if(on && !SR) return;
+    V.listen = on; V.miss = 0;
+    var b=document.getElementById('vcMic'); if(b) b.className = on?'on':'';
+    if(!on){ stopRec(); status('음성 답변 꺼짐'); return; }
+    status('음성 답변 켜짐');
+    if(!onQuiz()){ var g=document.getElementById('goStart'); if(g) g.click(); }
+    setTimeout(function(){
+      if(V.read) readQuestion(listenSoon); else startRec();
+    }, 300);
+  }
+
+  function bar(){
+    if(document.getElementById('vcBar')) return;
+    var d = document.createElement('div');
+    d.id='vcBar';
+    d.innerHTML = '<div class="in">'
+      + '<button id="vcRead" type="button">🔊 읽어주기</button>'
+      + (SR ? '<button id="vcMic" type="button">🎤 음성으로 답하기</button>' : '')
+      + '<button id="vcAgain" type="button">↻ 다시 읽기</button>'
+      + '<span class="st" id="vcSt">' + (SR
+          ? '버튼을 누르면 문항을 읽어 드리고, 말로 답하실 수 있습니다.'
+          : '이 브라우저는 음성 인식을 지원하지 않습니다 — 읽어주기만 됩니다 (크롬·사파리 권장).')
+      + '</span></div>'
+      + '<div id="vcNote">🔒 말씀하신 음성은 브라우저(구글·애플) 음성인식 서비스로 전송되어 글자로 바뀝니다. '
+      + '2막1장은 음성을 저장하지 않으며, 바뀐 글자는 보기 선택에만 씁니다. 마이크 권한은 언제든 끄실 수 있습니다.</div>';
+    document.body.appendChild(d);
+    document.getElementById('vcRead').onclick = function(){ setRead(!V.read); };
+    document.getElementById('vcAgain').onclick = function(){
+      if(onResult()) return readResult();
+      readQuestion(listenSoon);
+    };
+    var m = document.getElementById('vcMic');
+    if(m) m.onclick = function(){ setListen(!V.listen); };
+    fitPad();
+    window.addEventListener('resize', fitPad);
+  }
+
+  /* 바 높이만큼 아래 여백을 준다 — 줄바꿈되는 기기에서 내용이 가리지 않게 */
+  function fitPad(){
+    var d=document.getElementById('vcBar'); if(!d) return;
+    document.body.style.paddingBottom = (d.offsetHeight + 14) + 'px';
+  }
+
+  function boot(){
+    bar();
+    if(TTS){ try{ TTS.onvoiceschanged = function(){}; TTS.getVoices(); }catch(e){} }
+    setInterval(tick, 500);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  /* 자동 점검용 */
+  window.WDV = {
+    state: function(){ return {read:V.read, listen:V.listen, speaking:V.speaking, miss:V.miss,
+      q:qText(), opts:opts().map(function(o){return o.t;}), support:{tts:!!TTS, stt:!!SR}}; },
+    resolve: resolve, pickNum: pickNum, command: command,
+    feed: function(said){ handle(said); },        /* 인식 결과를 흉내 내 넣는다 */
+    setRead: setRead, setListen: setListen
+  };
+})();
+</script>
+<!-- [WD-VOICE] end -->
 </body></html>

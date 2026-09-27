@@ -249,6 +249,17 @@ window.__L2P_CAT_FB={"parts":["기본 정보","건강","부동산 (비금융자�
   .tab{flex:1;white-space:nowrap;border:1px solid var(--line);background:var(--cream-warm);font-family:inherit;font-size:14px;font-weight:700;color:var(--green-deep);padding:12px 14px;border-radius:11px;cursor:pointer;transition:.2s;}
   .tab:hover{background:var(--green-soft);}
   .tab.active{background:var(--green-deep);color:#fff;border-color:var(--green-deep);}
+  /* [RPT②] 눌러 보는 것임을 알 수 있게 — 번호 + 오른쪽 click 리본 */
+  .tab{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;padding-right:46px!important;}
+  .tab .tno{flex:0 0 auto;width:19px;height:19px;border-radius:50%;background:var(--green-deep);color:#fff;
+    font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;}
+  .tab.active .tno{background:#fff;color:var(--green-deep);}
+  .tab .tclick{position:absolute;right:-1px;top:-1px;bottom:-1px;width:40px;border-radius:0 11px 11px 0;
+    background:#C9A449;color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;
+    display:flex;align-items:center;justify-content:center;}
+  .tab.active .tclick{background:#8C7220;}
+  @media (max-width:560px){ .tab{font-size:12.5px;padding:11px 8px;padding-right:38px!important;}
+    .tab .tclick{width:32px;font-size:8.5px;} }
   /* 설문 유도 카드 */
   .survey-gate{background:linear-gradient(135deg,var(--burgundy),var(--burgundy-deep));color:#fff;border-radius:22px;padding:30px 30px;margin-top:20px;text-align:center;box-shadow:var(--shadow-lg);}
   .survey-gate .eyebrow{background:var(--gold);color:var(--green-deep);}
@@ -1539,6 +1550,9 @@ const AREA_INFO = {
 const AREA_ORDER = ['asset','health','housing','job','well'];
 // 또래 평균: 서버가 계산 — 시트에서 받은 실측(peerData)이 있으면 서버로 전달
 window._peerData=null;
+/* [FIX-PEER] 또래 표본에 모의 응답이 섞여 있는 동안 true.
+   실제 응답이 충분히 쌓여 모의분을 지우면 false 로 바꾸세요. */
+window.L2P_PEER_HAS_SIM = true;
 function loadPeer(){   // 시트에서 연령대별 평균을 JSONP로 불러옴 (CORS 회피)
   if(!GAS_URL || GAS_URL.indexOf('http')!==0) return;
   window.__onPeer=function(d){ window._peerData=d||null; };
@@ -1761,7 +1775,7 @@ function reportHTML(R, sample){
       </div>
     </div>
 
-    <div class="metric-grid">
+    <div class="metric-grid" style="display:none;"><!-- [RPT⑦] 대시보드 핵심 재무 지표와 같은 숫자라 감춥니다 -->
       <div class="mcard"><div class="ic g">💵</div><div class="lb">예상 월소득 (부부 합산 · 은퇴 이후)</div><div class="vl">${R.fixedIncome}<span class="u">만원</span></div><div class="ds">국민연금(부부) ${R.national} + 퇴직·개인(부부) ${R.retpen} + 배당 ${c.div}${R.hp?' + 주택연금 '+R.hp:''}${(R.basicPension&&R.basicPension.included)?' + 기초연금 '+R.basicPension.includedAmt:''}</div></div>
       <div class="mcard"><div class="ic b">⏳</div><div class="lb">예상 자산 고갈 나이</div><div class="vl ${depWarn?'warn':''}">${R.depletion>=90?'90+':R.depletion}<span class="u">세</span></div><div class="ds">${R.shortfall<=0?'월 소득이 지출보다 커 안정적':'현재 조건 유지 시 추정'}</div></div>
       <div class="mcard"><div class="ic">📉</div><div class="lb">은퇴 이후 월 부족액</div><div class="vl ${R.shortfall>0?'warn':''}">${R.shortfall>0?'-'+R.shortfall:'+'+(-R.shortfall)}<span class="u">만원</span></div><div class="ds">생활비 ${R.costAdj} + 건강예비 ${R.hb} − 소득 ${R.fixedIncome}</div></div>
@@ -1769,7 +1783,7 @@ function reportHTML(R, sample){
 
     ${window.l2pBasicPensionHTML?window.l2pBasicPensionHTML(R):''}
 
-    <div class="fulfill-card">
+    <div class="fulfill-card" style="display:none;"><!-- [RPT⑦] 대시보드 '은퇴 준비율' 과 같은 숫자입니다 -->
       <div class="ff-top"><span class="ff-lb">💧 목표 연금 충족률<span class="ff-sub">부부 합산 예상 연금 ÷ 65세 목표 연금 ${c.goal}만</span></span><span class="ff-val ${R.fulfillGoal<70?'warn':''}">${R.fulfillGoal}<span class="u">%</span></span></div>
       <div class="ff-bar"><i style="width:${Math.min(R.fulfillGoal,100)}%"></i></div>
       <div class="ff-note">생활비 기준 충족률 <b style="color:var(--ink)">${R.fulfill}%</b> — <b>꼭 쓰는 최소선 ${R.minCost}만</b>은 연금으로, 여유분 ${Math.max(R.costAdj-R.minCost,0)}만은 일자리·자산소득으로 채우는 것이 안전합니다 · 참고: 적정 ${R.basis.coupleAdequate}만·최소 ${R.basis.coupleMinimum}만 (국민연금연구원)</div>
@@ -1793,7 +1807,7 @@ function reportHTML(R, sample){
       <h2>당신의 <em>노후 준비 5각 지도</em></h2>
       <div class="radar-legend2">
         <span class="k"><span class="sw me"></span> 나</span>
-        <span class="k"><span class="sw peer"></span> 또래(${c.band||'동일 연령대'}) 평균 ${peerN?('· 실제 '+peerN+'명'):('· '+(R.peerPopLabel||'참고치'))}</span>
+        <span class="k"><span class="sw peer"></span> 또래(${c.band||'동일 연령대'}) 평균 ${peerN?('· 표본 '+peerN+'명'+(window.L2P_PEER_HAS_SIM?'(모의 포함)':'')):('· '+(R.peerPopLabel||'참고치'))}</span>
       </div>
       <div class="radar-grid">
         <div><svg class="radar-svg" viewBox="0 0 320 300">${radarSVG(R.scores, peer)}</svg></div>
@@ -1810,7 +1824,7 @@ function reportHTML(R, sample){
       <div class="weak-row"><div class="weak-rank ok">✓</div><div class="weak-txt"><b>권장 첫 액션</b> — ${R.firstAction}</div></div>
     </div>
 
-    <div class="sec-block">
+    <div class="sec-block" style="display:none;"><!-- [RPT⑧] 삭제 요청 · 같은 내용이 위 카드에 있습니다 -->
       <h3>💰 예상 월소득 구성</h3>
       <table class="income-table">
         <tr><td>국민연금 <span style="color:var(--muted);font-size:13.5px;">(부부 합산 · 실제 예상액 우선)</span></td><td>${R.national}만원</td></tr>
@@ -2296,9 +2310,9 @@ function detailTabsHTML(R){
   return `
    <div id="detailWrap" style="display:none;">
     <div class="tabs">
-      <button class="tab active" onclick="tab(event,'t-rx')">🤖 AI 처방 · 로드맵</button>
-      <button class="tab" onclick="tab(event,'t-road')">💎 AI 맞춤 상품</button>
-      <button class="tab" onclick="tab(event,'t-wi')">📊 전·후 비교</button>
+      <button class="tab active" onclick="tab(event,'t-rx')"><span class="tno">①</span>🤖 AI 처방 · 로드맵<span class="tclick">click</span></button>
+      <button class="tab" onclick="tab(event,'t-road')"><span class="tno">②</span>💎 AI 맞춤 상품<span class="tclick">click</span></button>
+      <button class="tab" onclick="tab(event,'t-wi')"><span class="tno">③</span>📊 전·후 비교<span class="tclick">click</span></button>
     </div>
     <div id="t-rx" class="panel active"><div class="sec-block" style="margin-top:14px;"><h3>🤖 AI 영역별 정밀 처방</h3><p style="font-size:13.5px;color:var(--ink-soft);margin-top:-6px;"><b>AI 알고리즘이 43개 문항 답변 × 5개 영역 점수를 교차 분석</b>해, 취약한 순서대로 지금 실행할 수 있는 조치를 정리했습니다.</p></div>${rx}</div>
     <div id="t-road" class="panel">
@@ -6810,7 +6824,9 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       var worst = null, gap = 0;
       AREA_ORDER.forEach(function(a){ var g=(peer[a]||0)-R.scores[a]; if(g>gap){gap=g;worst=a;} });
       var txt = '또래(' + band + ') 평균 <b>' + pe + '점</b> 대비 <b>' + (diff>=0?'+':'') + diff + '점</b>'
-        + (real ? ' · 실제 응답 ' + real + '명 기준' : ' · 참고 벤치마크');
+        + (real ? (' · 표본 ' + real + '명 기준'
+            + (window.L2P_PEER_HAS_SIM ? '<br><span style="font-size:11.5px;color:#939E97">※ 서비스 초기라 또래 표본에 분포를 채우기 위한 <b>모의 응답</b>이 포함돼 있습니다. 실제 응답이 쌓이면 교체됩니다.</span>' : ''))
+            : ' · 참고 벤치마크');
       if(worst && gap>=5) txt += '<br>또래보다 가장 뒤처진 축 — <b>' + AREA_INFO[worst].name + '</b> (' + Math.round(gap) + '점 낮음)';
       else if(worst) txt += '<br>다섯 축 모두 또래 평균과 큰 차이가 없습니다.';
       else txt += '<br>다섯 축 모두 또래 평균 이상입니다.';
@@ -7074,12 +7090,30 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 .ds-h p{font-size:12.5px;color:#6E7C73;line-height:1.6;margin:0;word-break:keep-all;}
 
 /* 재무 지표 카드 */
+/* [FIX-DEBT] 부채 상환 계획 카드 */
+.dbt{border:1px solid #E7C3BC;background:#FFF7F5;border-radius:16px;padding:15px;margin:12px 0;}
+.dbt .ds-h h3{color:#8E2F26;}
+.dbt-box{background:#fff;border:1px solid #F0D9D4;border-radius:12px;padding:11px 13px;margin-bottom:10px;}
+.dbt-r{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;font-size:13.5px;color:#5E6B63;}
+.dbt-r b{font-size:16px;font-weight:900;color:#2B3730;}
+.dbt-r.tot{border-top:1px solid #F0D9D4;margin-top:4px;padding-top:8px;}
+.dbt-r.tot span{font-weight:800;color:#8E2F26;} .dbt-r.tot b{color:#8E2F26;font-size:19px;}
+.dbt-plan{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.dbt-plan .dp{background:#fff;border:1px solid #F0D9D4;border-radius:12px;padding:10px 11px;}
+.dbt-plan .l{display:block;font-size:11.5px;color:#7C877F;line-height:1.35;}
+.dbt-plan .v{display:block;font-size:19px;font-weight:900;color:#8E2F26;margin-top:3px;}
+.dbt-plan .v i{font-style:normal;font-size:12px;font-weight:700;margin-left:1px;}
+.dbt-note{margin-top:10px;font-size:13px;color:#5E6B63;line-height:1.62;word-break:keep-all;}
+.dbt-note .sm{font-size:11.5px;color:#939E97;}
+@media (max-width:520px){ .dbt-plan{grid-template-columns:1fr;} }
 .dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 @media (min-width:760px){ .dm-grid{grid-template-columns:repeat(3,1fr);} }
 .dm{background:#fff;border:1px solid #E4E8E5;border-left:3px solid #C9D3CC;border-radius:14px;padding:12px 13px;}
 .dm.good{border-left-color:#1C7A4E;} .dm.warn{border-left-color:#C89A3C;} .dm.bad{border-left-color:#C2564B;}
 .dm-h{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;margin-bottom:6px;}
-.dm-l{font-size:12px;font-weight:800;color:#5E6B63;line-height:1.4;word-break:keep-all;}
+.dm-l{font-size:13.5px;font-weight:900;color:#0F2B1D;line-height:1.38;word-break:keep-all;letter-spacing:-.02em;}
+/* [RPT④] 지표 이름이 회색 잔글씨라 눈에 걸리지 않았다 — 진하게 키우고 밑줄로 묶는다 */
+.dm-h{border-bottom:1px solid #EDF1EE;padding-bottom:6px;}
 .dm-bd{flex:0 0 auto;font-size:10px;font-weight:900;border-radius:20px;padding:2px 8px;letter-spacing:-.02em;}
 .dm-bd.good{background:#E6F4EC;color:#146B44;} .dm-bd.warn{background:#FBF3E0;color:#8A6A20;}
 .dm-bd.bad{background:#FBEAE8;color:#9E3B32;} .dm-bd.info{background:#EEF1EF;color:#5E6B63;}
@@ -8506,20 +8540,28 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     /* 축 범위 — 자산은 고갈 시점에서 0 에 멈춘다. 그 뒤의 '음수 자산'을 축에 넣으면
        눈금이 −1억 같은 없는 숫자로 찍힌다(실제로 그렇게 나왔다). 그리는 구간만 본다. */
     var _end0=(T.sf>0)?Math.min(T.dep,90):90;
-    var vals=[T.at(T.a0), T.P, Math.max(0, T.at(_end0))];
-    var ymax=Math.max(1, Math.max.apply(null, vals))*1.14;
-    var ymin=0;
+    var _endV=(T.sf>0&&T.dep<=90)?(T.P<0?T.P:0):T.at(_end0);
+    var vals=[T.at(T.a0), T.P, _endV];
+    /* [RPT③] 부채가 자산보다 큰 분은 순자산이 마이너스다. 전에는 축 아래쪽을
+       0 에서 잘라내는 바람에 값이 전부 음수면 축이 0~1 로 무너져
+       눈금이 '0만 · 1만' 으로만 찍히고 선이 화면 밖으로 나갔다.
+       이제 음수 구간까지 축에 넣고 0 선을 그린다. */
+    var _vmax=Math.max.apply(null, vals), _vmin=Math.min.apply(null, vals);
+    var ymax=Math.max(_vmax, 0)*1.14;
+    var ymin=Math.min(_vmin, 0)*1.14;
+    if(!(ymax-ymin > 0)) { ymin=0; ymax=1; }
     function px(a){ return L+(a-X0)/(X1-X0)*pw; }
     function py(v){ return TOP+ph-((v-ymin)/(ymax-ymin))*ph; }
 
     /* 본선 — 축적 구간과 인출 구간 */
     var grow='M'+px(T.a0).toFixed(1)+','+py(T.at(T.a0)).toFixed(1)+' L'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1);
     var drawEnd=(T.sf>0)?Math.min(T.dep,90):90;
-    var drawEndV=(T.sf>0&&T.dep<=90)?0:T.at(drawEnd);
+    var drawEndV=(T.sf>0&&T.dep<=90)?(T.P<0?T.P:0):T.at(drawEnd);
     var fall='M'+px(T.aR).toFixed(1)+','+py(T.P).toFixed(1)+' L'+px(drawEnd).toFixed(1)+','+py(drawEndV).toFixed(1);
+    var _yb=(ymin<0)?0:ymin;                       /* [RPT③] 채움은 0 선을 바닥으로 */
     var area=grow+' L'+px(drawEnd).toFixed(1)+','+py(drawEndV).toFixed(1)
-            +' L'+px(drawEnd).toFixed(1)+','+py(ymin).toFixed(1)
-            +' L'+px(T.a0).toFixed(1)+','+py(ymin).toFixed(1)+' Z';
+            +' L'+px(drawEnd).toFixed(1)+','+py(_yb).toFixed(1)
+            +' L'+px(T.a0).toFixed(1)+','+py(_yb).toFixed(1)+' Z';
 
     /* 비관 · 낙관 — 이미 계산된 고갈 나이로 직선을 긋는다(모델이 선형이므로 같은 선) */
     var sc=R.scen||{}, dash='', capped=[];
@@ -8572,6 +8614,13 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 
     /* 아하 모먼트 설명 카드 */
     var aha=[];
+    if(T.P<0){
+      /* [RPT③] 이 경우 '자산 소진 나이'는 은퇴 나이와 같게 나온다 — 왜 그런지 적어 둔다 */
+      aha.push(['🔻','은퇴 시점 순자산이 마이너스입니다',
+        '갚아야 할 빚과 자녀 지원 예정액이 모아둔 자산보다 <b>'+eok(Math.abs(T.P))+'원</b> 많습니다. '
+        +'그래서 그래프가 0 선 아래에서 시작하고, <b>자산 소진 나이도 은퇴 나이와 같게</b> 계산됩니다 — '
+        +'꺼내 쓸 자산이 처음부터 없다고 보기 때문입니다. 부채를 줄이는 것이 다른 어떤 조치보다 먼저입니다.']);
+    }
     aha.push(['🏁','은퇴 '+T.aR+'세 — 여기가 자산의 정점입니다',
       '모으는 구간이 끝나고 꺼내 쓰는 구간이 시작됩니다. 이때 순자산은 <b>약 '+eok(T.P)+'원</b>입니다.'
       +(T.save>0?' 지금부터 은퇴까지 월 '+W(T.save)+'만원씩 더 쌓입니다.':'')]);
@@ -8844,6 +8893,67 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
     var t={good:'양호',warn:'주의',bad:'위험',info:'참고'}[level]||'참고';
     return '<span class="dm-bd '+level+'">'+t+'</span>';
   }
+  /* [FIX-DEBT] 순자산이 마이너스인 분께는 '자산 소진 나이' 가 아무 말도 해 주지 못한다.
+     은퇴 시점에 이미 꺼내 쓸 자산이 없다는 뜻이라 소진 나이는 늘 은퇴 나이로 나온다.
+     그래서 이런 경우에는 부채 규모와 상환 계획을 맨 앞에 세운다. */
+  function debtPlanHTML(R){
+    var c=(R&&R.c)||{};
+    var P=Math.round(R.principal||0);
+    if(P>=0) return '';
+    var debt=Math.round(c.debt||0), child=Math.round(c.child||0);
+    var gap=Math.abs(P);
+    var age=parseInt(c.baseAge,10)||55, ret=parseInt(c.retire,10)||65;
+    var yrs=Math.max(1, ret-age);
+    var need=Math.round(gap/yrs/12);                 /* 은퇴까지 매달 줄여야 하는 금액 */
+    var save=Math.round(c.save||0);
+    var rows='';
+    if(debt>0)  rows+='<div class="dbt-r"><span>남은 대출</span><b>'+eokShort(debt)+'</b></div>';
+    if(child>0) rows+='<div class="dbt-r"><span>자녀 지원 예정</span><b>'+eokShort(child)+'</b></div>';
+    rows+='<div class="dbt-r tot"><span>모아둔 자산으로 덮이지 않는 부분</span><b>'+eokShort(gap)+'</b></div>';
+    return '<div class="dash-sec dbt"><div class="ds-h"><h3>먼저 볼 것 — 부채 상환 계획</h3>'
+      +'<p>갚아야 할 돈이 모아둔 자산보다 많습니다. 이 상태에서는 「자산 소진 나이」가 늘 은퇴 나이로 나옵니다 — '
+      +'꺼내 쓸 자산이 처음부터 없다고 보기 때문입니다. 노후 설계보다 <b>이쪽이 먼저</b>입니다.</p></div>'
+      +'<div class="dbt-box">'+rows+'</div>'
+      +'<div class="dbt-plan"><div class="dp"><span class="l">은퇴까지 남은 기간</span><span class="v">'+yrs+'<i>년</i></span></div>'
+      +'<div class="dp"><span class="l">은퇴 전 정리하려면 매달</span><span class="v">'+W(need)+'<i>만원</i></span></div>'
+      +'<div class="dp"><span class="l">지금 월 저축</span><span class="v">'+W(save)+'<i>만원</i></span></div></div>'
+      +'<div class="dbt-note">'
+      +(save>=need
+        ? '지금 저축 속도라면 은퇴 전에 정리할 수 있는 규모입니다. 저축을 상환에 먼저 쓰는 순서만 정하시면 됩니다.'
+        : '지금 저축 속도로는 은퇴 전까지 <b>월 '+W(Math.max(0,need-save))+'만원</b>이 더 필요합니다. '
+          +'금리가 높은 대출부터 줄이거나, 상환 기간을 늘려 월 부담을 낮추는 쪽을 함께 보셔야 합니다.')
+      +'<br><span class="sm">※ 대출 금리와 상환 방식은 진단에서 묻지 않았습니다. 위 금액은 '
+      +'<b>원금만</b> 은퇴까지 균등하게 나눈 값이라 실제 필요액은 이자만큼 더 큽니다.</span></div></div>';
+  }
+
+  /* [RPT⑦] 충족률 카드에 있던 세 시나리오 고갈 나이 — 대시보드로 옮긴다 */
+  function scenAges(R){
+    var s=(R&&R.scen)||{};
+    function a(v){ return isFinite(v) ? (v>=90?'90+':(Math.round(v*10)/10)+'세') : '—'; }
+    return '생활충격 '+a(s.p)+' · 기준 '+a(s.a)+' · 시장·장수 '+a(s.o);
+  }
+
+  /* [RPT④] 예상 지출은 엔진의 shortfall 항을 그대로 되짚은 값이다.
+     건강보험료 항이 빠져 있어 '생활비 + 건강예비 − 소득' 으로 읽히고,
+     그러면 화면의 부족액과 10만원쯤 어긋나 보였다. 전부 적는다. */
+  function spendBasis(R){
+    var c=(R&&R.c)||{};
+    var ca=Math.round(R.costAdj||0), hb=Math.round(R.hb||0);
+    var cost=Math.round(c.cost||0);
+    /* 주거 이동 증감(c.mv)은 결과에 실려 오지 않는다 — 조정된 지출에서 되짚는다.
+       [FIX-GOAL] 기준이 목표 생활비(c.goal)로 바뀌었다. */
+    var mv=Math.round((c.mv!==undefined && c.mv!==null) ? c.mv : (ca-(c.goal||cost)));
+    var fi=Math.round(R.fixedIncome||0), sf=Math.round(R.shortfall||0);
+    var hins=Math.round(sf-ca-hb+fi);                    /* 은퇴 후 건강보험료 항 */
+    var goal=Math.round(c.goal||0);
+    var base=goal||cost;
+    var t='65세 이후 목표 생활비 '+W(base)+'만';
+    if(mv) t+=(mv<0?' − 주거 이동 절감 '+W(-mv)+'만':' + 주거 이동 증가 '+W(mv)+'만');
+    t+=' + 건강 예비비 '+W(hb)+'만';
+    if(hins>0) t+=' + 은퇴 후 건강보험료 '+W(hins)+'만';
+    return t+' — 직접 적으신 목표 생활비가 기준입니다';
+  }
+
   function mcard(label, value, unit, level, sub, note){
     return '<div class="dm'+(level?' '+level:'')+'">'
       +'<div class="dm-h"><span class="dm-l">'+label+'</span>'+(level?badge(level):'')+'</div>'
@@ -8874,9 +8984,14 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
   /* 실제 채점 엔진 재호출 — What-if 전·후 비교와 같은 경로 */
   function rescore(mod, cb){
     if(typeof apiPost==='function' && typeof API_BASE!=='undefined'){
+      /* [RPT①] 서버 래퍼는 콜드스타트를 몇 분까지 기다린다. 시나리오 재계산이
+         그만큼 붙잡히면 화면이 '계산 중'에서 돌아오지 않는다 — 20초면 끊는다. */
+      var _done=false;
+      var _fin=function(d){ if(_done) return; _done=true; cb(d); };
+      setTimeout(function(){ _fin(null); }, 20000);
       apiPost('/diagnose',{answers:mod, timings:{}, phone:'', consent:false, bypass:true,
         peerData:window._peerData||null})
-        .then(function(d){ cb(d); }).catch(function(){ cb(null); });
+        .then(_fin).catch(function(){ _fin(null); });
       return;
     }
     if(typeof computeReport==='function'){
@@ -8988,7 +9103,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       var all=[{s:{key:'now', icon:'📍', name:'현재 계획', detail:'지금 답변 그대로', why:''}, r:R}].concat(valid);
       var maxDep=Math.max.apply(null, all.map(function(x){ return Math.min(90, depOf(x.r)); }));
 
-      var bars=all.map(function(x){
+      var bars=[].map.call([], function(x){
         var d=depOf(x.r), a=at90Of(x.r), gain=Math.round((d-baseDep)*10)/10;
         var w=Math.max(6, Math.round(Math.min(90,d)/90*100));
         var isNow=(x.s.key==='now');
@@ -9014,7 +9129,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 
       var rec='';
       if(ranked.length){
-        rec='<div class="drec"><div class="drec-h"><h3>AI가 추천하는 가장 효과적인 방법</h3>'
+        rec='<div class="drec"><div class="drec-h">'
           +'<p>조건을 하나씩 바꿔 다시 채점했을 때, 자산이 버티는 기간이 많이 늘어난 순서입니다.</p></div>'
           +'<ol class="drec-l">'+ranked.slice(0,3).map(function(x,i){
             return '<li><span class="no">'+(i+1)+'순위</span>'
@@ -9039,7 +9154,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
           +'같은 식 위에 얹어 계산한 것입니다.</div>';
         rec+='</div>';
       }
-      host.innerHTML='<div class="dsc-rows">'+bars+'</div>'+rec;
+      host.innerHTML=rec||'<div class="dsc-note">바꿀 수 있는 조건이 남아 있지 않습니다.</div>';
     }
   };
 
@@ -9090,12 +9205,12 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       +'<div class="dm-grid">'
       + mcard('은퇴 준비율', ff, '%',
               ff>=100?'good':(ff>=70?'warn':'bad'),
-              '목표 연금 '+W(c.goal||0)+'만원 대비 예상 연금 '+W(fi)+'만원',
+              '65세 이후 목표 생활비 '+W(c.goal||0)+'만원 대비 예상 연금 '+W(fi)+'만원',
               '100% 이상 양호 · 70% 이상 주의')
       + mcard('은퇴 후 월 현금흐름', (sf>0?'−'+W(sf):'+'+W(-sf)), '만원',
               sf<=0?'good':(sf<=50?'warn':'bad'),
               '연금 · 배당 '+W(fi)+'만원 − 예상 지출 '+W(spend)+'만원',
-              '0 이상 양호 · −50만원까지 주의')
+              spendBasis(R))                       /* [RPT④] 391 이 어디서 나온 숫자인지 */
       + mcard('예상 자산 소진 연령', (dep>=90?'90+':dep), '세', depState,
               '은퇴 '+ret+'세부터 매달 '+(sf>0?W(sf)+'만원씩 인출':'인출 없음'),
               '90세 이상 양호 · 85세 이상 주의')
@@ -9104,7 +9219,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
               '부채 · 자녀 지원분을 뺀 순자산')
       + mcard('90세까지 버틴 시나리오', keep+' / 3', '',
               keep>=3?'good':(keep>=1?'warn':'bad'),
-              '생활충격 · 기준 · 시장·장수 세 조건 중',
+              scenAges(R),                          /* [RPT⑦] 세 시나리오 나이를 여기로 옮겼습니다 */
               '확률이 아니라 <b>시나리오 통과 개수</b>입니다')
       + mcard('은퇴 후 평생 필요자금', eokShort(lifeNeed), '',
               'info', '은퇴 '+ret+'세 ~ 90세 · 월 '+W(spend)+'만원 기준',
@@ -9163,12 +9278,18 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       }).join('')+'</div></div>';
 
     /* ⑥ 시나리오 비교 + 추천 */
-    var scen='<div class="dash-sec"><div class="ds-h"><h3>조건을 바꾸면 노후가 얼마나 달라질까요?</h3>'
-      +'<p>추정치를 새로 만들지 않고, <b>문항 답을 바꿔 같은 채점 엔진을 다시 돌린</b> 결과를 보여드립니다.</p></div>'
-      +'<button class="dbtn" id="scenBtn" onclick="l2pScenRun(this)">조건별로 다시 계산하기 →</button>'
-      +'<div id="scenOut"></div></div>';
+    /* [RPT⑥] 막대 비교와 '다시 계산' 버튼을 없애고 추천만 남긴다.
+       화면이 열리면 알아서 계산한다 — 누르는 수고도, 먹통도 없앤다. */
+    var scen='<div class="dash-sec"><div class="ds-h"><h3>AI가 추천하는 가장 효과적인 방법</h3>'
+      +'<p>추정치를 새로 만들지 않고, <b>문항 답을 바꿔 같은 채점 엔진을 다시 돌린</b> 결과입니다.</p></div>'
+      +'<div id="scenOut"><div class="dsc-note">조건별로 채점 엔진을 다시 돌리는 중입니다…</div></div></div>';
 
-    return '<div class="dash">'+top+chart+mets+diag+scen+'</div>';
+    setTimeout(function(){
+      if(document.getElementById('scenOut') && window.l2pScenRun) window.l2pScenRun(null);
+    }, 500);
+
+    var debt=debtPlanHTML(R);                      /* [FIX-DEBT] 순자산 마이너스면 맨 앞 */
+    return '<div class="dash">'+top+debt+chart+mets+diag+scen+'</div>';
   };
   /* ══════════════════════════════════════════════════════════════════════════
      [FIX-BD] 인쇄 전용 리포트 — 4페이지
@@ -10860,20 +10981,28 @@ body:has(#s-report.active:not(.x)) #s-report{padding-bottom:96px}
     var X0=Tm.a0, X1=90, W0=360, H0=236, L=46, Rr=14, TOP=26, BOT=30;
     var pw=W0-L-Rr, ph=H0-TOP-BOT;
     var dep=(Tm.sf>0)?Math.min(Tm.dep,90):90, depHit=(Tm.sf>0&&Tm.dep<90);
-    var vNow=Tm.at(Tm.a0), vEnd=depHit?0:Math.max(0,Tm.at(90));
-    var vmax=Math.max(1,vNow,Tm.P,vEnd);
+    var vNow=Tm.at(Tm.a0);
+    /* [RPT③] 부채가 자산보다 크면 순자산이 마이너스다. 그때는 은퇴 시점에
+       이미 꺼내 쓸 자산이 없으므로 0 으로 올라가는 선을 그리지 않는다. */
+    var negP=(Tm.P<0);
+    var vEnd=negP?Tm.P:(depHit?0:Math.max(0,Tm.at(90)));
+    var vmax=Math.max(vNow,Tm.P,vEnd,0);
+    var vmin=Math.min(vNow,Tm.P,vEnd,0);
+    var span=(vmax-vmin)||1;
     /* 보기 좋은 눈금 — 1·2·2.5·5 × 10^k (만원) */
-    var raw=vmax/4, p10=Math.pow(10,Math.floor(Math.log10(raw))), stp=p10;
+    var raw=span/4, p10=Math.pow(10,Math.floor(Math.log10(Math.max(raw,1e-6)))), stp=p10;
     [1,2,2.5,5,10].some(function(m){ if(m*p10>=raw){ stp=m*p10; return true; } return false; });
     var ymax=Math.ceil(vmax*1.12/stp)*stp;
+    var ymin=Math.floor(vmin*1.12/stp)*stp;
+    if(!(ymax>ymin)) ymax=ymin+stp;
     function px(a){ return L+(a-X0)/(X1-X0)*pw; }
-    function py(v){ return TOP+ph-(v/ymax)*ph; }
+    function py(v){ return TOP+ph-((v-ymin)/(ymax-ymin))*ph; }
     function P2(a,v){ return px(a).toFixed(1)+','+py(v).toFixed(1); }
     var G1='#1C7A4E', R1='#C2564B', GOLD='#B8912F', GREY='#8A968F';
 
     var s='';
     /* 격자 */
-    for(var v=0; v<=ymax+0.1; v+=stp){
+    for(var v=ymin; v<=ymax+0.1; v+=stp){
       s+='<line x1="'+L+'" y1="'+py(v).toFixed(1)+'" x2="'+(L+pw)+'" y2="'+py(v).toFixed(1)+'" stroke="'+(v===0?'#CCD5CF':'#EEF2EF')+'" stroke-width="1"/>'
         +'<text x="'+(L-11)+'" y="'+(py(v)+3.2).toFixed(1)+'" class="tl2-ax" text-anchor="end">'+(v===0?'0':wonS(v))+'</text>';
     }
@@ -10922,6 +11051,15 @@ body:has(#s-report.active:not(.x)) #s-report{padding-bottom:96px}
         ? T('매달 '+num(Tm.save)+'만원씩 모으면 은퇴까지 '+(Tm.aR-Tm.a0)+'년 동안 <b>'+won(Tm.save*12*(Tm.aR-Tm.a0))+'</b>이 더 쌓입니다.',
             'Saving '+manTxt(Tm.save)+' a month adds <b>'+won(Tm.save*12*(Tm.aR-Tm.a0))+'</b> over '+(Tm.aR-Tm.a0)+' years to retirement.')
         : T('지금 가진 순자산에서 출발합니다.','This is where you start.')});
+    /* [RPT③] 순자산이 마이너스면 왜 소진 나이가 은퇴 나이와 같은지 적어 둔다 */
+    if(negP){
+      cards.push({n:'!',c:'#8E2F26',
+        t:T('은퇴 시점 순자산이 마이너스입니다','Net worth is negative at retirement'),
+        d:T('갚아야 할 빚과 자녀 지원 예정액이 모아둔 자산보다 <b>'+won(Math.abs(Tm.P))+'</b> 많습니다. '
+            +'그래서 그래프가 0 선 아래에 있고, <b>자산 소진 나이도 은퇴 나이와 같게</b> 계산됩니다 — '
+            +'꺼내 쓸 자산이 처음부터 없다고 보기 때문입니다. 부채를 줄이는 것이 다른 어떤 조치보다 먼저입니다.',
+            'Debt and planned support for children exceed savings by <b>'+won(Math.abs(Tm.P))+'</b>.')});
+    }
     /* ② 은퇴 = 정점 */
     var n2=mk(Tm.aR,Tm.P,'#124A2F');
     cards.push({n:n2,c:'#124A2F',t:T('은퇴 '+Tm.aR+'세 — 자산의 정점 '+won(Tm.P),'Retire at '+Tm.aR+' — the peak, '+won(Tm.P)),
@@ -11452,13 +11590,20 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
       + (gap===null ? '' : ' 두 기준의 차이는 ' + (gap>0?'+':'') + gap + '%p입니다.') + '</div>';
   }
   function cardRegion(R){
+    /* [FIX-REG] 거주지역(Q49)을 답하셨으면 그 지역을 미리 골라 둔다 */
+    var myReg = (R && R.c && R.c.region) || '';
+    var myBucket = (R && R.c && R.c.regBucket) || '';
     return '<div class="nps">'
       + '<h4>사는 곳에 따라 필요한 돈이 다릅니다</h4>'
-      + '<div class="sub">같은 노후라도 서울과 도 지역의 적정 생활비는 50만원 넘게 차이가 납니다.</div>'
-      + '<div class="nps-reg">'
-      +   Object.keys(REG).map(function(k){ return '<button type="button" onclick="l2pNpsRegion(\''+k+'\',this)">'+k+'</button>'; }).join('')
+      + '<div class="sub">' + (myReg
+          ? ('<b>' + myReg + '</b>에 사신다고 답하셨습니다. 같은 노후라도 서울과 도 지역의 적정 생활비는 50만원 넘게 차이가 납니다.')
+          : '같은 노후라도 서울과 도 지역의 적정 생활비는 50만원 넘게 차이가 납니다.') + '</div>'
+      + '<div class="nps-reg" data-my="' + myBucket + '">'
+      +   Object.keys(REG).map(function(k){ return '<button type="button"' + (k===myBucket?' class="on"':'') + ' onclick="l2pNpsRegion(\''+k+'\',this)">'+k+'</button>'; }).join('')
       + '</div>'
-      + '<div class="nps-msg" id="npsRegOut">지역을 눌러 보세요.</div>'
+      + '<div class="nps-msg" id="npsRegOut">' + (myBucket
+          ? ('<b>'+myBucket+'</b> 기준 부부 적정 생활비는 <b>'+REG[myBucket][0]+'만원</b>, 최소 생활비는 '+REG[myBucket][1]+'만원입니다.')
+          : '지역을 눌러 보세요.') + '</div>'
       + stdRow(R)
       + '<div class="src">국민연금연구원 「국민노후보장패널 10차 본조사」(2023) 부부 기준 적정·최소 생활비.</div>'
       + '</div>';
@@ -12180,5 +12325,93 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 })();
 </script>
 <!-- [FIX-STATE] end -->
+<!-- [RPT-FOLD] start -->
+<style>
+.l2p-fold{border:1px solid #E1E7E3;border-radius:14px;background:#fff;margin:12px 0;overflow:hidden}
+.l2p-fold > button{width:100%;display:flex;align-items:center;gap:10px;background:#F4F8F5;border:0;
+  padding:13px 15px;font:inherit;font-size:14px;font-weight:800;color:#124A2F;cursor:pointer;text-align:left}
+.l2p-fold > button b{flex:0 0 auto}
+.l2p-fold > button em{flex:1;font-style:normal;font-size:12px;font-weight:600;color:#7C877F;line-height:1.45;word-break:keep-all}
+.l2p-fold > button i{flex:0 0 auto;font-style:normal;font-size:13px;color:#7C877F;transition:transform .18s}
+.l2p-fold.on > button i{transform:rotate(180deg)}
+.l2p-fold .fold-body{padding:2px 12px 12px}
+@media print{ .l2p-fold > button{display:none} .l2p-fold .fold-body{display:block!important} }
+</style>
+<script>
+(function(){
+  function paid(){ try{ return localStorage.getItem('l2p_premium')==='1'; }catch(e){ return false; } }
+  function full(){ try{ return !!(paid() && window._svDone); }catch(e){ return false; } }
+
+  window.l2pToggleFold = function(){
+    var f=document.getElementById('l2pFold'); if(!f) return;
+    var b=document.getElementById('l2pFoldBody'); if(!b) return;
+    var on = b.style.display!=='none';
+    b.style.display = on ? 'none' : '';
+    f.classList.toggle('on', !on);
+    var t=f.querySelector('button b'); if(t) t.textContent = on ? '기본 요약 보기' : '기본 요약 접기';
+  };
+
+  /* 무료 구간에 해당하는 조각만 골라 접는다 — 대시보드와 정밀 리포트는 건드리지 않는다 */
+  function pick(root){
+    var out=[], seen={};
+    function add(el){ if(el && !seen[el.__fid=(el.__fid||Math.random())] ){ seen[el.__fid]=1; out.push(el); } }
+    var wrap=document.getElementById('fullReportWrap');
+    function outside(el){ return el && (!wrap || !wrap.contains(el)); }
+
+    var hero=root.querySelector('.score-hero');
+    if(outside(hero)) add(hero);
+
+    /* 기본 5각 지도 — 제목이 「나의 …」 인 쪽이 무료본, 「당신의 …」 가 정밀본 */
+    [].forEach.call(root.querySelectorAll('.radar-card'), function(rc){
+      if(!outside(rc)) return;
+      var h=rc.querySelector('h2');
+      if(h && /나의/.test(h.textContent||'')) add(rc);
+    });
+
+    [].forEach.call(root.querySelectorAll('.sec-block'), function(sb){
+      if(!outside(sb)) return;
+      var h=sb.querySelector('h3');
+      if(h && /먼저 보완할 영역/.test(h.textContent||'')) add(sb);
+    });
+
+    var px=document.getElementById('premiumExtra');
+    if(outside(px)) add(px);
+
+    return out.filter(Boolean);
+  }
+
+  function apply(){
+    if(!full()) return false;
+    var root=document.getElementById('realReport'); if(!root) return false;
+    if(document.getElementById('l2pFold')) return true;
+    var items=pick(root); if(!items.length) return false;
+
+    var box=document.createElement('div');
+    box.className='l2p-fold'; box.id='l2pFold';
+    box.innerHTML='<button type="button" onclick="l2pToggleFold()">'
+      +'<b>기본 요약 보기</b>'
+      +'<em>무료 리포트(기본 점수 · 5각 지도 · 먼저 보완할 영역)입니다 — 아래 정밀 리포트에 같은 내용이 더 자세히 들어 있어 접어 두었습니다</em>'
+      +'<i>▾</i></button>'
+      +'<div class="fold-body" id="l2pFoldBody" style="display:none"></div>';
+    var first=items[0];
+    first.parentNode.insertBefore(box, first);
+    var body=box.querySelector('#l2pFoldBody');
+    items.forEach(function(el){ body.appendChild(el); });
+    return true;
+  }
+  window.l2pFoldBasic = apply;
+
+  /* 리포트가 그려진 뒤·해금된 뒤에 한 번씩 시도한다 */
+  ['renderReportFromServer','unlockPremium','l2pOpenFullReport'].forEach(function(nm){
+    var f=window[nm]; if(typeof f!=='function' || f.__l2pFold) return;
+    var g=function(){ var r=f.apply(this,arguments); setTimeout(apply, 140); return r; };
+    g.__l2pFold=true; window[nm]=g;
+    try{ eval(nm+' = window.'+nm); }catch(e){}
+  });
+  setTimeout(apply, 900);
+  setTimeout(apply, 2500);
+})();
+</script>
+<!-- [RPT-FOLD] end -->
 </body>
 </html>
