@@ -583,8 +583,24 @@ body{background:#E9ECE9;min-height:100vh;}
 .aha-d b{color:#0F2B1D;font-weight:800}
 .qk2-nums b.dn{color:#FFC9C0!important}
 .qk2-nums b.up{color:#9FE6BE!important}
+/* 결과 맨 아래 — 가입 · 상담 (바로 위 초록 .qr-up 과 한 벌로 읽히게 반경을 맞춥니다) */
+.qr-join{background:#fff;border:1px solid #E2E8E4;border-radius:18px;padding:17px 18px;margin:10px 0 6px;
+  box-shadow:0 1px 2px rgba(15,43,29,.05),0 6px 16px -10px rgba(15,43,29,.18)}
+.qr-join h3{font-size:16.5px;font-weight:900;color:#12301F;letter-spacing:-.03em;
+  line-height:1.45;margin:0 0 6px;word-break:keep-all}
+.qr-join p{font-size:13.5px;color:#5E6B63;line-height:1.7;margin:0 0 13px;word-break:keep-all}
+.qr-join p b{color:#0F2B1D;font-weight:800}
+.qr-join-b{display:grid;gap:8px}
+@media (min-width:520px){ .qr-join-b{grid-template-columns:1fr 1fr} }
+.qr-join-b button{width:100%;font-family:inherit;border-radius:13px;padding:14px;cursor:pointer;
+  font-size:14.5px;font-weight:800;letter-spacing:-.02em;
+  border:1px solid #CBDCD1;background:#F2F6F3;color:#0F2B1D}
+.qr-join-b button.on{border:0;background:linear-gradient(135deg,#0F2B1D,#1C7A4E);color:#fff}
+.qr-join-b button:hover{border-color:#A9C6B6}
+.qr-join-b button.on:hover{filter:brightness(1.08)}
+.qr-join-n{margin-top:11px;font-size:11.5px;color:#98A19B;line-height:1.7;word-break:keep-all}
 @media (max-width:420px){ .aha-big .v{font-size:30px} .aha-t{font-size:15.5px} }
-@media print{ .aha{break-inside:avoid} }
+@media print{ .aha{break-inside:avoid} .qr-join-b{display:none} }
 </style>
 
 <style id="ver19-skin">
@@ -5091,7 +5107,7 @@ window.__L2P_EN_RULES=[
   window.quickAnsV2=QA;
 
   function cohortTag(c){ return c==='S1'?'정년 D-5 구간':(c==='S2'?'은퇴 임박':'준비 구간'); }
-  var COH_CTA={S1:'무료 상담으로 공백 메우기', S2:'종합 진단으로 정확히 보기', S3:'종합 진단 시작하기'};
+  var COH_CTA={S1:'공백 메울 방법 정밀 진단으로 보기', S2:'종합 진단으로 정확히 보기', S3:'종합 진단 시작하기'};
 
   function load(){
     if(QV2.length) return Promise.resolve(QV2);
@@ -5351,6 +5367,29 @@ window.__L2P_EN_RULES=[
     }).join('') + '</div>';
   }
 
+  /* 결과 맨 아래 — 무료 회원가입 · 상담 연결
+     바로 위 초록 카드(.qr-up)가 「정밀 진단」을 맡고, 이 흰 카드가 「가입 · 상담」을 맡습니다.
+     이미 로그인한 분께 가입을 다시 권하지 않도록 상태(L2P)를 보고 문구를 바꿉니다. */
+  function joinCta(){
+    var A = {};
+    try{ A = (window.l2pAuth && window.l2pAuth()) || {}; }catch(e){}
+    var inn = !!A.loggedIn;
+    return '<div class="qr-join">'
+      + '<h3>' + (inn ? '결과는 마이 탭에 저장해 두었습니다'
+                      : '오늘 본 숫자, 그냥 흘려보내지 마세요') + '</h3>'
+      + '<p>' + (inn
+          ? '실행 계획의 진행 상황을 마이 탭에서 이어서 보실 수 있고, 필요하실 때 라이프이점영 은퇴플래너 상담을 신청하실 수 있습니다.'
+          : '2막1장 <b>무료 회원</b>으로 가입하시면 진단 결과와 실행 계획이 저장되고, 원하실 때 라이프이점영 은퇴플래너 상담을 신청하실 수 있습니다.')
+      + '</p>'
+      + '<div class="qr-join-b">'
+      +   '<button type="button" class="on" onclick="goMyPage()">'
+      +     (inn ? '마이 탭에서 보기' : '무료 회원가입') + '</button>'
+      +   '<button type="button" onclick="goConsult()">상담 신청</button>'
+      + '</div>'
+      + '<div class="qr-join-n">상담은 신청하신 분께만 연락드립니다. 가입 · 상담 모두 비용이 들지 않습니다.</div>'
+      + '</div>';
+  }
+
   window.renderQuickResultV2=function(R){
     var surplus = R.gap <= 0, band = R.band;
     var goal = Math.round(R.goal || R.costAdj || 0);
@@ -5390,6 +5429,7 @@ window.__L2P_EN_RULES=[
       + '<h3>방금 답한 12개는 그대로 가져갑니다</h3>'
       + '<p>36문항만 더 답하면 자산 고갈 3시나리오 · 영역별 맞춤 처방 · What-if 시뮬레이션까지 정밀 리포트로 드립니다.</p>'
       + '<button class="pg-btn" style="background:#C9A449;color:#0F2B1D;" onclick="upgradeToFullV2()">' + (COH_CTA[R.cohort] || '종합 진단 시작하기') + ' →</button></div>'
+      + joinCta()
       + '<button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="startQuick()">↺ 다시 진단하기</button>'
       + '<button class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="show(\'s-stage\');setNav(\'home\');">⌂ 처음 화면으로</button>';
     document.getElementById('quickResultBody').innerHTML = html;
@@ -10367,6 +10407,11 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       if(!location.hash){
         if(want==='diag'){ show('s-intro'); setNav('diagnosis'); }
         else if(want==='quick'){ startQuick(); }
+        /* [WD-CTA] 웰다잉 시안 배너에서 바로 들어오는 자리 */
+        else if(want==='join'){ if(typeof goMyPage==='function') goMyPage();
+                                else { show('s-stage'); setNav('home'); } }
+        else if(want==='consult'){ if(typeof goConsult==='function') goConsult();
+                                   else { show('s-stage'); setNav('home'); } }
         else { show('s-stage'); setNav('home'); }
       }
     }catch(e){}

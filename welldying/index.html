@@ -666,4 +666,102 @@ body{padding-bottom:150px}
 })();
 </script>
 <!-- [WD-VOICE] end -->
+<!-- [WD-CTA] start -->
+<style id="wd-cta-css">
+/* ── 결과 맨 아래 배너 ───────────────────────────────────────────────
+   녹색 바탕에는 「은퇴 정밀 진단」을, 흰 카드에는 「무료 회원가입 · 상담」을
+   둡니다. 색·모서리·글자 크기는 이 페이지의 기존 카드와 같은 벌을 씁니다. */
+.wdcta{margin-top:14px;}
+.wdcta-main{background:linear-gradient(135deg,#0E3A26 0%,#155C3B 58%,#1C7A4E 100%);
+  color:#fff;border-radius:18px;padding:20px 18px;}
+.wdcta-main .kick{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.06em;
+  background:rgba(255,255,255,.16);border-radius:20px;padding:5px 11px;}
+.wdcta-main h2{margin:11px 0 7px;font-size:20px;font-weight:900;letter-spacing:-.04em;
+  line-height:1.34;color:#fff;word-break:keep-all;}
+.wdcta-main p{margin:0 0 14px;font-size:13.5px;line-height:1.68;
+  color:rgba(255,255,255,.84);word-break:keep-all;}
+.wdcta-main .pts{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding:0;list-style:none;}
+.wdcta-main .pts li{font-size:11.5px;font-weight:800;letter-spacing:-.01em;
+  background:rgba(255,255,255,.13);border-radius:20px;padding:4px 10px;color:rgba(255,255,255,.93);}
+.wdcta-go{display:flex;align-items:center;justify-content:center;gap:7px;
+  width:100%;background:#fff;color:#0E3A26;border-radius:14px;padding:15px 16px;
+  font-size:16px;font-weight:900;letter-spacing:-.02em;text-decoration:none;}
+.wdcta-go:hover{background:#F2F8F4;}
+
+.wdcta-sub{border:1px solid #E4E8E5;border-radius:16px;background:#fff;
+  padding:16px;margin-top:10px;}
+.wdcta-sub h3{margin:0 0 6px;font-size:16px;font-weight:900;letter-spacing:-.03em;
+  color:#16241D;word-break:keep-all;}
+.wdcta-sub p{margin:0 0 12px;font-size:13px;line-height:1.66;color:#5E6B63;word-break:keep-all;}
+.wdcta-btns{display:grid;gap:8px;}
+@media (min-width:520px){ .wdcta-btns{grid-template-columns:1fr 1fr;} }
+.wdcta-btns a{display:flex;align-items:center;justify-content:center;gap:6px;
+  border-radius:13px;padding:14px;font-size:14.5px;font-weight:800;letter-spacing:-.02em;
+  text-decoration:none;border:1px solid #CBDCD1;background:#F2F6F3;color:#0E3A26;}
+.wdcta-btns a.on{background:linear-gradient(135deg,#0E3A26,#1C7A4E);color:#fff;border:0;}
+.wdcta-btns a:hover{border-color:#A9C6B6;}
+.wdcta-note{margin-top:11px;font-size:11.5px;line-height:1.7;color:#98A19B;word-break:keep-all;}
+@media print{ .wdcta{display:none!important;} }
+</style>
+
+<script id="wd-cta-js">
+/* 결과가 그려질 때마다 배너를 맨 아래에 붙인다.
+   앱의 renderResult() 는 innerHTML 을 통째로 갈아 끼우므로 그때마다 사라진다.
+   그래서 고치지 않고 바깥에서 지켜보다가 다시 붙이는 쪽을 골랐다. */
+(function(){
+  var HOME = 'https://diag.lpp20.com/?utm_source=welldying&utm_medium=cta';
+  var DIAG = 'https://diag.lpp20.com/?go=diag&utm_source=welldying&utm_medium=cta_main';
+
+  function html(){
+    return ''
+    + '<div class="wdcta" id="wdCta">'
+    +   '<div class="wdcta-main">'
+    +     '<span class="kick">2막1장 · 라이프 2.0</span>'
+    +     '<h2>남은 시간의 돈 문제는<br>은퇴 정밀 진단으로 확인하세요</h2>'
+    +     '<p>웰다잉은 다섯 번째 방이 아니라 네 방을 잇는 복도입니다. '
+    +       '연금 · 자산 · 건강 · 주거 · 일자리를 한 번에 짚어, '
+    +       '매달 얼마가 비는지와 자산이 언제까지 버티는지를 숫자로 보여드립니다.</p>'
+    +     '<ul class="pts"><li>48문항 · 약 10분</li><li>또래 비교</li>'
+    +       '<li>실행 계획</li><li>무료</li></ul>'
+    +     '<a class="wdcta-go" href="' + DIAG + '" target="_blank" rel="noopener">'
+    +       '은퇴 정밀 진단 받기 <span aria-hidden="true">→</span></a>'
+    +   '</div>'
+    +   '<div class="wdcta-sub">'
+    +     '<h3>웰다잉 준비, 혼자 하지 마세요</h3>'
+    +     '<p>2막1장 무료 회원으로 가입하시면 진단 결과와 실행 계획이 저장되고, '
+    +       '원하실 때 라이프이점영 은퇴플래너 상담을 신청하실 수 있습니다.</p>'
+    +     '<div class="wdcta-btns">'
+    +       '<a class="on" href="' + HOME + '&go=join" target="_blank" rel="noopener">무료 회원가입</a>'
+    +       '<a href="' + HOME + '&go=consult" target="_blank" rel="noopener">상담 신청</a>'
+    +     '</div>'
+    +     '<div class="wdcta-note">상담은 신청하신 분께만 연락드립니다. '
+    +       '가입 · 상담 모두 비용이 들지 않습니다.</div>'
+    +   '</div>'
+    + '</div>';
+  }
+
+  function put(){
+    var r = document.getElementById('scResult');
+    if(!r) return;
+    if(r.className.indexOf('hide') >= 0){                /* 결과 화면일 때만 */
+      var old = r.querySelector('#wdCta');               /* 「다시 하기」 로 빠져나가면 걷어낸다 */
+      if(old) old.parentNode.removeChild(old);
+      return;
+    }
+    if(!r.firstChild) return;                            /* 아직 안 그려졌다 */
+    if(r.querySelector('#wdCta')) return;                /* 이미 붙어 있다 */
+    var d = document.createElement('div');
+    d.innerHTML = html();
+    r.appendChild(d.firstChild);
+  }
+
+  function boot(){ put(); setInterval(put, 400); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  /* 자동 점검용 */
+  window.WDCTA = { put: put, has: function(){ return !!document.getElementById('wdCta'); } };
+})();
+</script>
+<!-- [WD-CTA] end -->
 </body></html>
