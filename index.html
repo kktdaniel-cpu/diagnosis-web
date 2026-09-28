@@ -255,11 +255,11 @@ window.__L2P_CAT_FB={"parts":["기본 정보","건강","부동산 (비금융자�
     font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;}
   .tab.active .tno{background:#fff;color:var(--green-deep);}
   .tab .tclick{position:absolute;right:-1px;top:-1px;bottom:-1px;width:40px;border-radius:0 11px 11px 0;
-    background:#C9A449;color:#fff;font-size:9.5px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;
+    background:#8C7220;color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;
     display:flex;align-items:center;justify-content:center;}
-  .tab.active .tclick{background:#8C7220;}
+  .tab.active .tclick{background:#6F5A17;}
   @media (max-width:560px){ .tab{font-size:12.5px;padding:11px 8px;padding-right:38px!important;}
-    .tab .tclick{width:32px;font-size:8.5px;} }
+    .tab .tclick{width:34px;font-size:10.5px;} }
   /* 설문 유도 카드 */
   .survey-gate{background:linear-gradient(135deg,var(--burgundy),var(--burgundy-deep));color:#fff;border-radius:22px;padding:30px 30px;margin-top:20px;text-align:center;box-shadow:var(--shadow-lg);}
   .survey-gate .eyebrow{background:var(--gold);color:var(--green-deep);}
@@ -549,6 +549,37 @@ body{background:#E9ECE9;min-height:100vh;}
   .page{width:100%;box-shadow:none;}
 }
 
+/* [QUICK-R] css */
+.aha-lead{margin:20px 2px 12px}
+.aha-lead h3{font-family:'Noto Serif KR',serif;font-size:19px;font-weight:700;color:#0F2B1D;margin:0 0 4px;letter-spacing:-.03em}
+.aha-lead p{font-size:13px;color:#5E6B63;line-height:1.6;margin:0;word-break:keep-all}
+.aha-list{display:grid;gap:11px}
+.aha{background:#fff;border:1px solid #E2E8E4;border-radius:16px;padding:16px;
+  box-shadow:0 1px 2px rgba(15,43,29,.05),0 6px 16px -10px rgba(15,43,29,.18)}
+.aha-h{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.aha-h .no{font-size:15px;font-weight:900;color:#1E6B45}
+.aha-h .ar{font-size:12px;font-weight:800;color:#4A564F;background:#EEF2EF;border-radius:999px;padding:4px 11px}
+.aha.bad .aha-h .no{color:#B24136}
+.aha-t{display:block;font-size:16.5px;font-weight:800;color:#12301F;letter-spacing:-.025em;
+  line-height:1.45;word-break:keep-all;margin-bottom:11px}
+.aha-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
+  border-top:1px solid #EDF1EE;border-bottom:1px solid #EDF1EE;padding:11px 0;margin-bottom:11px}
+.aha-big .v{font-size:34px;font-weight:900;color:#0F2B1D;letter-spacing:-.04em;line-height:1;
+  font-variant-numeric:tabular-nums lining-nums;font-feature-settings:'tnum' 1,'lnum' 1}
+.aha.bad .aha-big .v{color:#B24136}
+.aha-big .v i{font-size:14px;font-style:normal;font-weight:700;color:#5E6B63;margin-left:3px}
+.aha.bad .aha-big .v i{color:#B24136;opacity:.78}
+.aha-big .cap{font-size:12.5px;font-weight:700;color:#5E6B63}
+.aha-rows{display:grid;gap:5px;margin-bottom:11px}
+.ar-r{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:13px;color:#5E6B63;line-height:1.55}
+.ar-r b{font-weight:800;color:#12301F;text-align:right;word-break:keep-all;
+  font-variant-numeric:tabular-nums lining-nums}
+.aha-d{font-size:13.5px;color:#41504A;line-height:1.7;margin:0;word-break:keep-all}
+.aha-d b{color:#0F2B1D;font-weight:800}
+.qk2-nums b.dn{color:#FFC9C0!important}
+.qk2-nums b.up{color:#9FE6BE!important}
+@media (max-width:420px){ .aha-big .v{font-size:30px} .aha-t{font-size:15.5px} }
+@media print{ .aha{break-inside:avoid} }
 </style>
 
 <style id="ver19-skin">
@@ -3339,9 +3370,25 @@ html[lang=en] .v29-tier{white-space:normal!important;line-height:1.35!important;
   transition:background-color .15s,border-color .15s,color .15s!important}
 /* ── 빠른진단 Ver2 ── */
 .qcard.qv2{margin-bottom:14px}
-.qv2-sub{font-size:11.5px;font-weight:800;color:#8A938E;margin:10px 0 6px;letter-spacing:.3px}
+/* [QUICK-UI] 소제목이 회색 잔글씨라 눈에 걸리지 않았다 — 키우고 진하게, 위아래로 띄운다 */
+.qv2-sub{font-size:13.5px;font-weight:800;color:#12301F;margin:18px 0 8px;letter-spacing:-.01em;
+  display:flex;align-items:center;gap:8px}
+.qv2-sub::before{content:'';flex:0 0 3px;height:14px;border-radius:2px;background:#1E6B45}
+.qcard.qv2 .qv2-sub:first-of-type{margin-top:12px}
+/* 문항마다 어느 영역을 묻는지 — 정밀진단 5축과 같은 이름 */
+.qv2-area{display:inline-block;font-size:12px;font-weight:800;letter-spacing:-.01em;
+  border-radius:999px;padding:4px 11px;margin-bottom:10px;background:#EEF2EF;color:#4A564F}
+.qv2-area.asset{background:#EAF3ED;color:#14603D}
+.qv2-area.health{background:#EAF0F6;color:#1F4A73}
+.qv2-area.housing{background:#F4F0E6;color:#6E5518}
+.qv2-area.job{background:#EDEFF5;color:#3C4670}
+.qv2-area.well{background:#F3EEF4;color:#5B3F63}
+/* 체크 묶음 — 위 보기와 성격이 다르다는 것을 선과 문구로 알린다 */
+.qv2-cknote{margin:16px 0 8px;padding-top:13px;border-top:1px solid #E7ECE9;
+  font-size:12.5px;font-weight:700;color:#4A564F;line-height:1.5;word-break:keep-all}
+.qcard.qv2{margin-bottom:20px}
 .qv2-checks{display:grid;gap:6px;margin-top:10px}
-.qv2-ck{display:flex;align-items:center;gap:9px;background:#F7F9F8;border:1.5px solid #E3EAE5;border-radius:10px;padding:9px 11px;font-size:12.5px;color:#3D4742;cursor:pointer;line-height:1.4}
+.qv2-ck{display:flex;align-items:center;gap:10px;background:#FBFCFB;border:1.5px dashed #D6DFD9;border-radius:10px;padding:11px 11px;font-size:12.5px;color:#3D4742;cursor:pointer;line-height:1.4}
 .qv2-ck.on{border-color:#1E6B45;background:#EEF6F1;color:#124A2F;font-weight:700}
 .qv2-ck input{accent-color:#1E6B45;width:16px;height:16px;flex:none}
 #s-quick .opt.multi.neg.sel{background:#FDF1EC!important;border-color:#C0653A!important;color:#8A3E1B!important}
@@ -5003,7 +5050,9 @@ window.__L2P_EN_RULES=[
     var html='';
     QV2.forEach(function(q,qi){
       var v=QA[q.id]||{};
-      html+='<div class="qcard qv2" data-qk="'+q.id+'"><div class="qq"><span class="qno">Q'+(qi+1)+'</span>'+q.q
+      html+='<div class="qcard qv2" data-qk="'+q.id+'">'
+        +(q.areaName?'<span class="qv2-area '+(q.area||'base')+'">'+q.areaName+'</span>':'')
+        +'<div class="qq"><span class="qno">Q'+(qi+1)+'</span>'+q.q
         +(q.hint?'<span class="qhint">'+q.hint+'</span>':'')+'</div>';
       if(q.kind==='dual'){
         [['a',q.a],['b',q.b]].forEach(function(p){
@@ -5021,7 +5070,8 @@ window.__L2P_EN_RULES=[
         html+='<div class="opts">'+q.opts.map(function(o,i){
           return '<div class="opt'+(v.i===i?' sel':'')+'" onclick="qv2Pick(\''+q.id+'\','+i+')">'+o.t+'</div>';
         }).join('')+'</div>';
-        if(q.checks) html+='<div class="qv2-checks">'+q.checks.map(function(c){
+        if(q.checks) html+=(q.checkNote?'<div class="qv2-cknote">'+q.checkNote+'</div>':'')
+          +'<div class="qv2-checks">'+q.checks.map(function(c){
           return '<label class="qv2-ck'+((v.c&&v.c[c.key])?' on':'')+'"><input type="checkbox" '+((v.c&&v.c[c.key])?'checked':'')+' onchange="qv2Check(\''+q.id+'\',\''+c.key+'\',this.checked)"><span>'+c.t+'</span></label>';
         }).join('')+'</div>';
       }
@@ -5107,46 +5157,180 @@ window.__L2P_EN_RULES=[
     }catch(e){}
   }
 
+/* [QUICK-R] start */
+  /* 아하 포인트 5 — 강의에서 이 순서로 이야기합니다 */
+  function ahaCards(R){
+    var won = function(v){ return Math.abs(Math.round(v)).toLocaleString(); };
+    var neg = function(v){ return v > 0; };                 /* gap>0 = 모자람 */
+    var goal = Math.round(R.goal || R.costAdj || 0);
+    var fi   = Math.round(R.fixedIncome || 0);
+    var gap  = Math.round(R.gap || 0);
+    var nat  = Math.round(R.national || 0), ret = Math.round(R.retpen || 0);
+    var crev = Math.round(R.crevasse || 0);
+    var dep  = R.depletion;
+    var age  = Math.round(R.age || 0), rage = Math.round(R.retire || 0);
+    var H    = R.health || {};
+    var out  = [];
+
+    /* ① 연금 준비 ─────────────────────────────────────────────── */
+    out.push({
+      n:'①', ic:'💰', area:'연금 준비',
+      t: neg(gap) ? '노후 생활비의 ' + Math.round(fi / (goal||1) * 100) + '%만 연금으로 채워집니다'
+                  : '연금만으로 노후 생활비가 채워집니다',
+      big: (neg(gap) ? '−' : '+') + won(gap), unit:'만원', bad: neg(gap),
+      cap: '매달 ' + (neg(gap) ? '모자란' : '남는') + ' 금액',
+      rows: [
+        ['은퇴 후 매달 쓸 생활비', won(goal) + '만원'],
+        ['지금 준비된 연금 (매달)', won(fi) + '만원'],
+        ['  · 국민연금', won(nat) + '만원'],
+        ['  · 퇴직 · 개인연금', won(ret) + '만원']
+      ],
+      d: neg(gap)
+        ? '이 <b>월 ' + won(gap) + '만원</b>을 어디선가 메워야 합니다. 모아둔 자산에서 꺼내 쓰거나, 더 오래 일하거나, 지금부터 연금을 더 쌓는 것 — 세 가지뿐입니다.'
+        : '연금이 생활비를 덮습니다. 지금 구조를 <b>지키는 것</b>이 목표입니다.'
+    });
+
+    /* ② 연금 크레바스 ─────────────────────────────────────────── */
+    if(crev > 0){
+      out.push({
+        n:'②', ic:'🪜', area:'소득 공백',
+        t: (rage ? (rage + '세에 일을 놓고, ') : '') + '국민연금은 65세부터 나옵니다',
+        big: crev, unit:'년', bad:true, cap:'연금이 없는 기간',
+        rows: [
+          ['예상 은퇴', (rage||age) + '세'],
+          ['국민연금 개시', '65세'],
+          ['이 기간에 필요한 돈', (R.crevasseTotal || 0) + '억원']
+        ],
+        d: '이 <b>' + crev + '년</b> 동안은 연금이 한 푼도 나오지 않는데 <b>생활비는 그대로 나갑니다.</b> '
+          + '노후 자금이 가장 빠르게 줄어드는 구간이라, 여기를 어떻게 건너느냐가 뒤의 모든 숫자를 바꿉니다.'
+      });
+    } else {
+      out.push({
+        n:'②', ic:'🪜', area:'소득 공백',
+        t:'연금 개시까지의 공백은 없습니다',
+        big:'0', unit:'년', bad:false, cap:'연금이 없는 기간',
+        rows: [['예상 은퇴', (rage||age) + '세'], ['국민연금 개시', '65세']],
+        d:'은퇴 시점과 연금 개시가 맞물려 있어 소득이 끊기는 구간이 없습니다. 드문 경우입니다.'
+      });
+    }
+
+    /* ③ 건강 — 크레바스를 건너는 동안의 가장 큰 변수 ───────────── */
+    var gaps = [];
+    if(!H.dx)       gaps.push('암 · 뇌 · 심장 <b>진단비 보험이 없습니다</b>');
+    if(!H.sil)      gaps.push('<b>실손의료보험이 없습니다</b>');
+    if(!H.exercise) gaps.push('규칙적인 운동을 하지 않고 있습니다');
+    if(H.flagged)   gaps.push('검진에서 <b>혈압 · 혈당 · 콜레스테롤을 지적</b>받으셨습니다');
+    if(H.habit)     gaps.push('흡연 또는 주 3회 이상 음주를 하고 계십니다');
+    out.push({
+      n:'③', ic:'🛡️', area:'건강',
+      t: gaps.length >= 2 ? '이 구간에 큰 병이 오면 버티기 어렵습니다'
+                          : '큰 병에 대한 대비는 되어 있는 편입니다',
+      big: R.scores && R.scores.health != null ? R.scores.health : '—', unit:'점',
+      bad: (R.scores && R.scores.health < 60), cap:'건강 영역 점수',
+      rows: gaps.length ? gaps.slice(0, 3).map(function(g){ return ['확인된 빈칸', g]; })
+                        : [['확인된 빈칸', '두드러진 빈칸이 없습니다']],
+      d: gaps.length >= 2
+        ? '소득 공백 구간에 큰 병이 오면 <b>일을 못 하게 되어 소득이 끊기고</b>, 치료비까지 겹칩니다. '
+          + '그 돈은 결국 노후 자금에서 나갑니다 — 건강은 노후 준비의 별도 항목이 아니라 <b>현금흐름 문제</b>입니다.'
+        : '지금 수준을 유지하시면 됩니다. 소득 공백 구간에 큰 병이 오는 것이 노후 자금을 무너뜨리는 가장 흔한 경로인데, 그 대비가 되어 있습니다.'
+    });
+
+    /* ④ 자산 고갈 ─────────────────────────────────────────────── */
+    var lasts = (dep >= 90);
+    out.push({
+      n:'④', ic:'📉', area:'자산',
+      t: lasts ? '90세까지 자산이 버팁니다' : '모아둔 돈이 ' + Math.round(dep) + '세에 바닥납니다',
+      big: lasts ? '90+' : Math.round(dep), unit:'세', bad: !lasts, cap:'예상 자산 소진 나이',
+      rows: [
+        ['매달 자산에서 빠지는 돈', neg(gap) ? won(gap) + '만원' : '없음'],
+        ['그 뒤에 남는 소득', won(fi) + '만원 (연금)']
+      ],
+      d: lasts
+        ? '지금 조건이 유지된다면 90세 이전에 자산이 바닥나지 않습니다.'
+        : '<b>' + Math.round(dep) + '세</b> 이후로는 매달 <b>' + won(fi) + '만원</b>으로만 살게 됩니다. '
+          + '①에서 본 부족액이 그대로 이 나이를 앞당깁니다.'
+    });
+
+    /* ⑤ 웰다잉 — 복도 ─────────────────────────────────────────── */
+    var wp = R.wellPrep;
+    var wtxt = (wp === 0) ? '문서와 자금까지 준비하셨습니다'
+             : (wp === 1) ? '일부는 준비하셨습니다 (상조 · 보험 등)'
+             : (wp === 2) ? '생각은 해보셨지만 아직 실행 전입니다'
+                          : '아직 준비가 없습니다';
+    out.push({
+      n:'⑤', ic:'🕯️', area:'웰다잉',
+      t:'웰다잉은 다섯 번째 방이 아니라, 네 방을 잇는 복도입니다',
+      big: R.scores && R.scores.well != null ? R.scores.well : '—', unit:'점',
+      bad: (R.scores && R.scores.well < 60), cap:'웰다잉 영역 점수',
+      rows: [
+        ['지금 준비 상태', wtxt],
+        ['가족과 이야기', R.familyTalk ? '여러 번 해봤다' : '아직 해본 적 없다']
+      ],
+      d: '부모 · 나 · 자녀 <b>3세대의 재무는 하나로 이어져</b> 있습니다. 간병비와 상속세는 <b>현금</b>을 요구하는데 '
+        + '자산 대부분은 부동산에 묶여 있고, 간병이 시작되면 <b>내 일자리가 끊깁니다.</b> '
+        + '건강 → 일자리 → 현금흐름 → 다시 건강으로 도는 <b>악순환의 밸브</b>가 웰다잉입니다. '
+        + '준비 안 된 부모의 복도가 지금 내 네 방을 흔들고, 내 복도는 자녀의 네 방으로 이어집니다.'
+    });
+
+    return '<div class="aha-list">' + out.map(function(x){
+      return '<div class="aha' + (x.bad ? ' bad' : '') + '">'
+        + '<div class="aha-h"><span class="no">' + x.n + '</span>'
+        +   '<span class="ar">' + x.ic + ' ' + x.area + '</span></div>'
+        + '<b class="aha-t">' + x.t + '</b>'
+        + '<div class="aha-big"><span class="v">' + x.big + (x.unit ? '<i>' + x.unit + '</i>' : '') + '</span>'
+        +   '<span class="cap">' + x.cap + '</span></div>'
+        + '<div class="aha-rows">' + x.rows.map(function(r){
+              return '<div class="ar-r"><span>' + r[0] + '</span><b>' + r[1] + '</b></div>';
+            }).join('') + '</div>'
+        + '<p class="aha-d">' + x.d + '</p>'
+        + '</div>';
+    }).join('') + '</div>';
+  }
+
   window.renderQuickResultV2=function(R){
-    var surplus=R.gap<=0, band=R.band;
-    var head = (R.cohort==='S1')
-      ? '정년까지 <em>'+R.crevasse+'년</em>, 매달 <em>'+Math.abs(R.gap).toLocaleString()+'만원</em>이 빕니다'
-      : ((R.cohort==='S2') ? '은퇴가 눈앞입니다 — 월 <em>'+Math.abs(R.gap).toLocaleString()+'만원</em> 공백'
-                           : '지금 시작하면 가장 저렴합니다 — 월 <em>'+Math.abs(R.gap).toLocaleString()+'만원</em> 공백');
-    var legend=AREA_ORDER.map(function(a){
-      return '<div class="qr-insight"><span class="ax">'+AREA_INFO[a].emoji+' '+AREA_INFO[a].name+'</span>'
-        +'<span class="pt">'+R.scores[a]+'<i>점</i></span><span>'+((R.tips||{})[a]||'')+'</span></div>';
+    var surplus = R.gap <= 0, band = R.band;
+    var goal = Math.round(R.goal || R.costAdj || 0);
+    var head = surplus
+      ? '연금만으로 노후 생활비가 채워집니다'
+      : '노후 생활비 <em>' + goal.toLocaleString() + '만원</em> 중 <em>' + Math.abs(Math.round(R.gap)).toLocaleString() + '만원</em>이 매달 빕니다';
+    var legend = AREA_ORDER.map(function(a){
+      return '<div class="qr-insight"><span class="ax">' + AREA_INFO[a].emoji + ' ' + AREA_INFO[a].name + '</span>'
+        + '<span class="pt">' + R.scores[a] + '<i>점</i></span><span>' + ((R.tips || {})[a] || '') + '</span></div>';
     }).join('');
-    var html=
-      '<div class="qk2-hero'+(surplus?' ok':'')+'"><span class="qk2-tag">'+cohortTag(R.cohort)+' · '+band+'</span>'
-      +'<h2>'+head+'</h2>'
-      +'<div class="qk2-nums">'
-      +'<div><small>월 공백</small><b>'+(surplus?'+':'−')+Math.abs(R.gap).toLocaleString()+'<i>만원</i></b></div>'
-      +'<div><small>연금 크레바스</small><b>'+R.crevasse+'<i>년</i></b></div>'
-      +'<div><small>자산 고갈</small><b>'+(R.depletion>=90?'90+':Math.round(R.depletion))+'<i>세</i></b></div>'
-      +'</div>'
-      +(R.crevasse>0&&!surplus?'<div class="qk2-sum">은퇴 후 연금 개시까지 <b>'+R.crevasse+'년</b> 동안 총 <b>'+R.crevasseTotal+'억 원</b>이 필요합니다</div>':'')
-      +'</div>'
-      +'<div class="qr-card"><h3>📊 나의 노후 준비 점수</h3>'
-      +'<div class="qk2-score"><b>'+R.total+'</b><span>/ 100 · '+(R.grade?R.grade[0]:'')+'</span>'
-      +(window.l2pQuickRange?'<span class="qk2-range" data-no-i18n="1">'
-        +((window.L2P_LANG==='en')
-          ?('estimated range '+window.l2pQuickRange(R.total).txt+' · the full check narrows it')
-          :('예상 범위 '+window.l2pQuickRange(R.total).txt+'점 · 정밀진단을 하면 범위가 좁혀집니다'))
-        +'</span>':'')+'</div>'
-      +(window.l2pWeakHTML?window.l2pWeakHTML(R.scores):'')
-      +'<svg class="radar-svg" viewBox="0 0 320 300">'+radarSVG(R.scores, R.peer||{})+'</svg>'
-      +window.l2pRadarLegend(band)+'</div>'
-      +'<div class="qr-card"><h3>💡 영역별 한 줄 진단</h3>'+legend+'</div>'
-      +'<div class="qr-note">※ 12문항 압축 진단입니다. 정밀진단과 <b>동일한 산정 엔진</b>을 사용하며, 41문항 결과를 얼마나 재현하는지 자체 시뮬레이션으로 검증했습니다(설명력 R²=0.92). 실제 이용자 데이터 검증은 진행 중입니다.</div>'
-      +'<div class="qr-up"><span class="eyebrow" style="background:rgba(201,164,73,.18);color:#E7D594;">NEXT STEP · 무료</span>'
-      +'<h3>방금 답한 12개는 그대로 가져갑니다</h3>'
-      +'<p>29문항만 더 답하면 자산 고갈 3시나리오 · 영역별 맞춤 처방 · What-if 시뮬레이션까지 정밀 리포트로 드립니다.</p>'
-      +'<button class="pg-btn" style="background:#C9A449;color:#0F2B1D;" onclick="upgradeToFullV2()">'+(COH_CTA[R.cohort]||'종합 진단 시작하기')+' →</button></div>'
-      +'<button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="startQuick()">↺ 다시 진단하기</button>'
-      +'<button class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="show(\'s-stage\');setNav(\'home\');">⌂ 처음 화면으로</button>';
-    document.getElementById('quickResultBody').innerHTML=html;
+    var html =
+      '<div class="qk2-hero' + (surplus ? ' ok' : '') + '"><span class="qk2-tag">' + cohortTag(R.cohort) + ' · ' + band + '</span>'
+      + '<h2>' + head + '</h2>'
+      + '<div class="qk2-nums">'
+      + '<div><small>매달 부족한 돈</small><b class="' + (surplus ? 'up' : 'dn') + '">' + (surplus ? '+' : '−') + Math.abs(Math.round(R.gap)).toLocaleString() + '<i>만원</i></b></div>'
+      + '<div><small>연금 없는 기간</small><b>' + R.crevasse + '<i>년</i></b></div>'
+      + '<div><small>자산 고갈</small><b>' + (R.depletion >= 90 ? '90+' : Math.round(R.depletion)) + '<i>세</i></b></div>'
+      + '</div>'
+      + (R.crevasse > 0 && !surplus ? '<div class="qk2-sum">은퇴 후 연금 개시까지 <b>' + R.crevasse + '년</b> 동안 총 <b>' + R.crevasseTotal + '억 원</b>이 필요합니다</div>' : '')
+      + '</div>'
+      + '<div class="aha-lead"><h3>강의에서 함께 볼 다섯 가지</h3>'
+      +   '<p>모두 방금 답하신 12문항에서 나온 숫자입니다. 순서대로 읽으면 하나의 이야기가 됩니다.</p></div>'
+      + ahaCards(R)
+      + '<div class="qr-card"><h3>📊 나의 노후 준비 점수</h3>'
+      + '<div class="qk2-score"><b>' + R.total + '</b><span>/ 100 · ' + (R.grade ? R.grade[0] : '') + '</span>'
+      + (window.l2pQuickRange ? '<span class="qk2-range" data-no-i18n="1">'
+          + ((window.L2P_LANG === 'en')
+            ? ('estimated range ' + window.l2pQuickRange(R.total).txt + ' · the full check narrows it')
+            : ('예상 범위 ' + window.l2pQuickRange(R.total).txt + '점 · 정밀진단을 하면 범위가 좁혀집니다'))
+          + '</span>' : '') + '</div>'
+      + (window.l2pWeakHTML ? window.l2pWeakHTML(R.scores) : '')
+      + '<svg class="radar-svg" viewBox="0 0 320 300">' + radarSVG(R.scores, R.peer || {}) + '</svg>'
+      + window.l2pRadarLegend(band) + '</div>'
+      + '<div class="qr-card"><h3>💡 영역별 한 줄 진단</h3>' + legend + '</div>'
+      + '<div class="qr-note">※ 12문항 압축 진단입니다. 정밀진단과 <b>동일한 산정 엔진</b>을 사용하며, 41문항 결과를 얼마나 재현하는지 자체 시뮬레이션으로 검증했습니다(설명력 R²=0.92). 실제 이용자 데이터 검증은 진행 중입니다.</div>'
+      + '<div class="qr-up"><span class="eyebrow" style="background:rgba(201,164,73,.18);color:#E7D594;">NEXT STEP · 무료</span>'
+      + '<h3>방금 답한 12개는 그대로 가져갑니다</h3>'
+      + '<p>36문항만 더 답하면 자산 고갈 3시나리오 · 영역별 맞춤 처방 · What-if 시뮬레이션까지 정밀 리포트로 드립니다.</p>'
+      + '<button class="pg-btn" style="background:#C9A449;color:#0F2B1D;" onclick="upgradeToFullV2()">' + (COH_CTA[R.cohort] || '종합 진단 시작하기') + ' →</button></div>'
+      + '<button class="btn btn-ghost" style="width:100%;margin-top:10px;" onclick="startQuick()">↺ 다시 진단하기</button>'
+      + '<button class="btn btn-ghost" style="width:100%;margin-top:8px;" onclick="show(\'s-stage\');setNav(\'home\');">⌂ 처음 화면으로</button>';
+    document.getElementById('quickResultBody').innerHTML = html;
   };
+  /* [QUICK-R] end */
 
   /* 서버가 돌려준 prefill(문항ID→보기인덱스)을 정밀진단 answers에 주입 */
   window.l2pApplyQuick=function(){
@@ -7056,8 +7240,8 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 .dash{margin:0 0 16px;}
 .dash-top{background:linear-gradient(135deg,#0E3A26 0%,#155C3B 55%,#1C7A4E 100%);
   color:#fff;border-radius:20px;padding:22px 20px 20px;display:grid;gap:18px;}
-.dt-eye{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
-  background:rgba(255,255,255,.14);border-radius:20px;padding:5px 11px;}
+.dt-eye{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.04em;
+  background:rgba(255,255,255,.14);border-radius:999px;padding:5px 12px;}
 .dt-eye i{width:6px;height:6px;border-radius:50%;background:#7FD6A6;display:inline-block;}
 .dash-top h2{font-family:'Noto Serif KR',serif;font-size:22px;font-weight:700;letter-spacing:-.03em;margin:10px 0 12px;word-break:keep-all;}
 .dt-state{display:inline-flex;align-items:center;gap:9px;flex-wrap:wrap;background:rgba(255,255,255,.12);
@@ -7072,7 +7256,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 .dt-sub{font-size:12.5px;line-height:1.6;margin:5px 0 0;color:rgba(255,255,255,.7);word-break:keep-all;}
 .dt-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
 .dk{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:11px 12px;}
-.dk .l{display:block;font-size:10.5px;color:rgba(255,255,255,.72);font-weight:700;line-height:1.4;word-break:keep-all;margin-bottom:5px;}
+.dk .l{display:block;font-size:12px;color:rgba(255,255,255,.82);font-weight:600;line-height:1.4;word-break:keep-all;margin-bottom:6px;}
 .dk .v{display:block;font-size:20px;font-weight:900;letter-spacing:-.04em;}
 .dk .v i{font-size:12px;font-style:normal;font-weight:700;margin-left:1px;}
 .dk.warn .v{color:#FDE68A;} .dk.bad .v{color:#FCA5A5;}
@@ -7087,41 +7271,40 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 .dash-sec{margin-top:16px;}
 .ds-h{margin-bottom:11px;}
 .ds-h h3{font-family:'Noto Serif KR',serif;font-size:18.5px;font-weight:700;color:#0F2B1D;letter-spacing:-.03em;margin:0 0 3px;word-break:keep-all;}
-.ds-h p{font-size:12.5px;color:#6E7C73;line-height:1.6;margin:0;word-break:keep-all;}
+.ds-h p{font-size:12.5px;color:#5E6B63;line-height:1.6;margin:0;word-break:keep-all;}
 
 /* 재무 지표 카드 */
 /* [FIX-DEBT] 부채 상환 계획 카드 */
-.dbt{border:1px solid #E7C3BC;background:#FFF7F5;border-radius:16px;padding:15px;margin:12px 0;}
+.dbt{border:1px solid #E6DEDB;background:#FDF6F4;border-radius:16px;padding:16px;margin:12px 0;}
 .dbt .ds-h h3{color:#8E2F26;}
-.dbt-box{background:#fff;border:1px solid #F0D9D4;border-radius:12px;padding:11px 13px;margin-bottom:10px;}
+.dbt-box{background:#fff;border:1px solid #EAE3E0;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
 .dbt-r{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:5px 0;font-size:13.5px;color:#5E6B63;}
 .dbt-r b{font-size:16px;font-weight:900;color:#2B3730;}
 .dbt-r.tot{border-top:1px solid #F0D9D4;margin-top:4px;padding-top:8px;}
 .dbt-r.tot span{font-weight:800;color:#8E2F26;} .dbt-r.tot b{color:#8E2F26;font-size:19px;}
 .dbt-plan{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.dbt-plan .dp{background:#fff;border:1px solid #F0D9D4;border-radius:12px;padding:10px 11px;}
-.dbt-plan .l{display:block;font-size:11.5px;color:#7C877F;line-height:1.35;}
+.dbt-plan .dp{background:#fff;border:1px solid #EAE3E0;border-radius:12px;padding:11px 12px;}
+.dbt-plan .l{display:block;font-size:12px;color:#5E6B63;line-height:1.38;}
 .dbt-plan .v{display:block;font-size:19px;font-weight:900;color:#8E2F26;margin-top:3px;}
 .dbt-plan .v i{font-style:normal;font-size:12px;font-weight:700;margin-left:1px;}
 .dbt-note{margin-top:10px;font-size:13px;color:#5E6B63;line-height:1.62;word-break:keep-all;}
-.dbt-note .sm{font-size:11.5px;color:#939E97;}
+.dbt-note .sm{font-size:12px;color:#5E6B63;}
 @media (max-width:520px){ .dbt-plan{grid-template-columns:1fr;} }
 .dm-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 @media (min-width:760px){ .dm-grid{grid-template-columns:repeat(3,1fr);} }
-.dm{background:#fff;border:1px solid #E4E8E5;border-left:3px solid #C9D3CC;border-radius:14px;padding:12px 13px;}
-.dm.good{border-left-color:#1C7A4E;} .dm.warn{border-left-color:#C89A3C;} .dm.bad{border-left-color:#C2564B;}
+.dm{background:#fff;border:1px solid #E2E8E4;border-radius:16px;padding:14px 15px;}
 .dm-h{display:flex;align-items:flex-start;justify-content:space-between;gap:7px;margin-bottom:6px;}
 .dm-l{font-size:13.5px;font-weight:900;color:#0F2B1D;line-height:1.38;word-break:keep-all;letter-spacing:-.02em;}
 /* [RPT④] 지표 이름이 회색 잔글씨라 눈에 걸리지 않았다 — 진하게 키우고 밑줄로 묶는다 */
 .dm-h{border-bottom:1px solid #EDF1EE;padding-bottom:6px;}
-.dm-bd{flex:0 0 auto;font-size:10px;font-weight:900;border-radius:20px;padding:2px 8px;letter-spacing:-.02em;}
-.dm-bd.good{background:#E6F4EC;color:#146B44;} .dm-bd.warn{background:#FBF3E0;color:#8A6A20;}
-.dm-bd.bad{background:#FBEAE8;color:#9E3B32;} .dm-bd.info{background:#EEF1EF;color:#5E6B63;}
+.dm-bd{flex:0 0 auto;font-size:12px;font-weight:800;border-radius:999px;padding:3px 9px;letter-spacing:-.02em;}
+.dm-bd.good{background:#E4F2EA;color:#0F5C39;} .dm-bd.warn{background:#FAF1DD;color:#7A5C16;}
+.dm-bd.bad{background:#FAE7E4;color:#8E2F26;} .dm-bd.info{background:#EDF1EF;color:#55625B;}
 .dm-v{font-size:26px;font-weight:900;color:#0F2B1D;letter-spacing:-.045em;line-height:1.1;}
 .dm.warn .dm-v{color:#8A6A20;} .dm.bad .dm-v{color:#9E3B32;}
 .dm-v i{font-size:13px;font-style:normal;font-weight:800;margin-left:2px;}
-.dm-s{font-size:11.5px;color:#6E7C73;line-height:1.55;margin-top:6px;word-break:keep-all;}
-.dm-n{font-size:10.5px;color:#98A19B;line-height:1.5;margin-top:5px;padding-top:5px;border-top:1px dashed #E7EBE7;word-break:keep-all;}
+.dm-s{font-size:12.5px;color:#5E6B63;line-height:1.6;margin-top:8px;word-break:keep-all;}
+.dm-n{font-size:12px;color:#5E6B63;line-height:1.55;margin-top:8px;padding-top:8px;border-top:1px solid #EDF1EE;word-break:keep-all;}
 
 /* AI 핵심 진단 */
 .di-grid{display:grid;gap:9px;}
@@ -7129,47 +7312,47 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 .di{background:#fff;border:1px solid #E4E8E5;border-radius:14px;padding:13px 14px;}
 .di-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
 .di-h .ic{font-size:18px;line-height:1;}
-.di-h .no{font-size:12px;font-weight:900;color:#B7C0BA;}
+.di-h .no{font-size:12px;font-weight:800;color:#8A948D;}
 .di b{display:block;font-size:14px;font-weight:800;color:#12301F;letter-spacing:-.025em;line-height:1.45;word-break:keep-all;}
 .di p{font-size:12.5px;color:#5E6B63;line-height:1.65;margin:6px 0 0;word-break:keep-all;}
 .di p b{display:inline;font-size:inherit;color:#0F2B1D;}
-.di-why{margin-top:9px;padding-top:8px;border-top:1px solid #EDF1EE;font-size:11.5px;color:#6E7C73;line-height:1.6;word-break:keep-all;}
-.di-why span{display:block;font-size:10px;font-weight:900;color:#A8B2AC;letter-spacing:.04em;margin-bottom:3px;}
+.di-why{margin-top:9px;padding-top:8px;border-top:1px solid #EDF1EE;font-size:12px;color:#5E6B63;line-height:1.6;word-break:keep-all;}
+.di-why span{display:block;font-size:12px;font-weight:800;color:#5E6B63;letter-spacing:.02em;margin-bottom:4px;}
 .di-why b{display:inline;font-size:inherit;color:#0F2B1D;}
 
 /* 시나리오 비교 */
 .dbtn{display:block;width:100%;border:1px solid #CBDCD1;background:#F2F8F4;color:#0E3A26;border-radius:13px;
   padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;letter-spacing:-.02em;}
 .dbtn:disabled{opacity:.6;cursor:default;}
-.dbtn.primary{background:linear-gradient(135deg,#0E3A26,#1C7A4E);color:#fff;border:0;margin-top:12px;}
+.dbtn.primary{background-color:#134E33;background-image:linear-gradient(135deg,#0E3A26,#1C7A4E);color:#fff;border:0;margin-top:12px;}
 .dsc-rows{margin-top:11px;display:grid;gap:7px;}
 .dsc-row{background:#fff;border:1px solid #E4E8E5;border-radius:13px;padding:11px 13px;}
 .dsc-row.now{background:#F7FAF8;} .dsc-row.best{border-color:#1C7A4E;box-shadow:0 0 0 1px #1C7A4E inset;}
 .dsc-nm{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;}
 .dsc-nm .ic{font-size:14px;} .dsc-nm b{font-size:13.5px;font-weight:800;color:#12301F;letter-spacing:-.02em;}
-.dsc-nm .dt{font-size:11.5px;color:#6E7C73;word-break:keep-all;}
-.dsc-nm .ovl{font-size:9.5px;font-weight:800;color:#8A6A20;background:#FBF3E0;border-radius:20px;padding:2px 7px;}
+.dsc-nm .dt{font-size:12px;color:#5E6B63;word-break:keep-all;}
+.dsc-nm .ovl{font-size:11px;font-weight:800;color:#7A5C16;background:#FAF1DD;border-radius:999px;padding:2px 8px;}
 .dsc-bar{position:relative;height:22px;background:#EFF3F0;border-radius:11px;margin:8px 0 6px;overflow:hidden;}
 .dsc-bar i{display:block;height:100%;background:linear-gradient(90deg,#3E9A6B,#1C7A4E);border-radius:11px;}
 .dsc-row.now .dsc-bar i{background:linear-gradient(90deg,#B7C0BA,#8A968E);}
 /* 막대가 길면 숫자가 초록 위에 겹쳐 읽히지 않는다 — 흰 알약 배경을 깐다 */
-.dsc-age{position:absolute;right:5px;top:3px;line-height:16px;font-size:11.5px;font-weight:900;color:#0F2B1D;background:rgba(255,255,255,.94);border-radius:9px;padding:0 8px;}
-.dsc-kv{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11.5px;color:#6E7C73;}
+.dsc-age{position:absolute;right:5px;top:3px;line-height:16px;font-size:12px;font-weight:900;color:#0F2B1D;background:rgba(255,255,255,.94);border-radius:9px;padding:0 8px;}
+.dsc-kv{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:#5E6B63;}
 .dsc-kv b{color:#0F2B1D;font-weight:800;}
 .dsc-kv .up{color:#146B44;font-weight:900;} .dsc-kv .dn{color:#9E3B32;font-weight:900;}
 .dsc-kv .dsc-base{color:#A8B2AC;font-weight:800;}
-.dsc-note{font-size:11px;color:#8A938D;line-height:1.65;margin-top:9px;word-break:keep-all;}
+.dsc-note{font-size:12px;color:#67736C;line-height:1.65;margin-top:9px;word-break:keep-all;}
 .dsc-note b{color:#5E6B63;}
 
 .drec{margin-top:13px;background:#F7FAF8;border:1px solid #DEE7E1;border-radius:16px;padding:15px 14px;}
 .drec-h h3{font-family:'Noto Serif KR',serif;font-size:17px;font-weight:700;color:#0F2B1D;margin:0 0 3px;letter-spacing:-.03em;}
-.drec-h p{font-size:12px;color:#6E7C73;line-height:1.6;margin:0 0 11px;word-break:keep-all;}
+.drec-h p{font-size:12px;color:#5E6B63;line-height:1.6;margin:0 0 11px;word-break:keep-all;}
 .drec-l{list-style:none;margin:0;padding:0;display:grid;gap:7px;}
 .drec-l li{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E4E8E5;border-radius:12px;padding:10px 12px;}
-.drec-l .no{flex:0 0 auto;font-size:10.5px;font-weight:900;color:#fff;background:#0E3A26;border-radius:20px;padding:4px 9px;}
+.drec-l .no{flex:0 0 auto;font-size:12px;font-weight:800;color:#fff;background:#0E3A26;border-radius:999px;padding:4px 10px;}
 .drec-l li > div{flex:1 1 auto;min-width:0;}
 .drec-l b{display:block;font-size:13.5px;font-weight:800;color:#12301F;letter-spacing:-.02em;}
-.drec-l .dt{display:block;font-size:11.5px;color:#6E7C73;line-height:1.5;margin-top:2px;word-break:keep-all;}
+.drec-l .dt{display:block;font-size:12px;color:#5E6B63;line-height:1.5;margin-top:2px;word-break:keep-all;}
 .drec-l .gn{flex:0 0 auto;font-size:13px;font-weight:900;color:#146B44;}
 .drec-sum{margin-top:11px;background:#0E3A26;color:#fff;border-radius:14px;padding:13px 14px;}
 .drec-sum b{display:block;font-size:12px;font-weight:800;color:#9FD9BB;margin-bottom:4px;}
@@ -12413,5 +12596,98 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 })();
 </script>
 <!-- [RPT-FOLD] end -->
+<!-- [DASH-UI] start -->
+<style id="dash-ui">
+/* ═══ 대시보드 다듬기 — 기존 스타일 뒤에 얹어 덮어씁니다 ═══════════════
+   반경 한 벌 : 바깥 카드 16 · 안쪽 상자 12 · 알약 999
+   그림자     : 배경 색조를 띤 옅은 것 하나만 (검정 그림자 금지)
+   숫자       : 자릿수 고정 폭 — 값이 바뀌어도 자리가 흔들리지 않습니다 */
+.dash{ --r-card:16px; --r-box:12px; --ink:#0F2B1D; --mut:#5E6B63; --line:#E2E8E4;
+       --sh:0 1px 2px rgba(15,43,29,.05), 0 6px 16px -10px rgba(15,43,29,.18); }
+
+/* ── ① 숫자 ──────────────────────────────────────────────────────────
+   금액·나이·비율이 한 화면에 섞여 있습니다. 자릿수를 고정 폭으로 두면
+   카드끼리 세로로 줄이 맞고, 다시 계산해도 숫자가 덜컹이지 않습니다. */
+.dash .dm-v, .dash .dk .v, .dash .dt-state .sc b, .dash .dbt-r b,
+.dash .dbt-plan .v, .dash .drec-l .gn, .dash .dsc-age, .dash .dm-s b{
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:'tnum' 1,'lnum' 1;
+  font-kerning:none;
+}
+/* 값과 단위를 붙이지 않고 한 칸 띄워, 숫자가 먼저 읽히게 */
+.dash .dm-v{ font-size:29px; letter-spacing:-.035em; line-height:1.08;
+  display:flex; align-items:baseline; gap:3px; white-space:nowrap; }
+.dash .dm-v i{ font-size:13px; font-weight:700; color:var(--mut); margin:0; letter-spacing:0; }
+.dash .dm.warn .dm-v i, .dash .dm.bad .dm-v i{ color:inherit; opacity:.72; }
+/* 위계 — 앞의 세 가지(준비율·현금흐름·소진 연령)가 먼저 눈에 들어오게 */
+@media (min-width:760px){ .dash .dm-grid > .dm:nth-child(-n+3) .dm-v{ font-size:33px; } }
+
+.dash .dk .v{ font-size:22px; letter-spacing:-.035em; }
+.dash .dk .v i{ font-size:12.5px; font-weight:700; opacity:.78; margin-left:2px; }
+.dash .dt-state .sc b{ font-size:27px; }
+
+/* ── ② 카드 — 왼쪽 굵은 색 테두리를 걷어냅니다 ─────────────────────
+   한쪽 면만 굵게 칠한 카드는 AI가 만든 화면의 가장 흔한 표식입니다.
+   상태는 오른쪽 배지와 숫자 색으로 이미 말하고 있으므로 충분합니다. */
+.dash .dm{
+  border:1px solid var(--line); border-left-width:1px; border-left-color:var(--line);
+  border-radius:var(--r-card); padding:14px 15px; background:#fff; box-shadow:var(--sh);
+}
+.dash .dm.good, .dash .dm.warn, .dash .dm.bad{ border-left-color:var(--line); }
+/* 대신 지표 이름 앞에 작은 점 하나로 상태를 귀띔합니다 */
+.dash .dm .dm-l::before{
+  content:''; display:inline-block; width:6px; height:6px; border-radius:50%;
+  background:#C3CCC7; margin-right:7px; vertical-align:2px;
+}
+.dash .dm.good .dm-l::before{ background:#1C7A4E; }
+.dash .dm.warn .dm-l::before{ background:#B4841F; }
+.dash .dm.bad  .dm-l::before{ background:#B24136; }
+
+.dash .dm-h{ border-bottom:1px solid #EDF1EE; padding-bottom:8px; margin-bottom:9px; align-items:center; }
+.dash .dm-l{ font-size:13.5px; font-weight:800; color:var(--ink); letter-spacing:-.02em; }
+
+/* ③ 대비 · ④ 글씨 크기는 원본 선언을 직접 고쳤습니다(중복 규칙을 남기지 않기 위해) */
+
+/* ── ⑤ 모서리·그림자 한 벌 ─────────────────────────────────────────── */
+.dash .dash-top{ border-radius:var(--r-card); }
+.dash .dk{ border-radius:var(--r-box); }
+.dash .dt-state{ border-radius:var(--r-box); }
+.dash .di{ border-radius:var(--r-card); border-color:var(--line); box-shadow:var(--sh); padding:14px 15px; }
+.dash .dsc-row, .dash .drec-l li{ border-radius:var(--r-box); border-color:var(--line); }
+.dash .drec{ border-radius:var(--r-card); border-color:#DDE5E0; }
+.dash .drec-sum{ border-radius:var(--r-box); }
+.dash .dbtn{ border-radius:var(--r-box); }
+.dbt{ border-radius:var(--r-card); box-shadow:var(--sh); }
+.dbt-box, .dbt-plan .dp{ border-radius:var(--r-box); }
+.dbt-plan .v{ font-variant-numeric:tabular-nums lining-nums; letter-spacing:-.03em; }
+
+/* ── 줄 맞춤 — 한 줄에 놓인 카드들의 아래쪽 설명이 같은 높이에서 시작하게 ──
+   내용 길이가 제각각이라 기준선이 들쭉날쭉했습니다. */
+.dash .dm{ display:flex; flex-direction:column; }
+.dash .dm-n{ margin-top:auto; }
+.dash .di{ display:flex; flex-direction:column; }
+.dash .di-why{ margin-top:auto; }
+.dash .dm-v{ margin-bottom:2px; }
+
+/* ── 상단 히어로 — 단위는 값보다 한 단계 뒤로 ───────────────────────── */
+.dash .dt-state .sc i{ font-weight:700; opacity:.8; margin-left:1px; }
+.dash .dk .l{ font-weight:600; letter-spacing:-.01em; }
+
+/* ── 제목 줄 — 본문과 간격을 넓혀 섹션 경계를 분명히 ─────────────── */
+.dash .dash-sec{ margin-top:22px; }
+.dash .ds-h{ margin-bottom:13px; }
+.dash .ds-h h3{ font-size:19px; }
+.dash .ds-h p{ font-size:13px; color:var(--mut); max-width:62ch; }
+
+/* ── 좁은 화면 — 두 칸이 답답하면 한 칸으로 ───────────────────────── */
+@media (max-width:359px){
+  .dash .dm-grid{ grid-template-columns:1fr; }
+  .dash .dm-v{ font-size:27px; }
+}
+@media (prefers-reduced-motion:reduce){
+  .dash *, .dbt *{ animation:none!important; transition:none!important; }
+}
+</style>
+<!-- [DASH-UI] end -->
 </body>
 </html>
