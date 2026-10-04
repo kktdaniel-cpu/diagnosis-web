@@ -10308,9 +10308,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 
   /* [RPT⑦] 충족률 카드에 있던 세 시나리오 고갈 나이 — 대시보드로 옮긴다 */
   function scenAges(R){
-    var s=(R&&R.scen)||{};
-    function a(v){ return isFinite(v) ? (v>=90?'90+':(Math.round(v*10)/10)+'세') : '—'; }
-    return '생활충격 '+a(s.p)+' · 기준 '+a(s.a)+' · 시장·장수 '+a(s.o);
+    return '생활충격 '+window.l2pScenTxt(R,'p')+' · 기준 '+window.l2pScenTxt(R,'a')+' · 시장·장수 '+window.l2pScenTxt(R,'o');
   }
 
   /* [RPT④] 예상 지출은 엔진의 shortfall 항을 그대로 되짚은 값이다. 전부 적는다.
@@ -10601,8 +10599,8 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
       + mcard('예상 최대 자산', eokShort(R.principal||0), '',
               'info', '은퇴 '+ret+'세 시점 — 이때가 정점입니다',
               '부채 · 자녀 지원분을 뺀 순자산')
-      + mcard('90세까지 버틴 시나리오', keep+' / 3', '',
-              keep>=3?'good':(keep>=1?'warn':'bad'),
+      + mcard(window.l2pKeep90Label(), window.l2pKeep90Txt(R), '',
+              (keep==null?'':(keep>=3?'good':(keep>=1?'warn':'bad'))),
               scenAges(R),                          /* [RPT⑦] 세 시나리오 나이를 여기로 옮겼습니다 */
               '확률이 아니라 <b>시나리오 통과 개수</b>입니다')
       + mcard('은퇴 후 평생 필요자금', eokShort(lifeNeed), '',
@@ -10854,12 +10852,14 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
 
       var okDep=_D.lasts||(!_D.unknown&&_D.age>=90);
       p.appendChild(el('div','rp-hero'
-        +(okDep?' good':(dep>=85?' warn':' bad')),
+        +(_D.cls?' '+_D.cls:''),
         '<div class="rp-hero-l">'
         +'<span class="eye">종합 판정</span>'
-        +'<h1>'+(okDep
-            ? '현재 계획대로라면 <em>90세까지</em> 자산이 유지됩니다'
-            : '현재 계획대로라면 <em>'+dep+'세</em>까지 자산이 유지됩니다')+'</h1>'
+        +'<h1>'+(_D.unknown
+            ? window.L2P_GOAL_UNKNOWN_NOTE
+            : (okDep
+                ? '현재 계획대로라면 <em>90세까지</em> 자산이 유지됩니다'
+                : '현재 계획대로라면 <em>'+_D.age+'세</em>까지 자산이 유지됩니다'))+'</h1>'
         +'<p>'+(gr[1]||'')+'</p></div>'
         +'<div class="rp-hero-r"><div class="rp-ring">'
           +'<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="none" stroke="#E4E8E5" stroke-width="11"/>'
@@ -10996,7 +10996,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
         ['은퇴 후 월 현금흐름', (_gU?window.L2P_U_TEXT:((sf>0?'−'+nf(sf):'+'+nf(-sf))+'<i>만원</i>')), (_gU?'':(sf<=0?'good':(sf<=50?'warn':'bad'))), (_gU?window.L2P_GOAL_UNKNOWN_NOTE:'소득 '+nf(fi)+'만 − 지출 '+nf(spend)+'만 · 0 이상 양호')],
         ['예상 자산 소진', _D.html, _D.cls, (_gU?window.L2P_GOAL_UNKNOWN_NOTE:'은퇴 '+ret+'세부터 인출 시작 · 95세까지 미소진이면 양호')],
         ['예상 최대 자산', wonS(R.principal||0), 'info', '은퇴 '+ret+'세 시점 · 부채와 자녀 지원분을 뺀 순자산'],
-        ['90세까지 버틴 시나리오', (keep==null?window.L2P_U_TEXT:keep+' / 3'), (keep==null?'':(keep>=3?'good':(keep>=1?'warn':'bad'))), '확률이 아니라 <b>시나리오 통과 개수</b>입니다'],
+        [window.l2pKeep90Label(), window.l2pKeep90Txt(R), (keep==null?'':(keep>=3?'good':(keep>=1?'warn':'bad'))), '확률이 아니라 <b>시나리오 통과 개수</b>입니다'],
         ['은퇴 후 평생 필요자금', wonS(life), 'info', '월 '+nf(spend)+'만 × 12 × '+Math.max(0,90-ret)+'년 (엔진 계산 항 그대로)']
       ];
       return M.map(function(m){
@@ -13889,7 +13889,7 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 }
 /* 값과 단위를 붙이지 않고 한 칸 띄워, 숫자가 먼저 읽히게 */
 .dash .dm-v{ font-size:29px; letter-spacing:-.035em; line-height:1.08;
-  display:flex; align-items:baseline; gap:3px; white-space:nowrap; }
+  display:flex; align-items:baseline; gap:3px; white-space:normal; }
 .dash .dm-v i{ font-size:13px; font-weight:700; color:var(--mut); margin:0; letter-spacing:0; }
 .dash .dm.warn .dm-v i, .dash .dm.bad .dm-v i{ color:inherit; opacity:.72; }
 /* 위계 — 앞의 세 가지(준비율·현금흐름·소진 연령)가 먼저 눈에 들어오게 */
