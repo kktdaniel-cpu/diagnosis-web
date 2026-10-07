@@ -21,18 +21,11 @@ print("Changed files:")
 for p in changed:
     print(" -", p)
 
-# Product patch allowlist for diagnosis-web.
-# Automation-policy files are intentionally NOT in this list.
 allowed_exact = {
     "index.html",
     "early/index.html",
 }
-allowed_prefixes = (
-    "pro/tests/",
-    "tests/",
-)
 
-# Files that govern the gate itself. General product PRs must not touch them.
 policy_exact = {
     ".github/workflows/diagnosis-verify.yml",
     ".github/workflows/policy-guard.yml",
@@ -44,7 +37,6 @@ policy_exact = {
     "docs/RELEASE_CHECKLIST.md",
 }
 
-# Bootstrap/maintenance PRs may contain only policy files and no product files.
 policy_changed = [p for p in changed if p in policy_exact or p.startswith(".github/")]
 product_changed = [p for p in changed if p not in policy_changed]
 
@@ -57,12 +49,9 @@ if policy_changed:
     print("\nAutomation-maintenance change detected.")
     print("This PR requires separate owner review and must not be treated as a normal product patch.")
 else:
-    violations = [
-        p for p in product_changed
-        if p not in allowed_exact and not any(p.startswith(prefix) for prefix in allowed_prefixes)
-    ]
+    violations = [p for p in product_changed if p not in allowed_exact]
     if violations:
-        print("\nBLOCKED: changed files are outside the committed product allowlist:")
+        print("\nBLOCKED: changed files are outside the committed phase-1 product allowlist:")
         for p in violations:
             print(" -", p)
         sys.exit(1)
