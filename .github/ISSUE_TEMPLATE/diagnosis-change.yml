@@ -1,0 +1,51 @@
+name: 진단프로그램 변경 요청
+description: LIFE 2.0 진단프로그램 변경을 승인 게이트와 함께 추적합니다.
+title: "[CHANGE] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 문제 / 요청
+      description: 사용자에게 보이는 현상과 재현 조건을 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: 기대 결과
+    validations:
+      required: true
+  - type: textarea
+    id: allowed
+    attributes:
+      label: 허용 변경 범위
+      description: 수정해도 되는 파일/함수/계층을 적습니다.
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: 금지 범위
+      value: |
+        - 승인 없는 계산식/임계값/가정 변경 금지
+        - backend/API schema 변경 금지
+        - DIAGNOSIS_SPEC/LOCK 변경 금지
+        - APP_VERSION 변경 금지
+        - main 직접 수정 및 승인 전 deploy 금지
+  - type: textarea
+    id: tests
+    attributes:
+      label: 수용 기준 / 테스트
+      description: PASS 조건과 회귀 테스트를 적습니다.
+    validations:
+      required: true
+  - type: dropdown
+    id: approval
+    attributes:
+      label: 현재 승인 단계
+      options:
+        - PREFLIGHT ONLY
+        - APPROVED_FOR_PATCH
+        - OWNER_APPROVED_FOR_MERGE
+    validations:
+      required: true
