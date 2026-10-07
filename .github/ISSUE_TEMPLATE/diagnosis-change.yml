@@ -1,0 +1,87 @@
+name: Diagnosis change
+description: Controlled change request for the LIFE 2.0 diagnosis frontend
+title: "[ISSUE] "
+labels: ["needs-preflight"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for diagnosis logic, UI, report, print/PDF, or contract changes.
+        The agent must not modify code until owner approval is recorded.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / observed behavior
+      description: What is wrong, where it appears, and who is affected?
+      placeholder: Include screenshots, reproduction conditions, and exact visible text when possible.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Minimal reproducible steps and inputs.
+    validations:
+      required: true
+  - type: textarea
+    id: allowed
+    attributes:
+      label: Allowed files
+      description: Exact files or directories that may change after approval.
+      placeholder: |
+        index.html
+        early/index.html
+        pro/tests/...
+    validations:
+      required: true
+  - type: textarea
+    id: forbidden
+    attributes:
+      label: Explicitly forbidden scope
+      value: |
+        - api/main.py
+        - DIAGNOSIS_SPEC.md
+        - DIAGNOSIS_SPEC_v1.5_LOCK.md
+        - APP_VERSION
+        - unrelated refactors
+        - new formulas, thresholds, assumptions, or user-visible wording unless separately approved
+    validations:
+      required: true
+  - type: dropdown
+    id: logic
+    attributes:
+      label: Does this change diagnosis/financial logic?
+      options:
+        - "NO"
+        - "YES — separate owner approval required"
+        - "UNKNOWN — preflight must determine"
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance tests
+      placeholder: |
+        - Existing regression suites pass
+        - No null / undefined / NaN direct display
+        - Print/PDF generates without blank pages
+        - No scope expansion
+    validations:
+      required: true
+  - type: checkboxes
+    id: gates
+    attributes:
+      label: Governance gates
+      options:
+        - label: Preflight only before owner approval; no code changes
+          required: true
+        - label: New issues found during work are reported but not fixed automatically
+          required: true
+        - label: Merge/deploy requires separate owner approval
+          required: true
