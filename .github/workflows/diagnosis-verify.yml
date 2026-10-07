@@ -9,28 +9,30 @@ permissions:
   contents: read
 
 jobs:
-  governance:
+  level-a-static:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Verify governed change scope
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python3 scripts/verify_change_scope.py
+
+      - name: Verify static negative contracts
+        run: python3 scripts/verify_static_contracts.py
+
       - name: Verify operational HTML exists
         run: |
           test -s index.html
           test -s early/index.html
           echo "Operational HTML sanity: PASS"
 
-  phase2-test-placeholder:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Explain current gate coverage
+      - name: LEVEL A summary
         run: |
-          echo "Phase 1: governance/scope + operational-file sanity enabled."
-          echo "Phase 2 will wire p0/p1/p2/p4, JS/UI and Playwright/PDF tests once their executable test sources are available to this CI repository."
+          echo "LEVEL A verification only."
+          echo "This workflow does NOT validate diagnostic meaning, financial validity, thresholds, assumptions, or LEVEL B suitability."
+          echo "Engine-dependent regression (p0/p1/p2/p4, p2timing, contract suites, JS render, PDF) is intentionally deferred to the private verification stage."
