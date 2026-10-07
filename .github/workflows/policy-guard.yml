@@ -1,0 +1,63 @@
+name: policy-guard
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  protect-automation-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch changed filenames from GitHub API
+        id: changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          files="$(curl -fsSL             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             "https://api.github.com/repos/$REPO/pulls/$PR/files?per_page=100"             | python3 -c 'import json,sys; print("\n".join(x["filename"] for x in json.load(sys.stdin)))')"
+          printf '%s\n' "$files"
+          {
+            echo 'files<<EOF'
+            printf '%s\n' "$files"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Block self-modifying CI/policy changes without maintenance approval
+        env:
+          FILES: ${{ steps.changed.outputs.files }}
+          LABELS: ${{ toJson(github.event.pull_request.labels.*.name) }}
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
+        run: |
+          python3 - <<'PY'
+          import json, os, sys
+          files=[x for x in os.environ.get("FILES","").splitlines() if x]
+          labels=set(json.loads(os.environ.get("LABELS","[]")))
+          assoc=os.environ.get("AUTHOR_ASSOCIATION","")
+          protected=[
+              p for p in files
+              if p.startswith(".github/")
+              or p in {
+                  "scripts/verify_change_scope.py",
+                  "scripts/verify_static_contracts.py",
+                  "docs/GOVERNANCE.md",
+                  "docs/RELEASE_CHECKLIST.md",
+              }
+          ]
+          if not protected:
+              print("No automation-policy files changed: PASS")
+              raise SystemExit(0)
+          if "automation-maintenance" not in labels or assoc not in {"OWNER","MEMBER","COLLABORATOR"}:
+              print("BLOCKED: automation-policy files changed without automation-maintenance approval.")
+              for p in protected:
+                  print(" -", p)
+              raise SystemExit(1)
+          print("Automation-maintenance approval present.")
+          print("LEVEL A only — owner review is still required before merge.")
+          PY
