@@ -581,3 +581,37 @@ def test_authenticated_member_without_awareness_gets_empty_dashboard_not_error()
         assert data["top3"]==[]
     finally:
         app.dependency_overrides.clear()
+
+
+def test_cross_user_cannot_access_foreign_action_instance():
+    make_member("isolation-a")
+    try:
+        a=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        foreign_action_id=a["action_instance_id"]
+    finally:
+        app.dependency_overrides.clear()
+
+    make_member("isolation-b")
+    try:
+        submit=client.post(
+            f"/v1/me/actions/{foreign_action_id}/submit",
+            json={"fields":{"retirement_age":60}},
+        )
+        assert submit.status_code==404
+
+        waiting=client.post(f"/v1/me/actions/{foreign_action_id}/wait")
+        assert waiting.status_code==404
+
+        complete=client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{foreign_action_id}/complete",
+            json={"fields":{"retirement_age":60}},
+        )
+        assert complete.status_code==404
+
+        summary=client.post(
+            "/v1/me/ai/change-summary",
+            json={"action_instance_id":foreign_action_id},
+        )
+        assert summary.status_code==404
+    finally:
+        app.dependency_overrides.clear()
