@@ -3,13 +3,29 @@ import { supabase } from './supabase';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
-type Top={action_catalog_id:string;title:string;mode:string;priority_class:string};
+type Top={action_catalog_id:string;title:string;mode:string;priority_class:string;status?:string};
 type Dashboard={
   confirmed_awareness_count:number;
   awareness_total:number;
   top3:Top[];
   in_progress:unknown[];
   recent_changes:unknown[];
+};
+type ActionField={
+  key:string;
+  label:string;
+  type:'integer';
+  unit?:string;
+  min?:number;
+  max?:number;
+  required?:boolean;
+};
+type ActionForm={
+  action_catalog_id:string;
+  question_id:string;
+  title:string;
+  description:string;
+  fields:ActionField[];
 };
 
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
@@ -18,9 +34,10 @@ const labels:Record<Resp,string>={
   PARTIAL:'일부만 알고 있어요',
   UNKNOWN_OR_NOT_PREPARED:'아직 잘 몰라요'
 };
+const supported=new Set(['ACT_CONFIRM_RETIREMENT_AGE','ACT_CHECK_NPS_ESTIMATE']);
 
 export default function App(){
-  const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'>('landing');
+  const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'>('landing');
   const [household,setHousehold]=useState<'single'|'couple'>('couple');
   const [ageBand,setAgeBand]=useState('50_55');
   const [qs,setQs]=useState<Q[]>([]);
@@ -34,6 +51,17 @@ export default function App(){
   const [password,setPassword]=useState('');
   const [authMsg,setAuthMsg]=useState('');
   const [busy,setBusy]=useState(false);
+  const [actionForm,setActionForm]=useState<ActionForm|null>(null);
+  const [actionInstanceId,setActionInstanceId]=useState('');
+  const [actionFields,setActionFields]=useState<Record<string,string|number>>({});
+  const [actionMsg,setActionMsg]=useState('');
+
+  async function accessToken(){
+    if(!supabase) throw new Error('회원 시스템 연결 설정이 없습니다.');
+    const {data}=await supabase.auth.getSession();
+    if(!data.session) throw new Error('로그인이 필요합니다.');
+    return data.session.access_token;
+  }
 
   async function start(){
     setBusy(true);
@@ -81,12 +109,12 @@ export default function App(){
     }
   }
 
-  async function claimWithToken(accessToken:string){
+  async function claimWithToken(token:string){
     const r=await fetch(`${API}/v1/me/awareness/claim`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':`Bearer ${accessToken}`
+        'Authorization':`Bearer ${token}`
       },
       body:JSON.stringify({handoff_token:handoffToken})
     });
@@ -147,7 +175,90 @@ export default function App(){
   async function signOut(){
     if(supabase) await supabase.auth.signOut();
     setDashboard(null);
+    setActionForm(null);
     setScreen('landing');
+  }
+
+  async function openAction(item:Top){
+    setActionMsg('');
+    if(!supported.has(item.action_catalog_id)){
+      setActionMsg('이 Action은 다음 연결 순서입니다. 현재는 퇴직 예상시점과 국민연금부터 완주할 수 있습니다.');
+      return;
+    }
+    setBusy(true);
+    try{
+      const token=await accessToken();
+      const headers={Authorization:`Bearer ${token}`};
+      const [formRes,startRes]=await Promise.all([
+        fetch(`${API}/v1/me/actions/${item.action_catalog_id}`,{headers}),
+        fetch(`${API}/v1/me/actions/${item.action_catalog_id}/start`,{method:'POST',headers}),
+      ]);
+      const formBody=await formRes.json();
+      const startBody=await startRes.json();
+      if(!formRes.ok) throw new Error(formBody?.detail?.code || 'ACTION_FORM_FAILED');
+      if(!startRes.ok) throw new Error(startBody?.detail?.code || 'ACTION_START_FAILED');
+      setActionForm(formBody.data);
+      setActionInstanceId(startBody.data.action_instance_id);
+      setActionFields(startBody.data.draft || {});
+      setScreen('action');
+    }catch(e){
+      setActionMsg(e instanceof Error ? e.message : 'Action을 열지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  async function saveActionDraft(){
+    if(!actionInstanceId) return;
+    setBusy(true);
+    setActionMsg('');
+    try{
+      const token=await accessToken();
+      const r=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+        body:JSON.stringify({fields:actionFields})
+      });
+      const body=await r.json();
+      if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_SAVE_FAILED');
+      setActionMsg('저장했습니다. 나중에 이어서 할 수 있어요.');
+    }catch(e){
+      setActionMsg(e instanceof Error ? e.message : '저장하지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  async function completeAction(){
+    if(!actionForm || !actionInstanceId) return;
+    setBusy(true);
+    setActionMsg('');
+    try{
+      const token=await accessToken();
+      const r=await fetch(
+        `${API}/v1/me/actions/${actionForm.action_catalog_id}/${actionInstanceId}/complete`,
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+          body:JSON.stringify({fields:actionFields})
+        }
+      );
+      const body=await r.json();
+      if(!r.ok){
+        const field=body?.detail?.field;
+        throw new Error(field ? `${field} 항목을 확인해 주세요.` : (body?.detail?.code || 'ACTION_COMPLETE_FAILED'));
+      }
+      setDashboard(body.data.dashboard);
+      setActionForm(null);
+      setActionInstanceId('');
+      setActionFields({});
+      setActionMsg('확인 완료. 다음 할 일을 다시 계산했습니다.');
+      setScreen('dashboard');
+    }catch(e){
+      setActionMsg(e instanceof Error ? e.message : '완료하지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
   }
 
   return <main className="app">
@@ -221,12 +332,42 @@ export default function App(){
       </div>
       <div className="confirmCount">확인 완료 <b>{dashboard.confirmed_awareness_count}/{dashboard.awareness_total}</b></div>
       {dashboard.top3.map((x,i)=>
-        <div className="action" key={x.action_catalog_id}>
+        <button className="action actionButton" key={x.action_catalog_id} onClick={()=>openAction(x)} disabled={busy}>
           <b>{i+1}. {x.title}</b>
-          <span>{x.mode==='VERIFY'?'확인 이어가기':'새로 준비하기'}</span>
+          <span>{x.status==='IN_PROGRESS'?'진행 중 · 이어하기':x.mode==='VERIFY'?'확인 이어가기':'새로 준비하기'}</span>
+        </button>
+      )}
+      {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
+      <p className="hint">점수가 아니라, 지금 확인하고 바꿀 일을 하나씩 완료합니다.</p>
+    </section>}
+
+    {screen==='action'&&actionForm&&<section className="card">
+      <button className="backBtn" onClick={()=>setScreen('dashboard')}>← MY LIFE</button>
+      <div className="progress">ACTION</div>
+      <h2>{actionForm.title}</h2>
+      <p>{actionForm.description}</p>
+      {actionForm.fields.map(f=>
+        <div key={f.key} className="fieldBlock">
+          <label className="fieldLabel">{f.label}{f.required?' *':''}</label>
+          <div className="inputWithUnit">
+            <input
+              className="textInput"
+              type="number"
+              min={f.min}
+              max={f.max}
+              value={actionFields[f.key] ?? ''}
+              onChange={e=>setActionFields({...actionFields,[f.key]:e.target.value})}
+            />
+            {f.unit&&<span>{f.unit}</span>}
+          </div>
         </div>
       )}
-      <p className="hint">다음 구현 단계에서 Action 상세·FACT 저장이 연결됩니다.</p>
+      {actionForm.action_catalog_id==='ACT_CHECK_NPS_ESTIMATE'&&
+        <p className="ruleNote">수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
+      }
+      <button disabled={busy} onClick={completeAction}>확인 완료</button>
+      <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
+      {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
     </section>}
   </main>
 }
