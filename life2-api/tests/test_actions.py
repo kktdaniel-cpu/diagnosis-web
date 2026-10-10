@@ -114,3 +114,47 @@ def test_duplicate_a1_completion_is_idempotent():
         assert store.facts[subject]["work.primary_job_exit_age"]["value"]==60
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a4_budget_complete_stores_exact_target_in_10k_krw():
+    subject=make_member("a4-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/{start['action_instance_id']}/complete",
+            json={"fields":{"retirement_budget_10k":320}},
+        )
+        assert done.status_code==200
+        data=done.json()["data"]
+        assert data["normalized"]["retirement_budget_10k"]==320
+        fact=store.facts[subject]["cashflow.retirement_monthly_budget_target"]
+        assert fact["value"]==320
+        assert fact["unit"]=="10k_KRW_per_month"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a6_uses_q23_q30_bands_not_exact_amounts():
+    subject=make_member("a6-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_SUMMARIZE_ASSETS_DEBT/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_SUMMARIZE_ASSETS_DEBT/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "financial_asset_band":"100M_200M",
+                "debt_band":"LT_100M"
+            }},
+        )
+        assert done.status_code==200
+        data=done.json()["data"]
+        assert data["normalized"]=={
+            "financial_asset_band":"100M_200M",
+            "debt_band":"LT_100M"
+        }
+        facts=store.facts[subject]
+        assert facts["asset.financial_liquid_band_q23"]["value"]=="100M_200M"
+        assert facts["debt.total_band_q30"]["value"]=="LT_100M"
+        assert "financial_asset_amount" not in facts
+        assert "debt_amount" not in facts
+    finally:
+        app.dependency_overrides.clear()
