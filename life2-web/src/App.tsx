@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase, isPasswordRecovery } from './supabase';
+import { familyConversationBlockReason } from './familyConversation';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -413,6 +414,12 @@ export default function App(){
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_SAVE_FAILED');
       setActionMsg('저장했습니다. 나중에 이어서 할 수 있어요.');
+      if(actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'){
+        await loadDashboard(token);
+        setActionForm(null);
+        setActionInstanceId('');
+        setActionFields({});
+      }
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '저장하지 못했습니다.');
     }finally{
@@ -510,8 +517,12 @@ export default function App(){
     }
   }
 
+  const familyBlockReason=actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'
+    ? familyConversationBlockReason(actionFields) : null;
+
   async function completeAction(){
     if(!actionForm || !actionInstanceId) return;
+    if(familyBlockReason){setActionMsg(familyBlockReason);return;}
     setBusy(true);
     setActionMsg('');
     try{
@@ -784,7 +795,10 @@ export default function App(){
       {actionForm.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'&&
         <p className="ruleNote">완료 기준은 가족과 실제 대화 1회 이상 + 선호사항 1개 이상 기록입니다.</p>
       }
-      <button disabled={busy} onClick={completeAction}>확인 완료</button>
+      {familyBlockReason&&<p className="statusMsg" role="status">{familyBlockReason}</p>}
+      <button disabled={busy || Boolean(familyBlockReason)} onClick={completeAction}>
+        {actionForm.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION' && actionFields.conversation_done==='NO'?'대화 후 확인 완료':'확인 완료'}
+      </button>
       <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
       <button className="secondaryBtn" disabled={busy} onClick={waitAction}>자료 확인 후 이어하기</button>
       {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
