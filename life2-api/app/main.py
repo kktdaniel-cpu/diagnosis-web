@@ -1,35 +1,15 @@
 from __future__ import annotations
-from datetime import datetime, timezone
-from secrets import token_urlsafe
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID
 from .models import RunCreate, AnswerPut, HandoffClaim
-from .store import store
+from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
 from .config import cors_origins
 
-APP_VERSION = "MVP-0.1.1"
+APP_VERSION = "MVP-0.2.0"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
-
-def _dashboard_for(subject: str):
-    run = store.get_member_run(subject)
-    if not run:
-        return {
-            "confirmed_awareness_count": 0,
-            "awareness_total": 12,
-            "top3": [],
-            "in_progress": [],
-            "recent_changes": [],
-        }
-    return {
-        "confirmed_awareness_count": sum(1 for v in run.answers.values() if v == "CONFIRMED"),
-        "awareness_total": 12,
-        "top3": select_top3(run.answers),
-        "in_progress": [],
-        "recent_changes": [],
-    }
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,6 +19,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+def _store_error(e: StoreError):
+    raise HTTPException(status_code=e.status_code, detail={"code":e.code})
+
 @app.get("/health")
 def health():
     return {"ok": True, "version": APP_VERSION}
@@ -47,22 +30,21 @@ def health():
 async def me(subject: str = Depends(get_current_subject)):
     return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}
 
-
 @app.post("/v1/me/awareness/claim")
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):
-    run = store.get_run_by_handoff(payload.handoff_token)
-    if not run or not run.completed:
-        raise HTTPException(status_code=404, detail={"code":"HANDOFF_NOT_FOUND"})
-    if datetime.now(timezone.utc) > run.expires_at:
-        raise HTTPException(status_code=410, detail={"code":"HANDOFF_EXPIRED"})
-    if run.claimed_by and run.claimed_by != subject:
-        raise HTTPException(status_code=409, detail={"code":"HANDOFF_ALREADY_CLAIMED"})
-    _, idempotent = store.claim_handoff(payload.handoff_token, subject)
-    return {"ok": True, "data": {"claimed": True, "idempotent": idempotent, "dashboard": _dashboard_for(subject)}}
+    try:
+        data=store.claim_handoff(payload.handoff_token,subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
 
 @app.get("/v1/me/dashboard")
 async def dashboard(subject: str = Depends(get_current_subject)):
-    return {"ok": True, "data": _dashboard_for(subject)}
+    try:
+        data=store.dashboard(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
 
 @app.get("/v1/awareness/questions")
 def questions(household_type: str = "single"):
@@ -76,8 +58,11 @@ def questions(household_type: str = "single"):
 
 @app.post("/v1/awareness/runs")
 def create_run(payload: RunCreate):
-    run=store.create_run(payload.age_band,payload.household_type)
-    return {"ok":True,"data":{"run_id":run.run_id,"run_token":run.run_token,"expires_at":run.expires_at.isoformat()}}
+    try:
+        data=store.create_run(payload.age_band,payload.household_type)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
 
 @app.put("/v1/awareness/runs/{run_id}/answers/{question_id}")
 def put_answer(
@@ -86,35 +71,29 @@ def put_answer(
     payload: AnswerPut,
     x_awareness_token: str = Header(default=""),
 ):
-    run=store.get_run(run_id)
-    if not run:
-        raise HTTPException(404,"run not found")
-    if not x_awareness_token or x_awareness_token != run.run_token:
-        raise HTTPException(403,"invalid awareness token")
-    if run.completed:
-        raise HTTPException(409,"run already completed")
-    if datetime.now(timezone.utc) > run.expires_at:
-        raise HTTPException(410,"run expired")
     if question_id not in QUESTION_BY_ID:
         raise HTTPException(404,"question not found")
-    run.answers[question_id]=payload.response
-    return {"ok":True,"data":{"saved":True,"answered":len(run.answers),"total":12}}
+    if not x_awareness_token:
+        raise HTTPException(403,"invalid awareness token")
+    try:
+        data=store.put_answer(run_id,x_awareness_token,question_id,payload.response)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
 
 @app.post("/v1/awareness/runs/{run_id}/complete")
 def complete_run(run_id: str, x_awareness_token: str = Header(default="")):
-    run=store.get_run(run_id)
-    if not run:
-        raise HTTPException(404,"run not found")
-    if not x_awareness_token or x_awareness_token != run.run_token:
+    if not x_awareness_token:
         raise HTTPException(403,"invalid awareness token")
+    try:
+        run=store.get_run(run_id,x_awareness_token)
+    except StoreError as e:
+        _store_error(e)
+
     missing=[q["id"] for q in QUESTIONS if q["id"] not in run.answers]
     if missing:
         raise HTTPException(409,detail={"code":"AWARENESS_INCOMPLETE","missing":missing})
-    if run.completed:
-        top3=select_top3(run.answers)
-        return {"ok":True,"data":{"top3":top3,"handoff_token":run.handoff_token,"idempotent":True}}
-    run.completed=True
-    run.handoff_token=token_urlsafe(32)
+
     top3=select_top3(run.answers)
     findings=[
         {
@@ -124,4 +103,8 @@ def complete_run(run_id: str, x_awareness_token: str = Header(default="")):
         }
         for qid,state in run.answers.items() if state != "CONFIRMED"
     ]
-    return {"ok":True,"data":{"findings":findings,"top3":top3,"handoff_token":run.handoff_token}}
+    try:
+        data=store.finalize_run(run_id,x_awareness_token,top3,findings)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
