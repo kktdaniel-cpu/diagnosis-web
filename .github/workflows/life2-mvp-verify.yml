@@ -44,6 +44,7 @@ jobs:
           node-version: '22'
       - run: npm install
       - run: npm run build
+      - run: npm run test:auth-recovery
 
   legacy-regression:
     runs-on: ubuntu-latest
