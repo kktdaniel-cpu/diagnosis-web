@@ -526,3 +526,24 @@ def test_a1_a2_a4_prereqs_make_a5_eligible_for_top3():
         assert "ACT_CALCULATE_INCOME_GAP" in ids
     finally:
         app.dependency_overrides.clear()
+
+
+def test_action_can_wait_for_external_confirmation_and_resume():
+    make_member("waiting-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start").json()["data"]
+        aid=start["action_instance_id"]
+        waiting=client.post(f"/v1/me/actions/{aid}/wait")
+        assert waiting.status_code==200
+        assert waiting.json()["data"]["status"]=="WAITING_EXTERNAL"
+
+        dashboard=client.get("/v1/me/dashboard").json()["data"]
+        top=next(x for x in dashboard["top3"] if x["action_catalog_id"]=="ACT_CHECK_NPS_ESTIMATE")
+        assert top["status"]=="WAITING_EXTERNAL"
+
+        resumed=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start")
+        assert resumed.status_code==200
+        assert resumed.json()["data"]["action_instance_id"]==aid
+        assert resumed.json()["data"]["status"]=="IN_PROGRESS"
+    finally:
+        app.dependency_overrides.clear()
