@@ -12,6 +12,8 @@ button{width:100%;min-height:54px;border:0;border-radius:14px;background:#176744
 button:disabled{opacity:.55}
 .hero small{display:block;text-align:center;color:#6c7771;margin-top:13px}
 .progress{color:#176744;font-weight:850;font-size:14px}
+.fieldLabel{display:block;font-weight:800;margin:18px 0 8px}
+.select{width:100%;min-height:52px;border:1px solid #dce5df;border-radius:14px;padding:0 14px;background:white;font-size:17px;color:#17251d}
 .choice{display:block;border:1px solid #dce5df;border-radius:14px;padding:16px;margin:10px 0;font-size:17px}
 .choiceBtn{background:white;color:#17251d;border:1px solid #dce5df;text-align:left}
 .choiceBtn:hover{border-color:#176744;background:#f7fbf8}
