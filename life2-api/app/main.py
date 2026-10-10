@@ -14,9 +14,10 @@ from .actions import (
     form_for,
     prepare_completion,
     reject_secret_fields,
+    income_gap_preview,
 )
 
-APP_VERSION = "MVP-0.3.0"
+APP_VERSION = "MVP-0.4.0"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 
 app.add_middleware(
@@ -71,6 +72,14 @@ async def dashboard(subject: str = Depends(get_current_subject)):
         _store_error(e)
     return {"ok":True,"data":data}
 
+@app.get("/v1/me/facts")
+async def facts(subject: str = Depends(get_current_subject)):
+    try:
+        data=store.member_facts(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
 @app.get("/v1/me/actions/{action_catalog_id}")
 async def action_form(action_catalog_id: str, subject: str = Depends(get_current_subject)):
     if action_catalog_id not in SUPPORTED_ACTIONS:
@@ -78,6 +87,8 @@ async def action_form(action_catalog_id: str, subject: str = Depends(get_current
     try:
         awareness=store.member_awareness(subject)
         data=form_for(action_catalog_id,awareness["household_type"])
+        if action_catalog_id=="ACT_CALCULATE_INCOME_GAP":
+            data["preview"]=income_gap_preview(store.member_facts(subject))
     except StoreError as e:
         _store_error(e)
     except ActionValidationError as e:
@@ -124,7 +135,13 @@ async def complete_action(
     try:
         reject_secret_fields(payload.fields)
         awareness=store.member_awareness(subject)
-        prepared=prepare_completion(action_catalog_id,payload.fields,awareness["household_type"])
+        existing_facts=store.member_facts(subject)
+        prepared=prepare_completion(
+            action_catalog_id,
+            payload.fields,
+            awareness["household_type"],
+            existing_facts,
+        )
         updated_answers=dict(awareness["answers"])
         updated_answers[prepared["question_id"]]="CONFIRMED"
         new_top3=select_top3(updated_answers)
