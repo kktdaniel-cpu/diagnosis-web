@@ -850,7 +850,7 @@ def prepare_completion(
                 {
                     "fact_key":"work.post_retirement.health_insurance_type",
                     "status":"UNKNOWN" if hins=="UNKNOWN" else "KNOWN",
-                    "value":hins,
+                    "value":None if hins=="UNKNOWN" else hins,
                     "unit":"Q31A_choice",
                     "source_type":"USER_CONFIRMED",
                     "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK",
@@ -900,7 +900,7 @@ def prepare_completion(
             facts.append({
                 "fact_key":"housing.reverse_mortgage_plan_q19",
                 "status":"UNKNOWN" if reverse=="UNKNOWN" else "KNOWN",
-                "value":reverse,
+                "value":None if reverse=="UNKNOWN" else reverse,
                 "unit":"Q19_choice",
                 "source_type":"USER_CONFIRMED",
                 "source_ref":"ACT_DEFINE_HOUSING_PLAN",
@@ -947,7 +947,7 @@ def prepare_completion(
                 {
                     "fact_key":"health.critical_illness_benefit_band_q12",
                     "status":"UNKNOWN" if dx=="NONE_UNKNOWN" else "KNOWN",
-                    "value":dx,
+                    "value":None if dx=="NONE_UNKNOWN" else dx,
                     "unit":"Q12_band",
                     "source_type":"USER_CONFIRMED",
                     "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
