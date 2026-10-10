@@ -168,6 +168,17 @@ async def start_action(action_catalog_id: str, subject: str = Depends(get_curren
         _store_error(e)
     return {"ok":True,"data":data}
 
+@app.post("/v1/me/actions/{action_instance_id}/wait")
+async def wait_action(
+    action_instance_id: str,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        data=store.wait_action(subject,action_instance_id)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
 @app.post("/v1/me/actions/{action_instance_id}/submit")
 async def submit_action(
     action_instance_id: str,
