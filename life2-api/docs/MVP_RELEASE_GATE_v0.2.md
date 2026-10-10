@@ -8,7 +8,7 @@ Branch:
 `mvp/life2-bootstrap`
 
 Head:
-`a3831fb02b0d8ca8d5688e8b7d454c1c15812460`
+`83f03d3dceeb19a2942732531cd7cf842d8d2388`
 
 Verified GitHub Actions:
 - API tests: PASS
@@ -17,7 +17,7 @@ Verified GitHub Actions:
 - Supabase-backed live Awareness smoke: PASS
 
 Latest successful run:
-https://github.com/kktdaniel-cpu/diagnosis-web/actions/runs/38049153397
+https://github.com/kktdaniel-cpu/diagnosis-web/actions/runs/38050325467
 
 Supabase:
 - Security Advisor: **0 findings**
