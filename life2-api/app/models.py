@@ -10,3 +10,6 @@ class RunCreate(BaseModel):
 
 class AnswerPut(BaseModel):
     response: AwarenessResponse
+
+class HandoffClaim(BaseModel):
+    handoff_token: str = Field(min_length=16, max_length=256)
