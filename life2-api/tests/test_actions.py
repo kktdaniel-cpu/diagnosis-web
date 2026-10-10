@@ -500,3 +500,29 @@ def test_member_facts_endpoint_returns_canonical_fact_map():
         assert facts["work.primary_job_exit_age"]["status"]=="KNOWN"
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a1_a2_a4_prereqs_make_a5_eligible_for_top3():
+    subject=make_member("a5-top3")
+    try:
+        _complete_basic_prereqs_for_gap(subject)
+
+        a3=client.post("/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/{a3['action_instance_id']}/complete",
+            json={"fields":{"has_ret_private_pension":"NO"}},
+        ).status_code==200
+
+        a6=client.post("/v1/me/actions/ACT_SUMMARIZE_ASSETS_DEBT/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_SUMMARIZE_ASSETS_DEBT/{a6['action_instance_id']}/complete",
+            json={"fields":{
+                "financial_asset_band":"30M_100M",
+                "debt_band":"NONE"
+            }},
+        )
+        assert done.status_code==200
+        ids=[x["action_catalog_id"] for x in done.json()["data"]["dashboard"]["top3"]]
+        assert "ACT_CALCULATE_INCOME_GAP" in ids
+    finally:
+        app.dependency_overrides.clear()
