@@ -90,3 +90,27 @@ def test_a2_requires_spouse_fields_for_couple():
         assert bad.json()["detail"]["field"]=="birth_year_spouse"
     finally:
         app.dependency_overrides.clear()
+
+
+def test_duplicate_a1_completion_is_idempotent():
+    subject=make_member("a1-idempotent")
+    try:
+        start=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        aid=start["action_instance_id"]
+        first=client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{aid}/complete",
+            json={"fields":{"retirement_age":60}},
+        )
+        assert first.status_code==200
+        second=client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{aid}/complete",
+            json={"fields":{"retirement_age":65}},
+        )
+        assert second.status_code==200
+        data=second.json()["data"]
+        assert data["idempotent"] is True
+        assert data["normalized"] is None
+        assert data["changes"]["fact_keys"]==[]
+        assert store.facts[subject]["work.primary_job_exit_age"]["value"]==60
+    finally:
+        app.dependency_overrides.clear()
