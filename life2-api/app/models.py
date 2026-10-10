@@ -16,3 +16,11 @@ class HandoffClaim(BaseModel):
 
 class ActionFields(BaseModel):
     fields: dict[str, Any] = Field(default_factory=dict)
+
+
+class AIHelpRequest(BaseModel):
+    action_catalog_id: str = Field(min_length=3, max_length=128)
+    question: str = Field(min_length=1, max_length=500)
+
+class AIExplainRequest(BaseModel):
+    action_catalog_id: str = Field(min_length=3, max_length=128)
