@@ -7,7 +7,7 @@ from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields, AIHelpRequ
 from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
-from .config import cors_origins
+from .config import cors_origins, PRECISION_URL
 from .coach import build_action_context, explain_action, help_action, summarize_change
 from .actions import (
     SUPPORTED_ACTIONS,
@@ -72,6 +72,18 @@ async def dashboard(subject: str = Depends(get_current_subject)):
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
+
+@app.get("/v1/me/precision/entry")
+async def precision_entry(subject: str = Depends(get_current_subject)):
+    return {
+        "ok":True,
+        "data":{
+            "url":PRECISION_URL,
+            "role":"PRECISION_DIAGNOSIS",
+            "handoff":"NONE",
+            "engine_authority":"diagnosis-api Ver32.42",
+        }
+    }
 
 @app.get("/v1/me/facts")
 async def facts(subject: str = Depends(get_current_subject)):
