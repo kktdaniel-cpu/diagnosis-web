@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
@@ -43,6 +43,7 @@ type ActionForm={
 };
 
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const PENDING_HANDOFF_KEY='life2.pending_handoff';
 const labels:Record<Resp,string>={
   CONFIRMED:'확인했어요',
   PARTIAL:'일부만 알고 있어요',
@@ -71,7 +72,7 @@ export default function App(){
   const [idx,setIdx]=useState(0);
   const [run,setRun]=useState('');
   const [runToken,setRunToken]=useState('');
-  const [handoffToken,setHandoffToken]=useState('');
+  const [handoffToken,setHandoffToken]=useState(()=>localStorage.getItem(PENDING_HANDOFF_KEY) || '');
   const [top,setTop]=useState<Top[]>([]);
   const [dashboard,setDashboard]=useState<Dashboard|null>(null);
   const [email,setEmail]=useState('');
@@ -85,6 +86,41 @@ export default function App(){
   const [coachMsg,setCoachMsg]=useState('');
   const [coachSteps,setCoachSteps]=useState<string[]>([]);
   const [changeSummary,setChangeSummary]=useState('');
+
+
+  useEffect(()=>{
+    if(!supabase) return;
+    let active=true;
+
+    const finishAuth=async()=>{
+      const {data}=await supabase.auth.getSession();
+      if(!active || !data.session) return;
+      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      try{
+        if(pending) await claimWithToken(data.session.access_token,pending);
+        else if(new URL(window.location.href).searchParams.get('auth')==='confirmed'){
+          await loadDashboard(data.session.access_token);
+        }
+      }catch(e){
+        if(active) setAuthMsg(e instanceof Error ? e.message : '회원 연결 중 오류가 발생했습니다.');
+      }
+    };
+
+    finishAuth();
+    const {data:listener}=supabase.auth.onAuthStateChange((_event,session)=>{
+      if(!active || !session) return;
+      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      if(pending){
+        setTimeout(()=>claimWithToken(session.access_token,pending).catch(e=>{
+          if(active) setAuthMsg(e instanceof Error ? e.message : '회원 연결 중 오류가 발생했습니다.');
+        }),0);
+      }
+    });
+    return ()=>{
+      active=false;
+      listener.subscription.unsubscribe();
+    };
+  },[]);
 
   async function accessToken(){
     if(!supabase) throw new Error('회원 시스템 연결 설정이 없습니다.');
@@ -132,6 +168,7 @@ export default function App(){
         ).then(r=>r.json());
         setTop(d.data.top3);
         setHandoffToken(d.data.handoff_token);
+        localStorage.setItem(PENDING_HANDOFF_KEY,d.data.handoff_token);
         setScreen('result');
       }
     } finally {
@@ -149,17 +186,24 @@ export default function App(){
     setScreen('dashboard');
   }
 
-  async function claimWithToken(token:string){
+  async function claimWithToken(token:string,pendingToken?:string){
+    const claimToken=pendingToken || handoffToken || localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+    if(!claimToken){
+      await loadDashboard(token);
+      return;
+    }
     const r=await fetch(`${API}/v1/me/awareness/claim`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'Authorization':`Bearer ${token}`
       },
-      body:JSON.stringify({handoff_token:handoffToken})
+      body:JSON.stringify({handoff_token:claimToken})
     });
     const body=await r.json();
     if(!r.ok) throw new Error(body?.detail?.code || 'CLAIM_FAILED');
+    localStorage.removeItem(PENDING_HANDOFF_KEY);
+    setHandoffToken('');
     setDashboard(body.data.dashboard);
     setScreen('dashboard');
   }
@@ -184,7 +228,12 @@ export default function App(){
     setBusy(true);
     setAuthMsg('');
     try{
-      const {data,error}=await supabase.auth.signUp({email,password});
+      if(handoffToken) localStorage.setItem(PENDING_HANDOFF_KEY,handoffToken);
+      const {data,error}=await supabase.auth.signUp({
+        email,
+        password,
+        options:{emailRedirectTo:`${window.location.origin}/?auth=confirmed`}
+      });
       if(error) throw error;
       if(data.session){
         if(handoffToken) await claimWithToken(data.session.access_token);
