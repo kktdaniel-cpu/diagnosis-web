@@ -1,0 +1,41 @@
+# Proposal only. Do not Apply until production resource creation is approved.
+services:
+  - type: web
+    name: life2-api-prod
+    runtime: python
+    repo: https://github.com/kktdaniel-cpu/diagnosis-web
+    branch: main
+    region: singapore
+    plan: free
+    autoDeployTrigger: "off"
+    buildCommand: cd life2-api && pip install -r requirements.txt
+    startCommand: cd life2-api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: LIFE2_STORAGE_BACKEND
+        value: supabase
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_PUBLISHABLE_KEY
+        sync: false
+      - key: LIFE2_INTERNAL_RPC_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+  - type: web
+    name: life2-web-prod
+    runtime: static
+    repo: https://github.com/kktdaniel-cpu/diagnosis-web
+    branch: main
+    autoDeployTrigger: "off"
+    buildCommand: cd life2-web && npm install && npm run build
+    staticPublishPath: life2-web/dist
+    envVars:
+      - key: VITE_API_BASE
+        sync: false
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
