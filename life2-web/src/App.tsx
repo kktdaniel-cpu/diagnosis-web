@@ -453,7 +453,8 @@ export default function App(){
       const body=await r.json();
       if(!r.ok){
         const field=body?.detail?.field;
-        throw new Error(field ? `${field} 항목을 확인해 주세요.` : (body?.detail?.code || 'ACTION_COMPLETE_FAILED'));
+        const label=actionForm.fields.find(item=>item.key===field)?.label;
+        throw new Error(label ? `‘${label}’ 항목을 확인해 주세요.` : '입력 내용을 확인한 뒤 다시 완료해 주세요.');
       }
       setDashboard(body.data.dashboard);
       if(!body.data.idempotent){
