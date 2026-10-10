@@ -453,7 +453,8 @@ export default function App(){
       const body=await r.json();
       if(!r.ok){
         const field=body?.detail?.field;
-        throw new Error(field ? `${field} 항목을 확인해 주세요.` : (body?.detail?.code || 'ACTION_COMPLETE_FAILED'));
+        const label=actionForm.fields.find(item=>item.key===field)?.label;
+        throw new Error(label ? `‘${label}’ 항목을 확인해 주세요.` : '입력 내용을 확인한 뒤 다시 완료해 주세요.');
       }
       setDashboard(body.data.dashboard);
       if(!body.data.idempotent){
@@ -472,7 +473,9 @@ export default function App(){
       setActionForm(null);
       setActionInstanceId('');
       setActionFields({});
-      setActionMsg('확인 완료. 다음 할 일을 다시 계산했습니다.');
+      setActionMsg(body.data.awareness_response==='PARTIAL'
+        ? '점검 내용을 저장했습니다. 아직 모르는 항목은 확인 이어가기에 남겨 두었습니다.'
+        : '확인 완료. 다음 할 일을 다시 계산했습니다.');
       setScreen('dashboard');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '완료하지 못했습니다.');

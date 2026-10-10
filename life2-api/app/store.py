@@ -8,6 +8,7 @@ import os
 import httpx
 
 from . import config
+from .actions import completion_awareness_response
 
 class StoreError(Exception):
     def __init__(self, code: str, status_code: int = 400):
@@ -224,7 +225,7 @@ class MemoryStore:
             bucket[fact["fact_key"]]=dict(fact)
         item["status"]="SELF_REPORTED_DONE"
         item["draft"]={}
-        run.answers[question_id]="CONFIRMED"
+        run.answers[question_id]=completion_awareness_response(facts)
         run.top3=list(new_top3)
         event_id=str(uuid4())
         event={
@@ -233,6 +234,7 @@ class MemoryStore:
             "action_catalog_id":action_catalog_id,
             "metadata":{
                 "question_id":question_id,
+                "awareness_response":run.answers[question_id],
                 "fact_keys":[x["fact_key"] for x in facts],
                 "top3_before":top3_before,
                 "top3_after":[x.get("action_catalog_id") for x in new_top3],

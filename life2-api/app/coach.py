@@ -274,6 +274,9 @@ def summarize_change(event: dict[str, Any]) -> dict[str, Any]:
     else:
         fact_sentence="새로 반영된 FACT는 없습니다."
 
+    if metadata.get("awareness_response")=="PARTIAL":
+        fact_sentence=f"점검한 항목 {len(fact_keys)}개의 상태를 저장했습니다. 아직 모르는 정보는 확인 이어가기에 남겨 두었습니다."
+
     if top3_changed:
         top3_sentence="완료 결과를 반영해 지금 먼저 할 3가지가 다시 계산되었습니다."
         if added:
