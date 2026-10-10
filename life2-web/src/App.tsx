@@ -14,11 +14,12 @@ type Dashboard={
 type ActionField={
   key:string;
   label:string;
-  type:'integer';
+  type:'integer'|'select';
   unit?:string;
   min?:number;
   max?:number;
   required?:boolean;
+  options?:{value:string;label:string}[];
 };
 type ActionForm={
   action_catalog_id:string;
@@ -34,7 +35,12 @@ const labels:Record<Resp,string>={
   PARTIAL:'일부만 알고 있어요',
   UNKNOWN_OR_NOT_PREPARED:'아직 잘 몰라요'
 };
-const supported=new Set(['ACT_CONFIRM_RETIREMENT_AGE','ACT_CHECK_NPS_ESTIMATE']);
+const supported=new Set([
+  'ACT_CONFIRM_RETIREMENT_AGE',
+  'ACT_CHECK_NPS_ESTIMATE',
+  'ACT_ESTIMATE_RETIREMENT_BUDGET',
+  'ACT_SUMMARIZE_ASSETS_DEBT'
+]);
 
 export default function App(){
   const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'>('landing');
@@ -195,7 +201,7 @@ export default function App(){
   async function openAction(item:Top){
     setActionMsg('');
     if(!supported.has(item.action_catalog_id)){
-      setActionMsg('이 Action은 다음 연결 순서입니다. 현재는 퇴직 예상시점과 국민연금부터 완주할 수 있습니다.');
+      setActionMsg('이 Action은 다음 연결 순서입니다. 현재는 퇴직시점·국민연금·생활비·자산/부채 Action부터 완주할 수 있습니다.');
       return;
     }
     setBusy(true);
@@ -363,17 +369,28 @@ export default function App(){
       {actionForm.fields.map(f=>
         <div key={f.key} className="fieldBlock">
           <label className="fieldLabel">{f.label}{f.required?' *':''}</label>
-          <div className="inputWithUnit">
-            <input
-              className="textInput"
-              type="number"
-              min={f.min}
-              max={f.max}
-              value={actionFields[f.key] ?? ''}
+          {f.type==='select'?
+            <select
+              className="select"
+              value={String(actionFields[f.key] ?? '')}
               onChange={e=>setActionFields({...actionFields,[f.key]:e.target.value})}
-            />
-            {f.unit&&<span>{f.unit}</span>}
-          </div>
+            >
+              <option value="">선택해 주세요</option>
+              {(f.options||[]).map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          :
+            <div className="inputWithUnit">
+              <input
+                className="textInput"
+                type="number"
+                min={f.min}
+                max={f.max}
+                value={actionFields[f.key] ?? ''}
+                onChange={e=>setActionFields({...actionFields,[f.key]:e.target.value})}
+              />
+              {f.unit&&<span>{f.unit}</span>}
+            </div>
+          }
         </div>
       )}
       {actionForm.action_catalog_id==='ACT_CHECK_NPS_ESTIMATE'&&
