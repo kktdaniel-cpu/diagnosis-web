@@ -5,25 +5,22 @@ MVP foundation for LIFE 2.0.
 Current slice:
 - Awareness 12 catalog
 - anonymous Awareness run
-- answer validation
-- deterministic Top 3 draft
-- one-time handoff token creation
-- PostgreSQL migration draft
-- backend unit/API tests
-
-Development store is in-memory only. Production deploy is blocked until:
+- deterministic Top 3
 - Supabase Auth verification
-- PostgreSQL repository implementation
-- RLS + API user isolation
-- Signup handoff claim
-- member dashboard/action APIs
-- AI server-side context layer
+- signup handoff
+- MY LIFE dashboard
+- Supabase PostgreSQL persistence via protected internal RPC
+- backend tests
 
-Tested locally in the build environment: **5 passed**.
+Storage modes:
+- default/test: `LIFE2_STORAGE_BACKEND=memory`
+- dev/prod: `LIFE2_STORAGE_BACKEND=supabase`
 
-Run:
-```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload
-```
+Required Supabase runtime env:
+- `SUPABASE_URL`
+- `SUPABASE_PUBLISHABLE_KEY` (or legacy `SUPABASE_ANON_KEY`)
+- `LIFE2_INTERNAL_RPC_SECRET`
+
+The internal RPC secret is runtime-only and must never be committed to Git.
+
+Existing `diagnosis-api Ver32.42` remains separate and unchanged.
