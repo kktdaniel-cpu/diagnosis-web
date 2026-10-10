@@ -18,7 +18,7 @@ from .actions import (
     income_gap_preview,
 )
 
-APP_VERSION = "MVP-0.5.0"
+APP_VERSION = "MVP-0.6.0"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 
 app.add_middleware(

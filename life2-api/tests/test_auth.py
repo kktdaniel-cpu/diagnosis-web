@@ -19,10 +19,37 @@ class FakeClient:
         assert headers["Authorization"] == "Bearer good-token"
         return FakeResponse()
 
+class ExpiredResponse:
+    status_code = 401
+    def json(self):
+        return {"message":"JWT expired"}
+
+class ExpiredClient:
+    async def __aenter__(self):
+        return self
+    async def __aexit__(self, exc_type, exc, tb):
+        return False
+    async def get(self, url, headers):
+        assert url.endswith("/auth/v1/user")
+        return ExpiredResponse()
+
 def test_me_requires_bearer(monkeypatch):
     monkeypatch.setattr(config, "SUPABASE_URL", "https://example.supabase.co")
     monkeypatch.setattr(config, "SUPABASE_ANON_KEY", "anon")
     r = client.get("/v1/me")
+    assert r.status_code == 401
+
+def test_member_dashboard_requires_bearer(monkeypatch):
+    monkeypatch.setattr(config, "SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setattr(config, "SUPABASE_ANON_KEY", "anon")
+    r = client.get("/v1/me/dashboard")
+    assert r.status_code == 401
+
+def test_expired_session_is_rejected(monkeypatch):
+    monkeypatch.setattr(config, "SUPABASE_URL", "https://example.supabase.co")
+    monkeypatch.setattr(config, "SUPABASE_ANON_KEY", "anon")
+    monkeypatch.setattr(auth.httpx, "AsyncClient", lambda timeout: ExpiredClient())
+    r = client.get("/v1/me", headers={"Authorization":"Bearer expired-token"})
     assert r.status_code == 401
 
 def test_me_accepts_verified_supabase_user(monkeypatch):
