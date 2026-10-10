@@ -22,6 +22,7 @@ type ActionField={
   options?:{value:string;label:string}[];
   show_when?:{key:string;value:string};
   show_when_not?:{key:string;value:string};
+  show_when_owner?:boolean;
 };
 type ActionForm={
   action_catalog_id:string;
@@ -29,6 +30,15 @@ type ActionForm={
   title:string;
   description:string;
   fields:ActionField[];
+  preview?:{
+    ready:boolean;
+    missing_actions?:string[];
+    retirement_age?:number;
+    nps_start_age_self?:number;
+    income_gap_years?:number;
+    retirement_budget_10k?:number;
+    note?:string;
+  };
 };
 
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
@@ -42,8 +52,11 @@ const supported=new Set([
   'ACT_CHECK_NPS_ESTIMATE',
   'ACT_CHECK_RET_PRIVATE_PENSION',
   'ACT_ESTIMATE_RETIREMENT_BUDGET',
+  'ACT_CALCULATE_INCOME_GAP',
   'ACT_SUMMARIZE_ASSETS_DEBT',
   'ACT_DEFINE_POST_RETIREMENT_WORK',
+  'ACT_DEFINE_HOUSING_PLAN',
+  'ACT_REVIEW_HEALTH_COVERAGE',
   'ACT_DEFINE_CARE_PLAN',
   'ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',
   'ACT_START_FAMILY_WELLDYING_CONVERSATION'
@@ -258,6 +271,10 @@ export default function App(){
   }
 
   function fieldVisible(f:ActionField){
+    if(f.show_when_owner){
+      const tenure=String(actionFields['housing_tenure'] ?? '');
+      if(!['OWNER_APARTMENT','OWNER_OTHER'].includes(tenure)) return false;
+    }
     if(f.show_when){
       return String(actionFields[f.show_when.key] ?? '')===f.show_when.value;
     }
@@ -385,6 +402,17 @@ export default function App(){
       <div className="progress">ACTION</div>
       <h2>{actionForm.title}</h2>
       <p>{actionForm.description}</p>
+      {actionForm.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'&&actionForm.preview?.ready&&
+        <div className="previewBox">
+          <b>퇴직 → 본인 국민연금 개시 공백</b>
+          <strong>{actionForm.preview.income_gap_years}년</strong>
+          <span>{actionForm.preview.retirement_age}세 → {actionForm.preview.nps_start_age_self}세</span>
+          <small>{actionForm.preview.note}</small>
+        </div>
+      }
+      {actionForm.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'&&!actionForm.preview?.ready&&
+        <p className="statusMsg">먼저 퇴직시점·국민연금·은퇴생활비를 확인해 주세요.</p>
+      }
       {actionForm.fields.filter(fieldVisible).map(f=>
         <div key={f.key} className="fieldBlock">
           <label className="fieldLabel">{f.label}{f.required?' *':''}</label>
@@ -435,6 +463,12 @@ export default function App(){
       }
       {actionForm.action_catalog_id==='ACT_CHECK_RET_PRIVATE_PENSION'&&
         <p className="ruleNote">수령 개시 나이는 만 55세 이상만 입력할 수 있습니다. 수령 종료 나이는 개시 나이 + 수령 기간으로 계산합니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_DEFINE_HOUSING_PLAN'&&
+        <p className="ruleNote">주택연금 월지급액이나 주택가액은 여기서 임의 계산하지 않습니다. 현재 방향만 정리합니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_REVIEW_HEALTH_COVERAGE'&&
+        <p className="ruleNote">이 화면은 보유 상태 확인용입니다. 보험상품 추천이나 보장 적정성 점수는 만들지 않습니다.</p>
       }
       {actionForm.action_catalog_id==='ACT_DEFINE_CARE_PLAN'&&
         <p className="ruleNote">MVP에서는 정확한 간병비가 아니라 월 비용 구간까지만 정리합니다.</p>
