@@ -81,6 +81,8 @@ export default function App(){
   const [actionInstanceId,setActionInstanceId]=useState('');
   const [actionFields,setActionFields]=useState<Record<string,string|number|string[]>>({});
   const [actionMsg,setActionMsg]=useState('');
+  const [coachMsg,setCoachMsg]=useState('');
+  const [coachSteps,setCoachSteps]=useState<string[]>([]);
 
   async function accessToken(){
     if(!supabase) throw new Error('회원 시스템 연결 설정이 없습니다.');
@@ -220,6 +222,8 @@ export default function App(){
 
   async function openAction(item:Top){
     setActionMsg('');
+    setCoachMsg('');
+    setCoachSteps([]);
     if(!supported.has(item.action_catalog_id)){
       setActionMsg(item.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'
         ? '소득공백 계산은 선행 FACT가 준비된 뒤 정밀 계산 엔진과 연결하는 다음 단계입니다.'
@@ -282,6 +286,42 @@ export default function App(){
       return String(actionFields[f.show_when_not.key] ?? '')!==f.show_when_not.value;
     }
     return true;
+  }
+
+
+  async function loadCoach(kind:'explain'|'help'){
+    if(!actionForm) return;
+    setBusy(true);
+    setCoachMsg('');
+    setCoachSteps([]);
+    try{
+      const token=await accessToken();
+      const path=kind==='explain'?'/v1/me/ai/action-explain':'/v1/me/ai/action-help';
+      const payload=kind==='explain'
+        ?{action_catalog_id:actionForm.action_catalog_id}
+        :{action_catalog_id:actionForm.action_catalog_id,question:'이 Action을 어디서 어떻게 확인하면 되나요?'};
+      const r=await fetch(`${API}${path}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+        body:JSON.stringify(payload)
+      });
+      const body=await r.json();
+      if(!r.ok) throw new Error(body?.detail?.code || 'COACH_FAILED');
+      if(kind==='explain'){
+        setCoachMsg(`${body.data.why_now} ${body.data.why_important}`);
+        setCoachSteps(body.data.missing_prerequisites?.length
+          ?['먼저 필요한 Action: '+body.data.missing_prerequisites.join(', ')]
+          :[]);
+      }else{
+        setCoachMsg(body.data.answer || '확인 순서를 안내합니다.');
+        setCoachSteps(body.data.steps || []);
+        if(body.data.secret_warning) setCoachSteps([...(body.data.steps||[]),body.data.secret_warning]);
+      }
+    }catch(e){
+      setCoachMsg(e instanceof Error ? e.message : '도움말을 불러오지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
   }
 
   async function completeAction(){
@@ -402,6 +442,16 @@ export default function App(){
       <div className="progress">ACTION</div>
       <h2>{actionForm.title}</h2>
       <p>{actionForm.description}</p>
+      <div className="coachActions">
+        <button className="coachBtn" disabled={busy} onClick={()=>loadCoach('explain')}>왜 지금 해야 하나요?</button>
+        <button className="coachBtn" disabled={busy} onClick={()=>loadCoach('help')}>어디서 확인하나요?</button>
+      </div>
+      {coachMsg&&<div className="coachBox">
+        <b>AI Action Coach</b>
+        <p>{coachMsg}</p>
+        {coachSteps.length>0&&<ul>{coachSteps.map((x,i)=><li key={i}>{x}</li>)}</ul>}
+        <small>현재는 검증된 FACT·Rule만 사용하는 안전한 기본 안내 모드입니다.</small>
+      </div>
       {actionForm.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'&&actionForm.preview?.ready&&
         <div className="previewBox">
           <b>퇴직 → 본인 국민연금 개시 공백</b>
