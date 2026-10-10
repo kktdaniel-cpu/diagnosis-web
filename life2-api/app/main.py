@@ -3,13 +3,19 @@ import os
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
-from .models import RunCreate, AnswerPut, HandoffClaim
+from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields
 from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
 from .config import cors_origins
+from .actions import (
+    SUPPORTED_ACTIONS,
+    ActionValidationError,
+    form_for,
+    prepare_completion,
+)
 
-APP_VERSION = "MVP-0.2.0"
+APP_VERSION = "MVP-0.3.0"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 
 app.add_middleware(
@@ -22,6 +28,9 @@ app.add_middleware(
 
 def _store_error(e: StoreError):
     raise HTTPException(status_code=e.status_code, detail={"code":e.code})
+
+def _action_error(e: ActionValidationError):
+    raise HTTPException(status_code=422, detail={"code":e.code,"field":e.field})
 
 def _enrich_dashboard(data: dict) -> dict:
     enriched=[]
@@ -60,6 +69,88 @@ async def dashboard(subject: str = Depends(get_current_subject)):
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
+
+@app.get("/v1/me/actions/{action_catalog_id}")
+async def action_form(action_catalog_id: str, subject: str = Depends(get_current_subject)):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        awareness=store.member_awareness(subject)
+        data=form_for(action_catalog_id,awareness["household_type"])
+    except StoreError as e:
+        _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_catalog_id}/start")
+async def start_action(action_catalog_id: str, subject: str = Depends(get_current_subject)):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        dash=store.dashboard(subject)
+        current=next((x for x in dash.get("top3",[]) if x.get("action_catalog_id")==action_catalog_id),None)
+        mode=(current or {}).get("mode","CREATE")
+        data=store.start_action(subject,action_catalog_id,mode)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_instance_id}/submit")
+async def submit_action(
+    action_instance_id: str,
+    payload: ActionFields,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        data=store.submit_action(subject,action_instance_id,payload.fields)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_catalog_id}/{action_instance_id}/complete")
+async def complete_action(
+    action_catalog_id: str,
+    action_instance_id: str,
+    payload: ActionFields,
+    subject: str = Depends(get_current_subject),
+):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        awareness=store.member_awareness(subject)
+        prepared=prepare_completion(action_catalog_id,payload.fields,awareness["household_type"])
+        updated_answers=dict(awareness["answers"])
+        updated_answers[prepared["question_id"]]="CONFIRMED"
+        new_top3=select_top3(updated_answers)
+        before=store.dashboard(subject)
+        after=store.complete_action(
+            subject,
+            action_instance_id,
+            action_catalog_id,
+            prepared["question_id"],
+            prepared["facts"],
+            new_top3,
+        )
+    except StoreError as e:
+        _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
+
+    before_ids=[x.get("action_catalog_id") for x in before.get("top3",[])]
+    after_ids=[x.get("action_catalog_id") for x in after.get("top3",[])]
+    return {
+        "ok":True,
+        "data":{
+            "action":{"action_catalog_id":action_catalog_id,"status":"SELF_REPORTED_DONE"},
+            "normalized":prepared["normalized"],
+            "changes":{
+                "fact_keys":[x["fact_key"] for x in prepared["facts"]],
+                "top3_changed":before_ids != after_ids,
+            },
+            "dashboard":_enrich_dashboard(after),
+        }
+    }
 
 @app.get("/v1/awareness/questions")
 def questions(household_type: str = "single"):
