@@ -24,3 +24,7 @@ class AIHelpRequest(BaseModel):
 
 class AIExplainRequest(BaseModel):
     action_catalog_id: str = Field(min_length=3, max_length=128)
+
+
+class ChangeSummaryRequest(BaseModel):
+    action_instance_id: str = Field(min_length=8, max_length=128)
