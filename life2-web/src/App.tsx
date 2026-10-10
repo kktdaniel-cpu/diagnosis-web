@@ -295,6 +295,32 @@ export default function App(){
     }
   }
 
+
+  async function waitAction(){
+    if(!actionInstanceId) return;
+    setBusy(true);
+    setActionMsg('');
+    try{
+      const token=await accessToken();
+      await saveActionDraft();
+      const r=await fetch(`${API}/v1/me/actions/${actionInstanceId}/wait`,{
+        method:'POST',
+        headers:{'Authorization':`Bearer ${token}`}
+      });
+      const body=await r.json();
+      if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_WAIT_FAILED');
+      await loadDashboard(token);
+      setActionForm(null);
+      setActionInstanceId('');
+      setActionFields({});
+      setActionMsg('외부 확인 후 이어서 할 수 있도록 저장했습니다.');
+    }catch(e){
+      setActionMsg(e instanceof Error ? e.message : '대기 상태로 저장하지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
   function fieldVisible(f:ActionField){
     if(f.show_when_owner){
       const tenure=String(actionFields['housing_tenure'] ?? '');
@@ -465,7 +491,7 @@ export default function App(){
       {dashboard.top3.map((x,i)=>
         <button className="action actionButton" key={x.action_catalog_id} onClick={()=>openAction(x)} disabled={busy}>
           <b>{i+1}. {x.title}</b>
-          <span>{x.status==='IN_PROGRESS'?'진행 중 · 이어하기':x.mode==='VERIFY'?'확인 이어가기':'새로 준비하기'}</span>
+          <span>{x.status==='WAITING_EXTERNAL'?'외부 확인 중 · 이어하기':x.status==='IN_PROGRESS'?'진행 중 · 이어하기':x.mode==='VERIFY'?'확인 이어가기':'새로 준비하기'}</span>
         </button>
       )}
       <div className="precisionEntry">
@@ -571,6 +597,7 @@ export default function App(){
       }
       <button disabled={busy} onClick={completeAction}>확인 완료</button>
       <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
+      <button className="secondaryBtn" disabled={busy} onClick={waitAction}>자료 확인 후 이어하기</button>
       {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
     </section>}
   </main>
