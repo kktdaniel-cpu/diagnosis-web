@@ -3,7 +3,7 @@ name: LIFE 2.0 MVP Verify
 on:
   push:
     branches:
-      - mvp/life2-bootstrap
+      - mvp/life2-rc2
     paths:
       - 'life2-api/**'
       - 'life2-web/**'
