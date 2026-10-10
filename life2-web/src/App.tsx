@@ -158,7 +158,7 @@ export default function App(){
       if(error) throw error;
       if(data.session){
         if(handoffToken) await claimWithToken(data.session.access_token);
-      else await loadDashboard(data.session.access_token);
+        else await loadDashboard(data.session.access_token);
       }else{
         setAuthMsg('가입 확인 메일을 보냈습니다. 이메일 확인 후 로그인해 주세요.');
       }
@@ -176,7 +176,8 @@ export default function App(){
     try{
       const {data,error}=await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
-      await claimWithToken(data.session.access_token);
+      if(handoffToken) await claimWithToken(data.session.access_token);
+      else await loadDashboard(data.session.access_token);
     }catch(e){
       setAuthMsg(e instanceof Error ? e.message : '로그인 중 오류가 발생했습니다.');
     }finally{
