@@ -1,35 +1,46 @@
-# LIFE 2.0 production deployment proposal
+# LIFE 2.0 production commissioning record
 
-Status: PRODUCTION DB EXISTS; SCHEMA APPLY AND RENDER DEPLOY NOT YET APPROVED. Main baseline: PR #24 merge `893ad487507e116c4d8207a1bce8362138ce5d7e`.
+Status: PRODUCTION DB, API AND WEB LIVE after user approval on 2026-10-11 KST.
+Release: main `893ad487507e116c4d8207a1bce8362138ce5d7e`.
 
-## Reviewable scope
+## Resources
 
-- Create dedicated Render `life2-api-prod` (Python, Singapore, free proposal) and `life2-web-prod` (static).
-- Use main with automatic deploy disabled. Manual releases only.
-- Production DB `life2-prod` / `zqnxnaxgmfhzxqtflppw` exists in user-selected life20co, Seoul. ACTIVE_HEALTHY and no public/private tables confirmed on 2026-10-11 KST. Organization plan: Free. User completed database-password entry and project creation. Dev project is separate.
-- No domain binding or edits to existing lpp20-new / my-diagnosis-server.
-- No migration of Google Master DB, existing diagnosis records, dev accounts or synthetic FACTs.
+- Supabase: life2-prod / zqnxnaxgmfhzxqtflppw, life20co Free organization, Seoul.
+- API: srv-db561uid0e5s73eb1rn0, https://life2-api-prod.onrender.com, Python 3.12.8, Singapore, free.
+- Web: srv-db56220473hc73a0qq10, https://life2-web-prod.onrender.com, static.
+- Both services track main with automatic deployment disabled.
+- API live deploy: dep-db562v4s728c73c02ifg. Web live deploy: dep-db56228473hc73a0qqng.
+- Initial API builds failed using default Python 3.14 with the pinned pydantic-core dependency. Setting PYTHON_VERSION=3.12.8 produced a successful live deployment. The reference YAML now records that pin.
+- render.production.yaml is a configuration reference, not an applied root Blueprint. Official JSON Schema validation passed before commissioning; no CLI/server-side Blueprint application was performed.
 
-`render.production.yaml` passed the official Render JSON Schema using Draft 2020-12. Render CLI is not installed; server-side Blueprint validation/application has not run. This nested file is a proposal, not an automatically applied root Blueprint.
+## Database and runtime connection
 
-## Execution order after approval
+The approved production-schema-snapshot.sql bootstrap was applied as one migration transaction. Repository SQL 004–017 contain documentary placeholders and are insufficient for a complete fresh bootstrap.
 
-1. Target only `zqnxnaxgmfhzxqtflppw`; recheck it is empty before applying schema. Preserve dev.
-2. After separate schema approval, apply `production-schema-snapshot.sql` as one transaction. Repository SQL 004–017 include documentary placeholders and must not be used as a complete fresh bootstrap. Provision a new internal secret and its matching private DB hash through secure runtime configuration; never commit plaintext.
-3. Create the two services with the reviewed commands and environment keys. Confirm actual assigned URLs rather than assuming names are available.
-4. Set API CORS to the actual web origin; set VITE_API_BASE and both production Supabase public values before the frontend build. Keep the internal secret API-only.
-5. Confirm Supabase Auth URL/email configuration for the actual production origin. Production users register or sign in to the production project; dev identities do not carry over automatically.
-6. Deploy manually. Verify API health uses Supabase storage, sign-in, claim, draft restore, unknown PARTIAL retention, confirmed replacement and cross-user isolation.
-7. Review before opening registration to users. Custom-domain changes require separate approval.
+Verified: 12 tables, 25 functions, 37 constraints, 12 nonconstraint indexes, 19 RLS policies, and one Auth provisioning trigger. No public application tables lack RLS; no public application functions are SECURITY DEFINER. Security Advisor returned zero findings. Invalid internal-secret RPC and anonymous direct INSERT were rejected. Auth provisioning was tested in a rollback transaction.
+
+The schema-only snapshot includes no dev data, accounts, FACTs, or secret rows. A newly generated production internal secret was provisioned through API environment configuration; only its matching SHA256 hash is stored in private.api_secrets. Plaintext is absent from Git and frontend configuration.
+
+API CORS uses https://life2-web-prod.onrender.com. The web build uses the production API URL and production Supabase publishable key. Built assets were checked for production references and absence of the dev project reference.
+
+Supabase Auth Site URL: https://life2-web-prod.onrender.com
+Allowed confirmation redirect: https://life2-web-prod.onrender.com/?auth=confirmed
+
+## Verification
+
+- API /health: HTTP 200, storage=supabase.
+- Couple question catalog: HTTP 200, 12 questions.
+- Production web-origin CORS preflight: HTTP 200 with matching allowed origin.
+- Actual production browser flow: 12 anonymous synthetic unknown responses, first result with three recommended actions.
+- Database confirmed latest run COMPLETED, completed_at present, answer_count=12, top3_count=3.
+- Production Auth users remain zero. Signup email delivery, registered-user sign-in, claim, draft restoration, PARTIAL replacement and registered cross-user isolation have NOT yet been verified in production. The equivalent RC tests passed in dev; that does not establish production verification.
+
+## Remaining scope
+
+Complete production signup and registered-user acceptance testing before opening registration to users. The user must create any new account credentials directly.
+
+PR #25 remains draft and unmerged. Custom domains remain HOLD. Existing legacy production services, Google Master DB, diagnosis Ver32.42, and dev identities were not migrated or changed.
 
 ## Rollback
 
-No existing production service is replaced by this proposal. If commissioning fails, stop exposing the new service and restore the recorded matching API/web revisions and RPC definition as applicable. Do not remove user data or rewrite history as an implicit rollback action.
-
-## Schema snapshot review
-
-The schema-only catalog snapshot has 12 tables, 25 functions, 37 constraints, 12 nonconstraint indexes, 19 RLS policies and one Auth provisioning trigger. PostgreSQL syntax parser accepted 582 statements and object counts matched. The target has matching required extensions. All public application functions are SECURITY INVOKER; privileged helpers stay in private.
-
-The snapshot contains no table rows, Auth accounts, secret hash values or dev FACTs. private.api_secrets is created empty. Function grants, schema grants, table grants and RLS policies are retained from the working dev catalog. An empty-target guard rejects application to a nonempty database. Public/private schemas are the only copied application schemas; managed Auth tables and extension objects are not copied.
-
-Validation is static parsing and catalog comparison only. It has not been executed against production, and function-body behavior/grants must be verified after an approved apply. Render creation/deploy and custom domains remain separate approval steps.
+Record matching API/web revisions and RPC definitions before any later release. If commissioning fails, stop exposing the newly created services and restore the recorded revision as applicable. Do not delete user data or rewrite history as an implicit rollback action.

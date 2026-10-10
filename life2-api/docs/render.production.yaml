@@ -1,4 +1,4 @@
-# Proposal only. Do not Apply until production resource creation is approved.
+# Production configuration reference; services commissioned with user approval.
 services:
   - type: web
     name: life2-api-prod
@@ -12,6 +12,8 @@ services:
     startCommand: cd life2-api && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
       - key: APP_ENV
         value: production
       - key: LIFE2_STORAGE_BACKEND
