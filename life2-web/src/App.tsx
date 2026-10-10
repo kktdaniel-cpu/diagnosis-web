@@ -90,10 +90,11 @@ export default function App(){
 
   useEffect(()=>{
     if(!supabase) return;
+    const client=supabase;
     let active=true;
 
     const finishAuth=async()=>{
-      const {data}=await supabase.auth.getSession();
+      const {data}=await client.auth.getSession();
       if(!active || !data.session) return;
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       try{
@@ -107,7 +108,7 @@ export default function App(){
     };
 
     finishAuth();
-    const {data:listener}=supabase.auth.onAuthStateChange((_event,session)=>{
+    const {data:listener}=client.auth.onAuthStateChange((_event,session)=>{
       if(!active || !session) return;
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       if(pending){
