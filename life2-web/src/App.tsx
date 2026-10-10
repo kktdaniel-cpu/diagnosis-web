@@ -20,6 +20,8 @@ type ActionField={
   max?:number;
   required?:boolean;
   options?:{value:string;label:string}[];
+  show_when?:{key:string;value:string};
+  show_when_not?:{key:string;value:string};
 };
 type ActionForm={
   action_catalog_id:string;
@@ -38,8 +40,11 @@ const labels:Record<Resp,string>={
 const supported=new Set([
   'ACT_CONFIRM_RETIREMENT_AGE',
   'ACT_CHECK_NPS_ESTIMATE',
+  'ACT_CHECK_RET_PRIVATE_PENSION',
   'ACT_ESTIMATE_RETIREMENT_BUDGET',
-  'ACT_SUMMARIZE_ASSETS_DEBT'
+  'ACT_SUMMARIZE_ASSETS_DEBT',
+  'ACT_DEFINE_POST_RETIREMENT_WORK',
+  'ACT_DEFINE_CARE_PLAN'
 ]);
 
 export default function App(){
@@ -201,7 +206,9 @@ export default function App(){
   async function openAction(item:Top){
     setActionMsg('');
     if(!supported.has(item.action_catalog_id)){
-      setActionMsg('이 Action은 다음 연결 순서입니다. 현재는 퇴직시점·국민연금·생활비·자산/부채 Action부터 완주할 수 있습니다.');
+      setActionMsg(item.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'
+        ? '소득공백 계산은 선행 FACT가 준비된 뒤 정밀 계산 엔진과 연결하는 다음 단계입니다.'
+        : '이 Action은 다음 구현 순서입니다.');
       return;
     }
     setBusy(true);
@@ -246,6 +253,16 @@ export default function App(){
     }finally{
       setBusy(false);
     }
+  }
+
+  function fieldVisible(f:ActionField){
+    if(f.show_when){
+      return String(actionFields[f.show_when.key] ?? '')===f.show_when.value;
+    }
+    if(f.show_when_not){
+      return String(actionFields[f.show_when_not.key] ?? '')!==f.show_when_not.value;
+    }
+    return true;
   }
 
   async function completeAction(){
@@ -366,7 +383,7 @@ export default function App(){
       <div className="progress">ACTION</div>
       <h2>{actionForm.title}</h2>
       <p>{actionForm.description}</p>
-      {actionForm.fields.map(f=>
+      {actionForm.fields.filter(fieldVisible).map(f=>
         <div key={f.key} className="fieldBlock">
           <label className="fieldLabel">{f.label}{f.required?' *':''}</label>
           {f.type==='select'?
@@ -395,6 +412,12 @@ export default function App(){
       )}
       {actionForm.action_catalog_id==='ACT_CHECK_NPS_ESTIMATE'&&
         <p className="ruleNote">수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_CHECK_RET_PRIVATE_PENSION'&&
+        <p className="ruleNote">수령 개시 나이는 만 55세 이상만 입력할 수 있습니다. 수령 종료 나이는 개시 나이 + 수령 기간으로 계산합니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_DEFINE_CARE_PLAN'&&
+        <p className="ruleNote">MVP에서는 정확한 간병비가 아니라 월 비용 구간까지만 정리합니다.</p>
       }
       <button disabled={busy} onClick={completeAction}>확인 완료</button>
       <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
