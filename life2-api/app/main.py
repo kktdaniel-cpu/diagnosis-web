@@ -3,11 +3,12 @@ import os
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
-from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields
+from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields, AIHelpRequest, AIExplainRequest
 from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
 from .config import cors_origins
+from .coach import build_action_context, explain_action, help_action
 from .actions import (
     SUPPORTED_ACTIONS,
     ActionValidationError,
@@ -17,7 +18,7 @@ from .actions import (
     income_gap_preview,
 )
 
-APP_VERSION = "MVP-0.4.0"
+APP_VERSION = "MVP-0.5.0"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 
 app.add_middleware(
@@ -76,6 +77,41 @@ async def dashboard(subject: str = Depends(get_current_subject)):
 async def facts(subject: str = Depends(get_current_subject)):
     try:
         data=store.member_facts(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+
+@app.post("/v1/me/ai/action-explain")
+async def ai_action_explain(
+    payload: AIExplainRequest,
+    subject: str = Depends(get_current_subject),
+):
+    if payload.action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=404,detail={"code":"ACTION_NOT_FOUND"})
+    try:
+        awareness=store.member_awareness(subject)
+        facts=store.member_facts(subject)
+        dashboard=store.dashboard(subject)
+        context=build_action_context(payload.action_catalog_id,facts,awareness,dashboard)
+        data=explain_action(payload.action_catalog_id,context)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/ai/action-help")
+async def ai_action_help(
+    payload: AIHelpRequest,
+    subject: str = Depends(get_current_subject),
+):
+    if payload.action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=404,detail={"code":"ACTION_NOT_FOUND"})
+    try:
+        awareness=store.member_awareness(subject)
+        facts=store.member_facts(subject)
+        dashboard=store.dashboard(subject)
+        context=build_action_context(payload.action_catalog_id,facts,awareness,dashboard)
+        data=help_action(payload.action_catalog_id,payload.question,context)
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
