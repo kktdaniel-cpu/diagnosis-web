@@ -90,3 +90,62 @@ def test_digital_help_warns_against_secrets():
     assert out["secret_warning"]
     assert "PIN" in out["secret_warning"]
     assert out["mode"]=="deterministic_fallback"
+
+
+def test_change_summary_is_traceable_to_event_metadata():
+    from app.coach import summarize_change
+    event={
+        "event_id":"evt-1",
+        "action_instance_id":"act-1",
+        "action_catalog_id":"ACT_CONFIRM_RETIREMENT_AGE",
+        "metadata":{
+            "fact_keys":["work.primary_job_exit_age"],
+            "top3_before":["A","B","C"],
+            "top3_after":["B","C","D"],
+            "top3_changed":True,
+        },
+    }
+    out=summarize_change(event)
+    assert out["fact_refs"]==["work.primary_job_exit_age"]
+    assert out["top3_changed"] is True
+    assert out["top3_before"]==["A","B","C"]
+    assert out["top3_after"]==["B","C","D"]
+    assert "점수" not in out["message"]
+
+
+def test_change_summary_endpoint_reads_completed_action_event():
+    from app.auth import get_current_subject
+    from app.catalog import QUESTIONS
+    from app.main import app
+    from fastapi.testclient import TestClient
+
+    client=TestClient(app)
+    created=client.post("/v1/awareness/runs",json={"age_band":"50_55","household_type":"couple"}).json()["data"]
+    headers={"X-Awareness-Token":created["run_token"]}
+    for q in QUESTIONS:
+        assert client.put(
+            f"/v1/awareness/runs/{created['run_id']}/answers/{q['id']}",
+            json={"response":"UNKNOWN_OR_NOT_PREPARED"},
+            headers=headers,
+        ).status_code==200
+    done=client.post(f"/v1/awareness/runs/{created['run_id']}/complete",headers=headers).json()["data"]
+    app.dependency_overrides[get_current_subject]=lambda:"summary-user"
+    try:
+        assert client.post("/v1/me/awareness/claim",json={"handoff_token":done["handoff_token"]}).status_code==200
+        start=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        complete=client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{start['action_instance_id']}/complete",
+            json={"fields":{"retirement_age":60}},
+        )
+        assert complete.status_code==200
+        assert complete.json()["data"]["event_id"]
+        summary=client.post(
+            "/v1/me/ai/change-summary",
+            json={"action_instance_id":start["action_instance_id"]},
+        )
+        assert summary.status_code==200
+        data=summary.json()["data"]
+        assert data["action_catalog_id"]=="ACT_CONFIRM_RETIREMENT_AGE"
+        assert "work.primary_job_exit_age" in data["fact_refs"]
+    finally:
+        app.dependency_overrides.clear()
