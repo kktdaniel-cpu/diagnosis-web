@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
@@ -43,6 +43,7 @@ type ActionForm={
 };
 
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+const PENDING_HANDOFF_KEY='life2.pending_handoff';
 const labels:Record<Resp,string>={
   CONFIRMED:'확인했어요',
   PARTIAL:'일부만 알고 있어요',
@@ -71,7 +72,7 @@ export default function App(){
   const [idx,setIdx]=useState(0);
   const [run,setRun]=useState('');
   const [runToken,setRunToken]=useState('');
-  const [handoffToken,setHandoffToken]=useState('');
+  const [handoffToken,setHandoffToken]=useState(()=>localStorage.getItem(PENDING_HANDOFF_KEY) || '');
   const [top,setTop]=useState<Top[]>([]);
   const [dashboard,setDashboard]=useState<Dashboard|null>(null);
   const [email,setEmail]=useState('');
@@ -85,6 +86,42 @@ export default function App(){
   const [coachMsg,setCoachMsg]=useState('');
   const [coachSteps,setCoachSteps]=useState<string[]>([]);
   const [changeSummary,setChangeSummary]=useState('');
+
+
+  useEffect(()=>{
+    if(!supabase) return;
+    const client=supabase;
+    let active=true;
+
+    const finishAuth=async()=>{
+      const {data}=await client.auth.getSession();
+      if(!active || !data.session) return;
+      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      try{
+        if(pending) await claimWithToken(data.session.access_token,pending);
+        else if(new URL(window.location.href).searchParams.get('auth')==='confirmed'){
+          await loadDashboard(data.session.access_token);
+        }
+      }catch(e){
+        if(active) setAuthMsg(e instanceof Error ? e.message : '회원 연결 중 오류가 발생했습니다.');
+      }
+    };
+
+    finishAuth();
+    const {data:listener}=client.auth.onAuthStateChange((_event,session)=>{
+      if(!active || !session) return;
+      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      if(pending){
+        setTimeout(()=>claimWithToken(session.access_token,pending).catch(e=>{
+          if(active) setAuthMsg(e instanceof Error ? e.message : '회원 연결 중 오류가 발생했습니다.');
+        }),0);
+      }
+    });
+    return ()=>{
+      active=false;
+      listener.subscription.unsubscribe();
+    };
+  },[]);
 
   async function accessToken(){
     if(!supabase) throw new Error('회원 시스템 연결 설정이 없습니다.');
@@ -132,6 +169,7 @@ export default function App(){
         ).then(r=>r.json());
         setTop(d.data.top3);
         setHandoffToken(d.data.handoff_token);
+        localStorage.setItem(PENDING_HANDOFF_KEY,d.data.handoff_token);
         setScreen('result');
       }
     } finally {
@@ -149,17 +187,24 @@ export default function App(){
     setScreen('dashboard');
   }
 
-  async function claimWithToken(token:string){
+  async function claimWithToken(token:string,pendingToken?:string){
+    const claimToken=pendingToken || handoffToken || localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+    if(!claimToken){
+      await loadDashboard(token);
+      return;
+    }
     const r=await fetch(`${API}/v1/me/awareness/claim`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'Authorization':`Bearer ${token}`
       },
-      body:JSON.stringify({handoff_token:handoffToken})
+      body:JSON.stringify({handoff_token:claimToken})
     });
     const body=await r.json();
     if(!r.ok) throw new Error(body?.detail?.code || 'CLAIM_FAILED');
+    localStorage.removeItem(PENDING_HANDOFF_KEY);
+    setHandoffToken('');
     setDashboard(body.data.dashboard);
     setScreen('dashboard');
   }
@@ -184,7 +229,12 @@ export default function App(){
     setBusy(true);
     setAuthMsg('');
     try{
-      const {data,error}=await supabase.auth.signUp({email,password});
+      if(handoffToken) localStorage.setItem(PENDING_HANDOFF_KEY,handoffToken);
+      const {data,error}=await supabase.auth.signUp({
+        email,
+        password,
+        options:{emailRedirectTo:`${window.location.origin}/?auth=confirmed`}
+      });
       if(error) throw error;
       if(data.session){
         if(handoffToken) await claimWithToken(data.session.access_token);
@@ -403,7 +453,8 @@ export default function App(){
       const body=await r.json();
       if(!r.ok){
         const field=body?.detail?.field;
-        throw new Error(field ? `${field} 항목을 확인해 주세요.` : (body?.detail?.code || 'ACTION_COMPLETE_FAILED'));
+        const label=actionForm.fields.find(item=>item.key===field)?.label;
+        throw new Error(label ? `‘${label}’ 항목을 확인해 주세요.` : '입력 내용을 확인한 뒤 다시 완료해 주세요.');
       }
       setDashboard(body.data.dashboard);
       if(!body.data.idempotent){
@@ -422,7 +473,9 @@ export default function App(){
       setActionForm(null);
       setActionInstanceId('');
       setActionFields({});
-      setActionMsg('확인 완료. 다음 할 일을 다시 계산했습니다.');
+      setActionMsg(body.data.awareness_response==='PARTIAL'
+        ? '점검 내용을 저장했습니다. 아직 모르는 항목은 확인 이어가기에 남겨 두었습니다.'
+        : '확인 완료. 다음 할 일을 다시 계산했습니다.');
       setScreen('dashboard');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '완료하지 못했습니다.');

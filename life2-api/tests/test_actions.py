@@ -24,6 +24,60 @@ def make_member(subject="action-user"):
     assert claim.status_code==200
     return subject
 
+def test_unknown_completion_remains_partial_and_can_be_confirmed_later():
+    subject=make_member("partial-health-user")
+    action="ACT_REVIEW_HEALTH_COVERAGE"
+    fields={"critical_illness_benefit_band":"NONE_UNKNOWN",
+            "indemnity_coverage":"INDEMNITY_ONLY", "major_history":"NONE",
+            "income_stop_plan_checked":"NO"}
+    try:
+        aid=client.post(f"/v1/me/actions/{action}/start").json()["data"]["action_instance_id"]
+        url=f"/v1/me/actions/{action}/{aid}/complete"
+        first=client.post(url,json={"fields":fields}).json()["data"]
+        assert first["awareness_response"]=="PARTIAL"
+        assert first["dashboard"]["confirmed_awareness_count"]==0
+        assert first["dashboard"]["domains"]["health"]["partial"]==1
+        fact=store.facts[subject]["health.critical_illness_benefit_band_q12"]
+        assert fact["status"]=="UNKNOWN" and fact["value"] is None
+        summary=client.post("/v1/me/ai/change-summary",json={"action_instance_id":aid})
+        assert summary.status_code==200
+        assert "아직 모르는 정보" in summary.json()["data"]["message"]
+
+        # A duplicate request with changed input must not report a fabricated confirmation.
+        known={**fields,"critical_illness_benefit_band":"30M_60M"}
+        replay=client.post(url,json={"fields":known}).json()["data"]
+        assert replay["idempotent"] is True
+        assert replay["awareness_response"]=="PARTIAL"
+        assert replay["dashboard"]["confirmed_awareness_count"]==0
+
+        # Foundational Actions precede health in Top3; finish them to expose the follow-up.
+        for catalog,values in [
+            ("ACT_CONFIRM_RETIREMENT_AGE",{"retirement_age":60}),
+            ("ACT_CHECK_NPS_ESTIMATE",{"birth_year_self":1968,"nps_monthly_self":1200000,
+                                       "birth_year_spouse":1970,"nps_monthly_spouse":900000}),
+            ("ACT_ESTIMATE_RETIREMENT_BUDGET",{"retirement_budget_10k":320}),
+            ("ACT_SUMMARIZE_ASSETS_DEBT",{"financial_asset_band":"100M_200M","debt_band":"LT_100M"}),
+            ("ACT_CHECK_RET_PRIVATE_PENSION",{"has_ret_private_pension":"NO"}),
+            ("ACT_CALCULATE_INCOME_GAP",{"bridge_sources":["FINANCIAL_ASSETS"]}),
+            ("ACT_DEFINE_POST_RETIREMENT_WORK",{"work_plan_type":"PART_TIME_GIG",
+                "post_retirement_income_10k":100,"work_end_age":65,"health_insurance_type":"EMPLOYEE"}),
+            ("ACT_DEFINE_HOUSING_PLAN",{"housing_tenure":"RENT","housing_move_plan":"DOWNSIZE"}),
+        ]:
+            started=client.post(f"/v1/me/actions/{catalog}/start").json()["data"]
+            done=client.post(f"/v1/me/actions/{catalog}/{started['action_instance_id']}/complete",json={"fields":values})
+            assert done.status_code==200, done.text
+        followup=next(x for x in client.get("/v1/me/dashboard").json()["data"]["top3"] if x["action_catalog_id"]==action)
+        assert followup["mode"]=="VERIFY"
+        new=client.post(f"/v1/me/actions/{action}/start").json()["data"]
+        assert new["action_instance_id"]!=aid
+        confirmed=client.post(f"/v1/me/actions/{action}/{new['action_instance_id']}/complete",json={"fields":known}).json()["data"]
+        assert confirmed["awareness_response"]=="CONFIRMED"
+        assert confirmed["dashboard"]["domains"]["health"]["confirmed"]==1
+        assert all(x["action_catalog_id"]!=action for x in confirmed["dashboard"]["top3"])
+    finally:
+        app.dependency_overrides.clear()
+
+
 def test_nps_start_age_rule():
     assert nps_normal_start_age(1968)==64
     assert nps_normal_start_age(1970)==65
@@ -721,6 +775,8 @@ def test_unknown_fact_payloads_store_null_not_enum_marker():
             }},
         )
         assert done7.status_code==200
+        assert done7.json()["data"]["awareness_response"]=="PARTIAL"
+        assert done7.json()["data"]["dashboard"]["confirmed_awareness_count"]==0
         assert store.facts[subject]["work.post_retirement.health_insurance_type"]["status"]=="UNKNOWN"
         assert store.facts[subject]["work.post_retirement.health_insurance_type"]["value"] is None
 
@@ -734,7 +790,11 @@ def test_unknown_fact_payloads_store_null_not_enum_marker():
             }},
         )
         assert done8.status_code==200
+        assert done8.json()["data"]["awareness_response"]=="PARTIAL"
+        assert done8.json()["data"]["dashboard"]["confirmed_awareness_count"]==0
         assert store.facts[subject]["housing.reverse_mortgage_plan_q19"]["status"]=="UNKNOWN"
         assert store.facts[subject]["housing.reverse_mortgage_plan_q19"]["value"] is None
     finally:
         app.dependency_overrides.clear()
+
+

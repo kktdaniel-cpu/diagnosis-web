@@ -3,6 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+def completion_awareness_response(facts: list[dict]) -> str:
+    """Only fully confirmed facts remove an Action from follow-up."""
+    return "CONFIRMED" if facts and all(
+        fact.get("status", "KNOWN") in ("KNOWN", "NOT_APPLICABLE")
+        for fact in facts
+    ) else "PARTIAL"
+
 class ActionValidationError(ValueError):
     def __init__(self, code: str, field: str | None = None):
         super().__init__(code)
