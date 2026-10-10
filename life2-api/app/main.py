@@ -1,18 +1,18 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from secrets import token_urlsafe
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID
 from .models import RunCreate, AnswerPut
 from .store import store
-from .top3 import select_top3
+from .top3 import select_top3\nfrom .auth import get_current_subject\nfrom .config import cors_origins
 
 APP_VERSION = "MVP-0.1.1"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
