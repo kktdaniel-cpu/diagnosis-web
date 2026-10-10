@@ -276,3 +276,48 @@ def test_waiting_external_help_matches_action_state():
     assert out["waiting_external"] is True
     assert "기다리는 중" in out["answer"]
     assert any("다시 열어" in step for step in out["steps"])
+
+
+def test_context_preserves_stale_status_and_provenance_without_cross_domain_leak():
+    facts={
+        "care.monthly_cost_band":{
+            "fact_key":"care.monthly_cost_band",
+            "status":"STALE",
+            "value":"1M_2M",
+            "unit":"care_cost_band",
+            "source_type":"USER_CONFIRMED",
+            "source_ref":"ACT_DEFINE_CARE_PLAN",
+            "verification_level":"SELF_REPORTED",
+        },
+        "housing.tenure_q16":{
+            "fact_key":"housing.tenure_q16",
+            "status":"KNOWN",
+            "value":"RENT",
+            "unit":"Q16_choice",
+            "source_type":"USER_CONFIRMED",
+        },
+    }
+    ctx=build_action_context(
+        "ACT_DEFINE_CARE_PLAN",
+        facts,
+        {"household_type":"single","answers":{"AWR_Q10_CARE":"PARTIAL"}},
+        {"top3":[]},
+    )
+    assert len(ctx["relevant_facts"])==1
+    item=ctx["relevant_facts"][0]
+    assert item["fact_key"]=="care.monthly_cost_band"
+    assert item["status"]=="STALE"
+    assert item["source_type"]=="USER_CONFIRMED"
+    assert item["source_ref"]=="ACT_DEFINE_CARE_PLAN"
+
+
+def test_context_is_household_safe_when_spouse_fact_is_absent():
+    ctx=build_action_context(
+        "ACT_CHECK_NPS_ESTIMATE",
+        {},
+        {"household_type":"single","answers":{"AWR_Q02_NPS":"UNKNOWN_OR_NOT_PREPARED"}},
+        {"top3":[]},
+    )
+    assert ctx["relevant_facts"]==[]
+    assert ctx["awareness_state"]=="UNKNOWN_OR_NOT_PREPARED"
+    assert ctx["source_policy"]["ai_may_not_create_fact"] is True
