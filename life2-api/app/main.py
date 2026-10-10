@@ -3,12 +3,12 @@ import os
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
-from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields, AIHelpRequest, AIExplainRequest
+from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields, AIHelpRequest, AIExplainRequest, ChangeSummaryRequest
 from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
 from .config import cors_origins
-from .coach import build_action_context, explain_action, help_action
+from .coach import build_action_context, explain_action, help_action, summarize_change
 from .actions import (
     SUPPORTED_ACTIONS,
     ActionValidationError,
@@ -116,6 +116,18 @@ async def ai_action_help(
         _store_error(e)
     return {"ok":True,"data":data}
 
+@app.post("/v1/me/ai/change-summary")
+async def ai_change_summary(
+    payload: ChangeSummaryRequest,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        event=store.change_event(subject,payload.action_instance_id)
+        data=summarize_change(event)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
 @app.get("/v1/me/actions/{action_catalog_id}")
 async def action_form(action_catalog_id: str, subject: str = Depends(get_current_subject)):
     if action_catalog_id not in SUPPORTED_ACTIONS:
@@ -204,6 +216,7 @@ async def complete_action(
         "data":{
             "action":{"action_catalog_id":action_catalog_id,"status":"SELF_REPORTED_DONE"},
             "idempotent":idempotent,
+            "event_id":completion.get("event_id"),
             "normalized":None if idempotent else prepared["normalized"],
             "changes":{
                 "fact_keys":[] if idempotent else [x["fact_key"] for x in prepared["facts"]],
