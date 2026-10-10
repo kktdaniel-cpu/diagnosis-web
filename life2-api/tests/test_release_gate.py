@@ -3,7 +3,6 @@ from fastapi.testclient import TestClient
 from app.auth import get_current_subject
 from app.catalog import QUESTIONS
 from app.main import app
-from app.store import store
 
 client=TestClient(app)
 
@@ -56,8 +55,21 @@ def test_release_gate_golden_path_awareness_to_a5_recompute_and_delete():
             "birth_year_spouse":1970,
             "nps_monthly_spouse":900000,
         })
-        a4=_complete("ACT_ESTIMATE_RETIREMENT_BUDGET",{"retirement_budget_10k":320})
-        assert a4["changes"]["top3_changed"] is True
+        _complete("ACT_ESTIMATE_RETIREMENT_BUDGET",{"retirement_budget_10k":320})
+
+        # A5 becomes dependency-eligible after A1/A2/A4.
+        preview=client.get("/v1/me/actions/ACT_CALCULATE_INCOME_GAP")
+        assert preview.status_code==200
+        assert preview.json()["data"]["preview"]["ready"] is True
+        assert preview.json()["data"]["preview"]["income_gap_years"]==4
+
+        # A6 is a higher-priority foundational Action, so complete it before
+        # asserting that A5 is surfaced in the visible Top 3.
+        a6=_complete("ACT_SUMMARIZE_ASSETS_DEBT",{
+            "financial_asset_band":"100M_200M",
+            "debt_band":"LT_100M",
+        })
+        assert a6["changes"]["top3_changed"] is True
 
         dash=client.get("/v1/me/dashboard")
         assert dash.status_code==200
@@ -77,9 +89,9 @@ def test_release_gate_golden_path_awareness_to_a5_recompute_and_delete():
         assert fact_map["cashflow.income_gap_years_to_nps_self"]["source_type"]=="RULE_DERIVED"
 
         final_dash=client.get("/v1/me/dashboard").json()["data"]
-        assert final_dash["confirmed_awareness_count"]==4
+        assert final_dash["confirmed_awareness_count"]==5
         assert final_dash["domains"]["work"]["confirmed"]>=1
-        assert final_dash["domains"]["cashflow_asset"]["confirmed"]>=3
+        assert final_dash["domains"]["cashflow_asset"]["confirmed"]>=4
 
         deleted=client.delete("/v1/me")
         assert deleted.status_code==200
