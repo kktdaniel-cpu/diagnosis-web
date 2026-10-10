@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test:auth-recovery": "node --test tests/auth-recovery.test.cjs"
+    "test:auth-recovery": "node --test tests/auth-recovery.test.cjs",
+    "test:family-conversation": "node --test tests/family-conversation.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",

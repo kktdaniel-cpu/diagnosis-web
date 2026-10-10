@@ -45,6 +45,7 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm run test:auth-recovery
+      - run: npm run test:family-conversation
 
   legacy-regression:
     runs-on: ubuntu-latest
