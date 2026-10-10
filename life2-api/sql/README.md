@@ -24,3 +24,12 @@ Important:
 - Existing Google Sheets/GAS Master DB is **not migrated or modified**.
 - Legacy records remain read-only until explicit verified claim.
 - Runtime/internal secrets must never be committed to Git.
+
+4. `010_a1_a2_action_core.sql` — A1/A2 start/draft/complete core and dashboard recompute
+5. `011_action_complete_catalog_guard.sql` — action-instance/catalog mismatch guard
+
+Current dev security:
+- Supabase security advisor: 0 findings
+- Public member tables: RLS enabled
+- Internal server Data API path: custom header + private secret verification + internal-only RLS
+- Browser never receives the internal server secret
