@@ -98,6 +98,14 @@ async def dashboard(subject: str = Depends(get_current_subject)):
         _store_error(e)
     return {"ok":True,"data":data}
 
+@app.delete("/v1/me")
+async def delete_me(subject: str = Depends(get_current_subject)):
+    try:
+        data=store.delete_account(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
 @app.get("/v1/me/precision/entry")
 async def precision_entry(subject: str = Depends(get_current_subject)):
     return {
