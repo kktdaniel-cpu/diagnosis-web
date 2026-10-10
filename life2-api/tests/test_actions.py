@@ -252,3 +252,86 @@ def test_a10_care_lite_uses_cost_band_not_exact_amount():
         assert "care.monthly_cost_exact" not in facts
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a11_digital_lite_completes_without_secret_values():
+    subject=make_member("a11-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "digital_categories":["INSURANCE","BANK_SECURITIES","CRYPTO"],
+                "inventory_location_type":"DIGITAL_SECURE_FILE",
+                "family_can_locate":"YES",
+                "access_procedure_prepared":"YES"
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["digital_legacy.inventory_categories"]["value"]==["INSURANCE","BANK_SECURITIES","CRYPTO"]
+        assert facts["digital_legacy.family_can_locate"]["value"] is True
+        assert facts["digital_legacy.access_procedure_prepared"]["value"] is True
+        assert all("password" not in k.lower() for k in facts)
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a11_rejects_password_pin_private_key_seed_phrase_fields_even_on_draft():
+    make_member("a11-secret")
+    try:
+        start=client.post("/v1/me/actions/ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST/start").json()["data"]
+        for bad_key in ("password","pin","private_key","seed_phrase","recovery_phrase"):
+            bad=client.post(
+                f"/v1/me/actions/{start['action_instance_id']}/submit",
+                json={"fields":{bad_key:"DO_NOT_STORE"}},
+            )
+            assert bad.status_code==422
+            assert bad.json()["detail"]["code"]=="SECRET_NOT_ALLOWED"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a11_requires_family_location_and_access_procedure_for_done():
+    make_member("a11-incomplete")
+    try:
+        start=client.post("/v1/me/actions/ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "digital_categories":["INSURANCE"],
+                "inventory_location_type":"PHYSICAL_SECURE_FILE",
+                "family_can_locate":"NO",
+                "access_procedure_prepared":"YES"
+            }},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["field"]=="family_can_locate"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a12_done_requires_conversation_and_at_least_one_preference_topic():
+    subject=make_member("a12-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_START_FAMILY_WELLDYING_CONVERSATION/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_START_FAMILY_WELLDYING_CONVERSATION/{start['action_instance_id']}/complete",
+            json={"fields":{"conversation_done":"NO","preference_topics":["CARE"]}},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["field"]=="conversation_done"
+
+        done=client.post(
+            f"/v1/me/actions/ACT_START_FAMILY_WELLDYING_CONVERSATION/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "conversation_done":"YES",
+                "preference_topics":["CARE","MEDICAL_DECISION"]
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["welldying.family_conversation_done"]["value"] is True
+        assert facts["welldying.preference_topics_recorded"]["value"]==["CARE","MEDICAL_DECISION"]
+    finally:
+        app.dependency_overrides.clear()
