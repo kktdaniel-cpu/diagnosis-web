@@ -63,3 +63,7 @@ button:disabled{opacity:.55}
 .changeSummary{background:#f7f4e9;border:1px solid #e6dec4;border-radius:15px;padding:14px 16px;margin:10px 0 18px}
 .changeSummary b{font-size:14px;color:#6f5d24}
 .changeSummary p{font-size:15px;line-height:1.55;color:#4e4938;margin:6px 0 0}
+
+.precisionEntry{border-top:1px solid #e5ebe7;margin-top:20px;padding-top:18px}
+.precisionEntry b{font-size:15px;color:#344a3e}
+.precisionEntry p{font-size:14px;line-height:1.5;margin:6px 0 2px}
