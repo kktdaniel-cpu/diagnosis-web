@@ -335,3 +335,168 @@ def test_a12_done_requires_conversation_and_at_least_one_preference_topic():
         assert facts["welldying.preference_topics_recorded"]["value"]==["CARE","MEDICAL_DECISION"]
     finally:
         app.dependency_overrides.clear()
+
+
+def _complete_basic_prereqs_for_gap(subject: str):
+    a1=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+    assert client.post(
+        f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{a1['action_instance_id']}/complete",
+        json={"fields":{"retirement_age":60}},
+    ).status_code==200
+
+    a2=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start").json()["data"]
+    assert client.post(
+        f"/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/{a2['action_instance_id']}/complete",
+        json={"fields":{
+            "birth_year_self":1968,
+            "nps_monthly_self":1200000,
+            "birth_year_spouse":1970,
+            "nps_monthly_spouse":900000,
+        }},
+    ).status_code==200
+
+    a4=client.post("/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/start").json()["data"]
+    assert client.post(
+        f"/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/{a4['action_instance_id']}/complete",
+        json={"fields":{"retirement_budget_10k":320}},
+    ).status_code==200
+
+
+def test_a5_income_gap_is_rule_derived_from_confirmed_facts_only():
+    subject=make_member("a5-user")
+    try:
+        _complete_basic_prereqs_for_gap(subject)
+
+        form=client.get("/v1/me/actions/ACT_CALCULATE_INCOME_GAP")
+        assert form.status_code==200
+        preview=form.json()["data"]["preview"]
+        assert preview["ready"] is True
+        assert preview["retirement_age"]==60
+        assert preview["nps_start_age_self"]==64
+        assert preview["income_gap_years"]==4
+
+        start=client.post("/v1/me/actions/ACT_CALCULATE_INCOME_GAP/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_CALCULATE_INCOME_GAP/{start['action_instance_id']}/complete",
+            json={"fields":{"bridge_sources":["POST_RETIREMENT_WORK","FINANCIAL_ASSETS"]}},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["cashflow.income_gap_years_to_nps_self"]["value"]==4
+        assert facts["cashflow.income_gap_years_to_nps_self"]["source_type"]=="RULE_DERIVED"
+        assert facts["cashflow.income_gap_bridge_sources"]["value"]==["POST_RETIREMENT_WORK","FINANCIAL_ASSETS"]
+        assert "monthly_shortfall" not in " ".join(facts.keys())
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a5_not_ready_without_prerequisite_facts():
+    make_member("a5-blocked")
+    try:
+        form=client.get("/v1/me/actions/ACT_CALCULATE_INCOME_GAP")
+        assert form.status_code==200
+        preview=form.json()["data"]["preview"]
+        assert preview["ready"] is False
+        assert "ACT_CONFIRM_RETIREMENT_AGE" in preview["missing_actions"]
+
+        start=client.post("/v1/me/actions/ACT_CALCULATE_INCOME_GAP/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_CALCULATE_INCOME_GAP/{start['action_instance_id']}/complete",
+            json={"fields":{"bridge_sources":["FINANCIAL_ASSETS"]}},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["code"]=="PRECONDITION_REQUIRED"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a8_renter_housing_plan_does_not_invent_reverse_mortgage_fact():
+    subject=make_member("a8-renter")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"RENT",
+                "housing_move_plan":"MOVE_LOWER_COST"
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["housing.tenure_q16"]["value"]=="RENT"
+        assert facts["housing.move_plan_q21"]["value"]=="MOVE_LOWER_COST"
+        assert "housing.reverse_mortgage_plan_q19" not in facts
+        assert "housing.reverse_mortgage_start_age" not in facts
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a8_owner_reverse_mortgage_plan_requires_start_age_when_planned():
+    subject=make_member("a8-owner")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"OWNER_APARTMENT",
+                "housing_move_plan":"KEEP",
+                "reverse_mortgage_plan":"PLAN_USE"
+            }},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["field"]=="reverse_mortgage_start_age"
+
+        done=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"OWNER_APARTMENT",
+                "housing_move_plan":"KEEP",
+                "reverse_mortgage_plan":"PLAN_USE",
+                "reverse_mortgage_start_age":65
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["housing.reverse_mortgage_start_age"]["value"]==65
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a9_health_review_preserves_unknown_band_without_money_guess():
+    subject=make_member("a9-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "critical_illness_benefit_band":"NONE_UNKNOWN",
+                "indemnity_coverage":"INDEMNITY_ONLY",
+                "major_history":"CANCER",
+                "income_stop_plan_checked":"NO"
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["health.critical_illness_benefit_band_q12"]["status"]=="UNKNOWN"
+        assert facts["health.critical_illness_benefit_band_q12"]["value"]=="NONE_UNKNOWN"
+        assert facts["health.income_stop_plan_checked"]["value"] is False
+        assert "health.coverage_score" not in facts
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_member_facts_endpoint_returns_canonical_fact_map():
+    subject=make_member("facts-read")
+    try:
+        start=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{start['action_instance_id']}/complete",
+            json={"fields":{"retirement_age":61}},
+        ).status_code==200
+        got=client.get("/v1/me/facts")
+        assert got.status_code==200
+        facts=got.json()["data"]
+        assert facts["work.primary_job_exit_age"]["value"]==61
+        assert facts["work.primary_job_exit_age"]["status"]=="KNOWN"
+    finally:
+        app.dependency_overrides.clear()
