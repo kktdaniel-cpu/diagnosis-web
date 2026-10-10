@@ -254,6 +254,13 @@ def summarize_change(event: dict[str, Any]) -> dict[str, Any]:
     after=[str(x) for x in (metadata.get("top3_after") or [])]
     top3_changed=bool(metadata.get("top3_changed"))
 
+    added=[x for x in after if x not in before]
+    removed=[x for x in before if x not in after]
+
+    def title(action_id: str) -> str:
+        meta=ACTION_META.get(action_id)
+        return meta[0] if meta else action_id
+
     if fact_keys:
         fact_sentence=f"확인한 정보 {len(fact_keys)}개가 FACT로 반영되었습니다."
     else:
@@ -261,6 +268,8 @@ def summarize_change(event: dict[str, Any]) -> dict[str, Any]:
 
     if top3_changed:
         top3_sentence="완료 결과를 반영해 지금 먼저 할 3가지가 다시 계산되었습니다."
+        if added:
+            top3_sentence += f" 새로 확인할 일은 {', '.join(title(x) for x in added)}입니다."
     else:
         top3_sentence="이번 완료로 Top 3 순서는 바뀌지 않았습니다."
 
@@ -275,4 +284,6 @@ def summarize_change(event: dict[str, Any]) -> dict[str, Any]:
         "top3_before":before,
         "top3_after":after,
         "top3_changed":top3_changed,
+        "top3_added":added,
+        "top3_removed":removed,
     }
