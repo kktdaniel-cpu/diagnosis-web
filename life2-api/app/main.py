@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
@@ -36,7 +37,7 @@ def _enrich_dashboard(data: dict) -> dict:
 
 @app.get("/health")
 def health():
-    return {"ok": True, "version": APP_VERSION}
+    return {"ok": True, "version": APP_VERSION, "storage": os.getenv("LIFE2_STORAGE_BACKEND","memory")}
 
 @app.get("/v1/me")
 async def me(subject: str = Depends(get_current_subject)):
