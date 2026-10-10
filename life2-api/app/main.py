@@ -16,6 +16,7 @@ from .actions import (
     prepare_completion,
     reject_secret_fields,
     income_gap_preview,
+    completion_awareness_response,
 )
 
 APP_VERSION = "MVP-0.6.0"
@@ -247,7 +248,7 @@ async def complete_action(
             existing_facts,
         )
         updated_answers=dict(awareness["answers"])
-        updated_answers[prepared["question_id"]]="CONFIRMED"
+        updated_answers[prepared["question_id"]]=completion_awareness_response(prepared["facts"])
         new_top3=select_top3(updated_answers)
         before=store.dashboard(subject)
         completion=store.complete_action(
@@ -260,6 +261,7 @@ async def complete_action(
         )
         after=completion["dashboard"]
         idempotent=bool(completion.get("idempotent"))
+        updated_answers=store.member_awareness(subject)["answers"]
     except StoreError as e:
         _store_error(e)
     except ActionValidationError as e:
@@ -272,6 +274,7 @@ async def complete_action(
         "data":{
             "action":{"action_catalog_id":action_catalog_id,"status":"SELF_REPORTED_DONE"},
             "idempotent":idempotent,
+            "awareness_response":updated_answers[prepared["question_id"]],
             "event_id":completion.get("event_id"),
             "normalized":None if idempotent else prepared["normalized"],
             "changes":{

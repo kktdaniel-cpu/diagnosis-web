@@ -473,7 +473,9 @@ export default function App(){
       setActionForm(null);
       setActionInstanceId('');
       setActionFields({});
-      setActionMsg('확인 완료. 다음 할 일을 다시 계산했습니다.');
+      setActionMsg(body.data.awareness_response==='PARTIAL'
+        ? '점검 내용을 저장했습니다. 아직 모르는 항목은 확인 이어가기에 남겨 두었습니다.'
+        : '확인 완료. 다음 할 일을 다시 계산했습니다.');
       setScreen('dashboard');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '완료하지 못했습니다.');
