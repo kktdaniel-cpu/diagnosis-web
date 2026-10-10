@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .awareness.router import router as awareness_router
 from .config import get_settings
 
 settings = get_settings()
@@ -13,6 +14,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["Authorization", "Content-Type", "Idempotency-Key", "X-Request-Id"],
 )
+
+app.include_router(awareness_router)
 
 
 @app.get("/health")
