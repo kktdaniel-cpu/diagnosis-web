@@ -35,6 +35,9 @@ class MemoryStore:
     def __init__(self):
         self.runs: dict[str, AwarenessRun] = {}
         self.member_run: dict[str, str] = {}
+        self.action_instances: dict[str, dict] = {}
+        self.facts: dict[str, dict[str, dict]] = {}
+        self.recent: dict[str, list[dict]] = {}
 
     def create_run(self, age_band: str, household_type: str) -> dict:
         run = AwarenessRun(
@@ -92,18 +95,100 @@ class MemoryStore:
             self.member_run[subject]=run.run_id
         return {"claimed":True,"idempotent":idempotent,"dashboard":self.dashboard(subject)}
 
+    def member_awareness(self, subject: str) -> dict:
+        run_id=self.member_run.get(subject)
+        run=self.runs.get(run_id) if run_id else None
+        if not run:
+            raise StoreError("AWARENESS_NOT_FOUND",404)
+        return {
+            "run_id":run.run_id,
+            "household_type":run.household_type,
+            "age_band":run.age_band,
+            "answers":dict(run.answers),
+        }
+
     def dashboard(self, subject: str) -> dict:
         run_id=self.member_run.get(subject)
         run=self.runs.get(run_id) if run_id else None
         if not run:
             return {"confirmed_awareness_count":0,"awareness_total":12,"top3":[],"in_progress":[],"recent_changes":[]}
+        in_progress=[
+            dict(x) for x in self.action_instances.values()
+            if x["subject"]==subject and x["status"] in ("IN_PROGRESS","WAITING_EXTERNAL")
+        ]
         return {
             "confirmed_awareness_count":sum(1 for v in run.answers.values() if v=="CONFIRMED"),
             "awareness_total":12,
             "top3":run.top3,
-            "in_progress":[],
-            "recent_changes":[]
+            "in_progress":in_progress,
+            "recent_changes":self.recent.get(subject,[])[:5],
         }
+
+    def start_action(self, subject: str, action_catalog_id: str, mode: str) -> dict:
+        existing=next((
+            x for x in self.action_instances.values()
+            if x["subject"]==subject
+            and x["action_catalog_id"]==action_catalog_id
+            and x["status"] in ("NOT_STARTED","IN_PROGRESS","WAITING_EXTERNAL","REVIEW_DUE")
+        ),None)
+        if existing:
+            existing["status"]="IN_PROGRESS"
+            return {k:existing[k] for k in ("action_instance_id","action_catalog_id","status","mode","draft")}
+        action_id=str(uuid4())
+        item={
+            "action_instance_id":action_id,
+            "subject":subject,
+            "action_catalog_id":action_catalog_id,
+            "status":"IN_PROGRESS",
+            "mode":mode,
+            "draft":{},
+        }
+        self.action_instances[action_id]=item
+        return {k:item[k] for k in ("action_instance_id","action_catalog_id","status","mode","draft")}
+
+    def submit_action(self, subject: str, action_instance_id: str, fields: dict) -> dict:
+        item=self.action_instances.get(action_instance_id)
+        if not item or item["subject"]!=subject:
+            raise StoreError("ACTION_NOT_FOUND",404)
+        if item["status"] not in ("NOT_STARTED","IN_PROGRESS","WAITING_EXTERNAL","REVIEW_DUE"):
+            raise StoreError("INVALID_ACTION_TRANSITION",409)
+        item["status"]="IN_PROGRESS"
+        item["draft"]=dict(fields)
+        return {"action_instance_id":action_instance_id,"status":"IN_PROGRESS","draft":dict(fields)}
+
+    def complete_action(
+        self,
+        subject: str,
+        action_instance_id: str,
+        action_catalog_id: str,
+        question_id: str,
+        facts: list[dict],
+        new_top3: list[dict],
+    ) -> dict:
+        item=self.action_instances.get(action_instance_id)
+        if not item or item["subject"]!=subject:
+            raise StoreError("ACTION_NOT_FOUND",404)
+        if item["action_catalog_id"]!=action_catalog_id:
+            raise StoreError("ACTION_CATALOG_MISMATCH",422)
+        run_id=self.member_run.get(subject)
+        run=self.runs.get(run_id) if run_id else None
+        if not run:
+            raise StoreError("AWARENESS_NOT_FOUND",404)
+        if item["status"] in ("SELF_REPORTED_DONE","VERIFIED_DONE"):
+            return self.dashboard(subject)
+        bucket=self.facts.setdefault(subject,{})
+        for fact in facts:
+            bucket[fact["fact_key"]]=dict(fact)
+        item["status"]="SELF_REPORTED_DONE"
+        item["draft"]={}
+        run.answers[question_id]="CONFIRMED"
+        run.top3=list(new_top3)
+        self.recent.setdefault(subject,[]).insert(0,{
+            "event_type":"ACTION_COMPLETED",
+            "summary_code":action_catalog_id,
+            "occurred_at":datetime.now(timezone.utc).isoformat(),
+        })
+        return self.dashboard(subject)
 
 class SupabaseRPCStore:
     def __init__(self):
@@ -117,23 +202,36 @@ class SupabaseRPCStore:
         try:
             r=httpx.post(
                 f"{self.url}/rest/v1/rpc/{name}",
-                headers={"apikey":self.key,"Content-Type":"application/json","X-Life2-Internal-Secret":self.secret},
+                headers={
+                    "apikey":self.key,
+                    "Content-Type":"application/json",
+                    "X-Life2-Internal-Secret":self.secret,
+                },
                 json=payload,
                 timeout=8.0,
             )
         except httpx.HTTPError as e:
             raise StoreError("STORAGE_UNAVAILABLE",503) from e
         if r.status_code >= 400:
-            msg=(r.json().get("message") if r.headers.get("content-type","").startswith("application/json") else r.text)
-            code="STORAGE_ERROR"
-            status=500
-            if "expired" in str(msg).lower():
+            try:
+                msg=r.json().get("message","")
+            except Exception:
+                msg=r.text
+            lower=str(msg).lower()
+            code,status="STORAGE_ERROR",500
+            if "expired" in lower:
                 code,status="RUN_EXPIRED",410
-            elif "handoff already claimed" in str(msg).lower():
+            elif "handoff already claimed" in lower:
                 code,status="HANDOFF_ALREADY_CLAIMED",409
-            elif "handoff not found" in str(msg).lower():
+            elif "handoff not found" in lower:
                 code,status="HANDOFF_NOT_FOUND",404
-            elif "forbidden" in str(msg).lower():
+            elif "action not found" in lower:
+                code,status="ACTION_NOT_FOUND",404
+            elif "catalog mismatch" in lower:
+                code,status="ACTION_CATALOG_MISMATCH",422
+            elif "awareness not found" in lower:
+                code,status="AWARENESS_NOT_FOUND",404
+            elif "forbidden" in lower:
                 code,status="FORBIDDEN",403
             raise StoreError(code,status)
         return r.json()
@@ -188,10 +286,51 @@ class SupabaseRPCStore:
             "p_auth_subject":subject,
         })
 
+    def member_awareness(self,subject:str)->dict:
+        return self._rpc("rpc_member_awareness",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+        })
+
     def dashboard(self,subject:str)->dict:
         return self._rpc("rpc_member_dashboard",{
             "p_internal_secret":self.secret,
             "p_auth_subject":subject,
+        })
+
+    def start_action(self,subject:str,action_catalog_id:str,mode:str)->dict:
+        return self._rpc("rpc_action_start",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+            "p_action_catalog_id":action_catalog_id,
+            "p_mode":mode,
+        })
+
+    def submit_action(self,subject:str,action_instance_id:str,fields:dict)->dict:
+        return self._rpc("rpc_action_submit",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+            "p_action_instance_id":action_instance_id,
+            "p_draft":fields,
+        })
+
+    def complete_action(
+        self,
+        subject:str,
+        action_instance_id:str,
+        action_catalog_id:str,
+        question_id:str,
+        facts:list[dict],
+        new_top3:list[dict],
+    )->dict:
+        return self._rpc("rpc_action_complete",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+            "p_action_instance_id":action_instance_id,
+            "p_action_catalog_id":action_catalog_id,
+            "p_question_id":question_id,
+            "p_fact_rows":facts,
+            "p_new_top3":new_top3,
         })
 
 def build_store():
