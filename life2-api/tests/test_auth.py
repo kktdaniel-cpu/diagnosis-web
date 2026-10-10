@@ -32,3 +32,16 @@ def test_me_accepts_verified_supabase_user(monkeypatch):
     r = client.get("/v1/me", headers={"Authorization":"Bearer good-token"})
     assert r.status_code == 200
     assert r.json()["data"]["authenticated"] is True
+
+
+def test_precision_entry_keeps_existing_engine_separate():
+    app.dependency_overrides[auth.get_current_subject]=lambda:"precision-user"
+    try:
+        r=client.get("/v1/me/precision/entry")
+        assert r.status_code==200
+        data=r.json()["data"]
+        assert data["url"].startswith("https://diag.lpp20.com")
+        assert data["handoff"]=="NONE"
+        assert data["engine_authority"]=="diagnosis-api Ver32.42"
+    finally:
+        app.dependency_overrides.clear()
