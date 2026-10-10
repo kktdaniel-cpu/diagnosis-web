@@ -22,7 +22,7 @@ app.add_middleware(
 def health():
     return {"ok": True, "version": APP_VERSION}
 
-@app.get("/v1/awareness/questions")
+@app.get("/v1/me")\nasync def me(subject: str = Depends(get_current_subject)):\n    return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}\n\n@app.get("/v1/awareness/questions")
 def questions(household_type: str = "single"):
     if household_type not in {"single","couple"}:
         raise HTTPException(422, "invalid household_type")
