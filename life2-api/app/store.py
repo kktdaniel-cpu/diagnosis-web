@@ -160,6 +160,21 @@ class MemoryStore:
         item["draft"]=dict(fields)
         return {"action_instance_id":action_instance_id,"status":"IN_PROGRESS","draft":dict(fields)}
 
+    def wait_action(self, subject: str, action_instance_id: str) -> dict:
+        item=self.action_instances.get(action_instance_id)
+        if not item or item["subject"]!=subject:
+            raise StoreError("ACTION_NOT_FOUND",404)
+        if item["status"] not in ("NOT_STARTED","IN_PROGRESS","WAITING_EXTERNAL","REVIEW_DUE"):
+            raise StoreError("INVALID_ACTION_TRANSITION",409)
+        item["status"]="WAITING_EXTERNAL"
+        return {
+            "action_instance_id":action_instance_id,
+            "action_catalog_id":item["action_catalog_id"],
+            "status":"WAITING_EXTERNAL",
+            "mode":item["mode"],
+            "draft":dict(item["draft"]),
+        }
+
     def complete_action(
         self,
         subject: str,
@@ -344,6 +359,13 @@ class SupabaseRPCStore:
             "p_auth_subject":subject,
             "p_action_instance_id":action_instance_id,
             "p_draft":fields,
+        })
+
+    def wait_action(self,subject:str,action_instance_id:str)->dict:
+        return self._rpc("rpc_action_wait",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+            "p_action_instance_id":action_instance_id,
         })
 
     def change_event(self,subject:str,action_instance_id:str)->dict:
