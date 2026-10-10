@@ -271,12 +271,11 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value":"NONE","label":"보장 없음"},
+                    {"value":"NONE_UNKNOWN","label":"없음 / 모름"},
                     {"value":"LT_30M","label":"3,000만 원 미만"},
                     {"value":"30M_60M","label":"3,000만 ~ 6,000만 원"},
                     {"value":"60M_100M","label":"6,000만 ~ 1억 원"},
                     {"value":"GE_100M","label":"1억 원 이상"},
-                    {"value":"UNKNOWN","label":"잘 모르겠어요"},
                 ],
             },
             {
@@ -897,13 +896,11 @@ def prepare_completion(
             reverse=_choice_field(fields,"reverse_mortgage_plan",{
                 "PLAN_USE","CONSIDER_IF_NEEDED","NO_PLAN","UNKNOWN"
             })
-            if reverse=="UNKNOWN":
-                raise ActionValidationError("UNKNOWN_NOT_COMPLETE","reverse_mortgage_plan")
             normalized["reverse_mortgage_plan"]=reverse
             facts.append({
                 "fact_key":"housing.reverse_mortgage_plan_q19",
-                "status":"KNOWN",
-                "value":reverse,
+                "status":"UNKNOWN" if reverse=="UNKNOWN" else "KNOWN",
+                "value":None if reverse=="UNKNOWN" else reverse,
                 "unit":"Q19_choice",
                 "source_type":"USER_CONFIRMED",
                 "source_ref":"ACT_DEFINE_HOUSING_PLAN",
@@ -929,10 +926,8 @@ def prepare_completion(
 
     if action_catalog_id == "ACT_REVIEW_HEALTH_COVERAGE":
         dx=_choice_field(fields,"critical_illness_benefit_band",{
-            "NONE","LT_30M","30M_60M","60M_100M","GE_100M","UNKNOWN"
+            "NONE_UNKNOWN","LT_30M","30M_60M","60M_100M","GE_100M"
         })
-        if dx=="UNKNOWN":
-            raise ActionValidationError("UNKNOWN_NOT_COMPLETE","critical_illness_benefit_band")
         indemnity=_choice_field(fields,"indemnity_coverage",{
             "NONE","INDEMNITY_ONLY","INDEMNITY_PLUS"
         })
@@ -951,8 +946,8 @@ def prepare_completion(
             "facts":[
                 {
                     "fact_key":"health.critical_illness_benefit_band_q12",
-                    "status":"KNOWN",
-                    "value":dx,
+                    "status":"UNKNOWN" if dx=="NONE_UNKNOWN" else "KNOWN",
+                    "value":None if dx=="NONE_UNKNOWN" else dx,
                     "unit":"Q12_band",
                     "source_type":"USER_CONFIRMED",
                     "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
