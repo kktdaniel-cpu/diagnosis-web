@@ -182,12 +182,11 @@ class SupabaseRPCStore:
         })
 
     def claim_handoff(self,handoff_token:str,subject:str)->dict:
-        dashboard=self._rpc("rpc_awareness_claim",{
+        return self._rpc("rpc_awareness_claim",{
             "p_internal_secret":self.secret,
             "p_handoff_token":handoff_token,
             "p_auth_subject":subject,
         })
-        return {"claimed":True,"idempotent":False,"dashboard":dashboard}
 
     def dashboard(self,subject:str)->dict:
         return self._rpc("rpc_member_dashboard",{
