@@ -738,3 +738,126 @@ def test_unknown_fact_payloads_store_null_not_enum_marker():
         assert store.facts[subject]["housing.reverse_mortgage_plan_q19"]["value"] is None
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a5_income_gap_requires_a1_a2_a4_and_never_invents_monthly_shortfall():
+    subject=make_member("a5-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_CALCULATE_INCOME_GAP/start").json()["data"]
+        blocked=client.post(
+            f"/v1/me/actions/ACT_CALCULATE_INCOME_GAP/{start['action_instance_id']}/complete",
+            json={"fields":{"bridge_sources":["FINANCIAL_ASSETS"]}},
+        )
+        assert blocked.status_code==422
+        assert blocked.json()["detail"]["code"]=="PRECONDITION_REQUIRED"
+
+        a1=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{a1['action_instance_id']}/complete",
+            json={"fields":{"retirement_age":60}},
+        ).status_code==200
+
+        a2=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/{a2['action_instance_id']}/complete",
+            json={"fields":{
+                "birth_year_self":1968,
+                "nps_monthly_self":1200000,
+                "birth_year_spouse":1970,
+                "nps_monthly_spouse":900000,
+            }},
+        ).status_code==200
+
+        a4=client.post("/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_ESTIMATE_RETIREMENT_BUDGET/{a4['action_instance_id']}/complete",
+            json={"fields":{"retirement_budget_10k":300}},
+        ).status_code==200
+
+        a5=client.post("/v1/me/actions/ACT_CALCULATE_INCOME_GAP/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_CALCULATE_INCOME_GAP/{a5['action_instance_id']}/complete",
+            json={"fields":{"bridge_sources":["FINANCIAL_ASSETS","RET_PRIVATE_PENSION"]}},
+        )
+        assert done.status_code==200
+        data=done.json()["data"]
+        assert data["normalized"]["income_gap_years"]==4
+        facts=store.facts[subject]
+        assert facts["cashflow.income_gap_years_to_nps_self"]["source_type"]=="RULE_DERIVED"
+        assert facts["cashflow.income_gap_bridge_sources"]["value"]==["FINANCIAL_ASSETS","RET_PRIVATE_PENSION"]
+        assert "cashflow.income_gap_monthly_shortfall" not in facts
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a8_owner_unknown_reverse_mortgage_does_not_complete():
+    make_member("a8-unknown")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"OWNER_APARTMENT",
+                "housing_move_plan":"KEEP",
+                "reverse_mortgage_plan":"UNKNOWN",
+            }},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["code"]=="UNKNOWN_NOT_COMPLETE"
+        assert bad.json()["detail"]["field"]=="reverse_mortgage_plan"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a8_renter_can_complete_without_reverse_mortgage_fields():
+    subject=make_member("a8-renter")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"RENT",
+                "housing_move_plan":"MOVE_LOWER_COST",
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["housing.tenure_q16"]["value"]=="RENT"
+        assert facts["housing.move_plan_q21"]["value"]=="MOVE_LOWER_COST"
+        assert "housing.reverse_mortgage_plan_q19" not in facts
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a9_separates_no_coverage_from_unknown_and_unknown_cannot_complete():
+    subject=make_member("a9-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "critical_illness_benefit_band":"UNKNOWN",
+                "indemnity_coverage":"INDEMNITY_ONLY",
+                "major_history":"NONE",
+                "income_stop_plan_checked":"YES",
+            }},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["code"]=="UNKNOWN_NOT_COMPLETE"
+
+        done=client.post(
+            f"/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "critical_illness_benefit_band":"NONE",
+                "indemnity_coverage":"INDEMNITY_ONLY",
+                "major_history":"NONE",
+                "income_stop_plan_checked":"NO",
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["health.critical_illness_benefit_band_q12"]["status"]=="KNOWN"
+        assert facts["health.critical_illness_benefit_band_q12"]["value"]=="NONE"
+        assert facts["health.income_stop_plan_checked"]["value"] is False
+    finally:
+        app.dependency_overrides.clear()
