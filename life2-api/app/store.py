@@ -38,6 +38,7 @@ class MemoryStore:
         self.action_instances: dict[str, dict] = {}
         self.facts: dict[str, dict[str, dict]] = {}
         self.recent: dict[str, list[dict]] = {}
+        self.change_events: dict[tuple[str,str], dict] = {}
 
     def create_run(self, age_band: str, household_type: str) -> dict:
         run = AwarenessRun(
@@ -179,6 +180,7 @@ class MemoryStore:
             raise StoreError("AWARENESS_NOT_FOUND",404)
         if item["status"] in ("SELF_REPORTED_DONE","VERIFIED_DONE"):
             return {"idempotent":True,"dashboard":self.dashboard(subject)}
+        top3_before=[x.get("action_catalog_id") for x in run.top3]
         bucket=self.facts.setdefault(subject,{})
         for fact in facts:
             bucket[fact["fact_key"]]=dict(fact)
@@ -186,12 +188,33 @@ class MemoryStore:
         item["draft"]={}
         run.answers[question_id]="CONFIRMED"
         run.top3=list(new_top3)
+        event_id=str(uuid4())
+        event={
+            "event_id":event_id,
+            "action_instance_id":action_instance_id,
+            "action_catalog_id":action_catalog_id,
+            "metadata":{
+                "question_id":question_id,
+                "fact_keys":[x["fact_key"] for x in facts],
+                "top3_before":top3_before,
+                "top3_after":[x.get("action_catalog_id") for x in new_top3],
+                "top3_changed":top3_before != [x.get("action_catalog_id") for x in new_top3],
+            },
+            "occurred_at":datetime.now(timezone.utc).isoformat(),
+        }
+        self.change_events[(subject,action_instance_id)]=event
         self.recent.setdefault(subject,[]).insert(0,{
             "event_type":"ACTION_COMPLETED",
             "summary_code":action_catalog_id,
-            "occurred_at":datetime.now(timezone.utc).isoformat(),
+            "occurred_at":event["occurred_at"],
         })
-        return {"idempotent":False,"dashboard":self.dashboard(subject)}
+        return {"idempotent":False,"event_id":event_id,"dashboard":self.dashboard(subject)}
+
+    def change_event(self, subject: str, action_instance_id: str) -> dict:
+        event=self.change_events.get((subject,action_instance_id))
+        if not event:
+            raise StoreError("CHANGE_EVENT_NOT_FOUND",404)
+        return dict(event)
 
 class SupabaseRPCStore:
     def __init__(self):
@@ -321,6 +344,13 @@ class SupabaseRPCStore:
             "p_auth_subject":subject,
             "p_action_instance_id":action_instance_id,
             "p_draft":fields,
+        })
+
+    def change_event(self,subject:str,action_instance_id:str)->dict:
+        return self._rpc("rpc_action_change_event",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+            "p_action_instance_id":action_instance_id,
         })
 
     def complete_action(
