@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 Household = Literal["single","couple"]
@@ -13,3 +13,6 @@ class AnswerPut(BaseModel):
 
 class HandoffClaim(BaseModel):
     handoff_token: str = Field(min_length=16, max_length=256)
+
+class ActionFields(BaseModel):
+    fields: dict[str, Any] = Field(default_factory=dict)
