@@ -1,0 +1,5 @@
+-- Member FACT read RPC for server-side Action dependencies.
+-- Applied to Supabase life2-master-v2.
+--
+-- rpc_member_facts returns a fact_key -> fact object map for the authenticated LIFE user.
+-- Access remains behind the server-only internal Data API gate.

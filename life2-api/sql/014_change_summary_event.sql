@@ -1,0 +1,12 @@
+-- Traceable Basic Change Summary event.
+-- Applied to Supabase life2-master-v2.
+--
+-- ACTION_COMPLETED activity metadata stores only:
+-- - question_id
+-- - changed fact_keys (not raw fact values)
+-- - Top 3 action ids before / after
+-- - top3_changed
+--
+-- rpc_action_change_event resolves the latest completion event for the
+-- authenticated LIFE user and action_instance_id.
+-- This keeps Change Summary grounded in the actual transaction diff.

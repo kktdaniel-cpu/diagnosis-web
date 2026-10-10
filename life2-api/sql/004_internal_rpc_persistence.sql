@@ -1,0 +1,4 @@
+-- Protected server-to-Supabase RPC persistence layer.
+-- Applied to life2-master-v2. The secret hash is stored only in the private schema.
+-- The runtime secret value is NOT committed to Git.
+-- See Supabase migration history for the applied function definitions.

@@ -1,0 +1,13 @@
+-- Account deletion path.
+-- Applied to Supabase life2-master-v2.
+--
+-- rpc_delete_account is a narrowly-scoped SECURITY DEFINER function because
+-- it must remove the authenticated Supabase auth.users row as well as the
+-- internal LIFE user row.
+--
+-- Guardrails:
+-- - requires server internal secret
+-- - subject comes from verified Supabase bearer token in life2-api
+-- - public.users delete cascades member-owned LIFE rows
+-- - auth.users row is then deleted
+-- - no deletion is triggered automatically by this migration

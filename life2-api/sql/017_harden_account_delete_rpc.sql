@@ -1,0 +1,9 @@
+-- Harden account deletion after Supabase Security Advisor review.
+-- Applied to life2-master-v2.
+--
+-- The exposed public RPC is SECURITY INVOKER.
+-- The privileged auth.users delete lives in private.delete_account_core,
+-- which is not in the exposed Data API schema.
+-- Both layers validate the server-only internal secret.
+--
+-- Supabase Security Advisor after this migration: 0 findings.

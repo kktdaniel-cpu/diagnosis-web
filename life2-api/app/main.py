@@ -1,0 +1,346 @@
+from __future__ import annotations
+import os
+from fastapi import FastAPI, HTTPException, Header, Depends
+from fastapi.middleware.cors import CORSMiddleware
+from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
+from .models import RunCreate, AnswerPut, HandoffClaim, ActionFields, AIHelpRequest, AIExplainRequest, ChangeSummaryRequest
+from .store import store, StoreError
+from .top3 import select_top3
+from .auth import get_current_subject
+from .config import cors_origins, PRECISION_URL
+from .coach import build_action_context, explain_action, help_action, summarize_change
+from .actions import (
+    SUPPORTED_ACTIONS,
+    ActionValidationError,
+    form_for,
+    prepare_completion,
+    reject_secret_fields,
+    income_gap_preview,
+)
+
+APP_VERSION = "MVP-0.6.0"
+app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins(),
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+def _store_error(e: StoreError):
+    raise HTTPException(status_code=e.status_code, detail={"code":e.code})
+
+def _action_error(e: ActionValidationError):
+    raise HTTPException(status_code=422, detail={"code":e.code,"field":e.field})
+
+def _domain_summary(answers: dict) -> dict:
+    domain_keys=("cashflow_asset","work","health","housing","welldying")
+    out={}
+    for domain in domain_keys:
+        qids=[q["id"] for q in QUESTIONS if q["domain"]==domain]
+        states=[answers.get(qid,"UNKNOWN_OR_NOT_PREPARED") for qid in qids]
+        out[domain]={
+            "confirmed":sum(1 for x in states if x=="CONFIRMED"),
+            "partial":sum(1 for x in states if x=="PARTIAL"),
+            "unknown_or_not_prepared":sum(1 for x in states if x=="UNKNOWN_OR_NOT_PREPARED"),
+            "total":len(states),
+        }
+    return out
+
+def _enrich_dashboard(data: dict, answers: dict | None = None) -> dict:
+    enriched=[]
+    for item in data.get("top3", []):
+        x=dict(item)
+        meta=ACTION_META.get(x.get("action_catalog_id"))
+        if meta:
+            x["title"]=meta[0]
+        enriched.append(x)
+    data=dict(data)
+    data["top3"]=enriched
+    if answers is not None:
+        data["domains"]=_domain_summary(answers)
+    return data
+
+@app.get("/health")
+def health():
+    return {"ok": True, "version": APP_VERSION, "storage": os.getenv("LIFE2_STORAGE_BACKEND","memory")}
+
+@app.get("/v1/me")
+async def me(subject: str = Depends(get_current_subject)):
+    return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}
+
+@app.post("/v1/me/awareness/claim")
+async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):
+    try:
+        data=store.claim_handoff(payload.handoff_token,subject)
+        data=dict(data)
+        awareness=store.member_awareness(subject)
+        data["dashboard"]=_enrich_dashboard(data.get("dashboard") or {},awareness["answers"])
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.get("/v1/me/dashboard")
+async def dashboard(subject: str = Depends(get_current_subject)):
+    try:
+        base=store.dashboard(subject)
+        try:
+            awareness=store.member_awareness(subject)
+            answers=awareness["answers"]
+        except StoreError as e:
+            if e.code!="AWARENESS_NOT_FOUND":
+                raise
+            answers={}
+        data=_enrich_dashboard(base,answers)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.delete("/v1/me")
+async def delete_me(subject: str = Depends(get_current_subject)):
+    try:
+        data=store.delete_account(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.get("/v1/me/precision/entry")
+async def precision_entry(subject: str = Depends(get_current_subject)):
+    return {
+        "ok":True,
+        "data":{
+            "url":PRECISION_URL,
+            "role":"PRECISION_DIAGNOSIS",
+            "handoff":"NONE",
+            "engine_authority":"diagnosis-api Ver32.42",
+        }
+    }
+
+@app.get("/v1/me/facts")
+async def facts(subject: str = Depends(get_current_subject)):
+    try:
+        data=store.member_facts(subject)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+
+@app.post("/v1/me/ai/action-explain")
+async def ai_action_explain(
+    payload: AIExplainRequest,
+    subject: str = Depends(get_current_subject),
+):
+    if payload.action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=404,detail={"code":"ACTION_NOT_FOUND"})
+    try:
+        awareness=store.member_awareness(subject)
+        facts=store.member_facts(subject)
+        dashboard=store.dashboard(subject)
+        context=build_action_context(payload.action_catalog_id,facts,awareness,dashboard)
+        data=explain_action(payload.action_catalog_id,context)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/ai/action-help")
+async def ai_action_help(
+    payload: AIHelpRequest,
+    subject: str = Depends(get_current_subject),
+):
+    if payload.action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=404,detail={"code":"ACTION_NOT_FOUND"})
+    try:
+        awareness=store.member_awareness(subject)
+        facts=store.member_facts(subject)
+        dashboard=store.dashboard(subject)
+        context=build_action_context(payload.action_catalog_id,facts,awareness,dashboard)
+        data=help_action(payload.action_catalog_id,payload.question,context)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/ai/change-summary")
+async def ai_change_summary(
+    payload: ChangeSummaryRequest,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        event=store.change_event(subject,payload.action_instance_id)
+        data=summarize_change(event)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.get("/v1/me/actions/{action_catalog_id}")
+async def action_form(action_catalog_id: str, subject: str = Depends(get_current_subject)):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        awareness=store.member_awareness(subject)
+        data=form_for(action_catalog_id,awareness["household_type"])
+        if action_catalog_id=="ACT_CALCULATE_INCOME_GAP":
+            data["preview"]=income_gap_preview(store.member_facts(subject))
+    except StoreError as e:
+        _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_catalog_id}/start")
+async def start_action(action_catalog_id: str, subject: str = Depends(get_current_subject)):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        dash=store.dashboard(subject)
+        current=next((x for x in dash.get("top3",[]) if x.get("action_catalog_id")==action_catalog_id),None)
+        mode=(current or {}).get("mode","CREATE")
+        data=store.start_action(subject,action_catalog_id,mode)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_instance_id}/wait")
+async def wait_action(
+    action_instance_id: str,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        data=store.wait_action(subject,action_instance_id)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_instance_id}/submit")
+async def submit_action(
+    action_instance_id: str,
+    payload: ActionFields,
+    subject: str = Depends(get_current_subject),
+):
+    try:
+        reject_secret_fields(payload.fields)
+        data=store.submit_action(subject,action_instance_id,payload.fields)
+    except StoreError as e:
+        _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/me/actions/{action_catalog_id}/{action_instance_id}/complete")
+async def complete_action(
+    action_catalog_id: str,
+    action_instance_id: str,
+    payload: ActionFields,
+    subject: str = Depends(get_current_subject),
+):
+    if action_catalog_id not in SUPPORTED_ACTIONS:
+        raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
+    try:
+        reject_secret_fields(payload.fields)
+        awareness=store.member_awareness(subject)
+        existing_facts=store.member_facts(subject)
+        prepared=prepare_completion(
+            action_catalog_id,
+            payload.fields,
+            awareness["household_type"],
+            existing_facts,
+        )
+        updated_answers=dict(awareness["answers"])
+        updated_answers[prepared["question_id"]]="CONFIRMED"
+        new_top3=select_top3(updated_answers)
+        before=store.dashboard(subject)
+        completion=store.complete_action(
+            subject,
+            action_instance_id,
+            action_catalog_id,
+            prepared["question_id"],
+            prepared["facts"],
+            new_top3,
+        )
+        after=completion["dashboard"]
+        idempotent=bool(completion.get("idempotent"))
+    except StoreError as e:
+        _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
+
+    before_ids=[x.get("action_catalog_id") for x in before.get("top3",[])]
+    after_ids=[x.get("action_catalog_id") for x in after.get("top3",[])]
+    return {
+        "ok":True,
+        "data":{
+            "action":{"action_catalog_id":action_catalog_id,"status":"SELF_REPORTED_DONE"},
+            "idempotent":idempotent,
+            "event_id":completion.get("event_id"),
+            "normalized":None if idempotent else prepared["normalized"],
+            "changes":{
+                "fact_keys":[] if idempotent else [x["fact_key"] for x in prepared["facts"]],
+                "top3_changed":False if idempotent else before_ids != after_ids,
+            },
+            "dashboard":_enrich_dashboard(after,updated_answers),
+        }
+    }
+
+@app.get("/v1/awareness/questions")
+def questions(household_type: str = "single"):
+    if household_type not in {"single","couple"}:
+        raise HTTPException(422, "invalid household_type")
+    data=[]
+    for q in QUESTIONS:
+        text = q.get("q_couple") if household_type == "couple" and q.get("q_couple") else q.get("q_single") or q.get("q")
+        data.append({"id":q["id"],"domain":q["domain"],"q":text,"responses":q["responses"]})
+    return {"ok":True,"data":{"schema_version":"1.0","questions":data,"total":12}}
+
+@app.post("/v1/awareness/runs")
+def create_run(payload: RunCreate):
+    try:
+        data=store.create_run(payload.age_band,payload.household_type)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.put("/v1/awareness/runs/{run_id}/answers/{question_id}")
+def put_answer(
+    run_id: str,
+    question_id: str,
+    payload: AnswerPut,
+    x_awareness_token: str = Header(default=""),
+):
+    if question_id not in QUESTION_BY_ID:
+        raise HTTPException(404,"question not found")
+    if not x_awareness_token:
+        raise HTTPException(403,"invalid awareness token")
+    try:
+        data=store.put_answer(run_id,x_awareness_token,question_id,payload.response)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}
+
+@app.post("/v1/awareness/runs/{run_id}/complete")
+def complete_run(run_id: str, x_awareness_token: str = Header(default="")):
+    if not x_awareness_token:
+        raise HTTPException(403,"invalid awareness token")
+    try:
+        run=store.get_run(run_id,x_awareness_token)
+    except StoreError as e:
+        _store_error(e)
+
+    missing=[q["id"] for q in QUESTIONS if q["id"] not in run.answers]
+    if missing:
+        raise HTTPException(409,detail={"code":"AWARENESS_INCOMPLETE","missing":missing})
+
+    top3=select_top3(run.answers)
+    findings=[
+        {
+            "finding_type":f"FIND.{QUESTION_BY_ID[qid]['domain']}.{qid.lower()}",
+            "status":"OPEN",
+            "source_ref":qid
+        }
+        for qid,state in run.answers.items() if state != "CONFIRMED"
+    ]
+    try:
+        data=store.finalize_run(run_id,x_awareness_token,top3,findings)
+    except StoreError as e:
+        _store_error(e)
+    return {"ok":True,"data":data}

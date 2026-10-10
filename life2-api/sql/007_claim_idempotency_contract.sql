@@ -1,0 +1,3 @@
+-- Claim RPC returns {claimed, idempotent, dashboard}.
+-- Repeated claims by the same user are idempotent; cross-user claims remain rejected.
+-- Applied to life2-master-v2 as migration 007.

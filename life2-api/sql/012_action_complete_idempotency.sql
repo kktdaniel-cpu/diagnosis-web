@@ -1,0 +1,8 @@
+-- Action completion idempotency contract.
+-- Applied to Supabase life2-master-v2.
+--
+-- rpc_action_complete now returns:
+--   {"idempotent": false, "dashboard": {...}} on first completion
+--   {"idempotent": true,  "dashboard": {...}} on duplicate completion
+--
+-- Duplicate completion does not rewrite FACT values or append a second completion event.
