@@ -271,7 +271,7 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
                 "type": "select",
                 "required": True,
                 "options": [
-                    {"value":"NONE_UNKNOWN","label":"없음 / 모름"},
+                    {"value":"NONE","label":"보장 없음"},
                     {"value":"LT_30M","label":"3,000만 원 미만"},
                     {"value":"30M_60M","label":"3,000만 ~ 6,000만 원"},
                     {"value":"60M_100M","label":"6,000만 ~ 1억 원"},
@@ -929,7 +929,7 @@ def prepare_completion(
 
     if action_catalog_id == "ACT_REVIEW_HEALTH_COVERAGE":
         dx=_choice_field(fields,"critical_illness_benefit_band",{
-            "NONE_UNKNOWN","LT_30M","30M_60M","60M_100M","GE_100M","UNKNOWN"
+            "NONE","LT_30M","30M_60M","60M_100M","GE_100M","UNKNOWN"
         })
         if dx=="UNKNOWN":
             raise ActionValidationError("UNKNOWN_NOT_COMPLETE","critical_illness_benefit_band")
