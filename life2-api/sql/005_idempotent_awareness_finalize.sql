@@ -1,0 +1,4 @@
+-- Idempotent Awareness finalization.
+-- Handoff token is deterministically derived with HMAC from the run token + server secret.
+-- Only its SHA-256 hash is persisted in awareness_runs.
+-- See Supabase migration history for the applied function definition.
