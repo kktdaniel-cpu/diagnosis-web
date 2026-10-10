@@ -30,3 +30,13 @@ button:disabled{opacity:.55}
 .dashboardHead h2{margin-bottom:8px}
 .linkBtn{width:auto;min-height:auto;margin:0;background:transparent;color:#65716a;font-size:14px;padding:8px}
 .confirmCount{background:#e9f4ed;color:#176744;border-radius:14px;padding:14px;margin:8px 0 18px;font-size:16px}
+
+.actionButton{display:block;background:#fff;color:#17251d;text-align:left;border:1px solid #dce5df;margin:10px 0}
+.actionButton:hover{border-color:#176744;background:#f7fbf8}
+.actionButton span{display:block;color:#6b766f;font-size:13px;margin-top:6px}
+.backBtn{width:auto;min-height:auto;background:transparent;color:#176744;margin:0 0 10px;padding:6px 0;text-align:left}
+.fieldBlock{margin:14px 0}
+.inputWithUnit{display:flex;align-items:center;gap:10px}
+.inputWithUnit .textInput{flex:1}
+.inputWithUnit span{white-space:nowrap;color:#65716a;font-size:14px}
+.ruleNote{background:#f0f7f3;border-radius:12px;padding:13px;font-size:14px;color:#466053}
