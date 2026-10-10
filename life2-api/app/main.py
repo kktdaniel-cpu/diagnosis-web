@@ -13,6 +13,7 @@ from .actions import (
     ActionValidationError,
     form_for,
     prepare_completion,
+    reject_secret_fields,
 )
 
 APP_VERSION = "MVP-0.3.0"
@@ -103,6 +104,7 @@ async def submit_action(
     subject: str = Depends(get_current_subject),
 ):
     try:
+        reject_secret_fields(payload.fields)
         data=store.submit_action(subject,action_instance_id,payload.fields)
     except StoreError as e:
         _store_error(e)
@@ -118,6 +120,7 @@ async def complete_action(
     if action_catalog_id not in SUPPORTED_ACTIONS:
         raise HTTPException(status_code=501,detail={"code":"ACTION_NOT_YET_AVAILABLE"})
     try:
+        reject_secret_fields(payload.fields)
         awareness=store.member_awareness(subject)
         prepared=prepare_completion(action_catalog_id,payload.fields,awareness["household_type"])
         updated_answers=dict(awareness["answers"])
