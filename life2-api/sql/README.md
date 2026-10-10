@@ -1,35 +1,48 @@
-# LIFE 2.0 Master DB v2 migrations
+# LIFE 2.0 Master DB v2 SQL
 
-Supabase project: `life2-master-v2` (Seoul region).
+Target dev project: `life2-master-v2` / `bikvcuchdlreqkqypwcr` (Seoul). Existing Google Sheets/GAS Master DB and diagnosis Ver32.42 are outside this change.
 
-Applied order:
-1. `001_init.sql` — Master DB v2 core + Legacy bridge tables
-2. `002_auth_provision_and_security.sql` — Supabase Auth provisioning, RLS, user isolation
-3. `003_awareness_secure_tokens.sql` — hashed anonymous/handoff token storage
-4. `004_internal_rpc_persistence.sql` — protected persistent Awareness/claim/dashboard RPC
-5. `005_idempotent_awareness_finalize.sql` — idempotent completion/handoff
-6. runtime secret rotation — hash only in private DB state; plaintext never committed
-7. `007_claim_idempotency_contract.sql` — same-user claim idempotency
-8. `008_hide_security_definer_rpc.sql` — move privileged implementations to private schema
+## SQL sequence
 
-Current DB security state:
-- Supabase Security Advisor: **0 findings**
-- Public member tables: RLS enabled
-- Public RPC endpoints: SECURITY INVOKER wrappers
-- Privileged RPC implementations: private, non-exposed schema
-- `idempotency_keys`: explicit no-client-access policy
-- New Supabase Auth users auto-provision an internal LIFE `user_id`
+| File | Purpose |
+| --- | --- |
+| 001 | Core tables and legacy bridge |
+| 002 | Auth provisioning, RLS and user isolation |
+| 003 | Hashed anonymous/handoff tokens |
+| 004 | Protected persistence RPCs |
+| 005 | Idempotent Awareness finalize |
+| 007 | Claim idempotency |
+| 008 | Private privileged RPC implementations |
+| 010 | Action start/draft/complete and dashboard |
+| 011 | Action instance/catalog guard |
+| 012 | Action completion idempotency |
+| 013 | Member FACT reads |
+| 014 | Change-summary events |
+| 015 | Waiting-external action state |
+| 016 | Account deletion |
+| 017 | Hardened account-deletion RPC |
+| 018 | Partial information confirmation |
 
-Important:
-- Existing Google Sheets/GAS Master DB is **not migrated or modified**.
-- Legacy records remain read-only until explicit verified claim.
-- Runtime/internal secrets must never be committed to Git.
+Numbers follow existing repository conventions. Runtime secret rotation is an operational step, not a plaintext SQL secret stored here. Verify the target's migration history and function definitions before applying files; this list is not an instruction to replay every migration.
 
-4. `010_a1_a2_action_core.sql` — A1/A2 start/draft/complete core and dashboard recompute
-5. `011_action_complete_catalog_guard.sql` — action-instance/catalog mismatch guard
+## Dev status: 2026-10-11 KST
 
-Current dev security:
-- Supabase security advisor: 0 findings
-- Public member tables: RLS enabled
-- Internal server Data API path: custom header + private secret verification + internal-only RLS
-- Browser never receives the internal server secret
+SQL 018 is applied to the named dev project alongside API/web commit `d0fdc300fc95cb358c901077c499143d9860ba10` on `mvp/life2-bootstrap`. Both Render dev services are LIVE. `rpc_action_complete` remains SECURITY INVOKER with an empty search_path and the existing internal gate; no grants were widened.
+
+Actual UI/DB checks with synthetic data:
+
+- Insurance unknown completion: 10/12 retained, PARTIAL answer and VERIFY follow-up.
+- Confirmed insurance replacement: 11/12, health domain 2/2.
+- Work health-insurance unknown completion: 11/12 retained, UNKNOWN/null FACT and OPEN Finding.
+- Confirmed work replacement: 12/12 and empty Top 3.
+- Existing historical confirmed rows were not backfilled.
+
+Security Advisor currently reports one warning: leaked-password protection is disabled. Earlier claims of zero findings are obsolete. Remediation: https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection
+
+## Release and rollback
+
+Main merge, production deployment and domain changes require separate explicit approval. Draft PR #24 is the review unit. The current evidence proves the named dev environment; it does not establish that a production environment is configured.
+
+Before an approved release, identify the production database and service targets, compare existing function definitions/grants, preserve the previous RPC definition and API/web commit references, and confirm runtime origins and server-only secrets. Apply SQL 018 with the matching API/frontend, then verify health, sign-in, claim, draft restore, partial completion and confirmed replacement.
+
+If rollback is required, restore the recorded previous RPC definition and matching API/frontend versions together. Historical data is not automatically rewritten on rollback. Do not delete FACTs or change confirmed history as an implicit rollback step.
