@@ -1,7 +1,7 @@
 from __future__ import annotations
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from .catalog import QUESTIONS, QUESTION_BY_ID
+from .catalog import QUESTIONS, QUESTION_BY_ID, ACTION_META
 from .models import RunCreate, AnswerPut, HandoffClaim
 from .store import store, StoreError
 from .top3 import select_top3
@@ -22,6 +22,18 @@ app.add_middleware(
 def _store_error(e: StoreError):
     raise HTTPException(status_code=e.status_code, detail={"code":e.code})
 
+def _enrich_dashboard(data: dict) -> dict:
+    enriched=[]
+    for item in data.get("top3", []):
+        x=dict(item)
+        meta=ACTION_META.get(x.get("action_catalog_id"))
+        if meta:
+            x["title"]=meta[0]
+        enriched.append(x)
+    data=dict(data)
+    data["top3"]=enriched
+    return data
+
 @app.get("/health")
 def health():
     return {"ok": True, "version": APP_VERSION}
@@ -34,6 +46,8 @@ async def me(subject: str = Depends(get_current_subject)):
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):
     try:
         data=store.claim_handoff(payload.handoff_token,subject)
+        data=dict(data)
+        data["dashboard"]=_enrich_dashboard(data.get("dashboard") or {})
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
@@ -41,7 +55,7 @@ async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_curr
 @app.get("/v1/me/dashboard")
 async def dashboard(subject: str = Depends(get_current_subject)):
     try:
-        data=store.dashboard(subject)
+        data=_enrich_dashboard(store.dashboard(subject))
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
