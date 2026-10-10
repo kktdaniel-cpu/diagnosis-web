@@ -108,6 +108,8 @@ async def submit_action(
         data=store.submit_action(subject,action_instance_id,payload.fields)
     except StoreError as e:
         _store_error(e)
+    except ActionValidationError as e:
+        _action_error(e)
     return {"ok":True,"data":data}
 
 @app.post("/v1/me/actions/{action_catalog_id}/{action_instance_id}/complete")
