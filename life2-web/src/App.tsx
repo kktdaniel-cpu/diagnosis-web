@@ -66,7 +66,7 @@ export default function App(){
   const [busy,setBusy]=useState(false);
   const [actionForm,setActionForm]=useState<ActionForm|null>(null);
   const [actionInstanceId,setActionInstanceId]=useState('');
-  const [actionFields,setActionFields]=useState<Record<string,string|number>>({});
+  const [actionFields,setActionFields]=useState<Record<string,string|number|string[]>>({});
   const [actionMsg,setActionMsg]=useState('');
 
   async function accessToken(){
@@ -400,7 +400,7 @@ export default function App(){
           :f.type==='multi_select'?
             <div className="multiChoices">
               {(f.options||[]).map(o=>{
-                const values=Array.isArray(actionFields[f.key]) ? actionFields[f.key] as unknown as string[] : [];
+                const values=Array.isArray(actionFields[f.key]) ? actionFields[f.key] as string[] : [];
                 const checked=values.includes(o.value);
                 return <label className="multiChoice" key={o.value}>
                   <input
@@ -408,7 +408,7 @@ export default function App(){
                     checked={checked}
                     onChange={()=>{
                       const nextValues=checked?values.filter(v=>v!==o.value):[...values,o.value];
-                      setActionFields({...actionFields,[f.key]:nextValues as unknown as string});
+                      setActionFields({...actionFields,[f.key]:nextValues});
                     }}
                   />
                   <span>{o.label}</span>
