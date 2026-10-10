@@ -120,10 +120,21 @@ class MemoryStore:
             dict(x) for x in self.action_instances.values()
             if x["subject"]==subject and x["status"] in ("IN_PROGRESS","WAITING_EXTERNAL")
         ]
+        top3=[]
+        for original in run.top3:
+            x=dict(original)
+            active=next((
+                a for a in self.action_instances.values()
+                if a["subject"]==subject
+                and a["action_catalog_id"]==x.get("action_catalog_id")
+                and a["status"] in ("NOT_STARTED","IN_PROGRESS","WAITING_EXTERNAL","REVIEW_DUE")
+            ),None)
+            x["status"]=active["status"] if active else "NOT_STARTED"
+            top3.append(x)
         return {
             "confirmed_awareness_count":sum(1 for v in run.answers.values() if v=="CONFIRMED"),
             "awareness_total":12,
-            "top3":run.top3,
+            "top3":top3,
             "in_progress":in_progress,
             "recent_changes":self.recent.get(subject,[])[:5],
         }
