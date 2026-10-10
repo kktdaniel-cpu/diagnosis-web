@@ -50,3 +50,12 @@ button:disabled{opacity:.55}
 .previewBox strong{font-size:30px;color:#176744;line-height:1.1}
 .previewBox span{font-size:15px;color:#344a3e}
 .previewBox small{font-size:13px;color:#65716a;line-height:1.45}
+
+.coachActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.coachBtn{background:#fff;color:#176744;border:1px solid #bcd7c7;font-size:14px;min-height:46px;margin:0}
+.coachBox{background:#fbfcfb;border:1px solid #dce5df;border-radius:16px;padding:15px;margin:12px 0 18px}
+.coachBox b{color:#176744;font-size:14px}
+.coachBox p{font-size:15px;margin:7px 0;color:#344a3e}
+.coachBox ul{margin:8px 0 8px 20px;padding:0;color:#344a3e;font-size:14px;line-height:1.55}
+.coachBox small{display:block;color:#78837c;font-size:12px;line-height:1.45}
+@media(max-width:420px){.coachActions{grid-template-columns:1fr}}
