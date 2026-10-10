@@ -11,3 +11,5 @@ def supabase_client_key() -> str:
 def cors_origins() -> list[str]:
     raw = os.getenv("CORS_ORIGINS", "http://localhost:5173")
     return [x.strip() for x in raw.split(",") if x.strip()]
+
+PRECISION_URL = os.getenv("PRECISION_URL", "https://diag.lpp20.com/").strip()
