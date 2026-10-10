@@ -1,0 +1,9 @@
+-- WAITING_EXTERNAL transition for Actions that require outside confirmation.
+-- Applied to Supabase life2-master-v2.
+--
+-- rpc_action_wait:
+-- - owner-scoped by auth subject -> LIFE user_id
+-- - preserves current draft_json
+-- - moves active Action to WAITING_EXTERNAL
+-- - records ACTION_WAITING_EXTERNAL activity
+-- - starting the same Action again returns the same instance and resumes IN_PROGRESS
