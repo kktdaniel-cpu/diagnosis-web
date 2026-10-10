@@ -96,6 +96,18 @@ class MemoryStore:
             self.member_run[subject]=run.run_id
         return {"claimed":True,"idempotent":idempotent,"dashboard":self.dashboard(subject)}
 
+    def delete_account(self, subject: str) -> dict:
+        run_id=self.member_run.pop(subject,None)
+        if run_id:
+            self.runs.pop(run_id,None)
+        self.facts.pop(subject,None)
+        self.recent.pop(subject,None)
+        for key in [k for k,v in self.action_instances.items() if v.get("subject")==subject]:
+            self.action_instances.pop(key,None)
+        for key in [k for k in self.change_events if k[0]==subject]:
+            self.change_events.pop(key,None)
+        return {"deleted":True,"had_life_user":run_id is not None}
+
     def member_awareness(self, subject: str) -> dict:
         run_id=self.member_run.get(subject)
         run=self.runs.get(run_id) if run_id else None
@@ -335,6 +347,12 @@ class SupabaseRPCStore:
         return self._rpc("rpc_awareness_claim",{
             "p_internal_secret":self.secret,
             "p_handoff_token":handoff_token,
+            "p_auth_subject":subject,
+        })
+
+    def delete_account(self,subject:str)->dict:
+        return self._rpc("rpc_delete_account",{
+            "p_internal_secret":self.secret,
             "p_auth_subject":subject,
         })
 
