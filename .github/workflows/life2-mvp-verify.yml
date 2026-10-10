@@ -65,13 +65,13 @@ jobs:
 
       - name: Verify Awareness catalog
         run: |
-          BODY="$(curl -fsS --max-time 20 'https://life2-api-dev.onrender.com/v1/awareness/questions?household_type=couple')"
+          BODY="$(curl -fsS --retry 6 --retry-delay 5 --retry-all-errors --max-time 20 'https://life2-api-dev.onrender.com/v1/awareness/questions?household_type=couple')"
           echo "$BODY" | python -c "import sys,json; d=json.load(sys.stdin); assert d['ok'] is True; assert d['data']['total']==12; assert len(d['data']['questions'])==12"
 
       - name: Verify persistent Awareness full flow
         run: |
           python - <<'PY'
-          import json, urllib.request, urllib.error
+          import json, urllib.request, urllib.error, time
 
           BASE="https://life2-api-dev.onrender.com"
 
@@ -79,9 +79,18 @@ jobs:
               body=None if data is None else json.dumps(data).encode()
               h={"Content-Type":"application/json"}
               if headers: h.update(headers)
-              req=urllib.request.Request(BASE+path,data=body,headers=h,method=method)
-              with urllib.request.urlopen(req,timeout=30) as r:
-                  return json.loads(r.read().decode())
+              last=None
+              for attempt in range(7):
+                  req=urllib.request.Request(BASE+path,data=body,headers=h,method=method)
+                  try:
+                      with urllib.request.urlopen(req,timeout=30) as r:
+                          return json.loads(r.read().decode())
+                  except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+                      last=e
+                      if attempt==6:
+                          raise
+                      time.sleep(5)
+              raise last
 
           questions=call("/v1/awareness/questions?household_type=couple")["data"]["questions"]
           created=call("/v1/awareness/runs","POST",{"age_band":"50_55","household_type":"couple"})["data"]
