@@ -83,6 +83,7 @@ export default function App(){
   const [actionMsg,setActionMsg]=useState('');
   const [coachMsg,setCoachMsg]=useState('');
   const [coachSteps,setCoachSteps]=useState<string[]>([]);
+  const [changeSummary,setChangeSummary]=useState('');
 
   async function accessToken(){
     if(!supabase) throw new Error('회원 시스템 연결 설정이 없습니다.');
@@ -217,6 +218,7 @@ export default function App(){
     if(supabase) await supabase.auth.signOut();
     setDashboard(null);
     setActionForm(null);
+    setChangeSummary('');
     setScreen('landing');
   }
 
@@ -344,6 +346,19 @@ export default function App(){
         throw new Error(field ? `${field} 항목을 확인해 주세요.` : (body?.detail?.code || 'ACTION_COMPLETE_FAILED'));
       }
       setDashboard(body.data.dashboard);
+      if(!body.data.idempotent){
+        try{
+          const summaryRes=await fetch(`${API}/v1/me/ai/change-summary`,{
+            method:'POST',
+            headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+            body:JSON.stringify({action_instance_id:actionInstanceId})
+          });
+          const summaryBody=await summaryRes.json();
+          setChangeSummary(summaryRes.ok ? summaryBody.data.message : '');
+        }catch{
+          setChangeSummary('');
+        }
+      }
       setActionForm(null);
       setActionInstanceId('');
       setActionFields({});
@@ -427,6 +442,7 @@ export default function App(){
         <button className="linkBtn" onClick={signOut}>로그아웃</button>
       </div>
       <div className="confirmCount">확인 완료 <b>{dashboard.confirmed_awareness_count}/{dashboard.awareness_total}</b></div>
+      {changeSummary&&<div className="changeSummary"><b>이번에 달라진 점</b><p>{changeSummary}</p></div>}
       {dashboard.top3.map((x,i)=>
         <button className="action actionButton" key={x.action_catalog_id} onClick={()=>openAction(x)} disabled={busy}>
           <b>{i+1}. {x.title}</b>
