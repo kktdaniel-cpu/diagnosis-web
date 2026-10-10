@@ -90,10 +90,12 @@ create table if not exists public.idempotency_keys (
 
 alter table public.users enable row level security;
 alter table public.awareness_runs enable row level security;
+alter table public.awareness_answers enable row level security;
 alter table public.facts enable row level security;
 alter table public.findings enable row level security;
 alter table public.action_instances enable row level security;
 alter table public.activity_log enable row level security;
+alter table public.idempotency_keys enable row level security;
 
 create policy "users_self" on public.users
 for all using (auth_subject = auth.uid()) with check (auth_subject = auth.uid());
@@ -101,6 +103,22 @@ for all using (auth_subject = auth.uid()) with check (auth_subject = auth.uid())
 create policy "awareness_member_self" on public.awareness_runs
 for all using (user_id in (select id from public.users where auth_subject = auth.uid()))
 with check (user_id in (select id from public.users where auth_subject = auth.uid()));
+
+create policy "awareness_answers_member_self" on public.awareness_answers
+for all using (
+  run_id in (
+    select ar.id from public.awareness_runs ar
+    join public.users u on u.id = ar.user_id
+    where u.auth_subject = auth.uid()
+  )
+)
+with check (
+  run_id in (
+    select ar.id from public.awareness_runs ar
+    join public.users u on u.id = ar.user_id
+    where u.auth_subject = auth.uid()
+  )
+);
 
 create policy "facts_self" on public.facts
 for all using (user_id in (select id from public.users where auth_subject = auth.uid()))
@@ -116,3 +134,7 @@ with check (user_id in (select id from public.users where auth_subject = auth.ui
 
 create policy "activity_self" on public.activity_log
 for select using (user_id in (select id from public.users where auth_subject = auth.uid()));
+
+create policy "idempotency_self" on public.idempotency_keys
+for all using (user_id in (select id from public.users where auth_subject = auth.uid()))
+with check (user_id in (select id from public.users where auth_subject = auth.uid()));
