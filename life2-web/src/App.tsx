@@ -108,7 +108,7 @@ export default function App(){
       {top.map((x:Top,i:number)=>
         <div className="action" key={x.action_catalog_id}>
           <b>{i+1}. {x.title}</b>
-          <span>{x.mode==='VERIFY'?'일부 확인 · 이어서 확인':'새로 확인'} · {x.priority_class}</span>
+          <span>{x.mode==='VERIFY'?'일부 확인 · 이어서 확인':'새로 확인'}</span>
         </div>
       )}
       <button>무료로 계속 관리하기</button>
