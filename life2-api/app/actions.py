@@ -39,6 +39,53 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
             }
         ],
     },
+    "ACT_CHECK_RET_PRIVATE_PENSION": {
+        "question_id": "AWR_Q03_RET_PRIVATE_PENSION",
+        "title": "퇴직·개인연금 확인하기",
+        "description": "국민연금을 제외한 퇴직연금·IRP·개인연금의 월 수령액, 개시 나이, 수령 기간을 확인합니다.",
+        "fields": [
+            {
+                "key": "has_ret_private_pension",
+                "label": "퇴직·개인연금이 있나요?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"YES","label":"있음"},
+                    {"value":"NO","label":"없음"},
+                ],
+            },
+            {
+                "key": "ret_private_monthly_10k",
+                "label": "부부합산 예상 월 수령액",
+                "type": "integer",
+                "unit": "만원/월",
+                "min": 0,
+                "max": 3000,
+                "required": True,
+                "show_when": {"key":"has_ret_private_pension","value":"YES"},
+            },
+            {
+                "key": "ret_private_start_age",
+                "label": "수령 개시 나이",
+                "type": "integer",
+                "unit": "세",
+                "min": 55,
+                "max": 95,
+                "required": True,
+                "show_when": {"key":"has_ret_private_pension","value":"YES"},
+            },
+            {
+                "key": "ret_private_years",
+                "label": "수령 기간",
+                "type": "integer",
+                "unit": "년",
+                "min": 1,
+                "max": 50,
+                "required": True,
+                "show_when": {"key":"has_ret_private_pension","value":"YES"},
+            },
+        ],
+    },
     "ACT_ESTIMATE_RETIREMENT_BUDGET": {
         "question_id": "AWR_Q04_RETIREMENT_BUDGET",
         "title": "은퇴 생활비 계산하기",
@@ -84,6 +131,109 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
                     {"value":"100M_300M","label":"1억 ~ 3억 원 미만"},
                     {"value":"300M_500M","label":"3억 ~ 5억 원 미만"},
                     {"value":"GE_500M","label":"5억 원 이상"},
+                ],
+            },
+        ],
+    },
+    "ACT_DEFINE_POST_RETIREMENT_WORK": {
+        "question_id": "AWR_Q07_POST_RETIREMENT_WORK",
+        "title": "퇴직 후 일자리 계획 만들기",
+        "description": "퇴직 후 일할 형태, 예상 월 근로소득, 소득활동 종료 나이를 현재 계획 기준으로 정합니다.",
+        "fields": [
+            {
+                "key": "work_plan_type",
+                "label": "퇴직 후 일할 계획·형태",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"FULL_TIME","label":"풀타임 재취업 (전일제)"},
+                    {"value":"PART_TIME_GIG","label":"주 2~3일 파트타임 · 긱워커"},
+                    {"value":"SELF_EMPLOYED","label":"창업 · 자영업 · 프리랜서"},
+                    {"value":"NO_WORK","label":"일하지 않을 계획"},
+                ],
+            },
+            {
+                "key": "post_retirement_income_10k",
+                "label": "퇴직 후 예상 월 근로소득",
+                "type": "integer",
+                "unit": "만원/월",
+                "min": 0,
+                "max": 5000,
+                "required": True,
+                "show_when_not": {"key":"work_plan_type","value":"NO_WORK"},
+            },
+            {
+                "key": "work_end_age",
+                "label": "소득활동 종료 나이",
+                "type": "integer",
+                "unit": "세",
+                "min": 45,
+                "max": 95,
+                "required": True,
+                "show_when_not": {"key":"work_plan_type","value":"NO_WORK"},
+            },
+            {
+                "key": "health_insurance_type",
+                "label": "재취업 후 건강보험 가입 형태",
+                "type": "select",
+                "required": True,
+                "show_when_not": {"key":"work_plan_type","value":"NO_WORK"},
+                "options": [
+                    {"value":"EMPLOYEE","label":"직장가입"},
+                    {"value":"REGIONAL","label":"지역가입 · 개인"},
+                    {"value":"UNKNOWN","label":"잘 모름"},
+                ],
+            },
+        ],
+    },
+    "ACT_DEFINE_CARE_PLAN": {
+        "question_id": "AWR_Q10_CARE",
+        "title": "돌봄 비용·방법 체크하기",
+        "description": "장기 돌봄이 필요할 때 누가 돌볼지, 어디에서 돌봄을 받을지, 비용을 어느 구간으로 준비할지 정합니다.",
+        "fields": [
+            {
+                "key": "care_provider",
+                "label": "주된 돌봄 담당",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"FAMILY","label":"가족 중심"},
+                    {"value":"PROFESSIONAL","label":"전문 돌봄인력 중심"},
+                    {"value":"MIXED","label":"가족 + 전문 돌봄인력"},
+                ],
+            },
+            {
+                "key": "care_place",
+                "label": "주된 돌봄 장소",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"HOME","label":"현재 집 또는 가족 집"},
+                    {"value":"FACILITY","label":"요양시설 · 돌봄시설"},
+                    {"value":"MIXED","label":"상황에 따라 병행"},
+                ],
+            },
+            {
+                "key": "care_cost_band",
+                "label": "월 돌봄비 준비 구간",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"LT_1M","label":"월 100만 원 미만"},
+                    {"value":"1M_2M","label":"월 100만 ~ 200만 원"},
+                    {"value":"2M_3M","label":"월 200만 ~ 300만 원"},
+                    {"value":"GE_3M","label":"월 300만 원 이상"},
+                ],
+            },
+            {
+                "key": "care_coverage_status",
+                "label": "장기요양·간병 대비 상태",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"INSUFFICIENT","label":"부족함 / 미가입"},
+                    {"value":"RESEARCHING","label":"필요성 느낌 · 알아보는 중"},
+                    {"value":"PREPARED","label":"간병·장기요양 보장 준비 완료"},
                 ],
             },
         ],
@@ -201,6 +351,75 @@ def prepare_completion(
             ],
         }
 
+    if action_catalog_id == "ACT_CHECK_RET_PRIVATE_PENSION":
+        has_pen=_choice_field(fields,"has_ret_private_pension",{"YES","NO"})
+        facts=[
+            {
+                "fact_key":"pension.ret_private.exists",
+                "status":"KNOWN",
+                "value":has_pen=="YES",
+                "unit":"boolean",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_CHECK_RET_PRIVATE_PENSION",
+                "verification_level":"SELF_REPORTED",
+            }
+        ]
+        normalized={"has_ret_private_pension":has_pen}
+        if has_pen=="YES":
+            monthly=_int_field(fields,"ret_private_monthly_10k",0,3000)
+            start=_int_field(fields,"ret_private_start_age",55,95)
+            years=_int_field(fields,"ret_private_years",1,50)
+            end=start+years
+            normalized.update({
+                "ret_private_monthly_10k":monthly,
+                "ret_private_start_age":start,
+                "ret_private_years":years,
+                "ret_private_end_age":end,
+            })
+            facts.extend([
+                {
+                    "fact_key":"pension.ret_private.monthly_household",
+                    "status":"KNOWN",
+                    "value":monthly,
+                    "unit":"10k_KRW_per_month",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CHECK_RET_PRIVATE_PENSION",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"pension.ret_private.start_age",
+                    "status":"KNOWN",
+                    "value":start,
+                    "unit":"age_years",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CHECK_RET_PRIVATE_PENSION",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"pension.ret_private.duration_years",
+                    "status":"KNOWN",
+                    "value":years,
+                    "unit":"years",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CHECK_RET_PRIVATE_PENSION",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"pension.ret_private.end_age",
+                    "status":"KNOWN",
+                    "value":end,
+                    "unit":"age_years",
+                    "source_type":"RULE_DERIVED",
+                    "source_ref":"RULE_RETPEN_END_AGE_V1",
+                    "verification_level":"RULE_DERIVED",
+                },
+            ])
+        return {
+            "question_id":"AWR_Q03_RET_PRIVATE_PENSION",
+            "normalized":normalized,
+            "facts":facts,
+        }
+
     if action_catalog_id == "ACT_ESTIMATE_RETIREMENT_BUDGET":
         budget=_int_field(fields,"retirement_budget_10k",50,3000)
         return {
@@ -246,6 +465,130 @@ def prepare_completion(
                     "unit":"Q30_band",
                     "source_type":"USER_CONFIRMED",
                     "source_ref":"ACT_SUMMARIZE_ASSETS_DEBT",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ],
+        }
+
+    if action_catalog_id == "ACT_DEFINE_POST_RETIREMENT_WORK":
+        plan=_choice_field(fields,"work_plan_type",{
+            "FULL_TIME","PART_TIME_GIG","SELF_EMPLOYED","NO_WORK"
+        })
+        normalized={"work_plan_type":plan}
+        facts=[
+            {
+                "fact_key":"work.post_retirement.plan_type",
+                "status":"KNOWN",
+                "value":plan,
+                "unit":"Q31_choice",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK",
+                "verification_level":"SELF_REPORTED",
+            }
+        ]
+        if plan=="NO_WORK":
+            normalized["post_retirement_income_10k"]=0
+            facts.append({
+                "fact_key":"work.post_retirement.monthly_income",
+                "status":"KNOWN",
+                "value":0,
+                "unit":"10k_KRW_per_month",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK:NO_WORK",
+                "verification_level":"SELF_REPORTED",
+            })
+        else:
+            income=_int_field(fields,"post_retirement_income_10k",0,5000)
+            end_age=_int_field(fields,"work_end_age",45,95)
+            hins=_choice_field(fields,"health_insurance_type",{"EMPLOYEE","REGIONAL","UNKNOWN"})
+            normalized.update({
+                "post_retirement_income_10k":income,
+                "work_end_age":end_age,
+                "health_insurance_type":hins,
+            })
+            facts.extend([
+                {
+                    "fact_key":"work.post_retirement.monthly_income",
+                    "status":"KNOWN",
+                    "value":income,
+                    "unit":"10k_KRW_per_month",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"work.income_end_age",
+                    "status":"KNOWN",
+                    "value":end_age,
+                    "unit":"age_years",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"work.post_retirement.health_insurance_type",
+                    "status":"UNKNOWN" if hins=="UNKNOWN" else "KNOWN",
+                    "value":hins,
+                    "unit":"Q31A_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_POST_RETIREMENT_WORK",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ])
+        return {
+            "question_id":"AWR_Q07_POST_RETIREMENT_WORK",
+            "normalized":normalized,
+            "facts":facts,
+        }
+
+    if action_catalog_id == "ACT_DEFINE_CARE_PLAN":
+        provider=_choice_field(fields,"care_provider",{"FAMILY","PROFESSIONAL","MIXED"})
+        place=_choice_field(fields,"care_place",{"HOME","FACILITY","MIXED"})
+        cost=_choice_field(fields,"care_cost_band",{"LT_1M","1M_2M","2M_3M","GE_3M"})
+        coverage=_choice_field(fields,"care_coverage_status",{"INSUFFICIENT","RESEARCHING","PREPARED"})
+        return {
+            "question_id":"AWR_Q10_CARE",
+            "normalized":{
+                "care_provider":provider,
+                "care_place":place,
+                "care_cost_band":cost,
+                "care_coverage_status":coverage,
+            },
+            "facts":[
+                {
+                    "fact_key":"care.primary_provider_plan",
+                    "status":"KNOWN",
+                    "value":provider,
+                    "unit":"care_provider_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_CARE_PLAN",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"care.primary_place_plan",
+                    "status":"KNOWN",
+                    "value":place,
+                    "unit":"care_place_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_CARE_PLAN",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"care.monthly_cost_band",
+                    "status":"KNOWN",
+                    "value":cost,
+                    "unit":"care_cost_band",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_CARE_PLAN",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"care.coverage_status_q14",
+                    "status":"KNOWN",
+                    "value":coverage,
+                    "unit":"Q14_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_CARE_PLAN",
                     "verification_level":"SELF_REPORTED",
                 },
             ],
