@@ -107,6 +107,9 @@ class MemoryStore:
             "answers":dict(run.answers),
         }
 
+    def member_facts(self, subject: str) -> dict:
+        return dict(self.facts.get(subject, {}))
+
     def dashboard(self, subject: str) -> dict:
         run_id=self.member_run.get(subject)
         run=self.runs.get(run_id) if run_id else None
@@ -288,6 +291,12 @@ class SupabaseRPCStore:
 
     def member_awareness(self,subject:str)->dict:
         return self._rpc("rpc_member_awareness",{
+            "p_internal_secret":self.secret,
+            "p_auth_subject":subject,
+        })
+
+    def member_facts(self,subject:str)->dict:
+        return self._rpc("rpc_member_facts",{
             "p_internal_secret":self.secret,
             "p_auth_subject":subject,
         })
