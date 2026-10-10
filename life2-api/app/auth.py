@@ -5,7 +5,8 @@ from fastapi import Header, HTTPException
 from . import config
 
 async def get_current_subject(authorization: str = Header(default="")) -> str:
-    if not config.SUPABASE_URL or not config.SUPABASE_ANON_KEY:
+    client_key = config.supabase_client_key()
+    if not config.SUPABASE_URL or not client_key:
         raise HTTPException(status_code=503, detail="auth not configured")
 
     if not authorization.startswith("Bearer "):
@@ -21,7 +22,7 @@ async def get_current_subject(authorization: str = Header(default="")) -> str:
                 f"{config.SUPABASE_URL}/auth/v1/user",
                 headers={
                     "Authorization": f"Bearer {token}",
-                    "apikey": config.SUPABASE_ANON_KEY,
+                    "apikey": client_key,
                 },
             )
     except httpx.HTTPError:
