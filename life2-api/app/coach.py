@@ -245,3 +245,34 @@ def help_action(action_catalog_id: str, question: str, context: dict[str, Any]) 
         ),
         "fact_refs":[x["fact_key"] for x in context["relevant_facts"]],
     }
+
+
+def summarize_change(event: dict[str, Any]) -> dict[str, Any]:
+    metadata=event.get("metadata") or {}
+    fact_keys=[str(x) for x in (metadata.get("fact_keys") or [])]
+    before=[str(x) for x in (metadata.get("top3_before") or [])]
+    after=[str(x) for x in (metadata.get("top3_after") or [])]
+    top3_changed=bool(metadata.get("top3_changed"))
+
+    if fact_keys:
+        fact_sentence=f"확인한 정보 {len(fact_keys)}개가 FACT로 반영되었습니다."
+    else:
+        fact_sentence="새로 반영된 FACT는 없습니다."
+
+    if top3_changed:
+        top3_sentence="완료 결과를 반영해 지금 먼저 할 3가지가 다시 계산되었습니다."
+    else:
+        top3_sentence="이번 완료로 Top 3 순서는 바뀌지 않았습니다."
+
+    return {
+        "mode":"deterministic_fallback",
+        "source_type":"RULE_DERIVED",
+        "event_id":event.get("event_id"),
+        "action_instance_id":event.get("action_instance_id"),
+        "action_catalog_id":event.get("action_catalog_id"),
+        "message":f"{fact_sentence} {top3_sentence}",
+        "fact_refs":fact_keys,
+        "top3_before":before,
+        "top3_after":after,
+        "top3_changed":top3_changed,
+    }
