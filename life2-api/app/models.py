@@ -1,0 +1,12 @@
+from typing import Literal
+from pydantic import BaseModel, Field
+
+Household = Literal["single","couple"]
+AwarenessResponse = Literal["CONFIRMED","PARTIAL","UNKNOWN_OR_NOT_PREPARED"]
+
+class RunCreate(BaseModel):
+    age_band: str = Field(pattern=r"^[0-9A-Z_]+$")
+    household_type: Household
+
+class AnswerPut(BaseModel):
+    response: AwarenessResponse
