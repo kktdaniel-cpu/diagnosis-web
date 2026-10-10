@@ -547,3 +547,37 @@ def test_action_can_wait_for_external_confirmation_and_resume():
         assert resumed.json()["data"]["status"]=="IN_PROGRESS"
     finally:
         app.dependency_overrides.clear()
+
+
+def test_dashboard_reports_five_domain_confirmed_counts_not_scores():
+    make_member("domain-user")
+    try:
+        dash=client.get("/v1/me/dashboard")
+        assert dash.status_code==200
+        domains=dash.json()["data"]["domains"]
+        assert set(domains)=={"cashflow_asset","work","health","housing","welldying"}
+        assert sum(x["total"] for x in domains.values())==12
+        assert all(x["confirmed"]==0 for x in domains.values())
+
+        a1=client.post("/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/start").json()["data"]
+        assert client.post(
+            f"/v1/me/actions/ACT_CONFIRM_RETIREMENT_AGE/{a1['action_instance_id']}/complete",
+            json={"fields":{"retirement_age":60}},
+        ).status_code==200
+        domains2=client.get("/v1/me/dashboard").json()["data"]["domains"]
+        assert domains2["work"]["confirmed"]==1
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_authenticated_member_without_awareness_gets_empty_dashboard_not_error():
+    app.dependency_overrides[get_current_subject]=lambda:"no-awareness-user"
+    try:
+        dash=client.get("/v1/me/dashboard")
+        assert dash.status_code==200
+        data=dash.json()["data"]
+        assert data["confirmed_awareness_count"]==0
+        assert data["awareness_total"]==12
+        assert data["top3"]==[]
+    finally:
+        app.dependency_overrides.clear()
