@@ -222,6 +222,25 @@ export default function App(){
     setScreen('landing');
   }
 
+
+  async function openPrecision(){
+    setBusy(true);
+    setActionMsg('');
+    try{
+      const token=await accessToken();
+      const r=await fetch(`${API}/v1/me/precision/entry`,{
+        headers:{'Authorization':`Bearer ${token}`}
+      });
+      const body=await r.json();
+      if(!r.ok) throw new Error(body?.detail?.code || 'PRECISION_ENTRY_FAILED');
+      window.open(body.data.url,'_blank','noopener,noreferrer');
+    }catch(e){
+      setActionMsg(e instanceof Error ? e.message : '정밀진단을 열지 못했습니다.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
   async function openAction(item:Top){
     setActionMsg('');
     setCoachMsg('');
@@ -449,6 +468,11 @@ export default function App(){
           <span>{x.status==='IN_PROGRESS'?'진행 중 · 이어하기':x.mode==='VERIFY'?'확인 이어가기':'새로 준비하기'}</span>
         </button>
       )}
+      <div className="precisionEntry">
+        <b>더 정확한 계산이 필요하다면</b>
+        <p>기존 정밀진단에서 연금·현금흐름·자산 시나리오를 확인할 수 있습니다.</p>
+        <button className="secondaryBtn" disabled={busy} onClick={openPrecision}>정밀진단 열기</button>
+      </div>
       {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
       <p className="hint">점수가 아니라, 지금 확인하고 바꿀 일을 하나씩 완료합니다.</p>
     </section>}
