@@ -191,6 +191,7 @@ def build_action_context(
         "relevant_facts":relevant,
         "rule_reason_code":(top or {}).get("reason_code"),
         "priority_class":(top or {}).get("priority_class"),
+        "action_status":(top or {}).get("status"),
         "source_policy":{
             "facts_are_authoritative":True,
             "unknown_must_remain_unknown":True,
@@ -231,12 +232,19 @@ def explain_action(action_catalog_id: str, context: dict[str, Any]) -> dict[str,
 
 def help_action(action_catalog_id: str, question: str, context: dict[str, Any]) -> dict[str, Any]:
     guide=ACTION_GUIDE[action_catalog_id]
+    waiting=context.get("action_status")=="WAITING_EXTERNAL"
+    steps=list(guide["help"])
+    answer="현재 단계에서는 아래 순서로 확인하면 됩니다."
+    if waiting:
+        answer="외부 확인을 기다리는 중입니다. 확인 전에는 값을 추정해 입력하지 마세요."
+        steps.append("확인 결과가 준비되면 이 Action을 다시 열어 이어서 입력합니다.")
     return {
         "mode":"deterministic_fallback",
         "source_type":"RULE_DERIVED",
         "action_catalog_id":action_catalog_id,
-        "answer":"현재 단계에서는 아래 순서로 확인하면 됩니다.",
-        "steps":guide["help"],
+        "answer":answer,
+        "steps":steps,
+        "waiting_external":waiting,
         "completion_note":"모르는 값을 임의로 추정하지 말고, 확인되지 않은 값은 확인 후 입력하세요.",
         "secret_warning":(
             "비밀번호·PIN·개인키·복구문구는 입력하지 마세요."
