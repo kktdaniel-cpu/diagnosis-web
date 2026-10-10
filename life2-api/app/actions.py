@@ -102,6 +102,26 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
             }
         ],
     },
+    "ACT_CALCULATE_INCOME_GAP": {
+        "question_id": "AWR_Q05_INCOME_GAP",
+        "title": "내 소득공백 계산하기",
+        "description": "퇴직 예상 나이와 본인 국민연금 개시 나이 사이의 기간을 계산하고, 그 기간을 무엇으로 연결할지 정합니다. 월 부족액은 이번 MVP에서 임의 계산하지 않습니다.",
+        "fields": [
+            {
+                "key": "bridge_sources",
+                "label": "소득공백을 연결할 수단",
+                "type": "multi_select",
+                "required": True,
+                "options": [
+                    {"value":"POST_RETIREMENT_WORK","label":"퇴직 후 근로소득"},
+                    {"value":"RET_PRIVATE_PENSION","label":"퇴직·개인연금"},
+                    {"value":"FINANCIAL_ASSETS","label":"금융자산 인출"},
+                    {"value":"SPOUSE_INCOME","label":"배우자 소득·연금"},
+                    {"value":"OTHER","label":"기타 계획"},
+                ],
+            }
+        ],
+    },
     "ACT_SUMMARIZE_ASSETS_DEBT": {
         "question_id": "AWR_Q06_ASSETS_DEBT",
         "title": "자산·부채 한눈에 정리하기",
@@ -182,6 +202,113 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
                     {"value":"EMPLOYEE","label":"직장가입"},
                     {"value":"REGIONAL","label":"지역가입 · 개인"},
                     {"value":"UNKNOWN","label":"잘 모름"},
+                ],
+            },
+        ],
+    },
+    "ACT_DEFINE_HOUSING_PLAN": {
+        "question_id": "AWR_Q08_HOUSING",
+        "title": "은퇴 후 주거 전략 정리하기",
+        "description": "현재 거주형태와 노후 이동 방향을 정리합니다. 자가인 경우 주택연금 활용 방향도 함께 확인합니다.",
+        "fields": [
+            {
+                "key": "housing_tenure",
+                "label": "현재 거주형태",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"OWNER_APARTMENT","label":"자가 (아파트)"},
+                    {"value":"OWNER_OTHER","label":"자가 (빌라·단독·오피스텔)"},
+                    {"value":"RENT","label":"전세 / 월세"},
+                    {"value":"OTHER","label":"기타 (사택 등)"},
+                ],
+            },
+            {
+                "key": "housing_move_plan",
+                "label": "노후 주거 이동 계획",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"KEEP","label":"현재 주거지 유지"},
+                    {"value":"DOWNSIZE","label":"평수 축소 (다운사이징)"},
+                    {"value":"MOVE_LOWER_COST","label":"수도권 외곽·지방 이동"},
+                    {"value":"SENIOR_RESIDENCE","label":"실버타운·시니어 레지던스"},
+                ],
+            },
+            {
+                "key": "reverse_mortgage_plan",
+                "label": "주택연금 활용 계획",
+                "type": "select",
+                "required": True,
+                "show_when_owner": True,
+                "options": [
+                    {"value":"PLAN_USE","label":"가입 예정"},
+                    {"value":"CONSIDER_IF_NEEDED","label":"자금 부족 시 고려"},
+                    {"value":"NO_PLAN","label":"활용 계획 없음"},
+                    {"value":"UNKNOWN","label":"주택연금을 잘 모름"},
+                ],
+            },
+            {
+                "key": "reverse_mortgage_start_age",
+                "label": "주택연금 가입 예정 나이",
+                "type": "integer",
+                "unit": "세",
+                "min": 55,
+                "max": 95,
+                "required": True,
+                "show_when": {"key":"reverse_mortgage_plan","value":"PLAN_USE"},
+            },
+        ],
+    },
+    "ACT_REVIEW_HEALTH_COVERAGE": {
+        "question_id": "AWR_Q09_HEALTH_COVERAGE",
+        "title": "보험·보장 점검하기",
+        "description": "큰 병이 생겼을 때의 진단비·실손/입원 보장과 소득중단 대비 상태를 확인합니다. 보장 적정성 점수나 보험 추천은 만들지 않습니다.",
+        "fields": [
+            {
+                "key": "critical_illness_benefit_band",
+                "label": "3대 진단비(암·뇌·심장) 보장 일시금",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"NONE_UNKNOWN","label":"없음 / 모름"},
+                    {"value":"LT_30M","label":"3,000만 원 미만"},
+                    {"value":"30M_60M","label":"3,000만 ~ 6,000만 원"},
+                    {"value":"60M_100M","label":"6,000만 ~ 1억 원"},
+                    {"value":"GE_100M","label":"1억 원 이상"},
+                ],
+            },
+            {
+                "key": "indemnity_coverage",
+                "label": "실손·수술/입원 보험 준비",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"NONE","label":"없음 / 미가입"},
+                    {"value":"INDEMNITY_ONLY","label":"실손보험만 유지 중"},
+                    {"value":"INDEMNITY_PLUS","label":"실손 + 수술·입원비 보장"},
+                ],
+            },
+            {
+                "key": "major_history",
+                "label": "암·뇌·심혈관 본인 병력 또는 가족력",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"NONE","label":"모두 해당 없음"},
+                    {"value":"CANCER","label":"암 가족력 / 본인 병력"},
+                    {"value":"VASCULAR","label":"뇌·심혈관 가족력 / 본인 병력"},
+                    {"value":"BOTH","label":"암·혈관계 모두 해당"},
+                ],
+            },
+            {
+                "key": "income_stop_plan_checked",
+                "label": "치료로 일을 쉬게 될 때 생활비 마련 방법을 확인했나요?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"YES","label":"예, 확인했습니다"},
+                    {"value":"NO","label":"아직 확인하지 못했습니다"},
                 ],
             },
         ],
@@ -429,6 +556,37 @@ def _int_field(fields: dict[str, Any], key: str, lo: int, hi: int, required: boo
         raise ActionValidationError("OUT_OF_RANGE", key)
     return value
 
+def _fact_value(existing_facts: dict[str, Any], key: str) -> Any:
+    item=existing_facts.get(key)
+    if not isinstance(item, dict):
+        return None
+    if item.get("status") != "KNOWN":
+        return None
+    return item.get("value")
+
+def income_gap_preview(existing_facts: dict[str, Any]) -> dict[str, Any]:
+    retirement_age=_fact_value(existing_facts,"work.primary_job_exit_age")
+    nps_start_age=_fact_value(existing_facts,"pension.nps.start_age_self")
+    budget=_fact_value(existing_facts,"cashflow.retirement_monthly_budget_target")
+    missing=[]
+    if retirement_age is None:
+        missing.append("ACT_CONFIRM_RETIREMENT_AGE")
+    if nps_start_age is None:
+        missing.append("ACT_CHECK_NPS_ESTIMATE")
+    if budget is None:
+        missing.append("ACT_ESTIMATE_RETIREMENT_BUDGET")
+    if missing:
+        return {"ready":False,"missing_actions":missing}
+    years=max(0,int(nps_start_age)-int(retirement_age))
+    return {
+        "ready":True,
+        "retirement_age":int(retirement_age),
+        "nps_start_age_self":int(nps_start_age),
+        "income_gap_years":years,
+        "retirement_budget_10k":budget,
+        "note":"월 부족액은 정밀 현금흐름 계산 전에는 만들지 않습니다.",
+    }
+
 def form_for(action_catalog_id: str, household_type: str) -> dict[str, Any]:
     if action_catalog_id not in ACTION_FORMS:
         raise ActionValidationError("ACTION_NOT_SUPPORTED")
@@ -438,6 +596,8 @@ def form_for(action_catalog_id: str, household_type: str) -> dict[str, Any]:
         x=dict(f)
         if x.get("required_when") == "household_type=couple":
             x["required"] = household_type == "couple"
+        if x.get("show_when_owner"):
+            x["show_when_owner"] = True
         fields.append(x)
     return {
         "action_catalog_id": action_catalog_id,
@@ -451,7 +611,9 @@ def prepare_completion(
     action_catalog_id: str,
     fields: dict[str, Any],
     household_type: str,
+    existing_facts: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    existing_facts=existing_facts or {}
     if action_catalog_id == "ACT_CONFIRM_RETIREMENT_AGE":
         retirement_age=_int_field(fields,"retirement_age",45,80)
         return {
@@ -557,6 +719,47 @@ def prepare_completion(
             ],
         }
 
+    if action_catalog_id == "ACT_CALCULATE_INCOME_GAP":
+        preview=income_gap_preview(existing_facts)
+        if not preview.get("ready"):
+            raise ActionValidationError(
+                "PRECONDITION_REQUIRED",
+                ",".join(preview.get("missing_actions") or [])
+            )
+        bridge_sources=_multi_choice_field(fields,"bridge_sources",{
+            "POST_RETIREMENT_WORK","RET_PRIVATE_PENSION","FINANCIAL_ASSETS","SPOUSE_INCOME","OTHER"
+        })
+        gap_years=int(preview["income_gap_years"])
+        return {
+            "question_id":"AWR_Q05_INCOME_GAP",
+            "normalized":{
+                "income_gap_years":gap_years,
+                "bridge_sources":bridge_sources,
+                "retirement_age":preview["retirement_age"],
+                "nps_start_age_self":preview["nps_start_age_self"],
+            },
+            "facts":[
+                {
+                    "fact_key":"cashflow.income_gap_years_to_nps_self",
+                    "status":"KNOWN",
+                    "value":gap_years,
+                    "unit":"years",
+                    "source_type":"RULE_DERIVED",
+                    "source_ref":"RULE_RETIREMENT_TO_NPS_START_V1",
+                    "verification_level":"RULE_DERIVED",
+                },
+                {
+                    "fact_key":"cashflow.income_gap_bridge_sources",
+                    "status":"KNOWN",
+                    "value":bridge_sources,
+                    "unit":"source_list",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CALCULATE_INCOME_GAP",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ],
+        }
+
     if action_catalog_id == "ACT_SUMMARIZE_ASSETS_DEBT":
         asset=_choice_field(fields,"financial_asset_band",{
             "LT_30M","30M_100M","100M_200M","200M_300M","GE_300M"
@@ -658,6 +861,126 @@ def prepare_completion(
             "question_id":"AWR_Q07_POST_RETIREMENT_WORK",
             "normalized":normalized,
             "facts":facts,
+        }
+
+    if action_catalog_id == "ACT_DEFINE_HOUSING_PLAN":
+        tenure=_choice_field(fields,"housing_tenure",{
+            "OWNER_APARTMENT","OWNER_OTHER","RENT","OTHER"
+        })
+        move=_choice_field(fields,"housing_move_plan",{
+            "KEEP","DOWNSIZE","MOVE_LOWER_COST","SENIOR_RESIDENCE"
+        })
+        owner=tenure in {"OWNER_APARTMENT","OWNER_OTHER"}
+        normalized={"housing_tenure":tenure,"housing_move_plan":move}
+        facts=[
+            {
+                "fact_key":"housing.tenure_q16",
+                "status":"KNOWN",
+                "value":tenure,
+                "unit":"Q16_choice",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_DEFINE_HOUSING_PLAN",
+                "verification_level":"SELF_REPORTED",
+            },
+            {
+                "fact_key":"housing.move_plan_q21",
+                "status":"KNOWN",
+                "value":move,
+                "unit":"Q21_choice",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_DEFINE_HOUSING_PLAN",
+                "verification_level":"SELF_REPORTED",
+            },
+        ]
+        if owner:
+            reverse=_choice_field(fields,"reverse_mortgage_plan",{
+                "PLAN_USE","CONSIDER_IF_NEEDED","NO_PLAN","UNKNOWN"
+            })
+            normalized["reverse_mortgage_plan"]=reverse
+            facts.append({
+                "fact_key":"housing.reverse_mortgage_plan_q19",
+                "status":"UNKNOWN" if reverse=="UNKNOWN" else "KNOWN",
+                "value":reverse,
+                "unit":"Q19_choice",
+                "source_type":"USER_CONFIRMED",
+                "source_ref":"ACT_DEFINE_HOUSING_PLAN",
+                "verification_level":"SELF_REPORTED",
+            })
+            if reverse=="PLAN_USE":
+                start_age=_int_field(fields,"reverse_mortgage_start_age",55,95)
+                normalized["reverse_mortgage_start_age"]=start_age
+                facts.append({
+                    "fact_key":"housing.reverse_mortgage_start_age",
+                    "status":"KNOWN",
+                    "value":start_age,
+                    "unit":"age_years",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_DEFINE_HOUSING_PLAN",
+                    "verification_level":"SELF_REPORTED",
+                })
+        return {
+            "question_id":"AWR_Q08_HOUSING",
+            "normalized":normalized,
+            "facts":facts,
+        }
+
+    if action_catalog_id == "ACT_REVIEW_HEALTH_COVERAGE":
+        dx=_choice_field(fields,"critical_illness_benefit_band",{
+            "NONE_UNKNOWN","LT_30M","30M_60M","60M_100M","GE_100M"
+        })
+        indemnity=_choice_field(fields,"indemnity_coverage",{
+            "NONE","INDEMNITY_ONLY","INDEMNITY_PLUS"
+        })
+        history=_choice_field(fields,"major_history",{
+            "NONE","CANCER","VASCULAR","BOTH"
+        })
+        income_stop=_choice_field(fields,"income_stop_plan_checked",{"YES","NO"})
+        return {
+            "question_id":"AWR_Q09_HEALTH_COVERAGE",
+            "normalized":{
+                "critical_illness_benefit_band":dx,
+                "indemnity_coverage":indemnity,
+                "major_history":history,
+                "income_stop_plan_checked":income_stop=="YES",
+            },
+            "facts":[
+                {
+                    "fact_key":"health.critical_illness_benefit_band_q12",
+                    "status":"UNKNOWN" if dx=="NONE_UNKNOWN" else "KNOWN",
+                    "value":dx,
+                    "unit":"Q12_band",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"health.indemnity_coverage_q13",
+                    "status":"KNOWN",
+                    "value":indemnity,
+                    "unit":"Q13_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"health.major_history_q11",
+                    "status":"KNOWN",
+                    "value":history,
+                    "unit":"Q11_choice",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"health.income_stop_plan_checked",
+                    "status":"KNOWN",
+                    "value":income_stop=="YES",
+                    "unit":"boolean",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_REVIEW_HEALTH_COVERAGE",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ],
         }
 
     if action_catalog_id == "ACT_DEFINE_CARE_PLAN":
