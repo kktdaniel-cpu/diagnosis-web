@@ -244,5 +244,4 @@ def help_action(action_catalog_id: str, question: str, context: dict[str, Any]) 
             else None
         ),
         "fact_refs":[x["fact_key"] for x in context["relevant_facts"]],
-        "user_question":question[:500],
     }
