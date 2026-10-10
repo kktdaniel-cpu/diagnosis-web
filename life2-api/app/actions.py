@@ -238,6 +238,90 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
             },
         ],
     },
+    "ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST": {
+        "question_id": "AWR_Q11_DIGITAL_FAMILY_INFO",
+        "title": "가족 비상·디지털 자산 목록 만들기",
+        "description": "비밀번호나 PIN을 저장하지 않고, 가족이 무엇이 있고 어디서 확인해야 하는지만 정리합니다.",
+        "fields": [
+            {
+                "key": "digital_categories",
+                "label": "목록에 포함한 항목",
+                "type": "multi_select",
+                "required": True,
+                "options": [
+                    {"value":"INSURANCE","label":"보험"},
+                    {"value":"BANK_SECURITIES","label":"은행 · 증권계좌"},
+                    {"value":"CRYPTO","label":"가상자산(코인)"},
+                    {"value":"SIMPLE_PAY","label":"간편결제"},
+                    {"value":"SUBSCRIPTIONS","label":"정기구독"},
+                    {"value":"EMAIL_SOCIAL","label":"이메일 · SNS"},
+                    {"value":"CLOUD_PHOTOS","label":"클라우드 · 사진"},
+                ],
+            },
+            {
+                "key": "inventory_location_type",
+                "label": "목록 보관 위치 유형",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"PHYSICAL_SECURE_FILE","label":"안전한 종이 문서 · 파일"},
+                    {"value":"DIGITAL_SECURE_FILE","label":"안전한 디지털 문서"},
+                    {"value":"TRUSTED_CONTACT","label":"신뢰하는 가족 · 담당자에게 위치 안내"},
+                    {"value":"OTHER_SECURE_LOCATION","label":"그 밖의 안전한 보관 위치"},
+                ],
+            },
+            {
+                "key": "family_can_locate",
+                "label": "가족이 그 목록의 위치를 알고 있나요?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"YES","label":"예"},
+                    {"value":"NO","label":"아직 아니요"},
+                ],
+            },
+            {
+                "key": "access_procedure_prepared",
+                "label": "필요할 때 확인할 절차를 정해두셨나요?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"YES","label":"예"},
+                    {"value":"NO","label":"아직 아니요"},
+                ],
+            },
+        ],
+    },
+    "ACT_START_FAMILY_WELLDYING_CONVERSATION": {
+        "question_id": "AWR_Q12_WELLDYING_CONVERSATION",
+        "title": "가족 대화 시작하기",
+        "description": "가족과 실제로 한 번 이상 이야기하고, 최소 한 가지 선호사항을 기록하면 완료됩니다.",
+        "fields": [
+            {
+                "key": "conversation_done",
+                "label": "가족과 실제로 대화했나요?",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"YES","label":"예, 이야기했습니다"},
+                    {"value":"NO","label":"아직 못했습니다"},
+                ],
+            },
+            {
+                "key": "preference_topics",
+                "label": "기록해 둔 선호사항",
+                "type": "multi_select",
+                "required": True,
+                "options": [
+                    {"value":"MEDICAL_DECISION","label":"의료 결정 · 연명의료"},
+                    {"value":"CARE","label":"돌봄 방식"},
+                    {"value":"ASSET_INHERITANCE","label":"재산 · 상속 의향"},
+                    {"value":"FUNERAL_MEMORIAL","label":"장례 · 추모 방식"},
+                    {"value":"DIGITAL_INFO","label":"디지털 자산 · 중요정보"},
+                ],
+            },
+        ],
+    },
     "ACT_CHECK_NPS_ESTIMATE": {
         "question_id": "AWR_Q02_NPS",
         "title": "국민연금 예상액 확인하기",
@@ -293,6 +377,41 @@ def _choice_field(fields: dict[str, Any], key: str, allowed: set[str]) -> str:
     if value not in allowed:
         raise ActionValidationError("INVALID_CHOICE", key)
     return value
+
+def _multi_choice_field(fields: dict[str, Any], key: str, allowed: set[str]) -> list[str]:
+    raw = fields.get(key)
+    if not isinstance(raw, list) or not raw:
+        raise ActionValidationError("REQUIRED", key)
+    values=[]
+    for item in raw:
+        value=str(item)
+        if value not in allowed:
+            raise ActionValidationError("INVALID_CHOICE", key)
+        if value not in values:
+            values.append(value)
+    return values
+
+_SECRET_TERMS = (
+    "password","passwd","passcode","pin","private_key","privatekey",
+    "seed_phrase","seedphrase","mnemonic","recovery_phrase","recoveryphrase"
+)
+
+def reject_secret_fields(fields: dict[str, Any]) -> None:
+    def walk(value: Any, path: str = "") -> None:
+        if isinstance(value, dict):
+            for k, v in value.items():
+                key=str(k).lower().replace(" ","_").replace("-","_")
+                if any(term in key for term in _SECRET_TERMS):
+                    raise ActionValidationError("SECRET_NOT_ALLOWED", str(k))
+                walk(v, f"{path}.{k}" if path else str(k))
+        elif isinstance(value, list):
+            for i, v in enumerate(value):
+                walk(v, f"{path}[{i}]")
+        elif isinstance(value, str):
+            lower=value.lower()
+            if any(term.replace("_"," ") in lower for term in _SECRET_TERMS if "_" in term):
+                raise ActionValidationError("SECRET_NOT_ALLOWED", path or None)
+    walk(fields)
 
 def _int_field(fields: dict[str, Any], key: str, lo: int, hi: int, required: bool = True) -> int | None:
     raw = fields.get(key)
@@ -589,6 +708,104 @@ def prepare_completion(
                     "unit":"Q14_choice",
                     "source_type":"USER_CONFIRMED",
                     "source_ref":"ACT_DEFINE_CARE_PLAN",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ],
+        }
+
+    if action_catalog_id == "ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST":
+        categories=_multi_choice_field(fields,"digital_categories",{
+            "INSURANCE","BANK_SECURITIES","CRYPTO","SIMPLE_PAY",
+            "SUBSCRIPTIONS","EMAIL_SOCIAL","CLOUD_PHOTOS"
+        })
+        location=_choice_field(fields,"inventory_location_type",{
+            "PHYSICAL_SECURE_FILE","DIGITAL_SECURE_FILE",
+            "TRUSTED_CONTACT","OTHER_SECURE_LOCATION"
+        })
+        locatable=_choice_field(fields,"family_can_locate",{"YES","NO"})
+        procedure=_choice_field(fields,"access_procedure_prepared",{"YES","NO"})
+        if locatable!="YES":
+            raise ActionValidationError("COMPLETION_CRITERIA_NOT_MET","family_can_locate")
+        if procedure!="YES":
+            raise ActionValidationError("COMPLETION_CRITERIA_NOT_MET","access_procedure_prepared")
+        return {
+            "question_id":"AWR_Q11_DIGITAL_FAMILY_INFO",
+            "normalized":{
+                "digital_categories":categories,
+                "inventory_location_type":location,
+                "family_can_locate":True,
+                "access_procedure_prepared":True,
+            },
+            "facts":[
+                {
+                    "fact_key":"digital_legacy.inventory_categories",
+                    "status":"KNOWN",
+                    "value":categories,
+                    "unit":"category_list",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"digital_legacy.inventory_location_type",
+                    "status":"KNOWN",
+                    "value":location,
+                    "unit":"location_type",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"digital_legacy.family_can_locate",
+                    "status":"KNOWN",
+                    "value":True,
+                    "unit":"boolean",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"digital_legacy.access_procedure_prepared",
+                    "status":"KNOWN",
+                    "value":True,
+                    "unit":"boolean",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST",
+                    "verification_level":"SELF_REPORTED",
+                },
+            ],
+        }
+
+    if action_catalog_id == "ACT_START_FAMILY_WELLDYING_CONVERSATION":
+        conversation=_choice_field(fields,"conversation_done",{"YES","NO"})
+        topics=_multi_choice_field(fields,"preference_topics",{
+            "MEDICAL_DECISION","CARE","ASSET_INHERITANCE","FUNERAL_MEMORIAL","DIGITAL_INFO"
+        })
+        if conversation!="YES":
+            raise ActionValidationError("COMPLETION_CRITERIA_NOT_MET","conversation_done")
+        return {
+            "question_id":"AWR_Q12_WELLDYING_CONVERSATION",
+            "normalized":{
+                "conversation_done":True,
+                "preference_topics":topics,
+            },
+            "facts":[
+                {
+                    "fact_key":"welldying.family_conversation_done",
+                    "status":"KNOWN",
+                    "value":True,
+                    "unit":"boolean",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_START_FAMILY_WELLDYING_CONVERSATION",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"welldying.preference_topics_recorded",
+                    "status":"KNOWN",
+                    "value":topics,
+                    "unit":"topic_list",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_START_FAMILY_WELLDYING_CONVERSATION",
                     "verification_level":"SELF_REPORTED",
                 },
             ],
