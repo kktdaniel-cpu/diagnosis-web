@@ -196,3 +196,70 @@ def test_change_summary_names_newly_enabled_action_from_diff():
     out=summarize_change(event)
     assert "ACT_CALCULATE_INCOME_GAP" in out["top3_added"]
     assert "내 소득공백 계산하기" in out["message"]
+
+
+def test_every_action_has_deterministic_help_without_secret_collection():
+    from app.actions import ACTION_FORMS
+    from app.coach import ACTION_GUIDE
+
+    assert set(ACTION_FORMS) <= set(ACTION_GUIDE)
+    for action_id, form in ACTION_FORMS.items():
+        qid=form["question_id"]
+        ctx=build_action_context(
+            action_id,
+            {},
+            {"answers":{qid:"UNKNOWN_OR_NOT_PREPARED"}},
+            {"top3":[]},
+        )
+        out=help_action(action_id,"어떻게 확인하나요?",ctx)
+        assert out["action_catalog_id"]==action_id
+        assert out["source_type"]=="RULE_DERIVED"
+        assert out["mode"]=="deterministic_fallback"
+        assert out["steps"]
+        low=str(out).lower()
+        assert "private key" not in low
+        assert "seed phrase" not in low
+
+
+def test_explain_covers_each_priority_class_without_reranking_or_numbers():
+    cases=[
+        ("ACT_DEFINE_CARE_PLAN","AWR_Q10_CARE","P0"),
+        ("ACT_CHECK_NPS_ESTIMATE","AWR_Q02_NPS","P1"),
+        ("ACT_CALCULATE_INCOME_GAP","AWR_Q05_INCOME_GAP","P2"),
+        ("ACT_DEFINE_HOUSING_PLAN","AWR_Q08_HOUSING","P3"),
+        ("ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST","AWR_Q11_DIGITAL_FAMILY_INFO","P4"),
+    ]
+    for action_id,qid,pclass in cases:
+        ctx=build_action_context(
+            action_id,
+            {},
+            {"answers":{qid:"UNKNOWN_OR_NOT_PREPARED"}},
+            {"top3":[{"action_catalog_id":action_id,"priority_class":pclass,"reason_code":f"{qid}:UNKNOWN_OR_NOT_PREPARED"}]},
+        )
+        out=explain_action(action_id,ctx)
+        assert out["action_catalog_id"]==action_id
+        assert out["source_type"]=="RULE_DERIVED"
+        assert out["missing_prerequisites"]==ctx.get("derived_preview",{}).get("missing_actions",[])
+        assert "확률" not in out["why_important"]
+        assert "%" not in out["why_important"]
+
+
+def test_unknown_fact_never_becomes_numeric_in_coach_context():
+    facts={
+        "cashflow.retirement_monthly_budget_target":{
+            "fact_key":"cashflow.retirement_monthly_budget_target",
+            "status":"UNKNOWN",
+            "value":999999999,
+            "unit":"10k_KRW_per_month",
+            "source_type":"USER_CONFIRMED",
+        }
+    }
+    ctx=build_action_context(
+        "ACT_ESTIMATE_RETIREMENT_BUDGET",
+        facts,
+        {"answers":{"AWR_Q04_RETIREMENT_BUDGET":"UNKNOWN_OR_NOT_PREPARED"}},
+        {"top3":[]},
+    )
+    item=ctx["relevant_facts"][0]
+    assert item["status"]=="UNKNOWN"
+    assert item["value"] is None
