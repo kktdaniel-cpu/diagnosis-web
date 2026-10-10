@@ -4,7 +4,7 @@ from secrets import token_urlsafe
 from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID
-from .models import RunCreate, AnswerPut
+from .models import RunCreate, AnswerPut, HandoffClaim
 from .store import store
 from .top3 import select_top3
 from .auth import get_current_subject
@@ -12,7 +12,25 @@ from .config import cors_origins
 
 APP_VERSION = "MVP-0.1.1"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
-app.add_middleware(
+
+def _dashboard_for(subject: str):
+    run = store.get_member_run(subject)
+    if not run:
+        return {
+            "confirmed_awareness_count": 0,
+            "awareness_total": 12,
+            "top3": [],
+            "in_progress": [],
+            "recent_changes": [],
+        }
+    return {
+        "confirmed_awareness_count": sum(1 for v in run.answers.values() if v == "CONFIRMED"),
+        "awareness_total": 12,
+        "top3": select_top3(run.answers),
+        "in_progress": [],
+        "recent_changes": [],
+    }
+\napp.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins(),
     allow_credentials=True,
@@ -27,6 +45,23 @@ def health():
 @app.get("/v1/me")
 async def me(subject: str = Depends(get_current_subject)):
     return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}
+
+
+@app.post("/v1/me/awareness/claim")
+async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):
+    run = store.get_run_by_handoff(payload.handoff_token)
+    if not run or not run.completed:
+        raise HTTPException(status_code=404, detail={"code":"HANDOFF_NOT_FOUND"})
+    if datetime.now(timezone.utc) > run.expires_at:
+        raise HTTPException(status_code=410, detail={"code":"HANDOFF_EXPIRED"})
+    if run.claimed_by and run.claimed_by != subject:
+        raise HTTPException(status_code=409, detail={"code":"HANDOFF_ALREADY_CLAIMED"})
+    _, idempotent = store.claim_handoff(payload.handoff_token, subject)
+    return {"ok": True, "data": {"claimed": True, "idempotent": idempotent, "dashboard": _dashboard_for(subject)}}
+
+@app.get("/v1/me/dashboard")
+async def dashboard(subject: str = Depends(get_current_subject)):
+    return {"ok": True, "data": _dashboard_for(subject)}
 
 @app.get("/v1/awareness/questions")
 def questions(household_type: str = "single"):
