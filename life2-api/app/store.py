@@ -175,7 +175,7 @@ class MemoryStore:
         if not run:
             raise StoreError("AWARENESS_NOT_FOUND",404)
         if item["status"] in ("SELF_REPORTED_DONE","VERIFIED_DONE"):
-            return self.dashboard(subject)
+            return {"idempotent":True,"dashboard":self.dashboard(subject)}
         bucket=self.facts.setdefault(subject,{})
         for fact in facts:
             bucket[fact["fact_key"]]=dict(fact)
@@ -188,7 +188,7 @@ class MemoryStore:
             "summary_code":action_catalog_id,
             "occurred_at":datetime.now(timezone.utc).isoformat(),
         })
-        return self.dashboard(subject)
+        return {"idempotent":False,"dashboard":self.dashboard(subject)}
 
 class SupabaseRPCStore:
     def __init__(self):
