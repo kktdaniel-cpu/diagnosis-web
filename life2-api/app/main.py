@@ -85,8 +85,15 @@ async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_curr
 @app.get("/v1/me/dashboard")
 async def dashboard(subject: str = Depends(get_current_subject)):
     try:
-        awareness=store.member_awareness(subject)
-        data=_enrich_dashboard(store.dashboard(subject),awareness["answers"])
+        base=store.dashboard(subject)
+        try:
+            awareness=store.member_awareness(subject)
+            answers=awareness["answers"]
+        except StoreError as e:
+            if e.code!="AWARENESS_NOT_FOUND":
+                raise
+            answers={}
+        data=_enrich_dashboard(base,answers)
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
