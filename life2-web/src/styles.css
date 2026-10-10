@@ -44,3 +44,9 @@ button:disabled{opacity:.55}
 .multiChoices{display:grid;gap:9px}
 .multiChoice{display:flex;align-items:center;gap:10px;border:1px solid #dce5df;border-radius:12px;padding:13px 14px;font-size:16px}
 .multiChoice input{width:20px;height:20px}
+
+.previewBox{display:grid;gap:5px;background:#f0f7f3;border:1px solid #cfe3d6;border-radius:16px;padding:16px;margin:14px 0 18px}
+.previewBox b{font-size:14px;color:#466053}
+.previewBox strong{font-size:30px;color:#176744;line-height:1.1}
+.previewBox span{font-size:15px;color:#344a3e}
+.previewBox small{font-size:13px;color:#65716a;line-height:1.45}
