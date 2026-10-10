@@ -117,7 +117,7 @@ class SupabaseRPCStore:
         try:
             r=httpx.post(
                 f"{self.url}/rest/v1/rpc/{name}",
-                headers={"apikey":self.key,"Content-Type":"application/json"},
+                headers={"apikey":self.key,"Content-Type":"application/json","X-Life2-Internal-Secret":self.secret},
                 json=payload,
                 timeout=8.0,
             )
