@@ -1,14 +1,14 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from secrets import token_urlsafe
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID
 from .models import RunCreate, AnswerPut
 from .store import store
 from .top3 import select_top3
 
-APP_VERSION = "MVP-0.1.0"
+APP_VERSION = "MVP-0.1.1"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
 app.add_middleware(
     CORSMiddleware,
@@ -38,10 +38,17 @@ def create_run(payload: RunCreate):
     return {"ok":True,"data":{"run_id":run.run_id,"run_token":run.run_token,"expires_at":run.expires_at.isoformat()}}
 
 @app.put("/v1/awareness/runs/{run_id}/answers/{question_id}")
-def put_answer(run_id: str, question_id: str, payload: AnswerPut):
+def put_answer(
+    run_id: str,
+    question_id: str,
+    payload: AnswerPut,
+    x_awareness_token: str = Header(default=""),
+):
     run=store.get_run(run_id)
     if not run:
         raise HTTPException(404,"run not found")
+    if not x_awareness_token or x_awareness_token != run.run_token:
+        raise HTTPException(403,"invalid awareness token")
     if run.completed:
         raise HTTPException(409,"run already completed")
     if datetime.now(timezone.utc) > run.expires_at:
@@ -52,10 +59,12 @@ def put_answer(run_id: str, question_id: str, payload: AnswerPut):
     return {"ok":True,"data":{"saved":True,"answered":len(run.answers),"total":12}}
 
 @app.post("/v1/awareness/runs/{run_id}/complete")
-def complete_run(run_id: str):
+def complete_run(run_id: str, x_awareness_token: str = Header(default="")):
     run=store.get_run(run_id)
     if not run:
         raise HTTPException(404,"run not found")
+    if not x_awareness_token or x_awareness_token != run.run_token:
+        raise HTTPException(403,"invalid awareness token")
     missing=[q["id"] for q in QUESTIONS if q["id"] not in run.answers]
     if missing:
         raise HTTPException(409,detail={"code":"AWARENESS_INCOMPLETE","missing":missing})
