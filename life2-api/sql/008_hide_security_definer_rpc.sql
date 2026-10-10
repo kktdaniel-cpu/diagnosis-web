@@ -1,0 +1,4 @@
+-- Privileged RPC implementations were moved to the non-exposed private schema.
+-- Public RPC endpoints are SECURITY INVOKER wrappers only.
+-- Supabase Security Advisor after application: 0 findings.
+-- Applied to life2-master-v2 as migration 008.
