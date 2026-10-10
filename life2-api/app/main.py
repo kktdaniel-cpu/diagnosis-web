@@ -30,7 +30,8 @@ def _dashboard_for(subject: str):
         "in_progress": [],
         "recent_changes": [],
     }
-\napp.add_middleware(
+
+app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins(),
     allow_credentials=True,
