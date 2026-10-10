@@ -158,3 +158,97 @@ def test_a6_uses_q23_q30_bands_not_exact_amounts():
         assert "debt_amount" not in facts
     finally:
         app.dependency_overrides.clear()
+
+
+def test_a3_ret_private_pension_yes_records_direct_facts_and_derived_end_age():
+    subject=make_member("a3-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "has_ret_private_pension":"YES",
+                "ret_private_monthly_10k":120,
+                "ret_private_start_age":60,
+                "ret_private_years":20
+            }},
+        )
+        assert done.status_code==200
+        data=done.json()["data"]
+        assert data["normalized"]["ret_private_end_age"]==80
+        facts=store.facts[subject]
+        assert facts["pension.ret_private.monthly_household"]["value"]==120
+        assert facts["pension.ret_private.start_age"]["value"]==60
+        assert facts["pension.ret_private.duration_years"]["value"]==20
+        assert facts["pension.ret_private.end_age"]["value"]==80
+        assert facts["pension.ret_private.end_age"]["source_type"]=="RULE_DERIVED"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a3_no_pension_records_explicit_absence_not_fake_money():
+    subject=make_member("a3-none")
+    try:
+        start=client.post("/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_CHECK_RET_PRIVATE_PENSION/{start['action_instance_id']}/complete",
+            json={"fields":{"has_ret_private_pension":"NO"}},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["pension.ret_private.exists"]["value"] is False
+        assert "pension.ret_private.monthly_household" not in facts
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a7_no_work_creates_explicit_zero_income_fact():
+    subject=make_member("a7-no-work")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/{start['action_instance_id']}/complete",
+            json={"fields":{"work_plan_type":"NO_WORK"}},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["work.post_retirement.plan_type"]["value"]=="NO_WORK"
+        assert facts["work.post_retirement.monthly_income"]["value"]==0
+        assert facts["work.post_retirement.monthly_income"]["source_ref"].endswith(":NO_WORK")
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a7_working_requires_income_end_age_and_health_insurance_type():
+    make_member("a7-working")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/start").json()["data"]
+        bad=client.post(
+            f"/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/{start['action_instance_id']}/complete",
+            json={"fields":{"work_plan_type":"PART_TIME_GIG","post_retirement_income_10k":180}},
+        )
+        assert bad.status_code==422
+        assert bad.json()["detail"]["field"]=="work_end_age"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_a10_care_lite_uses_cost_band_not_exact_amount():
+    subject=make_member("a10-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_DEFINE_CARE_PLAN/start").json()["data"]
+        done=client.post(
+            f"/v1/me/actions/ACT_DEFINE_CARE_PLAN/{start['action_instance_id']}/complete",
+            json={"fields":{
+                "care_provider":"MIXED",
+                "care_place":"HOME",
+                "care_cost_band":"1M_2M",
+                "care_coverage_status":"RESEARCHING"
+            }},
+        )
+        assert done.status_code==200
+        facts=store.facts[subject]
+        assert facts["care.monthly_cost_band"]["value"]=="1M_2M"
+        assert "care.monthly_cost_exact" not in facts
+    finally:
+        app.dependency_overrides.clear()
