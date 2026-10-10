@@ -39,6 +39,55 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
             }
         ],
     },
+    "ACT_ESTIMATE_RETIREMENT_BUDGET": {
+        "question_id": "AWR_Q04_RETIREMENT_BUDGET",
+        "title": "은퇴 생활비 계산하기",
+        "description": "65세 이후 우리 집이 매달 필요하다고 생각하는 생활비를 현재 계획 기준으로 적습니다.",
+        "fields": [
+            {
+                "key": "retirement_budget_10k",
+                "label": "65세 이후 목표 월 생활비",
+                "type": "integer",
+                "unit": "만원/월",
+                "min": 50,
+                "max": 3000,
+                "required": True,
+            }
+        ],
+    },
+    "ACT_SUMMARIZE_ASSETS_DEBT": {
+        "question_id": "AWR_Q06_ASSETS_DEBT",
+        "title": "자산·부채 한눈에 정리하기",
+        "description": "정확한 금액을 새로 만들지 않고, 기존 정밀진단과 같은 구간으로 금융자산과 대출 규모를 확인합니다.",
+        "fields": [
+            {
+                "key": "financial_asset_band",
+                "label": "현금화 가능한 금융자산 규모",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"LT_30M","label":"3,000만 원 미만"},
+                    {"value":"30M_100M","label":"3,000만 ~ 1억 원"},
+                    {"value":"100M_200M","label":"1억 ~ 2억 원"},
+                    {"value":"200M_300M","label":"2억 ~ 3억 원"},
+                    {"value":"GE_300M","label":"3억 원 이상"},
+                ],
+            },
+            {
+                "key": "debt_band",
+                "label": "현재 남아있는 대출 총액",
+                "type": "select",
+                "required": True,
+                "options": [
+                    {"value":"NONE","label":"없음"},
+                    {"value":"LT_100M","label":"1억 원 미만"},
+                    {"value":"100M_300M","label":"1억 ~ 3억 원 미만"},
+                    {"value":"300M_500M","label":"3억 ~ 5억 원 미만"},
+                    {"value":"GE_500M","label":"5억 원 이상"},
+                ],
+            },
+        ],
+    },
     "ACT_CHECK_NPS_ESTIMATE": {
         "question_id": "AWR_Q02_NPS",
         "title": "국민연금 예상액 확인하기",
@@ -85,6 +134,15 @@ ACTION_FORMS: dict[str, dict[str, Any]] = {
 }
 
 SUPPORTED_ACTIONS = set(ACTION_FORMS)
+
+def _choice_field(fields: dict[str, Any], key: str, allowed: set[str]) -> str:
+    raw = fields.get(key)
+    if raw in (None, ""):
+        raise ActionValidationError("REQUIRED", key)
+    value = str(raw)
+    if value not in allowed:
+        raise ActionValidationError("INVALID_CHOICE", key)
+    return value
 
 def _int_field(fields: dict[str, Any], key: str, lo: int, hi: int, required: bool = True) -> int | None:
     raw = fields.get(key)
@@ -140,6 +198,56 @@ def prepare_completion(
                     "source_ref":"ACT_CONFIRM_RETIREMENT_AGE",
                     "verification_level":"SELF_REPORTED",
                 }
+            ],
+        }
+
+    if action_catalog_id == "ACT_ESTIMATE_RETIREMENT_BUDGET":
+        budget=_int_field(fields,"retirement_budget_10k",50,3000)
+        return {
+            "question_id":"AWR_Q04_RETIREMENT_BUDGET",
+            "normalized":{"retirement_budget_10k":budget},
+            "facts":[
+                {
+                    "fact_key":"cashflow.retirement_monthly_budget_target",
+                    "status":"KNOWN",
+                    "value":budget,
+                    "unit":"10k_KRW_per_month",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_ESTIMATE_RETIREMENT_BUDGET",
+                    "verification_level":"SELF_REPORTED",
+                }
+            ],
+        }
+
+    if action_catalog_id == "ACT_SUMMARIZE_ASSETS_DEBT":
+        asset=_choice_field(fields,"financial_asset_band",{
+            "LT_30M","30M_100M","100M_200M","200M_300M","GE_300M"
+        })
+        debt=_choice_field(fields,"debt_band",{
+            "NONE","LT_100M","100M_300M","300M_500M","GE_500M"
+        })
+        return {
+            "question_id":"AWR_Q06_ASSETS_DEBT",
+            "normalized":{"financial_asset_band":asset,"debt_band":debt},
+            "facts":[
+                {
+                    "fact_key":"asset.financial_liquid_band_q23",
+                    "status":"KNOWN",
+                    "value":asset,
+                    "unit":"Q23_band",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_SUMMARIZE_ASSETS_DEBT",
+                    "verification_level":"SELF_REPORTED",
+                },
+                {
+                    "fact_key":"debt.total_band_q30",
+                    "status":"KNOWN",
+                    "value":debt,
+                    "unit":"Q30_band",
+                    "source_type":"USER_CONFIRMED",
+                    "source_ref":"ACT_SUMMARIZE_ASSETS_DEBT",
+                    "verification_level":"SELF_REPORTED",
+                },
             ],
         }
 
