@@ -11,6 +11,8 @@ create table if not exists public.awareness_runs (
   user_id text references public.users(id) on delete cascade,
   age_band text not null,
   household_type text not null check (household_type in ('single','couple')),
+  run_token_hash text not null unique,
+  expires_at timestamptz not null,
   completed_at timestamptz,
   claimed_at timestamptz,
   created_at timestamptz not null default now()
