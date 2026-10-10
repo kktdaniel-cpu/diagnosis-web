@@ -263,3 +263,16 @@ def test_unknown_fact_never_becomes_numeric_in_coach_context():
     item=ctx["relevant_facts"][0]
     assert item["status"]=="UNKNOWN"
     assert item["value"] is None
+
+
+def test_waiting_external_help_matches_action_state():
+    ctx=build_action_context(
+        "ACT_CHECK_NPS_ESTIMATE",
+        {},
+        {"answers":{"AWR_Q02_NPS":"PARTIAL"}},
+        {"top3":[{"action_catalog_id":"ACT_CHECK_NPS_ESTIMATE","priority_class":"P1","reason_code":"AWR_Q02_NPS:PARTIAL","status":"WAITING_EXTERNAL"}]},
+    )
+    out=help_action("ACT_CHECK_NPS_ESTIMATE","확인 중",ctx)
+    assert out["waiting_external"] is True
+    assert "기다리는 중" in out["answer"]
+    assert any("다시 열어" in step for step in out["steps"])
