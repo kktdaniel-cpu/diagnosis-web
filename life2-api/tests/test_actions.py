@@ -478,7 +478,7 @@ def test_a9_health_review_preserves_unknown_band_without_money_guess():
         assert done.status_code==200
         facts=store.facts[subject]
         assert facts["health.critical_illness_benefit_band_q12"]["status"]=="UNKNOWN"
-        assert facts["health.critical_illness_benefit_band_q12"]["value"]=="NONE_UNKNOWN"
+        assert facts["health.critical_illness_benefit_band_q12"]["value"] is None
         assert facts["health.income_stop_plan_checked"]["value"] is False
         assert "health.coverage_score" not in facts
     finally:
@@ -703,5 +703,38 @@ def test_partial_awareness_action_starts_in_verify_mode():
         start=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start")
         assert start.status_code==200
         assert start.json()["data"]["mode"]=="VERIFY"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_unknown_fact_payloads_store_null_not_enum_marker():
+    subject=make_member("unknown-null")
+    try:
+        a7=client.post("/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/start").json()["data"]
+        done7=client.post(
+            f"/v1/me/actions/ACT_DEFINE_POST_RETIREMENT_WORK/{a7['action_instance_id']}/complete",
+            json={"fields":{
+                "work_plan_type":"PART_TIME_GIG",
+                "post_retirement_income_10k":150,
+                "work_end_age":67,
+                "health_insurance_type":"UNKNOWN"
+            }},
+        )
+        assert done7.status_code==200
+        assert store.facts[subject]["work.post_retirement.health_insurance_type"]["status"]=="UNKNOWN"
+        assert store.facts[subject]["work.post_retirement.health_insurance_type"]["value"] is None
+
+        a8=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
+        done8=client.post(
+            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{a8['action_instance_id']}/complete",
+            json={"fields":{
+                "housing_tenure":"OWNER_APARTMENT",
+                "housing_move_plan":"KEEP",
+                "reverse_mortgage_plan":"UNKNOWN"
+            }},
+        )
+        assert done8.status_code==200
+        assert store.facts[subject]["housing.reverse_mortgage_plan_q19"]["status"]=="UNKNOWN"
+        assert store.facts[subject]["housing.reverse_mortgage_plan_q19"]["value"] is None
     finally:
         app.dependency_overrides.clear()
