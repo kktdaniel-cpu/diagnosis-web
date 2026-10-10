@@ -6,7 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .catalog import QUESTIONS, QUESTION_BY_ID
 from .models import RunCreate, AnswerPut
 from .store import store
-from .top3 import select_top3\nfrom .auth import get_current_subject\nfrom .config import cors_origins
+from .top3 import select_top3
+from .auth import get_current_subject
+from .config import cors_origins
 
 APP_VERSION = "MVP-0.1.1"
 app = FastAPI(title="LIFE 2.0 API", version=APP_VERSION)
@@ -22,7 +24,11 @@ app.add_middleware(
 def health():
     return {"ok": True, "version": APP_VERSION}
 
-@app.get("/v1/me")\nasync def me(subject: str = Depends(get_current_subject)):\n    return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}\n\n@app.get("/v1/awareness/questions")
+@app.get("/v1/me")
+async def me(subject: str = Depends(get_current_subject)):
+    return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}
+
+@app.get("/v1/awareness/questions")
 def questions(household_type: str = "single"):
     if household_type not in {"single","couple"}:
         raise HTTPException(422, "invalid household_type")
