@@ -40,3 +40,7 @@ button:disabled{opacity:.55}
 .inputWithUnit .textInput{flex:1}
 .inputWithUnit span{white-space:nowrap;color:#65716a;font-size:14px}
 .ruleNote{background:#f0f7f3;border-radius:12px;padding:13px;font-size:14px;color:#466053}
+
+.multiChoices{display:grid;gap:9px}
+.multiChoice{display:flex;align-items:center;gap:10px;border:1px solid #dce5df;border-radius:12px;padding:13px 14px;font-size:16px}
+.multiChoice input{width:20px;height:20px}
