@@ -109,6 +109,16 @@ export default function App(){
     }
   }
 
+  async function loadDashboard(token:string){
+    const r=await fetch(`${API}/v1/me/dashboard`,{
+      headers:{'Authorization':`Bearer ${token}`}
+    });
+    const body=await r.json();
+    if(!r.ok) throw new Error(body?.detail?.code || 'DASHBOARD_FAILED');
+    setDashboard(body.data);
+    setScreen('dashboard');
+  }
+
   async function claimWithToken(token:string){
     const r=await fetch(`${API}/v1/me/awareness/claim`,{
       method:'POST',
@@ -132,7 +142,8 @@ export default function App(){
     }
     const {data}=await supabase.auth.getSession();
     if(data.session){
-      await claimWithToken(data.session.access_token);
+      if(handoffToken) await claimWithToken(data.session.access_token);
+      else await loadDashboard(data.session.access_token);
       return;
     }
     setScreen('auth');
@@ -146,7 +157,8 @@ export default function App(){
       const {data,error}=await supabase.auth.signUp({email,password});
       if(error) throw error;
       if(data.session){
-        await claimWithToken(data.session.access_token);
+        if(handoffToken) await claimWithToken(data.session.access_token);
+      else await loadDashboard(data.session.access_token);
       }else{
         setAuthMsg('가입 확인 메일을 보냈습니다. 이메일 확인 후 로그인해 주세요.');
       }
@@ -267,6 +279,7 @@ export default function App(){
       <h1>내 노후,<br/>얼마나 준비되어 있을까요?</h1>
       <p>연금·소득·건강·일자리·주거·가족 준비까지 12가지 질문으로 먼저 확인해 보세요.</p>
       <button onClick={()=>setScreen('meta')}>3분 노후준비 체크하기</button>
+      <button className="secondaryBtn" onClick={()=>{setHandoffToken('');setScreen('auth')}}>MY LIFE 이어보기</button>
       <small>회원가입 없이 시작 · 가장 먼저 할 3가지를 알려드려요</small>
     </section>}
 
@@ -311,14 +324,14 @@ export default function App(){
 
     {screen==='auth'&&<section className="card">
       <div className="progress">MY LIFE 2.0</div>
-      <h2>계속 관리하려면 가입해 주세요</h2>
-      <p>지금 확인한 3가지와 진행상태를 저장합니다.</p>
+      <h2>{handoffToken?'계속 관리하려면 가입해 주세요':'MY LIFE에 로그인'}</h2>
+      <p>{handoffToken?'지금 확인한 3가지와 진행상태를 저장합니다.':'저장한 준비상태와 Action을 이어서 확인합니다.'}</p>
       <label className="fieldLabel">이메일</label>
       <input className="textInput" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/>
       <label className="fieldLabel">비밀번호</label>
       <input className="textInput" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password"/>
-      <button disabled={busy || !email || password.length<6} onClick={signUp}>무료 회원가입</button>
-      <button className="secondaryBtn" disabled={busy || !email || !password} onClick={signIn}>기존 회원 로그인</button>
+      {handoffToken&&<button disabled={busy || !email || password.length<6} onClick={signUp}>무료 회원가입</button>}
+      <button className={handoffToken?'secondaryBtn':''} disabled={busy || !email || !password} onClick={signIn}>로그인</button>
       {authMsg&&<p className="statusMsg">{authMsg}</p>}
     </section>}
 
