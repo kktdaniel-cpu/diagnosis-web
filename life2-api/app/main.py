@@ -35,7 +35,21 @@ def _store_error(e: StoreError):
 def _action_error(e: ActionValidationError):
     raise HTTPException(status_code=422, detail={"code":e.code,"field":e.field})
 
-def _enrich_dashboard(data: dict) -> dict:
+def _domain_summary(answers: dict) -> dict:
+    domain_keys=("cashflow_asset","work","health","housing","welldying")
+    out={}
+    for domain in domain_keys:
+        qids=[q["id"] for q in QUESTIONS if q["domain"]==domain]
+        states=[answers.get(qid,"UNKNOWN_OR_NOT_PREPARED") for qid in qids]
+        out[domain]={
+            "confirmed":sum(1 for x in states if x=="CONFIRMED"),
+            "partial":sum(1 for x in states if x=="PARTIAL"),
+            "unknown_or_not_prepared":sum(1 for x in states if x=="UNKNOWN_OR_NOT_PREPARED"),
+            "total":len(states),
+        }
+    return out
+
+def _enrich_dashboard(data: dict, answers: dict | None = None) -> dict:
     enriched=[]
     for item in data.get("top3", []):
         x=dict(item)
@@ -45,6 +59,8 @@ def _enrich_dashboard(data: dict) -> dict:
         enriched.append(x)
     data=dict(data)
     data["top3"]=enriched
+    if answers is not None:
+        data["domains"]=_domain_summary(answers)
     return data
 
 @app.get("/health")
@@ -60,7 +76,8 @@ async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_curr
     try:
         data=store.claim_handoff(payload.handoff_token,subject)
         data=dict(data)
-        data["dashboard"]=_enrich_dashboard(data.get("dashboard") or {})
+        awareness=store.member_awareness(subject)
+        data["dashboard"]=_enrich_dashboard(data.get("dashboard") or {},awareness["answers"])
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
@@ -68,7 +85,8 @@ async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_curr
 @app.get("/v1/me/dashboard")
 async def dashboard(subject: str = Depends(get_current_subject)):
     try:
-        data=_enrich_dashboard(store.dashboard(subject))
+        awareness=store.member_awareness(subject)
+        data=_enrich_dashboard(store.dashboard(subject),awareness["answers"])
     except StoreError as e:
         _store_error(e)
     return {"ok":True,"data":data}
@@ -245,7 +263,7 @@ async def complete_action(
                 "fact_keys":[] if idempotent else [x["fact_key"] for x in prepared["facts"]],
                 "top3_changed":False if idempotent else before_ids != after_ids,
             },
-            "dashboard":_enrich_dashboard(after),
+            "dashboard":_enrich_dashboard(after,updated_answers),
         }
     }
 
