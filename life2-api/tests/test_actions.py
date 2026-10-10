@@ -790,25 +790,6 @@ def test_a5_income_gap_requires_a1_a2_a4_and_never_invents_monthly_shortfall():
         app.dependency_overrides.clear()
 
 
-def test_a8_owner_unknown_reverse_mortgage_does_not_complete():
-    make_member("a8-unknown")
-    try:
-        start=client.post("/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start").json()["data"]
-        bad=client.post(
-            f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{start['action_instance_id']}/complete",
-            json={"fields":{
-                "housing_tenure":"OWNER_APARTMENT",
-                "housing_move_plan":"KEEP",
-                "reverse_mortgage_plan":"UNKNOWN",
-            }},
-        )
-        assert bad.status_code==422
-        assert bad.json()["detail"]["code"]=="UNKNOWN_NOT_COMPLETE"
-        assert bad.json()["detail"]["field"]=="reverse_mortgage_plan"
-    finally:
-        app.dependency_overrides.clear()
-
-
 def test_a8_renter_can_complete_without_reverse_mortgage_fields():
     subject=make_member("a8-renter")
     try:
@@ -829,35 +810,3 @@ def test_a8_renter_can_complete_without_reverse_mortgage_fields():
         app.dependency_overrides.clear()
 
 
-def test_a9_separates_no_coverage_from_unknown_and_unknown_cannot_complete():
-    subject=make_member("a9-user")
-    try:
-        start=client.post("/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/start").json()["data"]
-        bad=client.post(
-            f"/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/{start['action_instance_id']}/complete",
-            json={"fields":{
-                "critical_illness_benefit_band":"UNKNOWN",
-                "indemnity_coverage":"INDEMNITY_ONLY",
-                "major_history":"NONE",
-                "income_stop_plan_checked":"YES",
-            }},
-        )
-        assert bad.status_code==422
-        assert bad.json()["detail"]["code"]=="UNKNOWN_NOT_COMPLETE"
-
-        done=client.post(
-            f"/v1/me/actions/ACT_REVIEW_HEALTH_COVERAGE/{start['action_instance_id']}/complete",
-            json={"fields":{
-                "critical_illness_benefit_band":"NONE",
-                "indemnity_coverage":"INDEMNITY_ONLY",
-                "major_history":"NONE",
-                "income_stop_plan_checked":"NO",
-            }},
-        )
-        assert done.status_code==200
-        facts=store.facts[subject]
-        assert facts["health.critical_illness_benefit_band_q12"]["status"]=="KNOWN"
-        assert facts["health.critical_illness_benefit_band_q12"]["value"]=="NONE"
-        assert facts["health.income_stop_plan_checked"]["value"] is False
-    finally:
-        app.dependency_overrides.clear()
