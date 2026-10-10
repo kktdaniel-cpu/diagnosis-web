@@ -642,3 +642,66 @@ def test_invalid_action_completion_rolls_back_without_fact_or_state_change():
         assert before["confirmed_awareness_count"]==after["confirmed_awareness_count"]
     finally:
         app.dependency_overrides.clear()
+
+
+def test_all_twelve_actions_expose_form_and_can_start():
+    make_member("all-actions")
+    try:
+        action_ids=[
+            "ACT_CONFIRM_RETIREMENT_AGE",
+            "ACT_CHECK_NPS_ESTIMATE",
+            "ACT_CHECK_RET_PRIVATE_PENSION",
+            "ACT_ESTIMATE_RETIREMENT_BUDGET",
+            "ACT_CALCULATE_INCOME_GAP",
+            "ACT_SUMMARIZE_ASSETS_DEBT",
+            "ACT_DEFINE_POST_RETIREMENT_WORK",
+            "ACT_DEFINE_HOUSING_PLAN",
+            "ACT_REVIEW_HEALTH_COVERAGE",
+            "ACT_DEFINE_CARE_PLAN",
+            "ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST",
+            "ACT_START_FAMILY_WELLDYING_CONVERSATION",
+        ]
+        for action_id in action_ids:
+            form=client.get(f"/v1/me/actions/{action_id}")
+            assert form.status_code==200, action_id
+            assert form.json()["data"]["action_catalog_id"]==action_id
+            start=client.post(f"/v1/me/actions/{action_id}/start")
+            assert start.status_code==200, action_id
+            assert start.json()["data"]["action_catalog_id"]==action_id
+            assert start.json()["data"]["status"]=="IN_PROGRESS"
+    finally:
+        app.dependency_overrides.clear()
+
+
+def test_partial_awareness_action_starts_in_verify_mode():
+    created=client.post(
+        "/v1/awareness/runs",
+        json={"age_band":"50_55","household_type":"single"},
+    ).json()["data"]
+    headers={"X-Awareness-Token":created["run_token"]}
+    for q in QUESTIONS:
+        response="PARTIAL" if q["id"]=="AWR_Q02_NPS" else "CONFIRMED"
+        saved=client.put(
+            f"/v1/awareness/runs/{created['run_id']}/answers/{q['id']}",
+            json={"response":response},
+            headers=headers,
+        )
+        assert saved.status_code==200
+
+    completed=client.post(
+        f"/v1/awareness/runs/{created['run_id']}/complete",
+        headers=headers,
+    ).json()["data"]
+
+    app.dependency_overrides[get_current_subject]=lambda:"verify-user"
+    try:
+        claim=client.post(
+            "/v1/me/awareness/claim",
+            json={"handoff_token":completed["handoff_token"]},
+        )
+        assert claim.status_code==200
+        start=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start")
+        assert start.status_code==200
+        assert start.json()["data"]["mode"]=="VERIFY"
+    finally:
+        app.dependency_overrides.clear()
