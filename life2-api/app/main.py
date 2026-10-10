@@ -124,7 +124,7 @@ async def complete_action(
         updated_answers[prepared["question_id"]]="CONFIRMED"
         new_top3=select_top3(updated_answers)
         before=store.dashboard(subject)
-        after=store.complete_action(
+        completion=store.complete_action(
             subject,
             action_instance_id,
             action_catalog_id,
@@ -132,6 +132,8 @@ async def complete_action(
             prepared["facts"],
             new_top3,
         )
+        after=completion["dashboard"]
+        idempotent=bool(completion.get("idempotent"))
     except StoreError as e:
         _store_error(e)
     except ActionValidationError as e:
@@ -143,10 +145,11 @@ async def complete_action(
         "ok":True,
         "data":{
             "action":{"action_catalog_id":action_catalog_id,"status":"SELF_REPORTED_DONE"},
-            "normalized":prepared["normalized"],
+            "idempotent":idempotent,
+            "normalized":None if idempotent else prepared["normalized"],
             "changes":{
-                "fact_keys":[x["fact_key"] for x in prepared["facts"]],
-                "top3_changed":before_ids != after_ids,
+                "fact_keys":[] if idempotent else [x["fact_key"] for x in prepared["facts"]],
+                "top3_changed":False if idempotent else before_ids != after_ids,
             },
             "dashboard":_enrich_dashboard(after),
         }
