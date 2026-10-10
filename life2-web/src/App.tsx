@@ -14,42 +14,57 @@ const labels:Record<Resp,string>={
 export default function App(){
   const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'>('landing');
   const [household,setHousehold]=useState<'single'|'couple'>('couple');
+  const [ageBand,setAgeBand]=useState('50_55');
   const [qs,setQs]=useState<Q[]>([]);
   const [idx,setIdx]=useState(0);
   const [run,setRun]=useState('');
+  const [runToken,setRunToken]=useState('');
   const [top,setTop]=useState<Top[]>([]);
   const [busy,setBusy]=useState(false);
 
   async function start(){
     setBusy(true);
-    const q=await fetch(`${API}/v1/awareness/questions?household_type=${household}`).then(r=>r.json());
-    const rr=await fetch(`${API}/v1/awareness/runs`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({age_band:'50_55',household_type:household})
-    }).then(r=>r.json());
-    setQs(q.data.questions);
-    setRun(rr.data.run_id);
-    setIdx(0);
-    setScreen('quiz');
-    setBusy(false);
+    try{
+      const q=await fetch(`${API}/v1/awareness/questions?household_type=${household}`).then(r=>r.json());
+      const rr=await fetch(`${API}/v1/awareness/runs`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({age_band:ageBand,household_type:household})
+      }).then(r=>r.json());
+      setQs(q.data.questions);
+      setRun(rr.data.run_id);
+      setRunToken(rr.data.run_token);
+      setIdx(0);
+      setScreen('quiz');
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function answer(resp:Resp){
     setBusy(true);
-    await fetch(`${API}/v1/awareness/runs/${run}/answers/${qs[idx].id}`,{
-      method:'PUT',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({response:resp})
-    });
-    if(idx+1<qs.length){
-      setIdx(idx+1);
-    }else{
-      const d=await fetch(`${API}/v1/awareness/runs/${run}/complete`,{method:'POST'}).then(r=>r.json());
-      setTop(d.data.top3);
-      setScreen('result');
+    try{
+      await fetch(`${API}/v1/awareness/runs/${run}/answers/${qs[idx].id}`,{
+        method:'PUT',
+        headers:{
+          'Content-Type':'application/json',
+          'X-Awareness-Token':runToken
+        },
+        body:JSON.stringify({response:resp})
+      });
+      if(idx+1<qs.length){
+        setIdx(idx+1);
+      }else{
+        const d=await fetch(
+          `${API}/v1/awareness/runs/${run}/complete`,
+          {method:'POST',headers:{'X-Awareness-Token':runToken}}
+        ).then(r=>r.json());
+        setTop(d.data.top3);
+        setScreen('result');
+      }
+    } finally {
+      setBusy(false);
     }
-    setBusy(false);
   }
 
   return <main className="app">
@@ -63,7 +78,16 @@ export default function App(){
 
     {screen==='meta'&&<section className="card">
       <div className="progress">시작 전</div>
-      <h2>가구 형태를 알려주세요</h2>
+      <h2>기본정보를 알려주세요</h2>
+      <label className="fieldLabel">연령대</label>
+      <select className="select" value={ageBand} onChange={e=>setAgeBand(e.target.value)}>
+        <option value="45_49">45~49세</option>
+        <option value="50_55">50~55세</option>
+        <option value="56_59">56~59세</option>
+        <option value="60_64">60~64세</option>
+        <option value="65_PLUS">65세 이상</option>
+      </select>
+      <label className="fieldLabel">가구 형태</label>
       <label className="choice"><input type="radio" checked={household==='couple'} onChange={()=>setHousehold('couple')}/> 배우자와 함께 삽니다</label>
       <label className="choice"><input type="radio" checked={household==='single'} onChange={()=>setHousehold('single')}/> 혼자 삽니다</label>
       <button disabled={busy} onClick={start}>12문항 시작하기</button>
