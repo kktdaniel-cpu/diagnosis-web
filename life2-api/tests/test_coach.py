@@ -149,3 +149,50 @@ def test_change_summary_endpoint_reads_completed_action_event():
         assert "work.primary_job_exit_age" in data["fact_refs"]
     finally:
         app.dependency_overrides.clear()
+
+
+def test_change_summary_reports_no_top3_change_without_claiming_improvement():
+    from app.coach import summarize_change
+    event={
+        "event_id":"evt-no-change",
+        "action_instance_id":"act-no-change",
+        "action_catalog_id":"ACT_REVIEW_HEALTH_COVERAGE",
+        "metadata":{
+            "fact_keys":["health.income_stop_plan_checked"],
+            "top3_before":["A","B","C"],
+            "top3_after":["A","B","C"],
+            "top3_changed":False,
+        },
+    }
+    out=summarize_change(event)
+    assert out["top3_changed"] is False
+    assert out["top3_added"]==[]
+    assert out["top3_removed"]==[]
+    assert "바뀌지 않았습니다" in out["message"]
+    assert "개선" not in out["message"]
+
+
+def test_change_summary_names_newly_enabled_action_from_diff():
+    from app.coach import summarize_change
+    event={
+        "event_id":"evt-derived",
+        "action_instance_id":"act-derived",
+        "action_catalog_id":"ACT_SUMMARIZE_ASSETS_DEBT",
+        "metadata":{
+            "fact_keys":["asset.financial_liquid_band_q23","debt.total_band_q30"],
+            "top3_before":[
+                "ACT_SUMMARIZE_ASSETS_DEBT",
+                "ACT_CHECK_RET_PRIVATE_PENSION",
+                "ACT_DEFINE_POST_RETIREMENT_WORK",
+            ],
+            "top3_after":[
+                "ACT_CALCULATE_INCOME_GAP",
+                "ACT_DEFINE_POST_RETIREMENT_WORK",
+                "ACT_DEFINE_HOUSING_PLAN",
+            ],
+            "top3_changed":True,
+        },
+    }
+    out=summarize_change(event)
+    assert "ACT_CALCULATE_INCOME_GAP" in out["top3_added"]
+    assert "내 소득공백 계산하기" in out["message"]
