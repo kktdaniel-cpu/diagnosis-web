@@ -14,7 +14,7 @@ type Dashboard={
 type ActionField={
   key:string;
   label:string;
-  type:'integer'|'select';
+  type:'integer'|'select'|'multi_select';
   unit?:string;
   min?:number;
   max?:number;
@@ -44,7 +44,9 @@ const supported=new Set([
   'ACT_ESTIMATE_RETIREMENT_BUDGET',
   'ACT_SUMMARIZE_ASSETS_DEBT',
   'ACT_DEFINE_POST_RETIREMENT_WORK',
-  'ACT_DEFINE_CARE_PLAN'
+  'ACT_DEFINE_CARE_PLAN',
+  'ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',
+  'ACT_START_FAMILY_WELLDYING_CONVERSATION'
 ]);
 
 export default function App(){
@@ -395,6 +397,24 @@ export default function App(){
               <option value="">선택해 주세요</option>
               {(f.options||[]).map(o=><option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
+          :f.type==='multi_select'?
+            <div className="multiChoices">
+              {(f.options||[]).map(o=>{
+                const values=Array.isArray(actionFields[f.key]) ? actionFields[f.key] as unknown as string[] : [];
+                const checked=values.includes(o.value);
+                return <label className="multiChoice" key={o.value}>
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={()=>{
+                      const nextValues=checked?values.filter(v=>v!==o.value):[...values,o.value];
+                      setActionFields({...actionFields,[f.key]:nextValues as unknown as string});
+                    }}
+                  />
+                  <span>{o.label}</span>
+                </label>
+              })}
+            </div>
           :
             <div className="inputWithUnit">
               <input
@@ -418,6 +438,12 @@ export default function App(){
       }
       {actionForm.action_catalog_id==='ACT_DEFINE_CARE_PLAN'&&
         <p className="ruleNote">MVP에서는 정확한 간병비가 아니라 월 비용 구간까지만 정리합니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST'&&
+        <p className="ruleNote">비밀번호·PIN·개인키·복구문구는 LIFE 2.0에 입력하거나 저장하지 않습니다. 존재 여부와 찾는 방법만 정리합니다.</p>
+      }
+      {actionForm.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'&&
+        <p className="ruleNote">완료 기준은 가족과 실제 대화 1회 이상 + 선호사항 1개 이상 기록입니다.</p>
       }
       <button disabled={busy} onClick={completeAction}>확인 완료</button>
       <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
