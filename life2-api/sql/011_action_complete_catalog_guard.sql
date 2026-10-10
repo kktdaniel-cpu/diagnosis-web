@@ -1,0 +1,11 @@
+-- Guard Action completion against client catalog/action-instance mismatch.
+-- Applied to Supabase life2-master-v2.
+--
+-- rpc_action_complete now requires both:
+--   p_action_instance_id
+--   p_action_catalog_id
+-- and rejects mismatches before FACT/ACTION/FINDING updates.
+--
+-- The completion transaction remains atomic:
+-- FACT upsert -> Action DONE -> Awareness CONFIRMED ->
+-- Finding RESOLVED -> Top3 replace -> Activity append -> Dashboard.
