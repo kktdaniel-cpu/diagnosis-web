@@ -45,3 +45,30 @@ def test_precision_entry_keeps_existing_engine_separate():
         assert data["engine_authority"]=="diagnosis-api Ver32.42"
     finally:
         app.dependency_overrides.clear()
+
+
+def test_delete_me_removes_memory_member_data():
+    from app.auth import get_current_subject
+    from app.catalog import QUESTIONS
+    from app.store import store
+
+    created=client.post("/v1/awareness/runs",json={"age_band":"50_55","household_type":"single"}).json()["data"]
+    headers={"X-Awareness-Token":created["run_token"]}
+    for q in QUESTIONS:
+        assert client.put(
+            f"/v1/awareness/runs/{created['run_id']}/answers/{q['id']}",
+            json={"response":"UNKNOWN_OR_NOT_PREPARED"},
+            headers=headers,
+        ).status_code==200
+    done=client.post(f"/v1/awareness/runs/{created['run_id']}/complete",headers=headers).json()["data"]
+
+    app.dependency_overrides[get_current_subject]=lambda:"delete-user"
+    try:
+        assert client.post("/v1/me/awareness/claim",json={"handoff_token":done["handoff_token"]}).status_code==200
+        deleted=client.delete("/v1/me")
+        assert deleted.status_code==200
+        assert deleted.json()["data"]["deleted"] is True
+        assert "delete-user" not in store.member_run
+        assert client.get("/v1/me/dashboard").json()["data"]["top3"]==[]
+    finally:
+        app.dependency_overrides.clear()
