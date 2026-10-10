@@ -10,6 +10,7 @@ type Dashboard={
   top3:Top[];
   in_progress:unknown[];
   recent_changes:unknown[];
+  domains?:Record<string,{confirmed:number;partial:number;unknown_or_not_prepared:number;total:number}>;
 };
 type ActionField={
   key:string;
@@ -502,6 +503,22 @@ export default function App(){
       </div>
       <div className="confirmCount">확인 완료 <b>{dashboard.confirmed_awareness_count}/{dashboard.awareness_total}</b></div>
       {changeSummary&&<div className="changeSummary"><b>이번에 달라진 점</b><p>{changeSummary}</p></div>}
+      {dashboard.domains&&<div className="domainGrid">
+        {[
+          ['cashflow_asset','돈·연금'],
+          ['work','일'],
+          ['health','건강·돌봄'],
+          ['housing','주거'],
+          ['welldying','가족·웰다잉']
+        ].map(([key,label])=>{
+          const d=dashboard.domains?.[key];
+          return <div className="domainCard" key={key}>
+            <span>{label}</span>
+            <b>{d?.confirmed ?? 0}/{d?.total ?? 0}</b>
+            <small>확인 완료</small>
+          </div>
+        })}
+      </div>}
       {dashboard.top3.map((x,i)=>
         <button className="action actionButton" key={x.action_catalog_id} onClick={()=>openAction(x)} disabled={busy}>
           <b>{i+1}. {x.title}</b>
