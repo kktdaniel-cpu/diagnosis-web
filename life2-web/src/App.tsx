@@ -451,7 +451,7 @@ export default function App(){
         <p>{coachMsg}</p>
         {coachSteps.length>0&&<ul>{coachSteps.map((x,i)=><li key={i}>{x}</li>)}</ul>}
         <small>현재는 검증된 FACT·Rule만 사용하는 안전한 기본 안내 모드입니다.</small>
-      </div>
+      </div>}
       {actionForm.action_catalog_id==='ACT_CALCULATE_INCOME_GAP'&&actionForm.preview?.ready&&
         <div className="previewBox">
           <b>퇴직 → 본인 국민연금 개시 공백</b>
