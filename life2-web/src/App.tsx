@@ -302,18 +302,32 @@ export default function App(){
     setActionMsg('');
     try{
       const token=await accessToken();
-      await saveActionDraft();
+      const saveRes=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
+        body:JSON.stringify({fields:actionFields})
+      });
+      const saveBody=await saveRes.json();
+      if(!saveRes.ok) throw new Error(saveBody?.detail?.code || 'ACTION_SAVE_FAILED');
+
       const r=await fetch(`${API}/v1/me/actions/${actionInstanceId}/wait`,{
         method:'POST',
         headers:{'Authorization':`Bearer ${token}`}
       });
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_WAIT_FAILED');
-      await loadDashboard(token);
+
+      const dashboardRes=await fetch(`${API}/v1/me/dashboard`,{
+        headers:{'Authorization':`Bearer ${token}`}
+      });
+      const dashboardBody=await dashboardRes.json();
+      if(!dashboardRes.ok) throw new Error(dashboardBody?.detail?.code || 'DASHBOARD_FAILED');
+      setDashboard(dashboardBody.data);
       setActionForm(null);
       setActionInstanceId('');
       setActionFields({});
       setActionMsg('외부 확인 후 이어서 할 수 있도록 저장했습니다.');
+      setScreen('dashboard');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '대기 상태로 저장하지 못했습니다.');
     }finally{
