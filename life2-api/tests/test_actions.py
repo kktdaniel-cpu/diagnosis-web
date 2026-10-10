@@ -615,3 +615,30 @@ def test_cross_user_cannot_access_foreign_action_instance():
         assert summary.status_code==404
     finally:
         app.dependency_overrides.clear()
+
+
+def test_invalid_action_completion_rolls_back_without_fact_or_state_change():
+    subject=make_member("rollback-user")
+    try:
+        start=client.post("/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/start").json()["data"]
+        aid=start["action_instance_id"]
+        before=client.get("/v1/me/dashboard").json()["data"]
+
+        bad=client.post(
+            f"/v1/me/actions/ACT_CHECK_NPS_ESTIMATE/{aid}/complete",
+            json={"fields":{
+                "birth_year_self":1968,
+                "nps_monthly_self":1200000
+            }},
+        )
+        assert bad.status_code==422
+
+        assert "pension.nps.monthly_self" not in store.facts.get(subject,{})
+        item=store.action_instances[aid]
+        assert item["status"]=="IN_PROGRESS"
+        awareness=store.member_awareness(subject)
+        assert awareness["answers"]["AWR_Q02_NPS"]=="UNKNOWN_OR_NOT_PREPARED"
+        after=client.get("/v1/me/dashboard").json()["data"]
+        assert before["confirmed_awareness_count"]==after["confirmed_awareness_count"]
+    finally:
+        app.dependency_overrides.clear()
