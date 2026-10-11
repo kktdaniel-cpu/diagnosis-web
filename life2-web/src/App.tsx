@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase, isPasswordRecovery } from './supabase';
 import { familyConversationBlockReason } from './familyConversation';
+import { isPensionAmount, pensionFields, digitalListBlockReason } from './actionInput';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -391,7 +392,7 @@ export default function App(){
       if(!startRes.ok) throw new Error(startBody?.detail?.code || 'ACTION_START_FAILED');
       setActionForm(formBody.data);
       setActionInstanceId(startBody.data.action_instance_id);
-      setActionFields(startBody.data.draft || {});
+      setActionFields(pensionFields(item.action_catalog_id,startBody.data.draft || {},false));
       setScreen('action');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : 'Action을 열지 못했습니다.');
@@ -409,12 +410,12 @@ export default function App(){
       const r=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-        body:JSON.stringify({fields:actionFields})
+        body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
       });
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_SAVE_FAILED');
       setActionMsg('저장했습니다. 나중에 이어서 할 수 있어요.');
-      if(actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'){
+      if(actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION' || actionForm?.action_catalog_id==='ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST'){
         await loadDashboard(token);
         setActionForm(null);
         setActionInstanceId('');
@@ -437,7 +438,7 @@ export default function App(){
       const saveRes=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-        body:JSON.stringify({fields:actionFields})
+        body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
       });
       const saveBody=await saveRes.json();
       if(!saveRes.ok) throw new Error(saveBody?.detail?.code || 'ACTION_SAVE_FAILED');
@@ -518,7 +519,7 @@ export default function App(){
   }
 
   const familyBlockReason=actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'
-    ? familyConversationBlockReason(actionFields) : null;
+    ? familyConversationBlockReason(actionFields) : digitalListBlockReason(actionForm?.action_catalog_id || '',actionFields);
 
   async function completeAction(){
     if(!actionForm || !actionInstanceId) return;
@@ -532,7 +533,7 @@ export default function App(){
         {
           method:'POST',
           headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-          body:JSON.stringify({fields:actionFields})
+          body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
         }
       );
       const body=await r.json();
@@ -764,18 +765,19 @@ export default function App(){
               <input
                 className="textInput"
                 type="number"
-                min={f.min}
-                max={f.max}
+                min={isPensionAmount(actionForm.action_catalog_id,f.key) && f.min!==undefined?f.min/10000:f.min}
+                max={isPensionAmount(actionForm.action_catalog_id,f.key) && f.max!==undefined?f.max/10000:f.max}
+                step={isPensionAmount(actionForm.action_catalog_id,f.key)?0.0001:1}
                 value={actionFields[f.key] ?? ''}
                 onChange={e=>setActionFields({...actionFields,[f.key]:e.target.value})}
               />
-              {f.unit&&<span>{f.unit}</span>}
+              {f.unit&&<span>{isPensionAmount(actionForm.action_catalog_id,f.key)?'만원/월':f.unit}</span>}
             </div>
           }
         </div>
       )}
       {actionForm.action_catalog_id==='ACT_CHECK_NPS_ESTIMATE'&&
-        <p className="ruleNote">수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
+        <p className="ruleNote">월 예상액은 만원 단위로 입력해 주세요. 예: 150만원은 150, 150만 5천원은 150.5입니다. 수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
       }
       {actionForm.action_catalog_id==='ACT_CHECK_RET_PRIVATE_PENSION'&&
         <p className="ruleNote">수령 개시 나이는 만 55세 이상만 입력할 수 있습니다. 수령 종료 나이는 개시 나이 + 수령 기간으로 계산합니다.</p>

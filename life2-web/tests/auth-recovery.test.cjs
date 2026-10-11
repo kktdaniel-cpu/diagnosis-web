@@ -6,13 +6,15 @@ const {transformSync}=require('rolldown/experimental');
 const source=transformSync('App.tsx',fs.readFileSync(require('node:path').join(__dirname,'../src/App.tsx'),'utf8').replace('import.meta.env.VITE_API_BASE',"'https://api.example.test'"),{jsx:{runtime:'automatic'}}).code.replace(/import \{([^}]+)\} from ([^;]+);/g,(_,names,mod)=>`const {${names.replace(/ as /g,':')}}=require(${mod});`).replace('export default function App','exports.default=function App');
 const familyContext={exports:{}};
 vm.runInNewContext(transformSync('familyConversation.ts',fs.readFileSync(require('node:path').join(__dirname,'../src/familyConversation.ts'),'utf8')).code.replace('export function familyConversationBlockReason','exports.familyConversationBlockReason=function'),familyContext);
+const inputContext={exports:{}};
+vm.runInNewContext(transformSync('actionInput.ts',fs.readFileSync(require('node:path').join(__dirname,'../src/actionInput.ts'),'utf8')).code.replace(/export function /g,'exports.PLACEHOLDER=function ').replace(/exports.PLACEHOLDER=function (\w+)/g,'exports.$1=function $1'),inputContext);
 function fixture(url,session=null,pending='',fetchResponse=null){
   let states=[],cursor=0,effects=[],first=true,listener,fetches=0,calls=[],tree;
   const storage=new Map(pending?[['life2.pending_handoff',pending]]:[]);
   const auth={getSession:async()=>({data:{session}}),onAuthStateChange:f=>{listener=f;return {data:{listener:{subscription:{unsubscribe(){}}}}}},resetPasswordForEmail:async(...args)=>{calls.push(['request',...args]);return {error:null}},updateUser:async(...args)=>{calls.push(['update',...args]);return {error:null}},signOut:async()=>({error:null})};
   const react={useState:init=>{const i=cursor++;if(first)states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=v]},useRef:init=>{const i=cursor++;if(first)states[i]={current:init};return states[i]},useEffect:f=>{if(first)effects.push(f)}};
   const jsx=(type,props)=>({type,props});
-  const context={exports:{},require:n=>n==='react'?react:n==='./familyConversation'?familyContext.exports:n==='./supabase'?{supabase:{auth},isPasswordRecovery:new URL(url).searchParams.get('auth')==='recovery'||new URLSearchParams(new URL(url).hash.slice(1)).get('type')==='recovery'}:{jsx,jsxs:jsx},URL,URLSearchParams,window:{location:new URL(url),history:{replaceState(){}}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout,fetch:async(url,options)=>{fetches++;return {ok:true,json:async()=>fetchResponse?fetchResponse(url,options):({data:{dashboard:{},top3:[]}})}}};
+  const context={exports:{},require:n=>n==='react'?react:n==='./familyConversation'?familyContext.exports:n==='./actionInput'?inputContext.exports:n==='./supabase'?{supabase:{auth},isPasswordRecovery:new URL(url).searchParams.get('auth')==='recovery'||new URLSearchParams(new URL(url).hash.slice(1)).get('type')==='recovery'}:{jsx,jsxs:jsx},URL,URLSearchParams,window:{location:new URL(url),history:{replaceState(){}}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout,fetch:async(url,options)=>{fetches++;return {ok:true,json:async()=>fetchResponse?fetchResponse(url,options):({data:{dashboard:{},top3:[]}})}}};
   vm.runInNewContext(source,context);
   const render=()=>{cursor=0;tree=context.exports.default();first=false;return tree};
   const nodes=()=>{const out=[];function walk(n){if(Array.isArray(n))n.forEach(walk);else if(n&&typeof n==='object'){out.push(n);walk(n.props?.children)}}walk(tree);return out};
@@ -63,4 +65,36 @@ test('unfinished family conversation saves as a draft and returns to MY LIFE wit
  const draft=requests.find(r=>r.url.endsWith('/submit'));
  assert.equal(JSON.parse(draft.options.body).fields.conversation_done,'NO');
  assert.deepEqual(JSON.parse(draft.options.body).fields.preference_topics,['CARE']);
+});
+
+test('digital list cannot complete until family knows the location and procedure',()=>{
+ const reason=inputContext.exports.digitalListBlockReason;
+ const fields={digital_categories:['EMAIL_SOCIAL'],inventory_location_type:'DIGITAL_SECURE_FILE',family_can_locate:'NO',access_procedure_prepared:'NO'};
+ assert.match(reason('ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',fields),/저장하고 나중에/);
+ fields.family_can_locate='YES';assert.match(reason('ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',fields),/절차/);
+ fields.access_procedure_prepared='YES';assert.equal(reason('ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',fields),null);
+});
+test('pension draft round trip keeps original won precision and converts only NPS amounts',()=>{
+ const convert=inputContext.exports.pensionFields;
+ const original={birth_year_self:1975,nps_monthly_self:1500001,nps_monthly_spouse:0};
+ const display=convert('ACT_CHECK_NPS_ESTIMATE',original,false);
+ assert.equal(display.nps_monthly_self,150.0001);assert.equal(display.nps_monthly_spouse,0);
+ const stored=convert('ACT_CHECK_NPS_ESTIMATE',display,true);
+ assert.equal(stored.nps_monthly_self,1500001);assert.equal(stored.birth_year_self,1975);
+ assert.equal(convert('ACT_CHECK_NPS_ESTIMATE',{nps_monthly_self:'150.5',nps_monthly_spouse:''},true).nps_monthly_self,1505000);
+ assert.equal(convert('ACT_CHECK_NPS_ESTIMATE',{nps_monthly_spouse:''},true).nps_monthly_spouse,'');
+ assert.equal(convert('OTHER',original,true),original);
+});
+test('digital list draft returns to dashboard without marking incomplete preparation done',async()=>{
+ const action='ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST',requests=[];
+ const fields={digital_categories:['EMAIL_SOCIAL'],inventory_location_type:'DIGITAL_SECURE_FILE',family_can_locate:'NO',access_procedure_prepared:'NO'};
+ const dashboard={confirmed_awareness_count:0,awareness_total:12,top3:[{action_catalog_id:action,title:'디지털 목록',mode:'CREATE',status:'IN_PROGRESS'}],in_progress:[],recent_changes:[]};
+ const f=fixture('https://web.test/?auth=confirmed',{access_token:'fake'},'',(url,options)=>{
+  requests.push({url,options});return {data:url.endsWith('/dashboard')?dashboard:url.endsWith('/start')?{action_instance_id:'digital-test',draft:fields}:url.endsWith('/submit')?{}:{action_catalog_id:action,title:'디지털 목록',description:'',fields:[]}};
+ });
+ await f.flush();f.render();await f.find('button',/디지털 목록/).props.onClick();f.render();
+ assert.equal(f.find('button','확인 완료').props.disabled,true);
+ await f.find('button','확인 완료').props.onClick();assert.equal(requests.filter(r=>r.url.endsWith('/complete')).length,0);
+ await f.find('button','저장하고 나중에').props.onClick();f.render();assert.ok(f.find('h2','지금 먼저 할 일'));
+ assert.deepEqual(JSON.parse(requests.find(r=>r.url.endsWith('/submit')).options.body).fields,fields);
 });
