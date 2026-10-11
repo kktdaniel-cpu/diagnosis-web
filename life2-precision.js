@@ -1,7 +1,8 @@
 /* Companion entry for MY LIFE. The legacy engine and scoring stay authoritative. */
 (function(){
   'use strict';
-  var origin='https://life2-web-prod.onrender.com', parent=window.opener;
+  var origins=['https://life2-web-prod.onrender.com','https://life2-web-dev.onrender.com'];
+  var origin=null, parent=window.opener;
   var accepted=false, transferred={}, protocol='LIFE2_PREFILL_V1';
   function notice(text){
     var node=document.getElementById('life2-prefill-info');
@@ -52,9 +53,10 @@
   }
   function stop(){clearInterval(ping);clearTimeout(timeout);window.removeEventListener('message',receive);window.opener=null;}
   function receive(event){
-    if(accepted || event.origin!==origin || event.source!==parent || !event.data || event.data.protocol!==protocol || event.data.type!=='PREFILL')return;
+    if(accepted || origins.indexOf(event.origin)===-1 || event.source!==parent || !event.data || event.data.protocol!==protocol || event.data.type!=='PREFILL')return;
     var payload=event.data.prefill;
     if(!payload || typeof payload!=='object' || Array.isArray(payload))return;
+    origin=event.origin;
     accepted=true;
     loadCatalog().then(function(){
       apply(payload);
@@ -65,7 +67,7 @@
   goFullIntro();
   if(!parent){notice('정밀진단을 시작해 주세요. MY LIFE에서 열면 확인한 정보를 불러올 수 있습니다.');return;}
   window.addEventListener('message',receive);
-  function ready(){parent.postMessage({protocol:protocol,type:'READY'},origin);}
+  function ready(){origins.forEach(function(target){parent.postMessage({protocol:protocol,type:'READY'},target);});}
   var ping=setInterval(ready,500);
   var timeout=setTimeout(function(){notice('자동 불러오기가 연결되지 않았습니다. 정밀진단을 직접 진행할 수 있습니다.');stop();},25000);
   ready();
