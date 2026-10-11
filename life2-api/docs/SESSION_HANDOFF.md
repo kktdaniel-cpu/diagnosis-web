@@ -64,7 +64,7 @@ PDF 실제 생성·페이지 누락/잘림/빈 페이지 검증은 미완료.
 8. 정밀리포트 표시 오류 조사와 실제 PDF 출력 검증.
 
 ## 다음 채팅 시작 문구
-'GitHub mvp/life2-bootstrap의 life2-api/docs/SESSION_HANDOFF.md를 읽고 최신 branch/CI/Render와 대조해 이어서 진행하세요. 기존 운영과 Google Master DB를 보호하고 main merge/운영 deploy는 별도 승인 전 금지합니다.'
+'GitHub Draft PR #33의 docs/life2-session-handoff-20261012 브랜치에서 life2-api/docs/SESSION_HANDOFF.md를 읽고 최신 branch/CI/Render와 대조해 이어서 진행하세요. 기존 운영과 Google Master DB를 보호하고 main merge/운영 deploy는 별도 승인 전 금지합니다.'
 
 ## 업데이트 규칙
 새 PR/커밋/배포/검증/보류가 생길 때 이 문서 갱신.
@@ -79,3 +79,13 @@ Claude가 GitHub에 반영한 코드·기록을 조회할 수 있으나 Claude �
 - Security Advisor 현재 WARN 1건: auth_leaked_password_protection. 설정 변경하지 않음. 과거 0건을 현재 결과로 보고하지 않는다.
 - A8 UNKNOWN/NO_PLAN 구분 회귀 테스트 추가. API 71 passed.
 - 새 회원 로그인 기반 start/draft/complete/reconnect/Top3 및 격리 E2E는 미완료. DB 관리자 접근으로 Auth 경로를 대신했다고 보고하지 않는다.
+
+## 개발용 검증 실행기 추가
+- scripts/verify_dev_member_loop.py: dev API URL 고정, Supabase backend 확인, 신규 전용 테스트 회원만 허용.
+- LIFE2_E2E_ACCESS_TOKEN은 안전한 환경으로 제공하며, LIFE2_E2E_DISPOSABLE_ACCOUNT=1 명시 없으면 요청하지 않음. 기존 FACT/Top3/진행/이력 있는 회원은 쓰기 전에 중단.
+- Awareness 12 → claim → A1/A2/A4 → A5/A8/A9 draft/complete → FACT 읽기 → 새 HTTP 연결 → Top3 변경/유지 확인. 중복 completion의 FACT/dashboard 변화 없음 확인.
+- 로컬 TestClient로 실행 절차 점검 완료. 이 결과는 live Supabase 또는 브라우저 로그인 E2E가 아님.
+- 안전장치 회귀 테스트 7개 추가. API 전체 78 passed.
+- 실제 dev 실행은 인증 정보 부재로 BLOCKED, 요청 0건. 사용자 데이터/운영 배포 변경 없음.
+- 남은 작업: 전용 테스트 인증을 안전하게 연결한 live 실행, 두 회원 격리, 브라우저 UI 흐름, 상세리포트/PDF 검증.
+- 실행: life2-api에서 python scripts/verify_dev_member_loop.py. httpx 설치 필요. 비밀번호/token을 채팅·인자·로그·문서에 기록하지 않는다.
