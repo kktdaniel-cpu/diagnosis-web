@@ -51,3 +51,12 @@ test('single household does not import spouse; wrong engine units and invalid va
  f.send({household_type:'single',birth_year_spouse:1973,nps_monthly_self:1500000,nps_monthly_spouse:700000,primary_job_exit_age:-1});await f.flush();
  assert.equal(f.context.answers.Q48.idx,2);assert.equal(f.context.answers.Q7A,undefined);assert.equal(f.context.answers.Q28A,undefined);assert.equal(f.context.answers.Q28B,undefined);assert.equal(f.context.answers.Q3B,undefined);
 });
+
+test('development entry accepts only its exact opener and acknowledges the development origin',async()=>{
+ const f=fixture();
+ f.send({household_type:'single',nps_monthly_self:1500000},'https://life2-web-dev.onrender.com',{});
+ await f.flush();assert.equal(f.context.answers.Q28A,undefined);
+ f.send({household_type:'single',nps_monthly_self:1500000},'https://life2-web-dev.onrender.com');
+ await f.flush();assert.equal(f.context.answers.Q28A,'150');
+ assert.equal(f.posts.at(-1)[1],'https://life2-web-dev.onrender.com');
+});
