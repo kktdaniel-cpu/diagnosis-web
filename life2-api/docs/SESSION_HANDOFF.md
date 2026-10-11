@@ -71,3 +71,11 @@ PDF 실제 생성·페이지 누락/잘림/빈 페이지 검증은 미완료.
 완료는 코드 존재/테스트 통과/live 배포/실기 E2E로 구분.
 채팅방 용량을 자동 예측한다고 약속하지 않는다. 항상 최신 승계 문서를 유지한다.
 Claude가 GitHub에 반영한 코드·기록을 조회할 수 있으나 Claude 채팅 내용을 자동 공유받거나 자동 협업했다고 말하지 않는다.
+
+## 2026-10-12 02:05 이후 점검
+- Supabase dev live 읽기: action start/submit/complete, member facts/awareness 함수 존재, SECURITY INVOKER 유지.
+- 완료 함수: idempotency 분기, PARTIAL 분기, 행 잠금 확인.
+- 개인값 없이 aggregate로 A5 cashflow gap/bridge, A8 housing, A9 health FACT 저장 존재 확인. 이번 실행의 새 계정 API E2E 통과 증거는 아니다.
+- Security Advisor 현재 WARN 1건: auth_leaked_password_protection. 설정 변경하지 않음. 과거 0건을 현재 결과로 보고하지 않는다.
+- A8 UNKNOWN/NO_PLAN 구분 회귀 테스트 추가. API 71 passed.
+- 새 회원 로그인 기반 start/draft/complete/reconnect/Top3 및 격리 E2E는 미완료. DB 관리자 접근으로 Auth 경로를 대신했다고 보고하지 않는다.
