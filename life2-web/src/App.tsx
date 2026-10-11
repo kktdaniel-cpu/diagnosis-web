@@ -119,7 +119,7 @@ export default function App(){
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       try{
         if(pending) await claimWithToken(data.session.access_token,pending);
-        else if(new URL(window.location.href).searchParams.get('auth')==='confirmed'){
+        else {
           await loadDashboard(data.session.access_token);
         }
       }catch(e){

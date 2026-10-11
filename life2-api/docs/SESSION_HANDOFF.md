@@ -99,3 +99,10 @@ Claude가 GitHub에 반영한 코드·기록을 조회할 수 있으나 Claude �
 - 최종 API 84 passed, 웹 테스트 19 passed, npm build 성공.
 - VERIFICATION_MATRIX.md에 Action별 검증·실행 방법·미완료 범위 기록.
 - 실서버 인증 정보는 아직 없음. 실제 Supabase 저장/회원 격리와 브라우저 UI·PDF는 여전히 미완료.
+
+## 실제 로그인 및 재접속 조사 (2026-10-12)
+- browserAuth 안전한 입력을 통한 dev 로그인 성공. 실제 MY LIFE 12/12 표시를 확인. 사용자 인증값은 읽거나 저장하지 않음.
+- 기존 완료 회원이므로 합성 FACT를 생성하지 않음. 신규 두 테스트 계정 live 쓰기 검증은 여전히 미완료.
+- 일반 reload 후 landing → 이어보기에서 로그인 화면 표시. 세션 자체의 잔존 여부는 인증 보호 범위에서 읽지 않았으므로 미확정.
+- 코드 확인: 기존 session이 있어도 pending handoff 또는 auth=confirmed일 때만 dashboard를 로드함. 일반 기존 session에도 dashboard를 로드하도록 수정, 회복 흐름의 우선순위 유지.
+- 웹 20 tests 및 build 통과. 아직 배포 전이며 실제 새로고침 복귀 PASS 아님.
