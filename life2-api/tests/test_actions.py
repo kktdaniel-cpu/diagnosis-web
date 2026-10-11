@@ -798,3 +798,21 @@ def test_unknown_fact_payloads_store_null_not_enum_marker():
         app.dependency_overrides.clear()
 
 
+
+
+def test_a8_unknown_reverse_mortgage_stays_distinct_from_explicit_no_plan():
+    for choice, status, value in [('UNKNOWN','UNKNOWN',None),('NO_PLAN','KNOWN','NO_PLAN')]:
+        subject=make_member('a8-distinct-'+choice)
+        try:
+            started=client.post('/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/start').json()['data']
+            result=client.post(
+                f"/v1/me/actions/ACT_DEFINE_HOUSING_PLAN/{started['action_instance_id']}/complete",
+                json={'fields':{'housing_tenure':'OWNER_APARTMENT','housing_move_plan':'KEEP','reverse_mortgage_plan':choice}},
+            )
+            assert result.status_code==200
+            fact=store.facts[subject]['housing.reverse_mortgage_plan_q19']
+            assert fact['status']==status
+            assert fact['value']==value
+            assert 'housing.reverse_mortgage_start_age' not in store.facts[subject]
+        finally:
+            app.dependency_overrides.clear()

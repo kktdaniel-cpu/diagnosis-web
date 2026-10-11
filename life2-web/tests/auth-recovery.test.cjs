@@ -112,3 +112,9 @@ test('a blocked precision popup shows recovery guidance without requesting finan
  const f=fixture('https://web.test/?auth=confirmed',{access_token:'fake'},'',()=>({data:{confirmed_awareness_count:12,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}}));
  await f.flush();f.render();const before=f.fetches();f.browserWindow.open=()=>null;await f.find('button','정밀진단 열기').props.onClick();f.render();assert.equal(f.fetches(),before);assert.ok(f.nodes().some(n=>typeof n.props?.children==='string'&&n.props.children.includes('팝업을 허용')));
 });
+
+
+test('ordinary reload with an existing session restores MY LIFE without asking for login',async()=>{
+ const f=fixture('https://web.test/',{access_token:'synthetic-session'},'',()=>({data:{confirmed_awareness_count:12,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}}));
+ await f.flush();f.render();assert.ok(f.find('h2','지금 먼저 할 일'));assert.ok(f.find('button','로그아웃'));assert.equal(f.fetches(),1);assert.equal(f.find('h2','MY LIFE에 로그인'),undefined);
+});
