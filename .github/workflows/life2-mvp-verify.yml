@@ -60,8 +60,9 @@ jobs:
           fetch-depth: 0
       - name: Guard existing production files
         run: |
-          git fetch origin main
-          CHANGED="$(git diff --name-only origin/main...HEAD)"
+          BASE_REF="${GITHUB_BASE_REF:-main}"
+          git fetch origin "$BASE_REF"
+          CHANGED="$(git diff --name-only "origin/$BASE_REF"...HEAD)"
           echo "$CHANGED"
           BAD="$(echo "$CHANGED" | grep -Ev '^(life2-api/|life2-web/|life2-precision\.(html|js)$|\.github/workflows/life2-mvp-verify\.yml$|$)' || true)"
           if [ -n "$BAD" ]; then
