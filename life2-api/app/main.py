@@ -8,6 +8,7 @@ from .store import store, StoreError
 from .top3 import select_top3
 from .auth import get_current_subject
 from .config import cors_origins, PRECISION_URL
+from .precision import precision_prefill, precision_entry_url
 from .coach import build_action_context, explain_action, help_action, summarize_change
 from .actions import (
     SUPPORTED_ACTIONS,
@@ -109,12 +110,24 @@ async def delete_me(subject: str = Depends(get_current_subject)):
 
 @app.get("/v1/me/precision/entry")
 async def precision_entry(subject: str = Depends(get_current_subject)):
+    url=precision_entry_url(PRECISION_URL)
+    prefill={}
+    if url!=PRECISION_URL:
+        try:
+            awareness=store.member_awareness(subject)
+            prefill=precision_prefill(store.member_facts(subject),awareness["household_type"])
+        except StoreError as e:
+            if e.code=="AWARENESS_NOT_FOUND":
+                url=PRECISION_URL
+            else:
+                _store_error(e)
     return {
         "ok":True,
         "data":{
-            "url":PRECISION_URL,
+            "url":url,
             "role":"PRECISION_DIAGNOSIS",
-            "handoff":"NONE",
+            "handoff":"LIFE2_PREFILL_V1" if url!=PRECISION_URL else "NONE",
+            "prefill":prefill,
             "engine_authority":"diagnosis-api Ver32.42",
         }
     }

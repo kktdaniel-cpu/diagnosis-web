@@ -7,11 +7,15 @@ on:
     paths:
       - 'life2-api/**'
       - 'life2-web/**'
+      - 'life2-precision.html'
+      - 'life2-precision.js'
       - '.github/workflows/life2-mvp-verify.yml'
   pull_request:
     paths:
       - 'life2-api/**'
       - 'life2-web/**'
+      - 'life2-precision.html'
+      - 'life2-precision.js'
       - '.github/workflows/life2-mvp-verify.yml'
 
 permissions:
@@ -46,6 +50,7 @@ jobs:
       - run: npm run build
       - run: npm run test:auth-recovery
       - run: npm run test:family-conversation
+      - run: npm run test:precision-entry
 
   legacy-regression:
     runs-on: ubuntu-latest
@@ -58,7 +63,7 @@ jobs:
           git fetch origin main
           CHANGED="$(git diff --name-only origin/main...HEAD)"
           echo "$CHANGED"
-          BAD="$(echo "$CHANGED" | grep -Ev '^(life2-api/|life2-web/|\.github/workflows/life2-mvp-verify\.yml$|$)' || true)"
+          BAD="$(echo "$CHANGED" | grep -Ev '^(life2-api/|life2-web/|life2-precision\.(html|js)$|\.github/workflows/life2-mvp-verify\.yml$|$)' || true)"
           if [ -n "$BAD" ]; then
             echo "Existing production paths changed:"
             echo "$BAD"

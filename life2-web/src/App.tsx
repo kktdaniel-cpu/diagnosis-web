@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase, isPasswordRecovery } from './supabase';
 import { familyConversationBlockReason } from './familyConversation';
 import { isPensionAmount, pensionFields, digitalListBlockReason } from './actionInput';
+import { connectPrecision } from './precisionEntry';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -351,6 +352,8 @@ export default function App(){
 
 
   async function openPrecision(){
+    const child=window.open('about:blank','_blank');
+    if(!child){setActionMsg('새 창이 차단됐습니다. 이 사이트의 팝업을 허용한 뒤 다시 열어 주세요.');return;}
     setBusy(true);
     setActionMsg('');
     try{
@@ -360,8 +363,14 @@ export default function App(){
       });
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'PRECISION_ENTRY_FAILED');
-      window.open(body.data.url,'_blank','noopener,noreferrer');
+      if(body.data.handoff==='LIFE2_PREFILL_V1'){
+        connectPrecision(child,body.data.url,body.data.prefill || {},ok=>setActionMsg(ok?'정밀진단에 확인한 정보를 불러왔습니다. 불러온 값은 수정할 수 있습니다.':'정밀진단 창을 확인해 주세요. 자동 불러오기가 연결되지 않았다면 직접 입력할 수 있습니다.'));
+      }else{
+        child.opener=null;
+        child.location.href=body.data.url;
+      }
     }catch(e){
+      child.close();
       setActionMsg(e instanceof Error ? e.message : '정밀진단을 열지 못했습니다.');
     }finally{
       setBusy(false);

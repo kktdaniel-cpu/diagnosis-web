@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>LIFE 2.0 · 정밀진단 이어서 시작</title>
+<body><p role="status">정밀진단을 준비하고 있습니다…</p><a href="/">직접 정밀진단 열기</a>
+<script>
+// Serve the existing precision document unchanged; add only the entry adapter.
+fetch('/index.html',{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error('ENTRY_LOAD');return r.text();}).then(function(html){
+  if(!/<\/body>/i.test(html))throw new Error('ENTRY_DOCUMENT');
+  html=html.replace(/<\/body>/i,'<script src="/life2-precision.js"><\/script></body>');
+  document.open();document.write(html);document.close();
+}).catch(function(){document.querySelector('[role="status"]').textContent='정밀진단을 준비하지 못했습니다. 아래 링크로 다시 열어 주세요.';window.opener=null;});
+</script></body></html>
