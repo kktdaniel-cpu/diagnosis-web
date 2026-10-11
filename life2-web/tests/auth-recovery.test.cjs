@@ -10,18 +10,19 @@ const inputContext={exports:{}};
 vm.runInNewContext(transformSync('actionInput.ts',fs.readFileSync(require('node:path').join(__dirname,'../src/actionInput.ts'),'utf8')).code.replace(/export function /g,'exports.PLACEHOLDER=function ').replace(/exports.PLACEHOLDER=function (\w+)/g,'exports.$1=function $1'),inputContext);
 function fixture(url,session=null,pending='',fetchResponse=null){
   let states=[],cursor=0,effects=[],first=true,listener,fetches=0,calls=[],tree;
+  const children=[];const browserWindow={location:new URL(url),history:{replaceState(){}},open:()=>{const child={location:{},close(){this.closed=true;}};children.push(child);return child;}};
   const storage=new Map(pending?[['life2.pending_handoff',pending]]:[]);
   const auth={getSession:async()=>({data:{session}}),onAuthStateChange:f=>{listener=f;return {data:{listener:{subscription:{unsubscribe(){}}}}}},resetPasswordForEmail:async(...args)=>{calls.push(['request',...args]);return {error:null}},updateUser:async(...args)=>{calls.push(['update',...args]);return {error:null}},signOut:async()=>({error:null})};
   const react={useState:init=>{const i=cursor++;if(first)states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=v]},useRef:init=>{const i=cursor++;if(first)states[i]={current:init};return states[i]},useEffect:f=>{if(first)effects.push(f)}};
   const jsx=(type,props)=>({type,props});
-  const context={exports:{},require:n=>n==='react'?react:n==='./familyConversation'?familyContext.exports:n==='./actionInput'?inputContext.exports:n==='./supabase'?{supabase:{auth},isPasswordRecovery:new URL(url).searchParams.get('auth')==='recovery'||new URLSearchParams(new URL(url).hash.slice(1)).get('type')==='recovery'}:{jsx,jsxs:jsx},URL,URLSearchParams,window:{location:new URL(url),history:{replaceState(){}}},localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout,fetch:async(url,options)=>{fetches++;return {ok:true,json:async()=>fetchResponse?fetchResponse(url,options):({data:{dashboard:{},top3:[]}})}}};
+  const context={exports:{},require:n=>n==='react'?react:n==='./familyConversation'?familyContext.exports:n==='./actionInput'?inputContext.exports:n==='./precisionEntry'?{connectPrecision:(...args)=>calls.push(['precision',...args])}:n==='./supabase'?{supabase:{auth},isPasswordRecovery:new URL(url).searchParams.get('auth')==='recovery'||new URLSearchParams(new URL(url).hash.slice(1)).get('type')==='recovery'}:{jsx,jsxs:jsx},URL,URLSearchParams,window:browserWindow,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout,fetch:async(url,options)=>{fetches++;return {ok:true,json:async()=>fetchResponse?fetchResponse(url,options):({data:{dashboard:{},top3:[]}})}}};
   vm.runInNewContext(source,context);
   const render=()=>{cursor=0;tree=context.exports.default();first=false;return tree};
   const nodes=()=>{const out=[];function walk(n){if(Array.isArray(n))n.forEach(walk);else if(n&&typeof n==='object'){out.push(n);walk(n.props?.children)}}walk(tree);return out};
   const text=n=>Array.isArray(n)?n.map(text).join(''):n&&typeof n==='object'?text(n.props?.children):n||'';
   const find=(type,label)=>nodes().find(n=>n.type===type&&(label instanceof RegExp?label.test(text(n)):text(n)===label));
   render();effects.forEach(f=>f());
-  return {render,find,nodes,calls,storage,fetches:()=>fetches,event:(e,s)=>listener(e,s),flush:()=>new Promise(r=>setImmediate(r))};
+  return {render,find,nodes,calls,storage,children,browserWindow,fetches:()=>fetches,event:(e,s)=>listener(e,s),flush:()=>new Promise(r=>setImmediate(r))};
 }
 test('expired recovery link disables password change and does not claim pending results',async()=>{
  const f=fixture('https://web.test/?auth=recovery',null,'pending');await f.flush();f.render();assert.equal(f.find('button','비밀번호 변경').props.disabled,true);assert.equal(f.fetches(),0);assert.equal(f.storage.get('life2.pending_handoff'),'pending');
@@ -97,4 +98,17 @@ test('digital list draft returns to dashboard without marking incomplete prepara
  await f.find('button','확인 완료').props.onClick();assert.equal(requests.filter(r=>r.url.endsWith('/complete')).length,0);
  await f.find('button','저장하고 나중에').props.onClick();f.render();assert.ok(f.find('h2','지금 먼저 할 일'));
  assert.deepEqual(JSON.parse(requests.find(r=>r.url.endsWith('/submit')).options.body).fields,fields);
+});
+
+
+test('precision entry opens a tab during the click and connects only the authorized prefill response',async()=>{
+ const payload={household_type:'couple',nps_monthly_self:1500000};
+ const f=fixture('https://web.test/?auth=confirmed',{access_token:'fake'},'',url=>({data:url.endsWith('/precision/entry')?{url:'https://diag.lpp20.com/life2-precision.html',handoff:'LIFE2_PREFILL_V1',prefill:payload}:{confirmed_awareness_count:12,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}}));
+ await f.flush();f.render();const pending=f.find('button','정밀진단 열기').props.onClick();
+ assert.equal(f.children.length,1);await pending;
+ const connected=f.calls.find(c=>c[0]==='precision');assert.equal(connected[1],f.children[0]);assert.equal(connected[2],'https://diag.lpp20.com/life2-precision.html');assert.deepEqual(connected[3],payload);
+});
+test('a blocked precision popup shows recovery guidance without requesting financial facts',async()=>{
+ const f=fixture('https://web.test/?auth=confirmed',{access_token:'fake'},'',()=>({data:{confirmed_awareness_count:12,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}}));
+ await f.flush();f.render();const before=f.fetches();f.browserWindow.open=()=>null;await f.find('button','정밀진단 열기').props.onClick();f.render();assert.equal(f.fetches(),before);assert.ok(f.nodes().some(n=>typeof n.props?.children==='string'&&n.props.children.includes('팝업을 허용')));
 });
