@@ -89,3 +89,13 @@ Claude가 GitHub에 반영한 코드·기록을 조회할 수 있으나 Claude �
 - 실제 dev 실행은 인증 정보 부재로 BLOCKED, 요청 0건. 사용자 데이터/운영 배포 변경 없음.
 - 남은 작업: 전용 테스트 인증을 안전하게 연결한 live 실행, 두 회원 격리, 브라우저 UI 흐름, 상세리포트/PDF 검증.
 - 실행: life2-api에서 python scripts/verify_dev_member_loop.py. httpx 설치 필요. 비밀번호/token을 채팅·인자·로그·문서에 기록하지 않는다.
+
+## 일괄 검증 확대 (2026-10-12)
+- 사용자 요청: 한 번에 가능한 항목들을 묶어 진행. main/운영 승인 경계 유지.
+- 검증 실행기를 A1~A12 전체 draft/complete/replay/FACT read로 확대. 로컬 1인·부부 가구 경로 통과.
+- 12 Action Explain/Help API 호출 확인: deterministic_fallback, fact_refs가 실제 저장 키의 부분집합. 외부 AI 연결 완료 아님.
+- 두 회원 API 격리: FACT/Activity/Explain/Help에 상대 데이터 없음. foreign draft/wait/complete/change-summary 404, claim handoff 재사용 409, 원래 회원 FACT/dashboard 무변경. 모두 memory TestClient 검증이며 live RLS 검증 아님.
+- 실제 실행기에는 선택적인 두 번째 인증 LIFE2_E2E_ISOLATION_ACCESS_TOKEN을 지원. 서로 다른 auth_subject와 두 계정의 빈 상태를 쓰기 전에 확인.
+- 최종 API 84 passed, 웹 테스트 19 passed, npm build 성공.
+- VERIFICATION_MATRIX.md에 Action별 검증·실행 방법·미완료 범위 기록.
+- 실서버 인증 정보는 아직 없음. 실제 Supabase 저장/회원 격리와 브라우저 UI·PDF는 여전히 미완료.
