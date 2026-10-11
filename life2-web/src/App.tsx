@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
-import { supabase } from './supabase';
+import { useEffect, useRef, useState } from 'react';
+import { supabase, isPasswordRecovery } from './supabase';
+import { familyConversationBlockReason } from './familyConversation';
+import { isPensionAmount, pensionFields, digitalListBlockReason } from './actionInput';
+import { connectPrecision } from './precisionEntry';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -65,7 +68,7 @@ const supported=new Set([
 ]);
 
 export default function App(){
-  const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'>('landing');
+  const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'|'forgot'|'reset'>(isPasswordRecovery?'reset':'landing');
   const [household,setHousehold]=useState<'single'|'couple'>('couple');
   const [ageBand,setAgeBand]=useState('50_55');
   const [qs,setQs]=useState<Q[]>([]);
@@ -78,6 +81,10 @@ export default function App(){
   const [email,setEmail]=useState('');
   const [password,setPassword]=useState('');
   const [authMsg,setAuthMsg]=useState('');
+  const [newPassword,setNewPassword]=useState('');
+  const [confirmPassword,setConfirmPassword]=useState('');
+  const [recoveryReady,setRecoveryReady]=useState(false);
+  const recovering=useRef(isPasswordRecovery);
   const [busy,setBusy]=useState(false);
   const [actionForm,setActionForm]=useState<ActionForm|null>(null);
   const [actionInstanceId,setActionInstanceId]=useState('');
@@ -95,7 +102,20 @@ export default function App(){
 
     const finishAuth=async()=>{
       const {data}=await client.auth.getSession();
-      if(!active || !data.session) return;
+      if(!active) return;
+      if(recovering.current){
+        setScreen('reset');
+        setRecoveryReady(Boolean(data.session));
+        if(!data.session) setAuthMsg('재설정 링크가 만료되었거나 유효하지 않습니다. 재설정 메일을 다시 요청해 주세요.');
+        return;
+      }
+      if(!data.session){
+        if(new URL(window.location.href).searchParams.get('auth')==='confirmed'){
+          setScreen('auth');
+          setAuthMsg('이메일 링크가 만료되었거나 확인되지 않았습니다. 비밀번호 재설정 메일을 다시 요청하거나 로그인해 주세요.');
+        }
+        return;
+      }
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       try{
         if(pending) await claimWithToken(data.session.access_token,pending);
@@ -108,8 +128,15 @@ export default function App(){
     };
 
     finishAuth();
-    const {data:listener}=client.auth.onAuthStateChange((_event,session)=>{
-      if(!active || !session) return;
+    const {data:listener}=client.auth.onAuthStateChange((event,session)=>{
+      if(!active) return;
+      if(event==='PASSWORD_RECOVERY' || recovering.current){
+        recovering.current=true;
+        setScreen('reset');
+        setRecoveryReady(Boolean(session));
+        return;
+      }
+      if(!session) return;
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       if(pending){
         setTimeout(()=>claimWithToken(session.access_token,pending).catch(e=>{
@@ -259,7 +286,57 @@ export default function App(){
       if(handoffToken) await claimWithToken(data.session.access_token);
       else await loadDashboard(data.session.access_token);
     }catch(e){
-      setAuthMsg(e instanceof Error ? e.message : '로그인 중 오류가 발생했습니다.');
+      const message=e instanceof Error ? e.message : '';
+      setAuthMsg(message==='Invalid login credentials'?'이메일 또는 비밀번호가 맞지 않습니다. 가입 이메일을 확인하거나 비밀번호를 재설정해 주세요.':message==='Email not confirmed'?'가입 확인 메일에서 이메일 인증을 완료해 주세요.':'로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  function openForgot(){
+    setPassword('');
+    setAuthMsg('');
+    setScreen('forgot');
+  }
+
+  async function requestPasswordReset(){
+    if(!supabase) return;
+    setBusy(true);
+    setAuthMsg('');
+    try{
+      const {error}=await supabase.auth.resetPasswordForEmail(email.trim(),{
+        redirectTo:`${window.location.origin}/?auth=confirmed`
+      });
+      if(error) throw error;
+      setAuthMsg('입력한 이메일로 가입된 계정이 있다면 재설정 메일이 발송됩니다. 메일함과 스팸함을 확인해 주세요.');
+    }catch{
+      setAuthMsg('재설정 메일을 요청하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    }finally{
+      setBusy(false);
+    }
+  }
+
+  async function saveNewPassword(){
+    if(!supabase || !recoveryReady || busy) return;
+    if(newPassword.length<8){setAuthMsg('새 비밀번호는 8자 이상으로 입력해 주세요.');return;}
+    if(newPassword!==confirmPassword){setAuthMsg('두 비밀번호가 일치하지 않습니다.');return;}
+    setBusy(true);
+    setAuthMsg('');
+    try{
+      const {error}=await supabase.auth.updateUser({password:newPassword});
+      if(error) throw error;
+      // Recovery never claims a pending diagnosis before the user finishes this form.
+      await supabase.auth.signOut({scope:'local'});
+      recovering.current=false;
+      setRecoveryReady(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      setPassword('');
+      window.history.replaceState(null,'',window.location.pathname);
+      setScreen('auth');
+      setAuthMsg('비밀번호를 변경했습니다. 가입 이메일과 새 비밀번호로 로그인해 주세요.');
+    }catch{
+      setAuthMsg('비밀번호를 변경하지 못했습니다. 다른 비밀번호를 사용하거나 재설정 메일을 다시 요청해 주세요.');
     }finally{
       setBusy(false);
     }
@@ -275,6 +352,8 @@ export default function App(){
 
 
   async function openPrecision(){
+    const child=window.open('about:blank','_blank');
+    if(!child){setActionMsg('새 창이 차단됐습니다. 이 사이트의 팝업을 허용한 뒤 다시 열어 주세요.');return;}
     setBusy(true);
     setActionMsg('');
     try{
@@ -284,8 +363,14 @@ export default function App(){
       });
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'PRECISION_ENTRY_FAILED');
-      window.open(body.data.url,'_blank','noopener,noreferrer');
+      if(body.data.handoff==='LIFE2_PREFILL_V1'){
+        connectPrecision(child,body.data.url,body.data.prefill || {},ok=>setActionMsg(ok?'정밀진단에 확인한 정보를 불러왔습니다. 불러온 값은 수정할 수 있습니다.':'정밀진단 창을 확인해 주세요. 자동 불러오기가 연결되지 않았다면 직접 입력할 수 있습니다.'));
+      }else{
+        child.opener=null;
+        child.location.href=body.data.url;
+      }
     }catch(e){
+      child.close();
       setActionMsg(e instanceof Error ? e.message : '정밀진단을 열지 못했습니다.');
     }finally{
       setBusy(false);
@@ -316,7 +401,7 @@ export default function App(){
       if(!startRes.ok) throw new Error(startBody?.detail?.code || 'ACTION_START_FAILED');
       setActionForm(formBody.data);
       setActionInstanceId(startBody.data.action_instance_id);
-      setActionFields(startBody.data.draft || {});
+      setActionFields(pensionFields(item.action_catalog_id,startBody.data.draft || {},false));
       setScreen('action');
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : 'Action을 열지 못했습니다.');
@@ -334,11 +419,17 @@ export default function App(){
       const r=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-        body:JSON.stringify({fields:actionFields})
+        body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
       });
       const body=await r.json();
       if(!r.ok) throw new Error(body?.detail?.code || 'ACTION_SAVE_FAILED');
       setActionMsg('저장했습니다. 나중에 이어서 할 수 있어요.');
+      if(actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION' || actionForm?.action_catalog_id==='ACT_CREATE_EMERGENCY_DIGITAL_ASSET_LIST'){
+        await loadDashboard(token);
+        setActionForm(null);
+        setActionInstanceId('');
+        setActionFields({});
+      }
     }catch(e){
       setActionMsg(e instanceof Error ? e.message : '저장하지 못했습니다.');
     }finally{
@@ -356,7 +447,7 @@ export default function App(){
       const saveRes=await fetch(`${API}/v1/me/actions/${actionInstanceId}/submit`,{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-        body:JSON.stringify({fields:actionFields})
+        body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
       });
       const saveBody=await saveRes.json();
       if(!saveRes.ok) throw new Error(saveBody?.detail?.code || 'ACTION_SAVE_FAILED');
@@ -436,8 +527,12 @@ export default function App(){
     }
   }
 
+  const familyBlockReason=actionForm?.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'
+    ? familyConversationBlockReason(actionFields) : digitalListBlockReason(actionForm?.action_catalog_id || '',actionFields);
+
   async function completeAction(){
     if(!actionForm || !actionInstanceId) return;
+    if(familyBlockReason){setActionMsg(familyBlockReason);return;}
     setBusy(true);
     setActionMsg('');
     try{
@@ -447,7 +542,7 @@ export default function App(){
         {
           method:'POST',
           headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},
-          body:JSON.stringify({fields:actionFields})
+          body:JSON.stringify({fields:pensionFields(actionForm?.action_catalog_id || '',actionFields,true)})
         }
       );
       const body=await r.json();
@@ -537,13 +632,44 @@ export default function App(){
       <div className="progress">MY LIFE 2.0</div>
       <h2>{handoffToken?'계속 관리하려면 가입해 주세요':'MY LIFE에 로그인'}</h2>
       <p>{handoffToken?'지금 확인한 3가지와 진행상태를 저장합니다.':'저장한 준비상태와 Action을 이어서 확인합니다.'}</p>
-      <label className="fieldLabel">이메일</label>
-      <input className="textInput" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/>
-      <label className="fieldLabel">비밀번호</label>
-      <input className="textInput" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password"/>
+      <p className="hint">로그인 아이디는 가입할 때 입력한 이메일 주소입니다.</p>
+      <label className="fieldLabel" htmlFor="login-email">이메일 (로그인 아이디)</label>
+      <input id="login-email" className="textInput" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/>
+      <label className="fieldLabel" htmlFor="login-password">비밀번호</label>
+      <input id="login-password" className="textInput" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password"/>
       {handoffToken&&<button disabled={busy || !email || password.length<6} onClick={signUp}>무료 회원가입</button>}
       <button className={handoffToken?'secondaryBtn':''} disabled={busy || !email || !password} onClick={signIn}>로그인</button>
-      {authMsg&&<p className="statusMsg">{authMsg}</p>}
+      <button className="linkBtn" disabled={busy} onClick={openForgot}>아이디·비밀번호를 잊으셨나요?</button>
+      {authMsg&&<p className="statusMsg" role="status">{authMsg}</p>}
+    </section>}
+
+    {screen==='forgot'&&<section className="card">
+      <div className="progress">MY LIFE 2.0</div>
+      <h2>아이디 확인 · 비밀번호 재설정</h2>
+      <p>아이디는 가입 이메일입니다. 받은 메일함에서 LIFE 2.0 가입 확인 메일을 찾아보세요.</p>
+      <p>가입 이메일을 입력하면 새 비밀번호를 설정할 수 있는 링크를 보내드립니다.</p>
+      <form onSubmit={e=>{e.preventDefault();requestPasswordReset();}}>
+        <label className="fieldLabel" htmlFor="reset-email">가입 이메일</label>
+        <input id="reset-email" className="textInput" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email" required/>
+        <button type="submit" disabled={busy || !supabase || !email.trim()}>비밀번호 재설정 메일 보내기</button>
+      </form>
+      <button className="secondaryBtn" disabled={busy} onClick={()=>{setAuthMsg('');setScreen('auth');}}>로그인으로 돌아가기</button>
+      {authMsg&&<p className="statusMsg" role="status">{authMsg}</p>}
+    </section>}
+
+    {screen==='reset'&&<section className="card">
+      <div className="progress">MY LIFE 2.0</div>
+      <h2>새 비밀번호 설정</h2>
+      <p>8자 이상의 새 비밀번호를 입력해 주세요.</p>
+      <form onSubmit={e=>{e.preventDefault();saveNewPassword();}}>
+        <label className="fieldLabel" htmlFor="new-password">새 비밀번호</label>
+        <input id="new-password" className="textInput" type="password" value={newPassword} onChange={e=>setNewPassword(e.target.value)} autoComplete="new-password" minLength={8} required disabled={!recoveryReady}/>
+        <label className="fieldLabel" htmlFor="confirm-password">새 비밀번호 확인</label>
+        <input id="confirm-password" className="textInput" type="password" value={confirmPassword} onChange={e=>setConfirmPassword(e.target.value)} autoComplete="new-password" minLength={8} required disabled={!recoveryReady}/>
+        <button type="submit" disabled={busy || !recoveryReady || newPassword.length<8 || newPassword!==confirmPassword}>비밀번호 변경</button>
+      </form>
+      <button className="secondaryBtn" disabled={busy} onClick={openForgot}>재설정 메일 다시 요청하기</button>
+      {authMsg&&<p className="statusMsg" role="status">{authMsg}</p>}
     </section>}
 
     {screen==='dashboard'&&dashboard&&<section className="card">
@@ -648,18 +774,19 @@ export default function App(){
               <input
                 className="textInput"
                 type="number"
-                min={f.min}
-                max={f.max}
+                min={isPensionAmount(actionForm.action_catalog_id,f.key) && f.min!==undefined?f.min/10000:f.min}
+                max={isPensionAmount(actionForm.action_catalog_id,f.key) && f.max!==undefined?f.max/10000:f.max}
+                step={isPensionAmount(actionForm.action_catalog_id,f.key)?0.0001:1}
                 value={actionFields[f.key] ?? ''}
                 onChange={e=>setActionFields({...actionFields,[f.key]:e.target.value})}
               />
-              {f.unit&&<span>{f.unit}</span>}
+              {f.unit&&<span>{isPensionAmount(actionForm.action_catalog_id,f.key)?'만원/월':f.unit}</span>}
             </div>
           }
         </div>
       )}
       {actionForm.action_catalog_id==='ACT_CHECK_NPS_ESTIMATE'&&
-        <p className="ruleNote">수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
+        <p className="ruleNote">월 예상액은 만원 단위로 입력해 주세요. 예: 150만원은 150, 150만 5천원은 150.5입니다. 수령 시작 나이는 출생연도 기준으로 계산합니다. 1968년생은 만 64세, 1969년 이후 출생자는 만 65세입니다.</p>
       }
       {actionForm.action_catalog_id==='ACT_CHECK_RET_PRIVATE_PENSION'&&
         <p className="ruleNote">수령 개시 나이는 만 55세 이상만 입력할 수 있습니다. 수령 종료 나이는 개시 나이 + 수령 기간으로 계산합니다.</p>
@@ -679,7 +806,10 @@ export default function App(){
       {actionForm.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION'&&
         <p className="ruleNote">완료 기준은 가족과 실제 대화 1회 이상 + 선호사항 1개 이상 기록입니다.</p>
       }
-      <button disabled={busy} onClick={completeAction}>확인 완료</button>
+      {familyBlockReason&&<p className="statusMsg" role="status">{familyBlockReason}</p>}
+      <button disabled={busy || Boolean(familyBlockReason)} onClick={completeAction}>
+        {actionForm.action_catalog_id==='ACT_START_FAMILY_WELLDYING_CONVERSATION' && actionFields.conversation_done==='NO'?'대화 후 확인 완료':'확인 완료'}
+      </button>
       <button className="secondaryBtn" disabled={busy} onClick={saveActionDraft}>저장하고 나중에</button>
       <button className="secondaryBtn" disabled={busy} onClick={waitAction}>자료 확인 후 이어하기</button>
       {actionMsg&&<p className="statusMsg">{actionMsg}</p>}
