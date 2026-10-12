@@ -3,6 +3,15 @@
 이 문서는 채팅방 간 승계용이다. 재개 시 GitHub 및 배포 현황을 다시 조회한다. 문서 기록을 실시간 상태로 간주하지 않는다.
 
 
+## 최신 DB 검증 — 2026-10-12
+- 개발 기준: PR37 merged, 33e620d8a072194ae317a9813aa3f012af0f9a07.
+- 실제 dev Supabase(bikvcuchdlreqkqypwcr)에서 tests/db/verify_dev_rls_rollback.sql 단일 트랜잭션 실행 PASS. 스키마·정책·자격증명 변경 없음.
+- 두 합성 SQL subject로 10개 회원 테이블의 자기 행만 보이는지 검증. 익명 사용자는 11개 테이블에서 행을 읽을 수 없고, 내부 idempotency 정보도 차단됨.
+- UNKNOWN/JSON null 유지, 직접 FACT INSERT 차단, 상대 FACT UPDATE/Action DELETE 차단 확인. 모든 합성 데이터 ROLLBACK. 추가 조회에서 테스트 FACT/Finding/Activity/Legacy link/idempotency 잔존 모두0.
+- SQL 수준 JWT subject 모의 검증이며 실제 Supabase Auth 로그인·API 완료 RPC·다른 연결의 영구 저장 통과 증거는 아니다. 완료 범위를 부풀리지 않는다.
+- 사용자 선호: 구현/검증/커밋을 한 묶음으로, CI는 마지막 확인. 브라우저는 최종 Release Gate에만. 모드/모델/과금 전환은 자동 수행했다고 말하지 않는다.
+- 남음: 전용 테스트 회원 안전한 인증을 연결한 API start→draft→complete→FACT→Top3→새 연결 persistence/다른 회원 격리 E2E, 브라우저 Action 흐름, 실제 PDF 저장/잘림. 생성형 AI 연결 미완료(현재 deterministic fallback).
+
 ## 최신 확인 — 2026-10-12 후속 검증
 - 아래 과거 head/deploy/test 수치는 역사 기록이다. 재개 시 이 최신 절과 GitHub 실제 상태를 우선 대조한다.
 - 개발 기준 head: 1da01a6f2dd78ef63f0f932fc9e2a8b31406e0c6 (PR33 dev 병합).
@@ -76,7 +85,7 @@ PDF 실제 생성·페이지 누락/잘림/빈 페이지 검증은 미완료.
 8. 정밀리포트 표시 오류 조사와 실제 PDF 출력 검증.
 
 ## 다음 채팅 시작 문구
-'GitHub Draft PR #33의 docs/life2-session-handoff-20261012 브랜치에서 life2-api/docs/SESSION_HANDOFF.md를 읽고 최신 branch/CI/Render와 대조해 이어서 진행하세요. 기존 운영과 Google Master DB를 보호하고 main merge/운영 deploy는 별도 승인 전 금지합니다.'
+GitHub kktdaniel-cpu/diagnosis-web의 mvp/life2-bootstrap 최신 브랜치에서 life2-api/docs/SESSION_HANDOFF.md를 읽고 이어서 진행하세요. 맨 위 최신 절과 현재 GitHub 상태를 우선 확인하세요. 아직 병합 전인 verify/life2-db-rollback PR이 있으면 그 문서도 확인하세요. 구현·테스트·커밋을 한 묶음으로 진행하고, 브라우저는 최종 Release Gate에만 사용하세요. main/운영 추가변경은 별도 승인 전 금지합니다.
 
 ## 업데이트 규칙
 새 PR/커밋/배포/검증/보류가 생길 때 이 문서 갱신.
