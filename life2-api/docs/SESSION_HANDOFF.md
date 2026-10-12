@@ -64,7 +64,7 @@ PDF 실제 생성·페이지 누락/잘림/빈 페이지 검증은 미완료.
 8. 정밀리포트 표시 오류 조사와 실제 PDF 출력 검증.
 
 ## 다음 채팅 시작 문구
-'GitHub Draft PR #33의 docs/life2-session-handoff-20261012 브랜치에서 life2-api/docs/SESSION_HANDOFF.md를 읽고 최신 branch/CI/Render와 대조해 이어서 진행하세요. 기존 운영과 Google Master DB를 보호하고 main merge/운영 deploy는 별도 승인 전 금지합니다.'
+'GitHub mvp/life2-bootstrap 브랜치에서 life2-api/docs/SESSION_HANDOFF.md를 읽고 최신 branch/CI/Render와 대조해 이어서 진행하세요. 기존 운영과 Google Master DB를 보호하고 main merge/운영 deploy는 별도 승인 전 금지합니다.'
 
 ## 업데이트 규칙
 새 PR/커밋/배포/검증/보류가 생길 때 이 문서 갱신.
@@ -106,3 +106,8 @@ Claude가 GitHub에 반영한 코드·기록을 조회할 수 있으나 Claude �
 - 일반 reload 후 landing → 이어보기에서 로그인 화면 표시. 세션 자체의 잔존 여부는 인증 보호 범위에서 읽지 않았으므로 미확정.
 - 코드 확인: 기존 session이 있어도 pending handoff 또는 auth=confirmed일 때만 dashboard를 로드함. 일반 기존 session에도 dashboard를 로드하도록 수정, 회복 흐름의 우선순위 유지.
 - 웹 20 tests 및 build 통과. 아직 배포 전이며 실제 새로고침 복귀 PASS 아님.
+
+## 2026-10-12 오전 검증 업데이트
+PR #33은 dev에 병합됨(1da01a6). Web/API 배포 live, 로그인 12/12 및 추가인증 없이 새로고침 복귀 PASS. 위 '미배포'와 Draft #33 표기는 과거 조사기록이며 현재상태가 아님.
+새 익명테스트로42문항완료 →44점/60.3세소진/90세0개통과 →설문 →상세리포트해금 성공. raw null/undefined/NaN/0세 노출없음.
+재현문제: 생활비 설명 변화없음 vs +0.1년, 해금후 PDF/인쇄버튼 없음. 실제PDF파일 미확인. PRECISION_LIVE_VERIFICATION_20261012.md 참고. 운영코드수정 없이 기록. 신규두회원 live 저장/격리 E2E도 남음.
