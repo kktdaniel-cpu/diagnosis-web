@@ -51,6 +51,7 @@ jobs:
       - run: npm run test:auth-recovery
       - run: npm run test:family-conversation
       - run: npm run test:precision-entry
+      - run: node --test tests/precision-output-review.test.cjs
 
   legacy-regression:
     runs-on: ubuntu-latest
@@ -63,7 +64,8 @@ jobs:
           git fetch origin main
           CHANGED="$(git diff --name-only origin/main...HEAD)"
           echo "$CHANGED"
-          BAD="$(echo "$CHANGED" | grep -Ev '^(life2-api/|life2-web/|life2-precision\.(html|js)$|\.github/workflows/life2-mvp-verify\.yml$|$)' || true)"
+          python life2-web/review/precision-output/verify-approved-index.py
+          BAD="$(echo "$CHANGED" | grep -Ev '^(life2-api/|life2-web/|life2-precision\.(html|js)$|\.github/workflows/life2-mvp-verify\.yml$|index\.html$|$)' || true)"
           if [ -n "$BAD" ]; then
             echo "Existing production paths changed:"
             echo "$BAD"
