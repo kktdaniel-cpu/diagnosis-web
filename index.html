@@ -10421,7 +10421,7 @@ return { bands:BANDS, Q:Q, get:get, bandOf:bandOf,
            이 시나리오는 `Q4`(**현재** 생활비)를 바꾸는데 엔진 `costAdj = c["goal"]`(`Q5` 65세 이후
            목표 생활비)이므로 소진 시점이 움직이지 않고 화면에는 「변화 없음」이 떴다(원칙 3 ·
            INTERPRETATION 을 FACT 처럼 적지 않는다). **숫자·로직·기준은 그대로**이고 문장만 바꿨다. */
-        why:'지금 생활비를 줄인 경우입니다. 소진 나이는 65세 이후 목표 생활비 기준으로 계산하므로 이 변경만으로는 소진 시점이 달라지지 않습니다.',
+        why:'현재 생활비를 변경해 같은 채점 엔진으로 다시 계산한 결과입니다. 65세 이후 목표 생활비는 그대로 유지합니다.',
         mod:m2});
     }
     /* [#H-1-b · 2026-10-03] 「재취업 소득을 **5년 유지**하면」 시나리오를 **제거**했다.
@@ -13962,5 +13962,7 @@ table.npsq td.me{font-weight:900;color:#0F2B1D}
 }
 </style>
 <!-- [DASH-UI] end -->
+<!-- Approved precision output UI: existing scoring and print engine unchanged. -->
+<script src="life2-web/review/precision-output/proposal.js"></script>
 </body>
 </html>
