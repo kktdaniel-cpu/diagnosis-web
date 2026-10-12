@@ -1,6 +1,6 @@
 # LIFE 2.0 검증 범위
 
-2026-10-12 KST. API 84 passed, Web 19 passed, Web build 성공.
+2026-10-12 KST. API 113 passed, Web 20 passed, Web build 성공.
 로컬 TestClient 검증과 live Supabase 검증은 구분한다.
 
 | Action | 핵심 검증 | 로컬 통합 경로 |
@@ -52,3 +52,8 @@ httpx 설치 필요. 인증/opt-in이 없으면 종료 코드 2, 요청 0건.
 
 운영 엔진·Google Master DB 보호. main merge/운영 deploy는 별도 승인 전 금지.
 승계 기록은 Draft PR #33의 docs/life2-session-handoff-20261012 브랜치에 있다.
+
+## 2026-10-12 후속 AI API 계약 검증
+12Action × Explain/Help 24경로에서 다른 회원 FACT를 읽지 않고, FACT/대시보드(Top3·진행·최근변경)를 호출 전후 보존한다. 인증 없는 Explain/Help/change-summary401 및 미등록 Action404를 확인했다. API113 tests passed, Web20 passed. 저장소는 로컬 메모리이며 Supabase live 통과로 바꾸어 쓰지 않는다.
+
+운영 UI 두 수정은 PR36 사용자 승인으로 main 병합·GitHub Pages 배포 완료. 실제 PDF 버튼 및 인쇄용 본문3페이지 생성 확인. PDF 파일 저장/페이지 잘림은 미완료. 새 dev 인증 없이는 live 스크립트가 쓰기 전 BLOCKED(요청0)로 중단한다.

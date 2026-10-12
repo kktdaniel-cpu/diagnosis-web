@@ -2,6 +2,18 @@
 검토일: 2026-10-12 KST
 이 문서는 채팅방 간 승계용이다. 재개 시 GitHub 및 배포 현황을 다시 조회한다. 문서 기록을 실시간 상태로 간주하지 않는다.
 
+
+## 최신 확인 — 2026-10-12 후속 검증
+- 아래 과거 head/deploy/test 수치는 역사 기록이다. 재개 시 이 최신 절과 GitHub 실제 상태를 우선 대조한다.
+- 개발 기준 head: 1da01a6f2dd78ef63f0f932fc9e2a8b31406e0c6 (PR33 dev 병합).
+- 운영 main: db9fa2a2eb06ac7ab4685535cfe5f288396510f3 (PR36). 사용자가 승인한 PDF 버튼/생활비 설명 두 UI 수정만 병합. GitHub Pages run38190157889 success. Render LIFE2 운영/API 및 Google Master DB 변경 없음.
+- 실제 운영 PDF 버튼 1개 표시, 클릭 후 기존 인쇄 엔진 #printDoc .rp-page 3개 생성 및 본문 있음 확인. 실제 PDF 파일 저장/출력 잘림은 미완료.
+- 후속 개발 검증: API113 passed / Web20 passed. AI 안내 API에 29개 계약 테스트 추가: 12Action × Explain/Help, 다른 회원 FACT 참조 금지, 호출 전후 FACT/Top3/Activity 동일, 인증 없는 3경로401, 미등록 Action404. 로컬 메모리 저장소 증거이며 live Supabase 증거가 아니다.
+- Explain/Help는 deterministic_fallback; 외부 생성 AI 모델을 연결한 것으로 보고하지 않는다.
+- live 검증 스크립트 실행은 인증/전용 테스트 회원 opt-in 부재로 BLOCKED(exit2), 요청0건. 기존 사용자 FACT를 테스트값으로 덮어쓰지 않았다.
+- 남음: 새 전용 회원의 안전한 인증으로 Supabase 실제 저장/회원격리 E2E; 브라우저 Action 전체경로; 실제 PDF 파일 저장/레이아웃. main/운영 추가변경 승인 없음.
+- 감사 상세: PR34, 원 수정 제안: PR35(운영 병합 대상 아님), 승인된 실제 운영 수정/검증: PR36. 이 후속 PR은 테스트·승계문서만 변경한다.
+
 ## 목표와 승인 경계
 Awareness → Top3 → 회원가입 → MY LIFE → Action → FACT 저장 → 완료 → Top3 재계산.
 2026-10-12 사용자 지시: 구현·검증 진행. main merge 및 운영 deploy는 별도 명시 승인 전 금지.
