@@ -7,7 +7,7 @@ type Question={id:string;title:string;hint?:string;fields:Field[];show_when?:{ke
 type Action={code:string;title:string;reason:string;target_date:string;steps:string[];completion:string;support:string;worksheet?:string[]};
 export type GapResult={preparation_id?:string;revision?:number;reviews?:Review[];reviewed_groups?:number;review_total?:number;answers?:Record<string,unknown>;persistence?:string;saved_at?:string;calendar:{last_salary_month:string|null;first_salary_free_month:string|null;nps_self_state?:string;nps_spouse_state?:string;nps_self_start_month:string|null;nps_spouse_start_month:string|null;both_nps_started_month:string|null;nps_wait_months:number|null};missing:{key:string;label:string}[];top3:Action[];notes:string[]};
 
-export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation}: {api:string;onBack:()=>void;onMember:(payload:ReturnType<typeof incomeGapPayload>)=>Promise<void>|void;initial?:GapResult|null;onConfirm?:(id:string,payload:ReviewSubmission)=>Promise<GapResult>;onConsultation?:(id:string,requestId:string)=>Promise<void>}){
+export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation,onExplain}: {api:string;onBack:()=>void;onMember:(payload:ReturnType<typeof incomeGapPayload>)=>Promise<void>|void;initial?:GapResult|null;onConfirm?:(id:string,payload:ReviewSubmission)=>Promise<GapResult>;onConsultation?:(id:string,requestId:string)=>Promise<void>;onExplain?:(id:string)=>Promise<string>}){
   const [questions,setQuestions]=useState<Question[]>([]);
   const [index,setIndex]=useState(0);
   const [fields,setFields]=useState<Record<string,string>>(()=>initial?.answers?incomeGapFields(initial.answers):{});
@@ -110,6 +110,9 @@ export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation}
       {result.missing.length>0&&<details><summary>아직 확인할 정보 {result.missing.length}개</summary><ul>{result.missing.map(m=><li key={m.key}>{m.label}</li>)}</ul></details>}
       <div className="ruleNote">{result.notes.map(note=><p key={note}>{note}</p>)}</div>
       <div className="gapNoPrint">
+        {result.preparation_id&&onExplain&&<button className="secondaryBtn" disabled={busy} onClick={async()=>{
+          setBusy(true);setMessage('');try{setMessage(await onExplain(result.preparation_id!));}catch{setMessage('저장된 정보 설명을 불러오지 못했습니다.');}finally{setBusy(false);}
+        }}>저장한 정보와 다음 행동 설명 보기</button>}
         {result.preparation_id&&onConsultation&&<section className="coachBox">
           <h3>소득공백 달력 상담 신청</h3>
           <label><input type="checkbox" disabled={busy} checked={consultConsent} onChange={e=>setConsultConsent(e.target.checked)}/>회원 계정에 상담 주제와 초안 연결 정보를 저장하는 데 동의합니다.</label>

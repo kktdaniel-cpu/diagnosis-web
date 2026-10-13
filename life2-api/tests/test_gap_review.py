@@ -178,3 +178,28 @@ def test_followup_change_invalidates_bridge(context):
     assert r.status_code==200
     assert next(x for x in r.json()['data']['preparation']['reviews'] if x['group']=='BRIDGE')['status']=='REVIEW_DUE'
     assert mem.member_facts(subject)[f'gap.v1.{pid}.bridge_methods']['status']=='STALE'
+
+
+def test_readonly_scoped_context_preserves_unknown_and_isolation(context):
+    mem,subject,pid=context
+    confirm(pid,'WORK',dict(ready(),post_work={'state':'PLAN_ONLY','monthly_10k':250}))
+    before=deepcopy(mem.__dict__)
+    r=client.get(f'/v1/me/income-gap/preparations/{pid}/context')
+    assert r.status_code==200
+    d=r.json()['data'];assert d['fact_writes'] is False
+    assert d['precision_connection']['automatic_import'] is False
+    assert all(k.startswith(f'gap.v1.{pid}.') for k in d['known_facts'])
+    assert next(f for f in d['findings'] if f['recommended_action_catalog_id']=='GAP_V1_WORK')['status']=='OPEN'
+    assert mem.__dict__==before
+    assert mem.gap_findings[(subject,pid,'WORK')]['status']=='OPEN'
+    app.dependency_overrides[get_current_subject]=lambda:str(uuid4())
+    assert client.get(f'/v1/me/income-gap/preparations/{pid}/context').status_code==404
+
+
+def test_gap_finding_resolves_and_reopens_with_prerequisite(context):
+    mem,subject,pid=context
+    for rev,g in enumerate(('RETIREMENT','NPS','BUDGET')):assert confirm(pid,g,revision=rev)[0].status_code==200
+    assert confirm(pid,'BRIDGE',dict(ready(),bridge_methods=['WORK']),revision=3)[0].status_code==200
+    assert mem.gap_findings[(subject,pid,'BRIDGE')]['status']=='RESOLVED'
+    assert confirm(pid,'RETIREMENT',dict(ready(),last_salary_month='2028-01'),revision=4)[0].status_code==200
+    assert mem.gap_findings[(subject,pid,'BRIDGE')]['status']=='OPEN'

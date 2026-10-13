@@ -13,6 +13,7 @@ from .coach import build_action_context, explain_action, help_action, summarize_
 from .income_gap import IncomeGapInput, build_preview, questions as gap_questions
 from .gap_preparation import GapSaveRequest, saved_preview
 from .gap_review import GapReviewRequest, prepare as prepare_gap_review, digest as gap_digest
+from .gap_context import context as gap_context
 from .consultation import ConsultationRequest
 from uuid import UUID
 from fastapi.responses import JSONResponse
@@ -139,6 +140,15 @@ async def gap_confirm(preparation_id: UUID, payload: GapReviewRequest, subject: 
     except StoreError as e:
         _store_error(e)
     return JSONResponse({'ok':True,'data':result},headers={'Cache-Control':'no-store'})
+
+@app.get('/v1/me/income-gap/preparations/{preparation_id}/context')
+async def income_gap_context(preparation_id: UUID, subject: str = Depends(get_current_subject)):
+    try:
+        record=store.gap_review_record(subject,str(preparation_id))
+        data=gap_context(record,store.member_facts(subject))
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
 
 @app.post('/v1/me/consultations')
 async def consultation_request(payload: ConsultationRequest, subject: str = Depends(get_current_subject)):

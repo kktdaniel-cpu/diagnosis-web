@@ -45,6 +45,7 @@ class MemoryStore:
         self.facts: dict[str, dict[str, dict]] = {}
         self.recent: dict[str, list[dict]] = {}
         self.consultations: dict[tuple,dict] = {}
+        self.gap_findings: dict[tuple,dict] = {}
         self.change_events: dict[tuple[str,str], dict] = {}
         self.gap_preparations: dict[str, dict] = {}
 
@@ -116,6 +117,11 @@ class MemoryStore:
             self.action_instances[action_id]={'action_instance_id':action_id,'action_catalog_id':f'GAP_V1_{group}',
                 'subject':subject,'status':'SELF_REPORTED_DONE' if prepared['status']=='DONE' else 'IN_PROGRESS',
                 'mode':'VERIFY','draft':{}}
+            from .gap_review import states
+            for finding_group, review_state in states(record).items():
+                self.gap_findings[(subject,preparation_id,finding_group)]={
+                    'finding_type':f'GAP_V1.{preparation_id}.{finding_group}',
+                    'status':'RESOLVED' if review_state=='DONE' else 'OPEN'}
             response={'idempotent':False,'group':group,'status':prepared['status'],'revision':record['revision'],'action_instance_id':action_id}
             record['review_requests'][request_id]={'hash':prepared['request_hash'],'response':deepcopy(response)}
             self.recent.setdefault(subject,[]).insert(0,{'event_type':'GAP_REVIEW_CONFIRMED','summary_code':prepared['status'],
