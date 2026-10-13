@@ -151,4 +151,7 @@ test('gap draft claim after sign-in preserves old Awareness and only stores a to
  assert.equal(requests.filter(r=>r.url.endsWith('/awareness/claim')).length,0);
  assert.equal(f.storage.has('life2.pending_gap_handoff'),false);
  assert.ok(f.find('button','저장한 소득공백 준비 초안 열기'));
+ f.event('SIGNED_IN',{access_token:'synthetic'});await new Promise(r=>setTimeout(r,10));await f.flush();
+ assert.equal(requests.filter(r=>r.url.endsWith('/awareness/claim')).length,0);
+ assert.equal(f.storage.get('life2.pending_handoff'),'old-awareness');
 });
