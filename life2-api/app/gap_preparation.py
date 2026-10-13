@@ -22,4 +22,5 @@ def saved_preview(record):
     result.update(preparation_id=record['preparation_id'], persistence='MEMBER_PREPARATION',
                   saved_at=record['saved_at'], fact_writes=False)
     result['notes'][-1] = 'MY LIFE에 저장한 준비 초안입니다. 확정 FACT나 Action 확인 완료가 아닙니다.'
-    return result
+    from .gap_review import enrich
+    return enrich(record, result)

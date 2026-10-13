@@ -12,6 +12,8 @@ from .precision import precision_prefill, precision_entry_url
 from .coach import build_action_context, explain_action, help_action, summarize_change
 from .income_gap import IncomeGapInput, build_preview, questions as gap_questions
 from .gap_preparation import GapSaveRequest, saved_preview
+from .gap_review import GapReviewRequest, prepare as prepare_gap_review, digest as gap_digest
+from uuid import UUID
 from fastapi.responses import JSONResponse
 from .actions import (
     SUPPORTED_ACTIONS,
@@ -116,6 +118,26 @@ async def gap_saved(subject: str = Depends(get_current_subject)):
     except StoreError as e:
         _store_error(e)
     return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
+
+
+@app.post('/v1/me/income-gap/preparations/{preparation_id}/confirm')
+async def gap_confirm(preparation_id: UUID, payload: GapReviewRequest, subject: str = Depends(get_current_subject)):
+    try:
+        record=store.gap_review_record(subject,str(preparation_id))
+        request_id=str(payload.request_id)
+        fingerprint=gap_digest({'group':payload.group,'answers':payload.answers.model_dump(),'expected_revision':payload.expected_revision})
+        old=record.get('review_requests',{}).get(request_id)
+        if old:
+            if old['hash']!=fingerprint:
+                raise StoreError('GAP_REQUEST_CONFLICT',409)
+            result={**old['response'],'idempotent':True}
+        else:
+            prepared=prepare_gap_review(record,payload)
+            result=store.confirm_gap_review(subject,str(preparation_id),payload.group,payload.expected_revision,request_id,prepared)
+        result['preparation']=saved_preview(store.gap_review_record(subject,str(preparation_id)))
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':result},headers={'Cache-Control':'no-store'})
 
 @app.post("/v1/me/awareness/claim")
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):

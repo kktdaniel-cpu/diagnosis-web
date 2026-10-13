@@ -73,3 +73,10 @@ Web은 12문항 흐름·서버 결과 표시·수정·인쇄 호출·실패 후 
 새 익명 입력의 회원 handoff/FACT persistence, 실제 브라우저 인쇄 PDF 저장·페이지 잘림은 미완료. 테스트 통과를 live 완료로 바꾸어 쓰지 않는다.
 
 최종 로컬 결과: API141 passed / Web25 passed / npm build 성공. 실제 API/Web dev 배포 커밋과 smoke 결과는 현재 PR/Render 상태로 확인한다.
+
+
+## 월 단위 자기확인 FACT loop (2026-10-13)
+
+RETIREMENT/NPS/BUDGET/BRIDGE 4항목: 검토 checkbox → scoped FACT → Action DONE/PARTIAL → focused Top3. 메모리 API와 mock UI에서 확인. 요청 재사용 무변경/본문변경409/오래된 revision409/두 동시 요청1승자/회원간404/타항목 patch 무시/기존 FACT·Awareness 보존/선행 수정 종속 FACT STALE 및 Action REVIEW_DUE를 검증. UNKNOWN/null, 0, NONE/NOT_APPLICABLE, 소수 만원 유지.
+
+로컬 API164/Web28/build PASS. 실제 dev SQL rollback: 새 namespace FACT/Action/Activity·준비 데이터의 두 subject RLS 격리, 직접 UPDATE0행 또는 권한 차단, 익명0행·invalid-secret RPC차단 PASS. 준비/FACT/이력 마커 잔존0. 실제 confirm RPC와 Auth 로그인/재로그인 persistence E2E는 미완료. 기존 Auth WARN1 외 신규 advisor finding 없음.

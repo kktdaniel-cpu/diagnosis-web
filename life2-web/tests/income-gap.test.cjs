@@ -60,3 +60,28 @@ test('saved draft fields preserve null and zero without browser calculation',()=
  assert.equal(d.budget_monthly_10k,'0');assert.equal(d['nps_self.monthly_10k'],'');
  assert.equal(payload(d).nps_self.monthly_10k,null);
 });
+
+const reviewSource=transformSync('GapReview.tsx',fs.readFileSync(path.join(__dirname,'../src/GapReview.tsx'),'utf8'),{jsx:{runtime:'automatic'}}).code.replace(/import \{([^}]+)\} from ([^;]+);/g,(_,names,mod)=>`const {${names.replace(/ as /g,':')}}=require(${mod});`).replace('export function GapReview','exports.GapReview=function');
+function reviewFixture(){
+ let values=[],cursor=0,first=true,tree,nonce=0;
+ const submitted=[];
+ const react={useState:init=>{const n=cursor++;if(first)values[n]=typeof init==='function'?init():init;return [values[n],v=>values[n]=v]},useRef:init=>{const n=cursor++;if(first)values[n]={current:init};return values[n]}};
+ const jsx=(type,props)=>({type,props});
+ const ctx={exports:{},crypto:{randomUUID:()=>`00000000-0000-4000-8000-${String(++nonce).padStart(12,'0')}`},require:n=>n==='react'?react:n==='./incomeGapInput'?context.exports:{jsx,jsxs:jsx}};
+ vm.runInNewContext(reviewSource,ctx);
+ function render(){cursor=0;tree=ctx.exports.GapReview({review:{group:'BUDGET',title:'생활비 확인',ready:true,status:'UNREVIEWED',fields:[{key:'budget_monthly_10k',label:'생활비',type:'money'}]},answers:{household:'single',budget_monthly_10k:0},revision:3,onCancel(){},onConfirm:async payload=>{submitted.push(payload);throw new Error('Retry test');}});first=false;}
+ function nodes(){const out=[];function walk(n){if(Array.isArray(n))n.forEach(walk);else if(n&&typeof n==='object'){out.push(n);walk(n.props?.children)}}walk(tree);return out;}
+ render();return {render,nodes,submitted,flush:()=>new Promise(r=>setImmediate(r))};
+}
+test('review requires acknowledgement, preserves zero and revision, and keeps retry identity until input changes',async()=>{
+ const f=reviewFixture();
+ f.nodes().find(n=>n.type==='form').props.onSubmit({preventDefault(){}});await f.flush();assert.equal(f.submitted.length,0);
+ f.nodes().find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});f.render();
+ f.nodes().find(n=>n.type==='form').props.onSubmit({preventDefault(){}});await f.flush();f.render();
+ assert.equal(f.submitted[0].answers.budget_monthly_10k,0);assert.equal(f.submitted[0].expected_revision,3);
+ f.nodes().find(n=>n.type==='form').props.onSubmit({preventDefault(){}});await f.flush();f.render();
+ assert.equal(f.submitted[1].request_id,f.submitted[0].request_id);
+ f.nodes().find(n=>n.type==='input'&&n.props.type==='number').props.onChange({target:{value:'75.5'}});f.render();
+ f.nodes().find(n=>n.type==='form').props.onSubmit({preventDefault(){}});await f.flush();
+ assert.notEqual(f.submitted[2].request_id,f.submitted[0].request_id);assert.equal(f.submitted[2].answers.budget_monthly_10k,75.5);
+});
