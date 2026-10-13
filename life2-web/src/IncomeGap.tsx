@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { incomeGapPayload, incomeGapFields } from './incomeGapInput';
+import { GapReview, type Review, type ReviewSubmission } from './GapReview';
 
 type Field={key:string;label:string;type:'select'|'month'|'money';unit?:string;options?:{value:string;label:string}[];show_when?:{key:string;value:string};show_when_any?:{key:string;values:string[]}};
 type Question={id:string;title:string;hint?:string;fields:Field[];show_when?:{key:string;value:string}};
 type Action={code:string;title:string;reason:string;target_date:string;steps:string[];completion:string;support:string;worksheet?:string[]};
-export type GapResult={answers?:Record<string,unknown>;persistence?:string;saved_at?:string;calendar:{last_salary_month:string|null;first_salary_free_month:string|null;nps_self_state?:string;nps_spouse_state?:string;nps_self_start_month:string|null;nps_spouse_start_month:string|null;both_nps_started_month:string|null;nps_wait_months:number|null};missing:{key:string;label:string}[];top3:Action[];notes:string[]};
+export type GapResult={preparation_id?:string;revision?:number;reviews?:Review[];reviewed_groups?:number;review_total?:number;answers?:Record<string,unknown>;persistence?:string;saved_at?:string;calendar:{last_salary_month:string|null;first_salary_free_month:string|null;nps_self_state?:string;nps_spouse_state?:string;nps_self_start_month:string|null;nps_spouse_start_month:string|null;both_nps_started_month:string|null;nps_wait_months:number|null};missing:{key:string;label:string}[];top3:Action[];notes:string[]};
 
-export function IncomeGap({api,onBack,onMember,initial}: {api:string;onBack:()=>void;onMember:(payload:ReturnType<typeof incomeGapPayload>)=>Promise<void>|void;initial?:GapResult|null}){
+export function IncomeGap({api,onBack,onMember,initial,onConfirm}: {api:string;onBack:()=>void;onMember:(payload:ReturnType<typeof incomeGapPayload>)=>Promise<void>|void;initial?:GapResult|null;onConfirm?:(id:string,payload:ReviewSubmission)=>Promise<GapResult>}){
   const [questions,setQuestions]=useState<Question[]>([]);
   const [index,setIndex]=useState(0);
   const [fields,setFields]=useState<Record<string,string>>(()=>initial?.answers?incomeGapFields(initial.answers):{});
@@ -14,6 +15,7 @@ export function IncomeGap({api,onBack,onMember,initial}: {api:string;onBack:()=>
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState('');
   const [agreed,setAgreed]=useState(false);
+  const [review,setReview]=useState<Review|null>(null);
   const [loading,setLoading]=useState(true);
   const [reload,setReload]=useState(0);
   const heading=useRef<HTMLHeadingElement>(null);
@@ -75,6 +77,16 @@ export function IncomeGap({api,onBack,onMember,initial}: {api:string;onBack:()=>
       <p className="hint">결과 확인 시 입력한 정보를 서버로 보내 계산하고 저장하지 않습니다. 새로고침·이탈하면 사라집니다. 금융 로그인 정보는 입력하지 않습니다.</p>
     </>}
     {result&&<>
+      {result.reviews&&<div className="gapNoPrint">
+        <h3>소득공백 정보 확인 {result.reviewed_groups}/{result.review_total}</h3>
+        <p className="hint">기존 12영역 확인 완료와는 별도입니다. 수정한 선행 정보가 있으면 연결 계획도 다시 검토합니다.</p>
+        {!review&&result.reviews.map(item=><button className="secondaryBtn" key={item.group} disabled={!item.ready || busy || !onConfirm} onClick={()=>setReview(item)}>{item.title} · {item.status==='DONE'?'확인 완료':item.status==='PARTIAL'?'부분 확인':item.status==='REVIEW_DUE'?'다시 검토':'확인하기'}{!item.ready?' (선행 정보 확인 후)':''}</button>)}
+        {review&&onConfirm&&result.preparation_id&&<GapReview key={review.group} review={review} answers={result.answers || {}} revision={result.revision || 0} onCancel={()=>setReview(null)} onConfirm={async payload=>{
+          setBusy(true);
+          try{const updated=await onConfirm(result.preparation_id!,payload);
+          setResult(updated);setFields(incomeGapFields(updated.answers || {}));setReview(null);setMessage('검토 내용을 저장하고 다음 할 일을 다시 계산했습니다.');}finally{setBusy(false);}
+        }}/>}
+      </div>}
       <h2 tabIndex={-1} ref={heading}>월급이 끝난 뒤,<br/>이번 달 준비할 것</h2>
       <div className="previewBox">
         <b>월급이 없는 첫 달 → 본인 국민연금 시작</b>
@@ -96,8 +108,8 @@ export function IncomeGap({api,onBack,onMember,initial}: {api:string;onBack:()=>
       {result.missing.length>0&&<details><summary>아직 확인할 정보 {result.missing.length}개</summary><ul>{result.missing.map(m=><li key={m.key}>{m.label}</li>)}</ul></details>}
       <div className="ruleNote">{result.notes.map(note=><p key={note}>{note}</p>)}</div>
       <div className="gapNoPrint">
-        <button onClick={()=>window.print()}>달력·행동 계획 인쇄 / PDF 저장</button>
-        <button className="secondaryBtn" onClick={()=>{setResult(null);setIndex(0);setMessage('')}}>입력 확인·수정하기</button>
+        <button disabled={busy} onClick={()=>window.print()}>달력·행동 계획 인쇄 / PDF 저장</button>
+        <button className="secondaryBtn" disabled={busy} onClick={()=>{setResult(null);setIndex(0);setMessage('')}}>입력 확인·수정하기</button>
         <label className="multiChoice"><input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)} disabled={busy}/> 입력한 정보를 준비 초안으로 저장하는 데 동의합니다.</label>
         <p className="hint">동의하면 초안을 서버에 보관하고, 24시간 안에 로그인·가입해 MY LIFE로 연결할 수 있습니다. 연결하지 않은 초안은 만료됩니다. 확정 FACT나 Action 확인 완료로 처리하지 않습니다.</p>
         <button className="secondaryBtn" disabled={busy || !agreed} onClick={async()=>{if(!agreed || busy)return;setBusy(true);setMessage('');try{await onMember(incomeGapPayload(fields));}catch{setMessage('초안을 연결하지 못했습니다. 입력은 유지됩니다. 잠시 후 다시 시도해 주세요.');}finally{setBusy(false)}}}>동의한 초안을 MY LIFE에 저장하기</button>

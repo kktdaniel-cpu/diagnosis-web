@@ -1,3 +1,18 @@
+# 최신 자기확인 단계 (2026-10-13)
+
+RETIREMENT/NPS/BUDGET/BRIDGE 4항목에 한해 저장 초안 → 명시적 검토 → scoped FACT/Action → focused Top3 연결을 구현했다.
+- POST /v1/me/income-gap/preparations/{UUID}/confirm: group, answers, acknowledged:true, expected_revision, request_id(UUID). 클라이언트가 fact_rows/user_id를 지정할 수 없다.
+- 선택한 항목의 필드만 병합. 타 항목을 payload에서 바꾸어도 확인/저장하지 않는다.
+- 준비별 FACT namespace와 출처로 월 입력을 기존 나이/원 FACT에 섞지 않는다. 자기확인(SELF_REPORTED)이며 기관 검증된 FACT는 아니다.
+- UNKNOWN은 null, 수급 계획 없음(NONE)은 NOT_APPLICABLE, 확인한0은KNOWN0. 연결 기간은 사용자 확인 시점에서 RULE_DERIVED. 정확한 자산 금액·부족액·필요자금은 계산하지 않는다.
+- 일부 미확인/생활비에 대출 상환액 미포함이면 PARTIAL. 연결 계획은 선행3항목 DONE 이후에 검토한다. 입력 정보의 검토 완료가 생활비 충분성 보장은 아니다.
+- 선행 정보 수정 시 종속 FACT는 STALE, 전용 Action은 REVIEW_DUE, 다음 행동에 재검토 표시. 새로운 전체 초안은 다른 preparation_id로 보존된다.
+- UUID 재시도는 같은 결과를 반환해 중복 FACT/Action/이력 방지. 다른 내용으로 같은 UUID 또는 오래된 revision은409. 하나의 초안에 검토 요청100건까지 허용(이후 새 초안 필요).
+- 전용 GAP_V1_* Action/Activity 사용. 기존 A1~A12, Awareness 및 Finding은 임의 완료/변경하지 않는다. focused Finding 표준 엔티티 연결과 나머지 Action 월 정보는 후속이다.
+- dev migration version20261013044608 적용 및 SQL role rollback RLS PASS. 실제 로그인 기반 confirm RPC/재로그인 E2E는 별도 필요.
+
+아래는 앞선 단계의 역사 기록이다. 최신 자기확인 단계가 과거 'FACT를 쓰지 않음' 기록보다 우선하되, 익명 preview와 초안 저장만으로는 여전히 FACT를 만들지 않는다.
+
 # 최신 연결 상태 — 2026-10-13 KST
 
 PR39 후속: 저장 동의가 있는 준비 초안을 anonymous handoff로 만들고 로그인/가입 뒤 MY LIFE로 연결하는 코드와 개발 DB 저장 공간을 추가했다.

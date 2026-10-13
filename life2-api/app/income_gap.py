@@ -69,6 +69,13 @@ class IncomeGapInput(ClosedModel):
     liquid_assets_band: Literal["UNKNOWN", "UNDER_1000", "1000_5000", "5000_10000", "OVER_10000"] = "UNKNOWN"
     large_cost_state: Literal["UNKNOWN", "NONE", "PLANNED"] = "UNKNOWN"
     family_discussion: Literal["UNKNOWN", "NOT_YET", "DONE"] = "UNKNOWN"
+    bridge_methods: list[Literal["LIQUID_ASSETS", "PRIVATE_PENSION", "WORK", "REDUCE_SPENDING", "OTHER_CONFIRM"]] = Field(default_factory=list, max_length=5)
+
+    @model_validator(mode="after")
+    def unique_methods(self):
+        if len(set(self.bridge_methods)) != len(self.bridge_methods):
+            raise ValueError("연결 방법을 중복 선택할 수 없습니다.")
+        return self
 
 
 def _f(key, label, kind="select", options=None, **kw):

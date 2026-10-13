@@ -5,6 +5,7 @@ import { isPensionAmount, pensionFields, digitalListBlockReason } from './action
 import { connectPrecision } from './precisionEntry';
 import { IncomeGap, type GapResult } from './IncomeGap';
 import { incomeGapPayload } from './incomeGapInput';
+import type { ReviewSubmission } from './GapReview';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -275,6 +276,18 @@ export default function App(){
     const {data}=await supabase.auth.getSession();
     if(data.session)await claimGapWithToken(data.session.access_token);
     else{setAuthMsg('준비 초안을 이어서 저장하려면 로그인하거나 가입해 주세요.');setScreen('auth');}
+  }
+
+  async function confirmGapReview(id:string,payload:ReviewSubmission){
+    const token=await accessToken();
+    const r=await fetch(`${API}/v1/me/income-gap/preparations/${id}/confirm`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify(payload)});
+    const body=await r.json();
+    if(!r.ok){
+      const code=body?.detail?.code;
+      throw new Error(code==='GAP_REVISION_CONFLICT' || code==='GAP_REQUEST_CONFLICT'?'다른 화면에서 정보가 바뀌었습니다. MY LIFE에서 최신 초안을 다시 열어 주세요.':code==='GAP_PREREQUISITES_REQUIRED'?'퇴직·연금·생활비를 먼저 확인해 주세요.':'검토 내용을 저장하지 못했습니다. 입력을 확인하거나 잠시 후 다시 시도해 주세요.');
+    }
+    setGapSaved(body.data.preparation);setGapInitial(body.data.preparation);
+    return body.data.preparation as GapResult;
   }
 
   async function continueToMember(){
@@ -635,7 +648,7 @@ export default function App(){
       <small>회원가입 없이 시작 · 지금 먼저 확인할 행동을 알려드려요</small>
     </section>}
 
-    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} initial={gapInitial} onMember={saveGapPreparation}/>}
+    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} initial={gapInitial} onMember={saveGapPreparation} onConfirm={confirmGapReview}/>}
 
     {screen==='meta'&&<section className="card">
       <div className="progress">시작 전</div>

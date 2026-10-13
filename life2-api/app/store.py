@@ -8,6 +8,9 @@ import os
 import httpx
 from hashlib import sha256
 from copy import deepcopy
+from threading import RLock
+
+_gap_review_lock = RLock()
 
 from . import config
 from .actions import completion_awareness_response
@@ -49,7 +52,7 @@ class MemoryStore:
         digest=sha256(token.encode()).hexdigest()
         record={'preparation_id':str(uuid4()),'answers':deepcopy(answers),
                 'expires_at':datetime.now(timezone.utc)+timedelta(hours=24),
-                'subject':None,'saved_at':None}
+                'subject':None,'saved_at':None,'revision':0,'confirmations':{},'review_requests':{}}
         self.gap_preparations[digest]=record
         return {'handoff_token':token,'expires_at':record['expires_at'].isoformat()}
 
@@ -72,7 +75,51 @@ class MemoryStore:
         if not records:
             return None
         record=max(records,key=lambda r:r['saved_at'])
-        return {key:deepcopy(record[key]) for key in ('preparation_id','answers','saved_at')}
+        return {key:deepcopy(record[key]) for key in ('preparation_id','answers','saved_at','revision','confirmations','review_requests')}
+
+    def gap_review_record(self, subject: str, preparation_id: str):
+        record=next((r for r in self.gap_preparations.values() if r['preparation_id']==preparation_id and r['subject']==subject),None)
+        if record is None:
+            raise StoreError('GAP_PREPARATION_NOT_FOUND',404)
+        return deepcopy(record)
+
+    def confirm_gap_review(self, subject: str, preparation_id: str, group: str, expected_revision: int, request_id: str, prepared: dict):
+        with _gap_review_lock:
+            record=next((r for r in self.gap_preparations.values() if r['preparation_id']==preparation_id and r['subject']==subject),None)
+            if record is None:
+                raise StoreError('GAP_PREPARATION_NOT_FOUND',404)
+            previous=record['review_requests'].get(request_id)
+            if previous:
+                if previous['hash']!=prepared['request_hash']:
+                    raise StoreError('GAP_REQUEST_CONFLICT',409)
+                return {**deepcopy(previous['response']),'idempotent':True}
+            if record['revision']!=expected_revision:
+                raise StoreError('GAP_REVISION_CONFLICT',409)
+            if len(record['review_requests'])>=100:
+                raise StoreError('GAP_REVIEW_LIMIT',409)
+            action_id=record['confirmations'].get(group,{}).get('action_instance_id') or str(uuid4())
+            record['answers']=deepcopy(prepared['answers'])
+            record['revision']+=1
+            record['confirmations'][group]={'digest':prepared['digest'],'status':prepared['status'],'action_instance_id':action_id}
+            bucket=self.facts.setdefault(subject,{})
+            for invalidated in prepared['invalidated_groups']:
+                invalid_action=record['confirmations'].get(invalidated,{}).get('action_instance_id')
+                if invalid_action:
+                    self.action_instances[invalid_action]['status']='REVIEW_DUE'
+                source=f'GAP_REVIEW:{preparation_id}:{invalidated}'
+                for old_fact in bucket.values():
+                    if old_fact.get('source_ref')==source:
+                        old_fact['status']='STALE'
+            for fact in prepared['facts']:
+                bucket[fact['fact_key']]=deepcopy(fact)
+            self.action_instances[action_id]={'action_instance_id':action_id,'action_catalog_id':f'GAP_V1_{group}',
+                'subject':subject,'status':'SELF_REPORTED_DONE' if prepared['status']=='DONE' else 'IN_PROGRESS',
+                'mode':'VERIFY','draft':{}}
+            response={'idempotent':False,'group':group,'status':prepared['status'],'revision':record['revision'],'action_instance_id':action_id}
+            record['review_requests'][request_id]={'hash':prepared['request_hash'],'response':deepcopy(response)}
+            self.recent.setdefault(subject,[]).insert(0,{'event_type':'GAP_REVIEW_CONFIRMED','summary_code':prepared['status'],
+                'metadata':{'fact_keys':[f['fact_key'] for f in prepared['facts']], 'top3_before':prepared['top3_before'],'top3_after':prepared['top3_after']}})
+            return response
 
     def create_run(self, age_band: str, household_type: str) -> dict:
         run = AwarenessRun(
@@ -320,7 +367,17 @@ class SupabaseRPCStore:
                 msg=r.text
             lower=str(msg).lower()
             code,status="STORAGE_ERROR",500
-            if "expired" in lower:
+            if "gap preparation not found" in lower:
+                code,status='GAP_PREPARATION_NOT_FOUND',404
+            elif "gap revision conflict" in lower:
+                code,status='GAP_REVISION_CONFLICT',409
+            elif "gap request conflict" in lower:
+                code,status='GAP_REQUEST_CONFLICT',409
+            elif "gap review limit" in lower:
+                code,status='GAP_REVIEW_LIMIT',409
+            elif "gap invalid facts" in lower:
+                code,status='GAP_INVALID_FACTS',422
+            elif "expired" in lower:
                 code,status="RUN_EXPIRED",410
             elif "handoff already claimed" in lower:
                 code,status="HANDOFF_ALREADY_CLAIMED",409
@@ -362,6 +419,17 @@ class SupabaseRPCStore:
         return self._rpc('rpc_gap_preparation_get',{
             'p_internal_secret':self.secret,'p_auth_subject':subject,
         })
+
+    def gap_review_record(self, subject: str, preparation_id: str):
+        return self._rpc('rpc_gap_review_get',{'p_internal_secret':self.secret,'p_auth_subject':subject,'p_preparation_id':preparation_id})
+
+    def confirm_gap_review(self, subject: str, preparation_id: str, group: str, expected_revision: int, request_id: str, prepared: dict):
+        return self._rpc('rpc_gap_review_confirm',{'p_internal_secret':self.secret,'p_auth_subject':subject,
+            'p_preparation_id':preparation_id,'p_group':group,'p_expected_revision':expected_revision,'p_request_id':request_id,
+            'p_request_hash':prepared['request_hash'],'p_answers':prepared['answers'],'p_digest':prepared['digest'],
+            'p_status':prepared['status'],'p_fact_rows':prepared['facts'],
+            'p_invalidated_groups':prepared['invalidated_groups'],
+            'p_top3_before':prepared['top3_before'],'p_top3_after':prepared['top3_after']})
 
     def put_answer(self,run_id:str,run_token:str,question_id:str,response:str)->dict:
         return self._rpc("rpc_awareness_put_answer",{

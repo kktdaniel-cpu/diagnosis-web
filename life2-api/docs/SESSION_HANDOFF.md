@@ -3,6 +3,19 @@
 이 문서는 채팅방 간 승계용이다. 재개 시 GitHub 및 배포 현황을 다시 조회한다. 문서 기록을 실시간 상태로 간주하지 않는다.
 
 
+## 최신 월 단위 확인 → FACT → 다음 행동 연결 (2026-10-13)
+- 기준 dev6a573873bbfde569cada236f9694c08f288f0f60 (PR41). feat/life2-gap-confirm에서 구현.
+- 저장한 초안의 RETIREMENT/NPS/BUDGET/BRIDGE 4항목 자기확인 화면 및 회원 confirm API 구현. 아직 전체 A3~A12 월 단위 연결이 아니다.
+- 명시적 검토 확인 → 준비별 namespace FACT(USER_CONFIRMED/SELF_REPORTED; 기간은 RULE_DERIVED) → 전용 GAP_V1 Action DONE/PARTIAL → focused Top3 재계산. 기존 Awareness 완료/나이 FACT/Google DB 변경 없음.
+- FACT key gap.v1.<preparation_id>.<field>로 버전/초안 간 혼합 방지. UNKNOWN/null·0·NOT_APPLICABLE 구분. 국민연금 없는 계획은 대기 기간을0으로 만들지 않음.
+- 요청 UUID/hash 재호출 idempotency, 수정본에 같은 UUID 사용409, optimistic revision409, 다른 회원404. 선행값 변경 시 종속 FACT STALE/Action REVIEW_DUE.
+- dev Supabase migration gap_review_facts(version20261013044608) 적용. RPC SECURITY INVOKER·internal header/secret guard 유지. 원격 이력과 생성 SQL 파일명 일치.
+- 실제 dev SQL role RLS 테스트 PASS: 두 subject의 새 namespace FACT/Action/Activity 및 초안 격리, UNKNOWN/0, 직접 변경0행/권한 거부, 익명 및 invalid-secret confirm 차단. 모두 ROLLBACK, 준비/FACT/이력 마커 잔존0.
+- SQL role simulation은 실제 Auth 로그인/완료 RPC 실행 증거가 아니다. 현금흐름/보험/연금 자격 계산 없음. 실제 전용 회원의 확인→FACT→새 연결/persistence E2E 미완료.
+- Security Advisor 신규 DB finding 없음. 기존 Auth leaked-password WARN1 유지, 설정 변경 없음.
+- 다음: A3/A6/A7 후속 정보의 월 단위 확인 연결, focused Finding 엔티티 연결(현재 부분 확인/재검토는 준비 확인 상태와 Action에 기록), 실제 전용 회원 E2E, 모바일/PDF, 월별 현금흐름.
+- 로컬 최종 API164 tests / Web28 tests / build PASS. 이는 메모리/TestClient 및 mocked UI 검증이며 실제 회원의 RPC 완료를 대신하지 않는다. CI/Render 최종 상태는 현재 PR 및 최신 검증 기록을 확인.
+
 ## 최신 소득공백 준비 초안 연결 — 2026-10-13 KST
 - 기준: PR39 merged dev 6a08eba7159076ee81d3fc280015f0723675eb73. feat/life2-gap-save에서 후속 구현.
 - 명시적 동의 → 익명 초안 저장 → 24시간 opaque token → 검증된 Auth subject로 claim → MY LIFE 재조회 구현. 브라우저에는 토큰만 보관, DB에는 SHA256 digest만 저장.

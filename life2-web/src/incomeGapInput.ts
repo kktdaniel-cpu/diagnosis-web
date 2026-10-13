@@ -18,7 +18,8 @@ export function incomeGapPayload(fields: Record<string,string>){
     budget_monthly_10k:money('budget_monthly_10k'),debt_monthly_10k:money('debt_monthly_10k'),debt_in_budget:fields.debt_in_budget || 'UNKNOWN',
     nps_self:pension('nps_self'),nps_spouse:fields.household==='couple'?pension('nps_spouse'):{state:'UNKNOWN',start_month:null,monthly_10k:null},
     private_pension:pension('private_pension'),post_work:{state:workState,monthly_10k:['CONFIRMED','PLAN_ONLY'].includes(workState)?money('post_work.monthly_10k'):null},
-    liquid_assets_band:fields.liquid_assets_band || 'UNKNOWN',large_cost_state:fields.large_cost_state || 'UNKNOWN',family_discussion:fields.family_discussion || 'UNKNOWN'
+    liquid_assets_band:fields.liquid_assets_band || 'UNKNOWN',large_cost_state:fields.large_cost_state || 'UNKNOWN',family_discussion:fields.family_discussion || 'UNKNOWN',
+    bridge_methods:fields.bridge_methods?fields.bridge_methods.split('|'):[]
   };
 }
 
@@ -27,7 +28,7 @@ export function incomeGapFields(answers:Record<string,unknown>){
   for(const [key,value] of Object.entries(answers)){
     if(value&&typeof value==='object'&&!Array.isArray(value)){
       for(const [name,leaf] of Object.entries(value)) fields[`${key}.${name}`]=leaf===null?'':String(leaf);
-    }else fields[key]=value===null?'':String(value);
+    }else fields[key]=value===null?'':Array.isArray(value)?value.join('|'):String(value);
   }
   return fields;
 }
