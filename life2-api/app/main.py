@@ -13,6 +13,7 @@ from .coach import build_action_context, explain_action, help_action, summarize_
 from .income_gap import IncomeGapInput, build_preview, questions as gap_questions
 from .gap_preparation import GapSaveRequest, saved_preview
 from .gap_review import GapReviewRequest, prepare as prepare_gap_review, digest as gap_digest
+from .consultation import ConsultationRequest
 from uuid import UUID
 from fastapi.responses import JSONResponse
 from .actions import (
@@ -138,6 +139,15 @@ async def gap_confirm(preparation_id: UUID, payload: GapReviewRequest, subject: 
     except StoreError as e:
         _store_error(e)
     return JSONResponse({'ok':True,'data':result},headers={'Cache-Control':'no-store'})
+
+@app.post('/v1/me/consultations')
+async def consultation_request(payload: ConsultationRequest, subject: str = Depends(get_current_subject)):
+    try:
+        store.gap_review_record(subject,str(payload.preparation_id))
+        data=store.request_consultation(subject,str(payload.preparation_id),str(payload.request_id),payload.topic)
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
 
 @app.post("/v1/me/awareness/claim")
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):

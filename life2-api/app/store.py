@@ -44,6 +44,7 @@ class MemoryStore:
         self.action_instances: dict[str, dict] = {}
         self.facts: dict[str, dict[str, dict]] = {}
         self.recent: dict[str, list[dict]] = {}
+        self.consultations: dict[tuple,dict] = {}
         self.change_events: dict[tuple[str,str], dict] = {}
         self.gap_preparations: dict[str, dict] = {}
 
@@ -130,6 +131,22 @@ class MemoryStore:
         )
         self.runs[run.run_id] = run
         return {"run_id":run.run_id,"run_token":run.run_token,"expires_at":run.expires_at.isoformat()}
+
+    def request_consultation(self, subject, preparation_id, request_id, topic):
+        with _gap_review_lock:
+            self.gap_review_record(subject,preparation_id)
+            key=(subject,request_id)
+            old=self.consultations.get(key)
+            if old:
+                if old['preparation_id']!=preparation_id or old['topic']!=topic:
+                    raise StoreError('CONSULTATION_CONFLICT',409)
+                return {**deepcopy(old),'idempotent':True}
+            if sum(k[0]==subject for k in self.consultations)>=20:
+                raise StoreError('CONSULTATION_LIMIT',429)
+            result={'request_id':request_id,'preparation_id':preparation_id,'topic':topic,'status':'RECEIVED','notification_status':'NOT_CONFIGURED','idempotent':False}
+            self.consultations[key]=deepcopy(result)
+            self.recent.setdefault(subject,[]).insert(0,{'event_type':'CONSULTATION_REQUESTED','summary_code':'RECEIVED'})
+            return result
 
     def put_answer(self, run_id: str, run_token: str, question_id: str, response: str) -> dict:
         run=self.runs.get(run_id)
@@ -377,6 +394,10 @@ class SupabaseRPCStore:
                 code,status='GAP_REVIEW_LIMIT',409
             elif "gap invalid facts" in lower:
                 code,status='GAP_INVALID_FACTS',422
+            elif "consultation conflict" in lower:
+                code,status='CONSULTATION_CONFLICT',409
+            elif "consultation limit" in lower:
+                code,status='CONSULTATION_LIMIT',429
             elif "expired" in lower:
                 code,status="RUN_EXPIRED",410
             elif "handoff already claimed" in lower:
@@ -430,6 +451,9 @@ class SupabaseRPCStore:
             'p_status':prepared['status'],'p_fact_rows':prepared['facts'],
             'p_invalidated_groups':prepared['invalidated_groups'],
             'p_top3_before':prepared['top3_before'],'p_top3_after':prepared['top3_after']})
+
+    def request_consultation(self, subject, preparation_id, request_id, topic):
+        return self._rpc('rpc_consultation_request',{'p_internal_secret':self.secret,'p_auth_subject':subject,'p_preparation_id':preparation_id,'p_request_id':request_id,'p_topic':topic})
 
     def put_answer(self,run_id:str,run_token:str,question_id:str,response:str)->dict:
         return self._rpc("rpc_awareness_put_answer",{
