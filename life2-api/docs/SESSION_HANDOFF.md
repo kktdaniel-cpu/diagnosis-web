@@ -7,7 +7,7 @@
 - 기준: PR39 merged dev 6a08eba7159076ee81d3fc280015f0723675eb73. feat/life2-gap-save에서 후속 구현.
 - 명시적 동의 → 익명 초안 저장 → 24시간 opaque token → 검증된 Auth subject로 claim → MY LIFE 재조회 구현. 브라우저에는 토큰만 보관, DB에는 SHA256 digest만 저장.
 - 초안은 새 income_gap_preparations 테이블에 공통 user_id로 연결. 기존 Awareness/FACT/Action을 덮어쓰거나 완료하지 않는다. 월 입력을 나이로 변환하지 않음.
-- Supabase dev에 CLI 생성 migration income_gap_preparation 적용. 신규 테이블 RLS, 3 RPC 모두 SECURITY INVOKER, 서버 내부 secret/header guard 사용. 기존 DB schema/운영 및 Google Master DB 변경 없음.
+- Supabase dev migration income_gap_preparation 적용. CLI 생성 SQL을 원격 적용 이력 version20261013033910과 대조해 파일명을 일치시켰다. CLI db push 전 전체 기존 원격 이력을 pull/대조해야 한다. 신규 테이블 RLS, 3 RPC 모두 SECURITY INVOKER, 서버 내부 secret/header guard 사용. 기존 DB schema/운영 및 Google Master DB 변경 없음.
 - 실제 dev SQL rollback 검증: 두 subject 자기 행만 조회, 0/null 유지, 직접 수정/익명 INSERT/조회/유효하지 않은 secret RPC 차단 PASS. 실제 Auth 로그인/claim RPC E2E와 다름.
 - 로컬 API149 / Web27 / build PASS. 실제 신규 전용 회원 claim·새 로그인 persistence E2E 및 PDF는 미완료. 현재 PR/CI/Render는 재조회.
 - Advisor 신규 DB 항목 없음. 기존 leaked password protection WARN1 유지; 설정 변경하지 않음.
