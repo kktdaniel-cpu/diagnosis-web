@@ -3,6 +3,16 @@
 이 문서는 채팅방 간 승계용이다. 재개 시 GitHub 및 배포 현황을 다시 조회한다. 문서 기록을 실시간 상태로 간주하지 않는다.
 
 
+## 최신 소득공백 준비 초안 연결 — 2026-10-13 KST
+- 기준: PR39 merged dev 6a08eba7159076ee81d3fc280015f0723675eb73. feat/life2-gap-save에서 후속 구현.
+- 명시적 동의 → 익명 초안 저장 → 24시간 opaque token → 검증된 Auth subject로 claim → MY LIFE 재조회 구현. 브라우저에는 토큰만 보관, DB에는 SHA256 digest만 저장.
+- 초안은 새 income_gap_preparations 테이블에 공통 user_id로 연결. 기존 Awareness/FACT/Action을 덮어쓰거나 완료하지 않는다. 월 입력을 나이로 변환하지 않음.
+- Supabase dev에 CLI 생성 migration income_gap_preparation 적용. 신규 테이블 RLS, 3 RPC 모두 SECURITY INVOKER, 서버 내부 secret/header guard 사용. 기존 DB schema/운영 및 Google Master DB 변경 없음.
+- 실제 dev SQL rollback 검증: 두 subject 자기 행만 조회, 0/null 유지, 직접 수정/익명 INSERT/조회/유효하지 않은 secret RPC 차단 PASS. 실제 Auth 로그인/claim RPC E2E와 다름.
+- 로컬 API149 / Web27 / build PASS. 실제 신규 전용 회원 claim·새 로그인 persistence E2E 및 PDF는 미완료. 현재 PR/CI/Render는 재조회.
+- Advisor 신규 DB 항목 없음. 기존 leaked password protection WARN1 유지; 설정 변경하지 않음.
+- 다음: 준비 초안을 Action 확인 과정으로 연결하는 월 단위 FACT 계약, 확인 완료 뒤 focused Top3, 서버 월별 현금흐름. 일반 가족 대화를 A12 완료로 처리하지 않음.
+
 ## 최신 제품 방향과 개발 — 2026-10-13 KST
 - 사용자 요청: 소득공백 중심 첫 제품으로 개발 계속, 추가 로그인 없이 가능한 작업을 일괄 진행.
 - 기준 dev head를 GitHub에서 재확인: 80af0ce36155db32f3cdd24ee0674cb439e1ce4e (PR38). 기존 작업 파일은 보호하고 별도 feat/life2-income-gap-pilot에서 구현.

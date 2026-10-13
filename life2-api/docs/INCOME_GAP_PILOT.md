@@ -1,3 +1,19 @@
+# 최신 연결 상태 — 2026-10-13 KST
+
+PR39 후속: 저장 동의가 있는 준비 초안을 anonymous handoff로 만들고 로그인/가입 뒤 MY LIFE로 연결하는 코드와 개발 DB 저장 공간을 추가했다.
+- POST /v1/income-gap/handoffs: answers + strict consent:true, 24시간 token. 서버 정규화·입력 검증. UNKNOWN→0 금지.
+- POST /v1/me/income-gap/claim: 검증된 Auth subject 사용, row lock, 동일 회원 재호출 idempotent, 다른 회원409, 만료410.
+- GET /v1/me/income-gap/preparation: 자기 최신 초안만 반환, 서버에서 달력/Top3 재계산. 이는 준비 안내이며 Action 완료 재계산과 다름.
+- 저장된 초안은 FACT가 아니다. 기존 Awareness token은 보존하되 신규 gap claim에서 함께 자동 claim하지 않는다.
+- 브라우저에는 opaque token만 보관. 새 확인 메일을 다른 브라우저에서 열었을 경우 원래 브라우저에서 로그인해야 pending token을 이어받을 수 있다. 이메일 URL에 재무값/token을 넣지 않는다.
+- 만료된 미연결 초안은 재조회/claim 불가. 이후 새 handoff 생성 시 최대100개씩 opportunistic 삭제. 삭제 시각을 정확히24시간으로 약속하지 않는다.
+- 회원 탈퇴 시 user_id FK cascade로 연결 초안 삭제. 준비 초안 별도 삭제 UI는 후속.
+- 소득공백 입력에 월/만원 값은 보존하며 A1/A2의 기존 나이/원 FACT에 임의로 변환하지 않는다.
+- 로컬 API149 tests / Web27 tests / build PASS, dev SQL rollback RLS PASS. 실제 로그인 기반 claim/persistence 및 모바일/PDF 실기 미완료.
+- Security Advisor 기존 WARN: [유출 비밀번호 보호 설정](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection). 이번 변경에서 Auth 설정은 수정하지 않았다.
+
+아래는 PR39 당시 범위 기록이다. 미리보기에는 여전히 persistence:NONE이 적용되며, 저장 동의 뒤에만 새 draft 저장 경로를 사용한다.
+
 # 소득공백 중심 첫 제품 — 개발 범위와 승계
 
 기준일: 2026-10-13 KST. 개발 기준 `mvp/life2-bootstrap`의 `80af0ce36155db32f3cdd24ee0674cb439e1ce4e`.

@@ -11,6 +11,7 @@ from .config import cors_origins, PRECISION_URL
 from .precision import precision_prefill, precision_entry_url
 from .coach import build_action_context, explain_action, help_action, summarize_change
 from .income_gap import IncomeGapInput, build_preview, questions as gap_questions
+from .gap_preparation import GapSaveRequest, saved_preview
 from fastapi.responses import JSONResponse
 from .actions import (
     SUPPORTED_ACTIONS,
@@ -86,6 +87,35 @@ def income_gap_prepare(payload: IncomeGapInput):
     # Stateless: no anonymous run/member identifiers, no store/RPC writes.
     return JSONResponse({"ok": True, "data": build_preview(payload)},
                         headers={"Cache-Control": "no-store"})
+
+
+@app.post('/v1/income-gap/handoffs')
+def gap_handoff(payload: GapSaveRequest):
+    # Explicit user consent. Server stores draft; client retains only opaque token.
+    answers=build_preview(payload.answers)['answers']
+    try:
+        data=store.create_gap_preparation(answers)
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
+
+
+@app.post('/v1/me/income-gap/claim')
+async def gap_claim(payload: HandoffClaim, subject: str = Depends(get_current_subject)):
+    try:
+        data=store.claim_gap_preparation(payload.handoff_token,subject)
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
+
+
+@app.get('/v1/me/income-gap/preparation')
+async def gap_saved(subject: str = Depends(get_current_subject)):
+    try:
+        data=saved_preview(store.member_gap_preparation(subject))
+    except StoreError as e:
+        _store_error(e)
+    return JSONResponse({'ok':True,'data':data},headers={'Cache-Control':'no-store'})
 
 @app.post("/v1/me/awareness/claim")
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):

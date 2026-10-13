@@ -5,7 +5,7 @@ const path=require('node:path');
 const vm=require('node:vm');
 const {transformSync}=require('rolldown/experimental');
 const context={exports:{}};
-const serialize=transformSync('incomeGapInput.ts',fs.readFileSync(path.join(__dirname,'../src/incomeGapInput.ts'),'utf8')).code.replace('export function incomeGapPayload','exports.incomeGapPayload=function');
+const serialize=transformSync('incomeGapInput.ts',fs.readFileSync(path.join(__dirname,'../src/incomeGapInput.ts'),'utf8')).code.replace(/export function (\w+)/g,'exports.$1=function $1');
 vm.runInNewContext(serialize,context);
 const payload=context.exports.incomeGapPayload;
 
@@ -46,9 +46,17 @@ test('anonymous 12-question flow posts to preview without auth, displays server 
  assert.equal(request.url,'https://api.test/v1/income-gap/preview');assert.equal(request.options.headers.Authorization,undefined);
  assert.equal(JSON.parse(request.options.body).budget_monthly_10k,300);
  f.find('button','달력·행동 계획 인쇄 / PDF 저장').props.onClick();assert.equal(f.print(),1);
- f.find('button','MY LIFE 저장을 위한 전체 준비상태 체크').props.onClick();assert.equal(f.member(),1);
+ assert.equal(f.find('button','동의한 초안을 MY LIFE에 저장하기').props.disabled,true);
+ f.nodes().find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});f.render();
+ await f.find('button','동의한 초안을 MY LIFE에 저장하기').props.onClick();assert.equal(f.member(),1);
  f.find('button','입력 확인·수정하기').props.onClick();f.render();assert.equal(f.nodes().find(n=>n.type==='input').props.value,'300');
 });
 test('catalog error is visible with a retry button instead of an empty form',async()=>{
  const f=fixture({fail:true});await f.flush();f.render();assert.ok(f.find('button','다시 불러오기'));assert.ok(f.nodes().find(n=>n.props?.role==='alert'));assert.equal(f.requests.length,1);
+});
+
+test('saved draft fields preserve null and zero without browser calculation',()=>{
+ const d=context.exports.incomeGapFields({household:'single',budget_monthly_10k:0,nps_self:{state:'UNKNOWN',start_month:null,monthly_10k:null}});
+ assert.equal(d.budget_monthly_10k,'0');assert.equal(d['nps_self.monthly_10k'],'');
+ assert.equal(payload(d).nps_self.monthly_10k,null);
 });

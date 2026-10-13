@@ -6,6 +6,8 @@ from secrets import token_urlsafe
 from uuid import uuid4
 import os
 import httpx
+from hashlib import sha256
+from copy import deepcopy
 
 from . import config
 from .actions import completion_awareness_response
@@ -40,6 +42,37 @@ class MemoryStore:
         self.facts: dict[str, dict[str, dict]] = {}
         self.recent: dict[str, list[dict]] = {}
         self.change_events: dict[tuple[str,str], dict] = {}
+        self.gap_preparations: dict[str, dict] = {}
+
+    def create_gap_preparation(self, answers: dict) -> dict:
+        token=token_urlsafe(32)
+        digest=sha256(token.encode()).hexdigest()
+        record={'preparation_id':str(uuid4()),'answers':deepcopy(answers),
+                'expires_at':datetime.now(timezone.utc)+timedelta(hours=24),
+                'subject':None,'saved_at':None}
+        self.gap_preparations[digest]=record
+        return {'handoff_token':token,'expires_at':record['expires_at'].isoformat()}
+
+    def claim_gap_preparation(self, token: str, subject: str) -> dict:
+        record=self.gap_preparations.get(sha256(token.encode()).hexdigest())
+        if not record:
+            raise StoreError('HANDOFF_NOT_FOUND',404)
+        if record['subject'] and record['subject']!=subject:
+            raise StoreError('HANDOFF_ALREADY_CLAIMED',409)
+        repeated=record['subject']==subject
+        if not repeated:
+            if datetime.now(timezone.utc)>record['expires_at']:
+                raise StoreError('RUN_EXPIRED',410)
+            record['subject']=subject
+            record['saved_at']=datetime.now(timezone.utc).isoformat()
+        return {'claimed':True,'idempotent':repeated,'preparation_id':record['preparation_id']}
+
+    def member_gap_preparation(self, subject: str):
+        records=[r for r in self.gap_preparations.values() if r['subject']==subject]
+        if not records:
+            return None
+        record=max(records,key=lambda r:r['saved_at'])
+        return {key:deepcopy(record[key]) for key in ('preparation_id','answers','saved_at')}
 
     def create_run(self, age_band: str, household_type: str) -> dict:
         run = AwarenessRun(
@@ -98,6 +131,8 @@ class MemoryStore:
         return {"claimed":True,"idempotent":idempotent,"dashboard":self.dashboard(subject)}
 
     def delete_account(self, subject: str) -> dict:
+        for digest in [k for k,v in self.gap_preparations.items() if v['subject']==subject]:
+            self.gap_preparations.pop(digest,None)
         run_id=self.member_run.pop(subject,None)
         if run_id:
             self.runs.pop(run_id,None)
@@ -307,6 +342,25 @@ class SupabaseRPCStore:
             "p_internal_secret":self.secret,
             "p_age_band":age_band,
             "p_household_type":household_type,
+        })
+
+    def create_gap_preparation(self, answers: dict) -> dict:
+        token=token_urlsafe(32)
+        result=self._rpc('rpc_gap_preparation_create',{
+            'p_internal_secret':self.secret,'p_token_hash':sha256(token.encode()).hexdigest(),
+            'p_answers':answers,
+        })
+        return {'handoff_token':token,'expires_at':result['expires_at']}
+
+    def claim_gap_preparation(self, token: str, subject: str) -> dict:
+        return self._rpc('rpc_gap_preparation_claim',{
+            'p_internal_secret':self.secret,'p_token_hash':sha256(token.encode()).hexdigest(),
+            'p_auth_subject':subject,
+        })
+
+    def member_gap_preparation(self, subject: str):
+        return self._rpc('rpc_gap_preparation_get',{
+            'p_internal_secret':self.secret,'p_auth_subject':subject,
         })
 
     def put_answer(self,run_id:str,run_token:str,question_id:str,response:str)->dict:

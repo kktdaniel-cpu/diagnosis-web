@@ -126,5 +126,29 @@ test('a blocked precision popup shows recovery guidance without requesting finan
 
 test('ordinary reload with an existing session restores MY LIFE without asking for login',async()=>{
  const f=fixture('https://web.test/',{access_token:'synthetic-session'},'',()=>({data:{confirmed_awareness_count:12,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}}));
- await f.flush();f.render();assert.ok(f.find('h2','지금 먼저 할 일'));assert.ok(f.find('button','로그아웃'));assert.equal(f.fetches(),1);assert.equal(f.find('h2','MY LIFE에 로그인'),undefined);
+ await f.flush();f.render();assert.ok(f.find('h2','지금 먼저 할 일'));assert.ok(f.find('button','로그아웃'));assert.equal(f.fetches(),2);assert.equal(f.find('h2','MY LIFE에 로그인'),undefined);
+});
+
+test('gap draft claim after sign-in preserves old Awareness and only stores a token',async()=>{
+ const requests=[];
+ const saved={version:'INCOME_GAP_PREPARATION_V1',answers:{household:'single',budget_monthly_10k:0},calendar:{nps_wait_months:null},top3:[],notes:[],missing:[],persistence:'MEMBER_PREPARATION'};
+ const f=fixture('https://web.test/',null,'old-awareness',(url,options)=>{
+  requests.push({url,options});
+  if(url.endsWith('/handoffs'))return {data:{handoff_token:'opaque-gap-test-token'}};
+  if(url.endsWith('/income-gap/claim'))return {data:{claimed:true,idempotent:false}};
+  if(url.endsWith('/income-gap/preparation'))return {data:saved};
+  return {data:{confirmed_awareness_count:0,awareness_total:12,top3:[],in_progress:[],recent_changes:[]}};
+ });
+ await f.flush();f.render();f.find('button','소득공백 준비 시작하기').props.onClick();f.render();
+ await f.nodes().find(n=>n.props?.onMember&&n.props?.api).props.onMember({household:'single',budget_monthly_10k:0});f.render();
+ assert.equal(f.storage.get('life2.pending_gap_handoff'),'opaque-gap-test-token');
+ assert.equal(f.storage.get('life2.pending_handoff'),'old-awareness');
+ assert.ok(f.find('h2','준비 초안을 MY LIFE에 연결하기'));
+ assert.equal(requests.length,1);assert.equal(JSON.parse(requests[0].options.body).consent,true);
+ f.event('SIGNED_IN',{access_token:'synthetic'});await new Promise(r=>setTimeout(r,10));await f.flush();f.render();
+ const claim=requests.find(r=>r.url.endsWith('/income-gap/claim'));
+ assert.equal(claim.options.headers.Authorization,'Bearer synthetic');
+ assert.equal(requests.filter(r=>r.url.endsWith('/awareness/claim')).length,0);
+ assert.equal(f.storage.has('life2.pending_gap_handoff'),false);
+ assert.ok(f.find('button','저장한 소득공백 준비 초안 열기'));
 });

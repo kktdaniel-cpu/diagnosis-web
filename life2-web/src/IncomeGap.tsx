@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
-import { incomeGapPayload } from './incomeGapInput';
+import { incomeGapPayload, incomeGapFields } from './incomeGapInput';
 
 type Field={key:string;label:string;type:'select'|'month'|'money';unit?:string;options?:{value:string;label:string}[];show_when?:{key:string;value:string};show_when_any?:{key:string;values:string[]}};
 type Question={id:string;title:string;hint?:string;fields:Field[];show_when?:{key:string;value:string}};
 type Action={code:string;title:string;reason:string;target_date:string;steps:string[];completion:string;support:string;worksheet?:string[]};
-type Result={calendar:{last_salary_month:string|null;first_salary_free_month:string|null;nps_self_state?:string;nps_spouse_state?:string;nps_self_start_month:string|null;nps_spouse_start_month:string|null;both_nps_started_month:string|null;nps_wait_months:number|null};missing:{key:string;label:string}[];top3:Action[];notes:string[]};
+export type GapResult={answers?:Record<string,unknown>;persistence?:string;saved_at?:string;calendar:{last_salary_month:string|null;first_salary_free_month:string|null;nps_self_state?:string;nps_spouse_state?:string;nps_self_start_month:string|null;nps_spouse_start_month:string|null;both_nps_started_month:string|null;nps_wait_months:number|null};missing:{key:string;label:string}[];top3:Action[];notes:string[]};
 
-export function IncomeGap({api,onBack,onMember}: {api:string;onBack:()=>void;onMember:()=>void}){
+export function IncomeGap({api,onBack,onMember,initial}: {api:string;onBack:()=>void;onMember:(payload:ReturnType<typeof incomeGapPayload>)=>Promise<void>|void;initial?:GapResult|null}){
   const [questions,setQuestions]=useState<Question[]>([]);
   const [index,setIndex]=useState(0);
-  const [fields,setFields]=useState<Record<string,string>>({});
-  const [result,setResult]=useState<Result|null>(null);
+  const [fields,setFields]=useState<Record<string,string>>(()=>initial?.answers?incomeGapFields(initial.answers):{});
+  const [result,setResult]=useState<GapResult|null>(initial || null);
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState('');
+  const [agreed,setAgreed]=useState(false);
   const [loading,setLoading]=useState(true);
   const [reload,setReload]=useState(0);
   const heading=useRef<HTMLHeadingElement>(null);
@@ -48,7 +49,7 @@ export function IncomeGap({api,onBack,onMember}: {api:string;onBack:()=>void;onM
   const display=(value:string|null)=>value ?? '아직 확인하지 않음';
   return <section className="card incomeGap">
     <button className="backBtn gapNoPrint" disabled={busy} onClick={onBack}>‹ 홈으로</button>
-    <span className="badge">소득공백 준비 · 로그인 없이 시작</span>
+    <span className="badge">{initial?'MY LIFE 소득공백 준비 초안':'소득공백 준비 · 로그인 없이 시작'}</span>
     {loading&&<p role="status">질문을 불러오고 있습니다.</p>}
     {!loading&&!question&&<button onClick={()=>setReload(reload+1)}>다시 불러오기</button>}
     {!loading&&question&&!result&&<>
@@ -97,8 +98,10 @@ export function IncomeGap({api,onBack,onMember}: {api:string;onBack:()=>void;onM
       <div className="gapNoPrint">
         <button onClick={()=>window.print()}>달력·행동 계획 인쇄 / PDF 저장</button>
         <button className="secondaryBtn" onClick={()=>{setResult(null);setIndex(0);setMessage('')}}>입력 확인·수정하기</button>
-        <button className="secondaryBtn" onClick={onMember}>MY LIFE 저장을 위한 전체 준비상태 체크</button>
-        <p className="hint">현재 결과를 자동으로 MY LIFE에 옮기지는 않습니다. 전체 준비상태 체크 후 가입하면 기존 Action에서 확인·저장할 수 있습니다. 자동 알림·상담 예약은 신청되지 않습니다.</p>
+        <label className="multiChoice"><input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)} disabled={busy}/> 입력한 정보를 준비 초안으로 저장하는 데 동의합니다.</label>
+        <p className="hint">동의하면 초안을 서버에 보관하고, 24시간 안에 로그인·가입해 MY LIFE로 연결할 수 있습니다. 연결하지 않은 초안은 만료됩니다. 확정 FACT나 Action 확인 완료로 처리하지 않습니다.</p>
+        <button className="secondaryBtn" disabled={busy || !agreed} onClick={async()=>{if(!agreed || busy)return;setBusy(true);setMessage('');try{await onMember(incomeGapPayload(fields));}catch{setMessage('초안을 연결하지 못했습니다. 입력은 유지됩니다. 잠시 후 다시 시도해 주세요.');}finally{setBusy(false)}}}>동의한 초안을 MY LIFE에 저장하기</button>
+        <p className="hint">자동 알림·상담 예약은 신청되지 않습니다.</p>
       </div>
     </>}
     {message&&<p className="statusMsg" role="alert">{message}</p>}
