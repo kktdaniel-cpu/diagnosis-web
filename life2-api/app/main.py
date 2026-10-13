@@ -10,6 +10,8 @@ from .auth import get_current_subject
 from .config import cors_origins, PRECISION_URL
 from .precision import precision_prefill, precision_entry_url
 from .coach import build_action_context, explain_action, help_action, summarize_change
+from .income_gap import IncomeGapInput, build_preview, questions as gap_questions
+from fastapi.responses import JSONResponse
 from .actions import (
     SUPPORTED_ACTIONS,
     ActionValidationError,
@@ -72,6 +74,18 @@ def health():
 @app.get("/v1/me")
 async def me(subject: str = Depends(get_current_subject)):
     return {"ok": True, "data": {"authenticated": True, "auth_subject": subject}}
+
+
+@app.get("/v1/income-gap/questions")
+def income_gap_questions():
+    return {"ok": True, "data": gap_questions()}
+
+
+@app.post("/v1/income-gap/preview")
+def income_gap_prepare(payload: IncomeGapInput):
+    # Stateless: no anonymous run/member identifiers, no store/RPC writes.
+    return JSONResponse({"ok": True, "data": build_preview(payload)},
+                        headers={"Cache-Control": "no-store"})
 
 @app.post("/v1/me/awareness/claim")
 async def claim_awareness(payload: HandoffClaim, subject: str = Depends(get_current_subject)):

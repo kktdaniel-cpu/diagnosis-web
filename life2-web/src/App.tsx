@@ -3,6 +3,7 @@ import { supabase, isPasswordRecovery } from './supabase';
 import { familyConversationBlockReason } from './familyConversation';
 import { isPensionAmount, pensionFields, digitalListBlockReason } from './actionInput';
 import { connectPrecision } from './precisionEntry';
+import { IncomeGap } from './IncomeGap';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -68,7 +69,7 @@ const supported=new Set([
 ]);
 
 export default function App(){
-  const [screen,setScreen]=useState<'landing'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'|'forgot'|'reset'>(isPasswordRecovery?'reset':'landing');
+  const [screen,setScreen]=useState<'landing'|'gap'|'meta'|'quiz'|'result'|'auth'|'dashboard'|'action'|'forgot'|'reset'>(isPasswordRecovery?'reset':'landing');
   const [household,setHousehold]=useState<'single'|'couple'>('couple');
   const [ageBand,setAgeBand]=useState('50_55');
   const [qs,setQs]=useState<Q[]>([]);
@@ -258,7 +259,7 @@ export default function App(){
     try{
       if(handoffToken) localStorage.setItem(PENDING_HANDOFF_KEY,handoffToken);
       const {data,error}=await supabase.auth.signUp({
-        email,
+        email:email.trim(),
         password,
         options:{emailRedirectTo:`${window.location.origin}/?auth=confirmed`}
       });
@@ -267,7 +268,7 @@ export default function App(){
         if(handoffToken) await claimWithToken(data.session.access_token);
         else await loadDashboard(data.session.access_token);
       }else{
-        setAuthMsg('가입 확인 메일을 보냈습니다. 이메일 확인 후 로그인해 주세요.');
+        setAuthMsg('가입 요청을 처리했습니다. 확인 메일이 도착했다면 이메일 인증 후 로그인해 주세요. 이미 가입한 이메일에는 새 확인 메일이 발송되지 않을 수 있습니다. 메일함·스팸함을 확인하고, 기존 회원은 로그인하거나 비밀번호를 재설정해 주세요.');
       }
     }catch(e){
       setAuthMsg(e instanceof Error ? e.message : '가입 중 오류가 발생했습니다.');
@@ -582,12 +583,15 @@ export default function App(){
   return <main className="app">
     {screen==='landing'&&<section className="hero">
       <span className="badge">LIFE 2.0</span>
-      <h1>내 노후,<br/>얼마나 준비되어 있을까요?</h1>
-      <p>연금·소득·건강·일자리·주거·가족 준비까지 12가지 질문으로 먼저 확인해 보세요.</p>
-      <button onClick={()=>setScreen('meta')}>3분 노후준비 체크하기</button>
+      <h1>월급이 끝난 뒤,<br/>연금까지 어떻게 준비할까요?</h1>
+      <p>소득공백 준비 달력과 이번 달 먼저 할 행동을 최대 3가지 확인하세요. 잘 모르는 정보부터 정리할 수 있습니다.</p>
+      <button onClick={()=>setScreen('gap')}>소득공백 준비 시작하기</button>
+      <button className="secondaryBtn" onClick={()=>setScreen('meta')}>3분 노후준비 체크하기</button>
       <button className="secondaryBtn" onClick={()=>{setHandoffToken('');setScreen('auth')}}>MY LIFE 이어보기</button>
-      <small>회원가입 없이 시작 · 가장 먼저 할 3가지를 알려드려요</small>
+      <small>회원가입 없이 시작 · 지금 먼저 확인할 행동을 알려드려요</small>
     </section>}
+
+    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} onMember={()=>setScreen('meta')}/>}
 
     {screen==='meta'&&<section className="card">
       <div className="progress">시작 전</div>
@@ -681,6 +685,7 @@ export default function App(){
         <button className="linkBtn" onClick={signOut}>로그아웃</button>
       </div>
       <div className="confirmCount">확인 완료 <b>{dashboard.confirmed_awareness_count}/{dashboard.awareness_total}</b></div>
+      <button className="secondaryBtn" onClick={()=>setScreen('gap')}>소득공백 준비 달력 확인하기</button>
       {changeSummary&&<div className="changeSummary"><b>이번에 달라진 점</b><p>{changeSummary}</p></div>}
       {dashboard.domains&&<div className="domainGrid">
         {[

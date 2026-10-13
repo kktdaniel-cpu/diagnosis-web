@@ -12,7 +12,7 @@ function fixture(url,session=null,pending='',fetchResponse=null){
   let states=[],cursor=0,effects=[],first=true,listener,fetches=0,calls=[],tree;
   const children=[];const browserWindow={location:new URL(url),history:{replaceState(){}},open:()=>{const child={location:{},close(){this.closed=true;}};children.push(child);return child;}};
   const storage=new Map(pending?[['life2.pending_handoff',pending]]:[]);
-  const auth={getSession:async()=>({data:{session}}),onAuthStateChange:f=>{listener=f;return {data:{listener:{subscription:{unsubscribe(){}}}}}},resetPasswordForEmail:async(...args)=>{calls.push(['request',...args]);return {error:null}},updateUser:async(...args)=>{calls.push(['update',...args]);return {error:null}},signOut:async()=>({error:null})};
+  const auth={getSession:async()=>({data:{session}}),onAuthStateChange:f=>{listener=f;return {data:{listener:{subscription:{unsubscribe(){}}}}}},signUp:async(...args)=>{calls.push(['signup',...args]);return {data:{session:null},error:null}},resetPasswordForEmail:async(...args)=>{calls.push(['request',...args]);return {error:null}},updateUser:async(...args)=>{calls.push(['update',...args]);return {error:null}},signOut:async()=>({error:null})};
   const react={useState:init=>{const i=cursor++;if(first)states[i]=typeof init==='function'?init():init;return [states[i],v=>states[i]=v]},useRef:init=>{const i=cursor++;if(first)states[i]={current:init};return states[i]},useEffect:f=>{if(first)effects.push(f)}};
   const jsx=(type,props)=>({type,props});
   const context={exports:{},require:n=>n==='react'?react:n==='./familyConversation'?familyContext.exports:n==='./actionInput'?inputContext.exports:n==='./precisionEntry'?{connectPrecision:(...args)=>calls.push(['precision',...args])}:n==='./supabase'?{supabase:{auth},isPasswordRecovery:new URL(url).searchParams.get('auth')==='recovery'||new URLSearchParams(new URL(url).hash.slice(1)).get('type')==='recovery'}:{jsx,jsxs:jsx},URL,URLSearchParams,window:browserWindow,localStorage:{getItem:k=>storage.get(k),setItem:(k,v)=>storage.set(k,v),removeItem:k=>storage.delete(k)},setTimeout,fetch:async(url,options)=>{fetches++;return {ok:true,json:async()=>fetchResponse?fetchResponse(url,options):({data:{dashboard:{},top3:[]}})}}};
@@ -26,6 +26,16 @@ function fixture(url,session=null,pending='',fetchResponse=null){
 }
 test('expired recovery link disables password change and does not claim pending results',async()=>{
  const f=fixture('https://web.test/?auth=recovery',null,'pending');await f.flush();f.render();assert.equal(f.find('button','비밀번호 변경').props.disabled,true);assert.equal(f.fetches(),0);assert.equal(f.storage.get('life2.pending_handoff'),'pending');
+});
+test('signup without a session never claims mail delivery and retains pending handoff',async()=>{
+ const f=fixture('https://web.test/?auth=confirmed',null,'pending');await f.flush();f.render();
+ f.nodes().find(n=>n.props?.id==='login-email').props.onChange({target:{value:' test@example.test '}});
+ f.nodes().find(n=>n.props?.id==='login-password').props.onChange({target:{value:'SyntheticOnly123'}});f.render();
+ await f.find('button','무료 회원가입').props.onClick();f.render();
+ assert.equal(f.calls[0][0],'signup');assert.equal(f.calls[0][1].email,'test@example.test');
+ assert.ok(f.find('p',/이미 가입한 이메일에는 새 확인 메일이 발송되지 않을 수/));
+ assert.equal(f.find('p','가입 확인 메일을 보냈습니다. 이메일 확인 후 로그인해 주세요.'),undefined);
+ assert.equal(f.fetches(),0);assert.equal(f.storage.get('life2.pending_handoff'),'pending');
 });
 test('PASSWORD_RECOVERY takes priority over automatic claim',async()=>{
  const f=fixture('https://web.test/?auth=recovery',{access_token:'fake'},'pending');f.event('PASSWORD_RECOVERY',{access_token:'fake'});await f.flush();f.render();assert.ok(f.find('h2','새 비밀번호 설정'));assert.equal(f.fetches(),0);assert.equal(f.calls.length,0);
