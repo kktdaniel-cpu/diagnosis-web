@@ -50,6 +50,7 @@ type ActionForm={
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 const PENDING_HANDOFF_KEY='life2.pending_handoff';
 const GAP_HANDOFF_KEY='life2.pending_gap_handoff';
+const PENDING_FLOW_KEY='life2.pending_flow';
 const labels:Record<Resp,string>={
   CONFIRMED:'확인했어요',
   PARTIAL:'일부만 알고 있어요',
@@ -78,7 +79,7 @@ export default function App(){
   const [idx,setIdx]=useState(0);
   const [run,setRun]=useState('');
   const [runToken,setRunToken]=useState('');
-  const [handoffToken,setHandoffToken]=useState(()=>localStorage.getItem(PENDING_HANDOFF_KEY) || '');
+  const [handoffToken,setHandoffToken]=useState(()=>localStorage.getItem(PENDING_FLOW_KEY)==='GAP'?'':localStorage.getItem(PENDING_HANDOFF_KEY) || '');
   const [gapPending,setGapPending]=useState(()=>localStorage.getItem(GAP_HANDOFF_KEY) || '');
   const [gapSaved,setGapSaved]=useState<GapResult|null>(null);
   const [gapInitial,setGapInitial]=useState<GapResult|null>(null);
@@ -122,7 +123,7 @@ export default function App(){
         }
         return;
       }
-      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      const pending=localStorage.getItem(PENDING_FLOW_KEY)==='GAP'?'':localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       try{
         if(localStorage.getItem(GAP_HANDOFF_KEY)) await claimGapWithToken(data.session.access_token);
         else if(pending) await claimWithToken(data.session.access_token,pending);
@@ -144,7 +145,7 @@ export default function App(){
         return;
       }
       if(!session) return;
-      const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
+      const pending=localStorage.getItem(PENDING_FLOW_KEY)==='GAP'?'':localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       if(localStorage.getItem(GAP_HANDOFF_KEY)){
         setTimeout(()=>claimGapWithToken(session.access_token).catch(e=>{if(active)setAuthMsg(e instanceof Error?e.message:'초안 연결 실패');}),0);
       }else if(pending){
@@ -206,6 +207,7 @@ export default function App(){
         setTop(d.data.top3);
         setHandoffToken(d.data.handoff_token);
         localStorage.setItem(PENDING_HANDOFF_KEY,d.data.handoff_token);
+        localStorage.setItem(PENDING_FLOW_KEY,'AWARENESS');
         setScreen('result');
       }
     } finally {
@@ -269,6 +271,7 @@ export default function App(){
     const body=await r.json();
     if(!r.ok)throw new Error('초안 저장 요청 실패');
     localStorage.setItem(GAP_HANDOFF_KEY,body.data.handoff_token);setGapPending(body.data.handoff_token);
+    localStorage.setItem(PENDING_FLOW_KEY,'GAP');setHandoffToken('');
     const {data}=await supabase.auth.getSession();
     if(data.session)await claimGapWithToken(data.session.access_token);
     else{setAuthMsg('준비 초안을 이어서 저장하려면 로그인하거나 가입해 주세요.');setScreen('auth');}
