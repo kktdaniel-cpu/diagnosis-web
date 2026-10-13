@@ -3,7 +3,8 @@ import { supabase, isPasswordRecovery } from './supabase';
 import { familyConversationBlockReason } from './familyConversation';
 import { isPensionAmount, pensionFields, digitalListBlockReason } from './actionInput';
 import { connectPrecision } from './precisionEntry';
-import { IncomeGap } from './IncomeGap';
+import { IncomeGap, type GapResult } from './IncomeGap';
+import { incomeGapPayload } from './incomeGapInput';
 
 type Resp='CONFIRMED'|'PARTIAL'|'UNKNOWN_OR_NOT_PREPARED';
 type Q={id:string;q:string;responses:Resp[]};
@@ -48,6 +49,7 @@ type ActionForm={
 
 const API=import.meta.env.VITE_API_BASE || 'http://localhost:8000';
 const PENDING_HANDOFF_KEY='life2.pending_handoff';
+const GAP_HANDOFF_KEY='life2.pending_gap_handoff';
 const labels:Record<Resp,string>={
   CONFIRMED:'확인했어요',
   PARTIAL:'일부만 알고 있어요',
@@ -77,6 +79,9 @@ export default function App(){
   const [run,setRun]=useState('');
   const [runToken,setRunToken]=useState('');
   const [handoffToken,setHandoffToken]=useState(()=>localStorage.getItem(PENDING_HANDOFF_KEY) || '');
+  const [gapPending,setGapPending]=useState(()=>localStorage.getItem(GAP_HANDOFF_KEY) || '');
+  const [gapSaved,setGapSaved]=useState<GapResult|null>(null);
+  const [gapInitial,setGapInitial]=useState<GapResult|null>(null);
   const [top,setTop]=useState<Top[]>([]);
   const [dashboard,setDashboard]=useState<Dashboard|null>(null);
   const [email,setEmail]=useState('');
@@ -119,7 +124,8 @@ export default function App(){
       }
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
       try{
-        if(pending) await claimWithToken(data.session.access_token,pending);
+        if(localStorage.getItem(GAP_HANDOFF_KEY)) await claimGapWithToken(data.session.access_token);
+        else if(pending) await claimWithToken(data.session.access_token,pending);
         else {
           await loadDashboard(data.session.access_token);
         }
@@ -139,7 +145,9 @@ export default function App(){
       }
       if(!session) return;
       const pending=localStorage.getItem(PENDING_HANDOFF_KEY) || '';
-      if(pending){
+      if(localStorage.getItem(GAP_HANDOFF_KEY)){
+        setTimeout(()=>claimGapWithToken(session.access_token).catch(e=>{if(active)setAuthMsg(e instanceof Error?e.message:'초안 연결 실패');}),0);
+      }else if(pending){
         setTimeout(()=>claimWithToken(session.access_token,pending).catch(e=>{
           if(active) setAuthMsg(e instanceof Error ? e.message : '회원 연결 중 오류가 발생했습니다.');
         }),0);
@@ -212,6 +220,11 @@ export default function App(){
     const body=await r.json();
     if(!r.ok) throw new Error(body?.detail?.code || 'DASHBOARD_FAILED');
     setDashboard(body.data);
+    try{
+      const saved=await fetch(`${API}/v1/me/income-gap/preparation`,{headers:{Authorization:`Bearer ${token}`}});
+      const savedBody=await saved.json();
+      setGapSaved(saved.ok&&savedBody.data?.version==='INCOME_GAP_PREPARATION_V1'?savedBody.data:null);
+    }catch{setGapSaved(null);}
     setScreen('dashboard');
   }
 
@@ -237,6 +250,30 @@ export default function App(){
     setScreen('dashboard');
   }
 
+  async function claimGapWithToken(token:string){
+    const handoff=localStorage.getItem(GAP_HANDOFF_KEY);
+    if(!handoff){await loadDashboard(token);return;}
+    const r=await fetch(`${API}/v1/me/income-gap/claim`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({handoff_token:handoff})});
+    const body=await r.json();
+    if(!r.ok || body.data?.claimed!==true){
+      if([404,409,410].includes(r.status)){localStorage.removeItem(GAP_HANDOFF_KEY);setGapPending('');}
+      throw new Error('준비 초안을 연결하지 못했습니다. 만료되거나 이미 다른 회원에게 연결된 경우 다시 준비해 주세요.');
+    }
+    localStorage.removeItem(GAP_HANDOFF_KEY);setGapPending('');
+    await loadDashboard(token);
+  }
+
+  async function saveGapPreparation(answers:ReturnType<typeof incomeGapPayload>){
+    if(!supabase)throw new Error('회원 시스템 설정이 없습니다.');
+    const r=await fetch(`${API}/v1/income-gap/handoffs`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers,consent:true})});
+    const body=await r.json();
+    if(!r.ok)throw new Error('초안 저장 요청 실패');
+    localStorage.setItem(GAP_HANDOFF_KEY,body.data.handoff_token);setGapPending(body.data.handoff_token);
+    const {data}=await supabase.auth.getSession();
+    if(data.session)await claimGapWithToken(data.session.access_token);
+    else{setAuthMsg('준비 초안을 이어서 저장하려면 로그인하거나 가입해 주세요.');setScreen('auth');}
+  }
+
   async function continueToMember(){
     if(!supabase){
       setAuthMsg('회원 시스템 연결 설정이 아직 완료되지 않았습니다.');
@@ -245,7 +282,8 @@ export default function App(){
     }
     const {data}=await supabase.auth.getSession();
     if(data.session){
-      if(handoffToken) await claimWithToken(data.session.access_token);
+      if(localStorage.getItem(GAP_HANDOFF_KEY)) await claimGapWithToken(data.session.access_token);
+      else if(handoffToken) await claimWithToken(data.session.access_token);
       else await loadDashboard(data.session.access_token);
       return;
     }
@@ -265,7 +303,8 @@ export default function App(){
       });
       if(error) throw error;
       if(data.session){
-        if(handoffToken) await claimWithToken(data.session.access_token);
+        if(localStorage.getItem(GAP_HANDOFF_KEY)) await claimGapWithToken(data.session.access_token);
+      else if(handoffToken) await claimWithToken(data.session.access_token);
         else await loadDashboard(data.session.access_token);
       }else{
         setAuthMsg('가입 요청을 처리했습니다. 확인 메일이 도착했다면 이메일 인증 후 로그인해 주세요. 이미 가입한 이메일에는 새 확인 메일이 발송되지 않을 수 있습니다. 메일함·스팸함을 확인하고, 기존 회원은 로그인하거나 비밀번호를 재설정해 주세요.');
@@ -284,7 +323,8 @@ export default function App(){
     try{
       const {data,error}=await supabase.auth.signInWithPassword({email,password});
       if(error) throw error;
-      if(handoffToken) await claimWithToken(data.session.access_token);
+      if(localStorage.getItem(GAP_HANDOFF_KEY)) await claimGapWithToken(data.session.access_token);
+      else if(handoffToken) await claimWithToken(data.session.access_token);
       else await loadDashboard(data.session.access_token);
     }catch(e){
       const message=e instanceof Error ? e.message : '';
@@ -344,6 +384,7 @@ export default function App(){
   }
 
   async function signOut(){
+    setGapSaved(null);setGapInitial(null);
     if(supabase) await supabase.auth.signOut();
     setDashboard(null);
     setActionForm(null);
@@ -585,13 +626,13 @@ export default function App(){
       <span className="badge">LIFE 2.0</span>
       <h1>월급이 끝난 뒤,<br/>연금까지 어떻게 준비할까요?</h1>
       <p>소득공백 준비 달력과 이번 달 먼저 할 행동을 최대 3가지 확인하세요. 잘 모르는 정보부터 정리할 수 있습니다.</p>
-      <button onClick={()=>setScreen('gap')}>소득공백 준비 시작하기</button>
+      <button onClick={()=>{setGapInitial(null);setScreen('gap')}}>소득공백 준비 시작하기</button>
       <button className="secondaryBtn" onClick={()=>setScreen('meta')}>3분 노후준비 체크하기</button>
       <button className="secondaryBtn" onClick={()=>{setHandoffToken('');setScreen('auth')}}>MY LIFE 이어보기</button>
       <small>회원가입 없이 시작 · 지금 먼저 확인할 행동을 알려드려요</small>
     </section>}
 
-    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} onMember={()=>setScreen('meta')}/>}
+    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} initial={gapInitial} onMember={saveGapPreparation}/>}
 
     {screen==='meta'&&<section className="card">
       <div className="progress">시작 전</div>
@@ -634,14 +675,14 @@ export default function App(){
 
     {screen==='auth'&&<section className="card">
       <div className="progress">MY LIFE 2.0</div>
-      <h2>{handoffToken?'계속 관리하려면 가입해 주세요':'MY LIFE에 로그인'}</h2>
-      <p>{handoffToken?'지금 확인한 3가지와 진행상태를 저장합니다.':'저장한 준비상태와 Action을 이어서 확인합니다.'}</p>
+      <h2>{gapPending?'준비 초안을 MY LIFE에 연결하기':handoffToken?'계속 관리하려면 가입해 주세요':'MY LIFE에 로그인'}</h2>
+      <p>{gapPending?'소득공백 준비 초안을 다시 입력하지 않고 연결합니다.':handoffToken?'지금 확인한 3가지와 진행상태를 저장합니다.':'저장한 준비상태와 Action을 이어서 확인합니다.'}</p>
       <p className="hint">로그인 아이디는 가입할 때 입력한 이메일 주소입니다.</p>
       <label className="fieldLabel" htmlFor="login-email">이메일 (로그인 아이디)</label>
       <input id="login-email" className="textInput" type="email" value={email} onChange={e=>setEmail(e.target.value)} autoComplete="email"/>
       <label className="fieldLabel" htmlFor="login-password">비밀번호</label>
       <input id="login-password" className="textInput" type="password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password"/>
-      {handoffToken&&<button disabled={busy || !email || password.length<6} onClick={signUp}>무료 회원가입</button>}
+      {(handoffToken || gapPending)&&<button disabled={busy || !email || password.length<6} onClick={signUp}>무료 회원가입</button>}
       <button className={handoffToken?'secondaryBtn':''} disabled={busy || !email || !password} onClick={signIn}>로그인</button>
       <button className="linkBtn" disabled={busy} onClick={openForgot}>아이디·비밀번호를 잊으셨나요?</button>
       {authMsg&&<p className="statusMsg" role="status">{authMsg}</p>}
@@ -685,7 +726,7 @@ export default function App(){
         <button className="linkBtn" onClick={signOut}>로그아웃</button>
       </div>
       <div className="confirmCount">확인 완료 <b>{dashboard.confirmed_awareness_count}/{dashboard.awareness_total}</b></div>
-      <button className="secondaryBtn" onClick={()=>setScreen('gap')}>소득공백 준비 달력 확인하기</button>
+      <button className="secondaryBtn" onClick={()=>{setGapInitial(gapSaved);setScreen('gap')}}>{gapSaved?'저장한 소득공백 준비 초안 열기':'소득공백 준비 달력 확인하기'}</button>
       {changeSummary&&<div className="changeSummary"><b>이번에 달라진 점</b><p>{changeSummary}</p></div>}
       {dashboard.domains&&<div className="domainGrid">
         {[

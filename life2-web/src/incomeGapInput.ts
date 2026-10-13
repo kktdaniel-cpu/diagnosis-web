@@ -21,3 +21,13 @@ export function incomeGapPayload(fields: Record<string,string>){
     liquid_assets_band:fields.liquid_assets_band || 'UNKNOWN',large_cost_state:fields.large_cost_state || 'UNKNOWN',family_discussion:fields.family_discussion || 'UNKNOWN'
   };
 }
+
+export function incomeGapFields(answers:Record<string,unknown>){
+  const fields:Record<string,string>={};
+  for(const [key,value] of Object.entries(answers)){
+    if(value&&typeof value==='object'&&!Array.isArray(value)){
+      for(const [name,leaf] of Object.entries(value)) fields[`${key}.${name}`]=leaf===null?'':String(leaf);
+    }else fields[key]=value===null?'':String(value);
+  }
+  return fields;
+}
