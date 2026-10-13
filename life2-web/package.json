@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:auth-recovery": "node --test tests/auth-recovery.test.cjs",
     "test:family-conversation": "node --test tests/family-conversation.test.cjs",
-    "test:precision-entry": "node --test tests/precision-entry.test.cjs"
+    "test:precision-entry": "node --test tests/precision-entry.test.cjs",
+    "test:income-gap": "node --test tests/income-gap.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",

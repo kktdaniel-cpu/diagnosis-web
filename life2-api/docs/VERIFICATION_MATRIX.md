@@ -63,3 +63,13 @@ httpx 설치 필요. 인증/opt-in이 없으면 종료 코드 2, 요청 0건.
 `tests/db/verify_dev_rls_rollback.sql`을 dev Supabase에서 단일 트랜잭션으로 실행해 PASS. 두 SQL subject가 10개 회원 테이블에서 자신의 행만 조회하며, 다른 회원의 수정/삭제와 직접 FACT INSERT가 차단되고, 익명 및 내부 idempotency 조회가 차단됨. UNKNOWN/null 유지. 테스트 전체 ROLLBACK 후 FACT/Finding/Activity/Legacy link/idempotency 마커 잔존0.
 
 SQL JWT subject 모의 검증이므로 실제 Auth 로그인/API/RPC 완료 및 연결 간 영구저장 E2E와 구분한다. 운영·DB 스키마·정책 변경 없음. 다음 실행은 별도 테스트 회원 안전한 인증으로 `scripts/verify_dev_member_loop.py`를 실행해야 한다.
+
+
+## 소득공백 준비 미리보기 — 2026-10-13
+
+신규 익명 `/v1/income-gap/questions` 및 `/preview`는 DB와 회원 저장소를 호출하지 않는다.
+12문항, UNKNOWN/null·확인한0·소수 만원, 달력 월 경계·음수 방지, 부부 시작 월 분리, stale 배우자 입력 제거, NONE/UNKNOWN 분리, A1/A2/A4 정보 전 후속 행동 보류, 중복 요청 무변경, 미등록/secret/identity 필드422를 테스트한다.
+Web은 12문항 흐름·서버 결과 표시·수정·인쇄 호출·실패 후 재시도·가입 안내 회귀를 검증한다. 기존 Auth 회복/회원 복귀/가족/정밀진단 entry 테스트도 실행한다.
+새 익명 입력의 회원 handoff/FACT persistence, 실제 브라우저 인쇄 PDF 저장·페이지 잘림은 미완료. 테스트 통과를 live 완료로 바꾸어 쓰지 않는다.
+
+최종 로컬 결과: API141 passed / Web25 passed / npm build 성공. 실제 API/Web dev 배포 커밋과 smoke 결과는 현재 PR/Render 상태로 확인한다.

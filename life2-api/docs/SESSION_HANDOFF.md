@@ -3,6 +3,18 @@
 이 문서는 채팅방 간 승계용이다. 재개 시 GitHub 및 배포 현황을 다시 조회한다. 문서 기록을 실시간 상태로 간주하지 않는다.
 
 
+## 최신 제품 방향과 개발 — 2026-10-13 KST
+- 사용자 요청: 소득공백 중심 첫 제품으로 개발 계속, 추가 로그인 없이 가능한 작업을 일괄 진행.
+- 기준 dev head를 GitHub에서 재확인: 80af0ce36155db32f3cdd24ee0674cb439e1ce4e (PR38). 기존 작업 파일은 보호하고 별도 feat/life2-income-gap-pilot에서 구현.
+- 신규 stateless anonymous 12문항 / 준비 달력 / 최대 Top3 / 권장 목표일 / 단계·완료 기준·정리 항목 / 인쇄 호출 구현. 서버가 달력/행동 순서를 계산하며 UNKNOWN은 null 유지.
+- 첫 화면을 소득공백 준비로 집중, 기존 Awareness/MY LIFE/A1~A12 유지. 기존 회원에게도 새 진입 버튼 제공.
+- signup에서 session 없음만으로 메일 발송을 단정하던 문구 수정. 실제 메일 발송/수신 검증을 새로 통과한 것은 아님.
+- 새 결과는 미리보기로 FACT를 만들거나 회원 Action 완료를 처리하지 않음. 월 부족액/총 필요자금/자산 소진 연령은 계산하지 않음.
+- 신규 월 단위 결과를 회원에 자동 저장하는 handoff는 아직 없음. 기존 CTA는 전체 Awareness 체크 → 회원 저장 흐름이며 구분 안내를 표시.
+- 로컬 최종 검증: API141 passed / Web25 passed / npm build 성공. mocked Auth와 메모리 저장소 테스트이며 회원 live 저장 증거가 아님.
+- 상세 제품 범위·API·검증·다음 작업은 INCOME_GAP_PILOT.md. 현재 PR/CI/Render 상태는 재조회해야 함.
+- 운영 main/diag.lpp20.com/diagnosis-api 및 Google Master DB 변경 승인 없음. dev 코드/검증만 진행.
+
 ## 최신 DB 검증 — 2026-10-12
 - 개발 기준: PR37 merged, 33e620d8a072194ae317a9813aa3f012af0f9a07.
 - 실제 dev Supabase(bikvcuchdlreqkqypwcr)에서 tests/db/verify_dev_rls_rollback.sql 단일 트랜잭션 실행 PASS. 스키마·정책·자격증명 변경 없음.

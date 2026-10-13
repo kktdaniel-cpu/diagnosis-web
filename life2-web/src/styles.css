@@ -74,3 +74,19 @@ button:disabled{opacity:.55}
 .domainCard b{display:block;font-size:20px;color:#176744;margin-top:4px}
 .domainCard small{font-size:11px;color:#7a847e}
 @media(min-width:480px){.domainGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.incomeGap .action p{font-size:15px;margin:8px 0;color:#344a3e}
+.incomeGap .action ul{padding-left:22px;font-size:15px;line-height:1.6;color:#344a3e}
+.incomeGap h3{margin-top:25px;font-size:21px}
+.incomeGap details{padding:14px 0;line-height:1.7}
+.incomeGap .ruleNote p{font-size:14px;margin:5px 0;color:#466053}
+@media print{
+  body{background:#fff}
+  .app{max-width:none;padding:0;min-height:0}
+  .incomeGap{box-shadow:none;border:0;padding:0;border-radius:0}
+  .gapNoPrint{display:none!important}
+  .incomeGap .action,.incomeGap .previewBox{break-inside:avoid}
+  .incomeGap details{display:none}
+  .incomeGap h2{font-size:26px}
+  @page{size:A4;margin:15mm}
+}
