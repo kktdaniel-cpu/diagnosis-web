@@ -51,6 +51,7 @@ jobs:
       - run: npm run test:auth-recovery
       - run: npm run test:family-conversation
       - run: npm run test:precision-entry
+      - run: node --test tests/precision-output-review.test.cjs
 
   legacy-regression:
     runs-on: ubuntu-latest
