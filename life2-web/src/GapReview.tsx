@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { incomeGapFields, incomeGapPayload } from './incomeGapInput';
 
-export type ReviewField={key:string;label:string;type:string;unit?:string;options?:{value:string;label:string}[];household_only?:string;show_when?:{key:string;value:string}};
+export type ReviewField={key:string;label:string;type:string;unit?:string;options?:{value:string;label:string}[];household_only?:string;show_when_any?:{key:string;values:string[]};show_when?:{key:string;value:string}};
 export type Review={group:string;title:string;status:string;ready:boolean;fields:ReviewField[]};
 export type ReviewSubmission={group:string;answers:ReturnType<typeof incomeGapPayload>;acknowledged:true;expected_revision:number;request_id:string};
 
@@ -29,6 +29,7 @@ export function GapReview({review,answers,revision,onConfirm,onCancel}: {review:
       {review.fields.map(f=>{
         if(f.household_only&&fields.household!==f.household_only)return null;
         if(f.show_when&&fields[f.show_when.key]!==f.show_when.value)return null;
+        if(f.show_when_any&&!f.show_when_any.values.includes(fields[f.show_when_any.key]))return null;
         const id=`review-${f.key}`;
         return <div className="fieldBlock" key={f.key}>
           <label className="fieldLabel" htmlFor={id}>{f.label}{f.unit?` (${f.unit})`:''}</label>

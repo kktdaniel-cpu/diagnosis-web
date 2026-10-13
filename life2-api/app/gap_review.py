@@ -15,12 +15,15 @@ GROUPS = {
     "NPS": {"title": "본인·배우자 국민연금 확인", "keys": ["nps_self", "nps_spouse"], "questions": [5, 6]},
     "BUDGET": {"title": "생활비·대출 상환액 확인", "keys": ["budget_monthly_10k", "debt_monthly_10k", "debt_in_budget"], "questions": [3, 4]},
     "BRIDGE": {"title": "소득공백 연결 계획 확인", "keys": ["bridge_methods"], "questions": []},
+    "PRIVATE_PENSION": {"title": "퇴직·개인연금 지급 계획 확인", "keys": ["private_pension"], "questions": [7]},
+    "ASSETS": {"title": "사용 가능한 자산·큰 지출 확인", "keys": ["liquid_assets_band", "large_cost_state"], "questions": [9, 10]},
+    "WORK": {"title": "퇴직 후 일·소득 조건 확인", "keys": ["post_work"], "questions": [8]},
 }
 METHODS = [("LIQUID_ASSETS", "사용 가능한 금융자산"), ("PRIVATE_PENSION", "퇴직·개인연금 계획"), ("WORK", "퇴직 후 일 계획"), ("REDUCE_SPENDING", "지출 조정"), ("OTHER_CONFIRM", "다른 방법을 추가 확인")]
 
 
 class GapReviewRequest(ClosedModel):
-    group: Literal["RETIREMENT", "NPS", "BUDGET", "BRIDGE"]
+    group: Literal["RETIREMENT", "NPS", "BUDGET", "BRIDGE", "PRIVATE_PENSION", "ASSETS", "WORK"]
     answers: IncomeGapInput
     acknowledged: bool = Field(strict=True)
     expected_revision: int = Field(strict=True, ge=0)
@@ -43,7 +46,13 @@ def signature(answers, group):
         keys.append("household")
     if group == "BRIDGE":
         keys += GROUPS["RETIREMENT"]["keys"] + GROUPS["NPS"]["keys"] + GROUPS["BUDGET"]["keys"]
-    return digest({k: answers.get(k) for k in keys})
+    values = {k: answers.get(k) for k in keys}
+    if group == "BRIDGE":
+        defaults = IncomeGapInput().model_dump()
+        for key in ("private_pension", "liquid_assets_band", "large_cost_state", "post_work"):
+            if answers.get(key, defaults[key]) != defaults[key]:
+                values[key] = answers[key]
+    return digest(values)
 
 
 def states(record):
@@ -83,7 +92,7 @@ def enrich(record, result):
         if action["code"] not in GROUPS:
             pending.append(action)
     result.update(revision=record.get("revision", 0), reviews=reviews, top3=pending[:3],
-                  reviewed_groups=sum(v == "DONE" for v in status.values()), review_total=4)
+                  reviewed_groups=sum(v == "DONE" for v in status.values()), review_total=len(GROUPS))
     result["notes"][-1] = "저장한 초안 전체가 자동 FACT가 되지는 않습니다. 검토 후 저장한 항목만 자기확인 FACT로 기록하며 기존 12영역 확인 완료와 구분합니다."
     return result
 
@@ -124,12 +133,28 @@ def prepare(record, payload: GapReviewRequest):
         for key in GROUPS[group]["keys"]:
             fact(key, merged[key], unit="만원/월" if key.endswith("10k") else None)
         fact("budget_household_scope", merged["household"])
+    elif group == "PRIVATE_PENSION":
+        pension = merged["private_pension"]
+        fact("private_pension.state", pension["state"])
+        for key, unit in (("start_month", "MONTH"), ("monthly_10k", "만원/월")):
+            fact(f"private_pension.{key}", pension[key], not_applicable=pension["state"] == "NONE", unit=unit)
+    elif group == "ASSETS":
+        fact("liquid_assets_band", merged["liquid_assets_band"], unit="BAND_만원")
+        fact("large_cost_state", merged["large_cost_state"])
+    elif group == "WORK":
+        work = merged["post_work"]
+        fact("post_work.state", work["state"])
+        fact("post_work.monthly_10k", work["monthly_10k"], not_applicable=work["state"] == "NONE", unit="만원/월")
     else:
         interval = build_preview(IncomeGapInput(**merged))["calendar"]["nps_wait_months"]
         fact("nps_wait_months", interval, not_applicable=merged["nps_self"]["state"]=="NONE", derived=True, unit="MONTH")
         fact("bridge_methods", merged["bridge_methods"], not_applicable=interval == 0)
     status = "DONE" if all(f["status"] in ("KNOWN", "NOT_APPLICABLE") for f in fact_rows) else "PARTIAL"
     if group == "BUDGET" and merged["debt_monthly_10k"] and merged["debt_in_budget"] == "NO":
+        status = "PARTIAL"
+    if group == "WORK" and merged["post_work"]["state"] == "PLAN_ONLY":
+        status = "PARTIAL"
+    if group == "ASSETS" and merged["large_cost_state"] == "PLANNED":
         status = "PARTIAL"
     fingerprint = signature(merged, group)
     future = {**deepcopy(record), "answers": merged, "revision": record.get("revision", 0) + 1}

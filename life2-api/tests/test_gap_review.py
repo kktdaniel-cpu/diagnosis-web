@@ -144,3 +144,37 @@ def test_concurrent_requests_have_one_winner(context):
     assert sorted(results)==['GAP_REVISION_CONFLICT','saved']
     assert mem.gap_review_record(subject,pid)['revision']==1
     assert len(mem.recent[subject])==1 and len(mem.action_instances)==1
+
+@pytest.mark.parametrize('group,patch,status',[
+ ('PRIVATE_PENSION',{'private_pension':{'state':'NONE'}},'DONE'),
+ ('PRIVATE_PENSION',{'private_pension':{'state':'CONFIRMED','start_month':'2028-01','monthly_10k':0}},'DONE'),
+ ('PRIVATE_PENSION',{'private_pension':{'state':'UNKNOWN'}},'PARTIAL'),
+ ('ASSETS',{'liquid_assets_band':'1000_5000','large_cost_state':'NONE'},'DONE'),
+ ('ASSETS',{'liquid_assets_band':'1000_5000','large_cost_state':'PLANNED'},'PARTIAL'),
+ ('WORK',{'post_work':{'state':'PLAN_ONLY','monthly_10k':250}},'PARTIAL'),
+ ('WORK',{'post_work':{'state':'CONFIRMED','monthly_10k':0}},'DONE'),
+ ('WORK',{'post_work':{'state':'NONE'}},'DONE'),
+])
+def test_followup_review_semantics(context,group,patch,status):
+    mem,subject,pid=context
+    r,_=confirm(pid,group,dict(ready(),**patch))
+    assert r.status_code==200 and r.json()['data']['status']==status
+    assert r.json()['data']['preparation']['review_total']==7
+    facts=mem.member_facts(subject)
+    assert all(k.startswith(f'gap.v1.{pid}.') for k in facts)
+    assert not any('exact' in k or 'shortfall' in k for k in facts)
+    if group=='ASSETS':assert facts[f'gap.v1.{pid}.liquid_assets_band']['value']=='1000_5000'
+    if group=='WORK' and patch['post_work']['state']=='NONE':
+        assert facts[f'gap.v1.{pid}.post_work.monthly_10k']['status']=='NOT_APPLICABLE'
+        assert facts[f'gap.v1.{pid}.post_work.monthly_10k']['value'] is None
+    replay=TestClient(app).get('/v1/me/income-gap/preparation').json()['data']
+    assert next(x for x in replay['reviews'] if x['group']==group)['status']==status
+
+def test_followup_change_invalidates_bridge(context):
+    mem,subject,pid=context
+    for rev,group in enumerate(('RETIREMENT','NPS','BUDGET')):assert confirm(pid,group,revision=rev)[0].status_code==200
+    assert confirm(pid,'BRIDGE',dict(ready(),bridge_methods=['WORK']),revision=3)[0].status_code==200
+    r,_=confirm(pid,'WORK',dict(ready(),post_work={'state':'CONFIRMED','monthly_10k':250}),revision=4)
+    assert r.status_code==200
+    assert next(x for x in r.json()['data']['preparation']['reviews'] if x['group']=='BRIDGE')['status']=='REVIEW_DUE'
+    assert mem.member_facts(subject)[f'gap.v1.{pid}.bridge_methods']['status']=='STALE'
