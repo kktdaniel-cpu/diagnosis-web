@@ -91,7 +91,12 @@ def enrich(record, result):
     for action in result["top3"]:
         if action["code"] not in GROUPS:
             pending.append(action)
-    result.update(revision=record.get("revision", 0), reviews=reviews, top3=pending[:3],
+    findings = [{"finding_type": f"GAP_V1.{record['preparation_id']}.{group}",
+                 "status": "RESOLVED" if state == "DONE" else "OPEN",
+                 "source_refs": [f"GAP_REVIEW:{record['preparation_id']}:{group}"],
+                 "recommended_action_catalog_id": f"GAP_V1_{group}",
+                 "review_state": state} for group, state in status.items()]
+    result.update(findings=findings, revision=record.get("revision", 0), reviews=reviews, top3=pending[:3],
                   reviewed_groups=sum(v == "DONE" for v in status.values()), review_total=len(GROUPS))
     result["notes"][-1] = "저장한 초안 전체가 자동 FACT가 되지는 않습니다. 검토 후 저장한 항목만 자기확인 FACT로 기록하며 기존 12영역 확인 완료와 구분합니다."
     return result

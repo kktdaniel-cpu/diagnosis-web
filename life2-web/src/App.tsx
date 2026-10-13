@@ -278,6 +278,13 @@ export default function App(){
     else{setAuthMsg('준비 초안을 이어서 저장하려면 로그인하거나 가입해 주세요.');setScreen('auth');}
   }
 
+  async function explainGap(id:string){
+    const token=await accessToken();
+    const r=await fetch(`${API}/v1/me/income-gap/preparations/${id}/context`,{headers:{Authorization:`Bearer ${token}`}});
+    const b=await r.json();if(!r.ok)throw new Error('설명 조회 실패');
+    return `${b.data.explanation} ${b.data.precision_connection.reason}`;
+  }
+
   async function requestConsultation(id:string,requestId:string){
     const token=await accessToken();
     const r=await fetch(`${API}/v1/me/consultations`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token}`},body:JSON.stringify({preparation_id:id,request_id:requestId,topic:'CALENDAR',consent:true})});
@@ -654,7 +661,7 @@ export default function App(){
       <small>회원가입 없이 시작 · 지금 먼저 확인할 행동을 알려드려요</small>
     </section>}
 
-    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} initial={gapInitial} onMember={saveGapPreparation} onConfirm={confirmGapReview} onConsultation={requestConsultation}/>}
+    {screen==='gap'&&<IncomeGap api={API} onBack={()=>setScreen('landing')} initial={gapInitial} onMember={saveGapPreparation} onConfirm={confirmGapReview} onConsultation={requestConsultation} onExplain={explainGap}/>}
 
     {screen==='meta'&&<section className="card">
       <div className="progress">시작 전</div>
