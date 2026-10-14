@@ -70,7 +70,8 @@ export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation,
             <label className="fieldLabel" htmlFor={`gap-${f.key}`}>{f.label}{f.unit?` (${f.unit})`:''}</label>
             {f.type==='select'?<select id={`gap-${f.key}`} className="select" value={fields[f.key] || f.options?.[0]?.value || ''} disabled={busy} onChange={e=>setFields({...fields,[f.key]:e.target.value})}>
               {f.options?.map(o=><option value={o.value} key={o.value}>{o.label}</option>)}
-            </select>:<input id={`gap-${f.key}`} className="textInput" type={f.type==='month'?'month':'number'} min={f.type==='month'?'2000-01':0} max={f.type==='month'?'2100-12':1000000} step={f.type==='money'?'0.0001':undefined} value={fields[f.key] || ''} disabled={busy} onChange={e=>setFields({...fields,[f.key]:e.target.value})}/>}
+            </select>:<input id={`gap-${f.key}`} className="textInput" aria-describedby={f.type==='money'?`gap-help-${f.key}`:undefined} type={f.type==='month'?'month':'number'} min={f.type==='month'?'2000-01':0} max={f.type==='month'?'2100-12':1000000} step={f.type==='money'?'0.0001':undefined} value={fields[f.key] || ''} disabled={busy} onChange={e=>setFields({...fields,[f.key]:e.target.value})}/>}
+            {f.type==='money'&&<p className="hint" id={`gap-help-${f.key}`}>만원 단위입니다. 예: 300만원은 300, 150만 5천원은 150.5를 입력합니다.</p>}
           </div>;
         })}
         <button type="submit" disabled={busy}>{busy?'결과 확인 중…':index+1===questions.length?'달력과 이번 달 행동 보기':'다음 ›'}</button>
@@ -79,16 +80,6 @@ export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation,
       <p className="hint">결과 확인 시 입력한 정보를 서버로 보내 계산하고 저장하지 않습니다. 새로고침·이탈하면 사라집니다. 금융 로그인 정보는 입력하지 않습니다.</p>
     </>}
     {result&&<>
-      {result.reviews&&<div className="gapNoPrint">
-        <h3>소득공백 정보 확인 {result.reviewed_groups}/{result.review_total}</h3>
-        <p className="hint">기존 12영역 확인 완료와는 별도입니다. 수정한 선행 정보가 있으면 연결 계획도 다시 검토합니다.</p>
-        {!review&&result.reviews.map(item=><button className="secondaryBtn" key={item.group} disabled={!item.ready || busy || !onConfirm} onClick={()=>setReview(item)}>{item.title} · {item.status==='DONE'?'확인 완료':item.status==='PARTIAL'?'부분 확인':item.status==='REVIEW_DUE'?'다시 검토':'확인하기'}{!item.ready?' (선행 정보 확인 후)':''}</button>)}
-        {review&&onConfirm&&result.preparation_id&&<GapReview key={review.group} review={review} answers={result.answers || {}} revision={result.revision || 0} onCancel={()=>setReview(null)} onConfirm={async payload=>{
-          setBusy(true);
-          try{const updated=await onConfirm(result.preparation_id!,payload);
-          setResult(updated);setFields(incomeGapFields(updated.answers || {}));setReview(null);setMessage('검토 내용을 저장하고 다음 할 일을 다시 계산했습니다.');}finally{setBusy(false);}
-        }}/>}
-      </div>}
       <h2 tabIndex={-1} ref={heading}>월급이 끝난 뒤,<br/>이번 달 준비할 것</h2>
       <div className="previewBox">
         <b>월급이 없는 첫 달 → 본인 국민연금 시작</b>
@@ -107,6 +98,16 @@ export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation,
         <p><strong>도움을 받을 내용</strong><br/>{action.support}</p>
         {action.worksheet&&<div className="gapWorksheet"><strong>지금 정리할 항목</strong><ul>{action.worksheet.map(row=><li key={row}>{row}</li>)}</ul></div>}
       </article>)}
+      {result.reviews&&<details className="gapNoPrint gapReviews" open={review ? true : undefined}>
+        <summary>저장한 정보 확인·수정 ({result.reviewed_groups}/{result.review_total})</summary>
+        <p className="hint">기존 12영역 확인 완료와는 별도입니다. 수정한 선행 정보가 있으면 연결 계획도 다시 검토합니다.</p>
+        {!review&&result.reviews.map(item=><button className="secondaryBtn" key={item.group} disabled={!item.ready || busy || !onConfirm} onClick={()=>setReview(item)}>{item.title} · {item.status==='DONE'?'확인 완료':item.status==='PARTIAL'?'부분 확인':item.status==='REVIEW_DUE'?'다시 검토':'확인하기'}{!item.ready?' (선행 정보 확인 후)':''}</button>)}
+        {review&&onConfirm&&result.preparation_id&&<GapReview key={review.group} review={review} answers={result.answers || {}} revision={result.revision || 0} onCancel={()=>setReview(null)} onConfirm={async payload=>{
+          setBusy(true);
+          try{const updated=await onConfirm(result.preparation_id!,payload);
+          setResult(updated);setFields(incomeGapFields(updated.answers || {}));setReview(null);setMessage('검토 내용을 저장하고 다음 할 일을 다시 계산했습니다.');}finally{setBusy(false);}
+        }}/>}
+      </details>}
       {result.missing.length>0&&<details><summary>아직 확인할 정보 {result.missing.length}개</summary><ul>{result.missing.map(m=><li key={m.key}>{m.label}</li>)}</ul></details>}
       <div className="ruleNote">{result.notes.map(note=><p key={note}>{note}</p>)}</div>
       <div className="gapNoPrint">
@@ -124,11 +125,14 @@ export function IncomeGap({api,onBack,onMember,initial,onConfirm,onConsultation,
           }}>상담 신청 내용 저장</button>
         </section>}
         <button disabled={busy} onClick={()=>window.print()}>달력·행동 계획 인쇄 / PDF 저장</button>
+        {result.preparation_id?<p className="hint">이 초안은 MY LIFE에 저장되어 있습니다. 위의 ‘저장한 정보 확인·수정’에서 기존 정보를 검토해 주세요.</p>:<>
         <button className="secondaryBtn" disabled={busy} onClick={()=>{setResult(null);setIndex(0);setMessage('')}}>입력 확인·수정하기</button>
         <label className="multiChoice"><input type="checkbox" checked={agreed} onChange={e=>setAgreed(e.target.checked)} disabled={busy}/> 입력한 정보를 준비 초안으로 저장하는 데 동의합니다.</label>
         <p className="hint">동의하면 초안을 서버에 보관하고, 24시간 안에 로그인·가입해 MY LIFE로 연결할 수 있습니다. 연결하지 않은 초안은 만료됩니다. 확정 FACT나 Action 확인 완료로 처리하지 않습니다.</p>
         <button className="secondaryBtn" disabled={busy || !agreed} onClick={async()=>{if(!agreed || busy)return;setBusy(true);setMessage('');try{await onMember(incomeGapPayload(fields));}catch{setMessage('초안을 연결하지 못했습니다. 입력은 유지됩니다. 잠시 후 다시 시도해 주세요.');}finally{setBusy(false)}}}>동의한 초안을 MY LIFE에 저장하기</button>
         <p className="hint">자동 알림·상담 예약은 신청되지 않습니다.</p>
+        </>}
+
       </div>
     </>}
     {message&&<p className="statusMsg" role="alert">{message}</p>}
