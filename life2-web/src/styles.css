@@ -90,3 +90,10 @@ button:disabled{opacity:.55}
   .incomeGap h2{font-size:26px}
   @page{size:A4;margin:15mm}
 }
+
+/* Focused diagnosis review readability and keyboard navigation. */
+.incomeGap .gapReviews summary{cursor:pointer;font-weight:700;min-height:44px;padding:10px 0}
+.incomeGap .textInput,.incomeGap .select{min-height:48px;font-size:18px}
+.incomeGap button{min-height:44px;white-space:normal;overflow-wrap:anywhere}
+.incomeGap :is(button,input,select,summary):focus-visible{outline:3px solid #007c56;outline-offset:3px}
+.incomeGap .action p,.incomeGap .action ul{font-size:17px;line-height:1.7}
